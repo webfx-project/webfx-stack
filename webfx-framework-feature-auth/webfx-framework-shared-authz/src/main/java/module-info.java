@@ -10,15 +10,15 @@ module webfx.framework.shared.authz {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports webfx.framework.shared.operation.authz;
-    exports webfx.framework.shared.services.authz;
-    exports webfx.framework.shared.services.authz.mixin;
-    exports webfx.framework.shared.services.authz.spi;
-    exports webfx.framework.shared.services.authz.spi.impl;
-    exports webfx.framework.shared.services.authz.spi.impl.inmemory;
-    exports webfx.framework.shared.services.authz.spi.impl.inmemory.parser;
+    exports dev.webfx.framework.shared.operation.authz;
+    exports dev.webfx.framework.shared.services.authz;
+    exports dev.webfx.framework.shared.services.authz.mixin;
+    exports dev.webfx.framework.shared.services.authz.spi;
+    exports dev.webfx.framework.shared.services.authz.spi.impl;
+    exports dev.webfx.framework.shared.services.authz.spi.impl.inmemory;
+    exports dev.webfx.framework.shared.services.authz.spi.impl.inmemory.parser;
 
     // Used services
-    uses webfx.framework.shared.services.authz.spi.AuthorizationServiceProvider;
+    uses dev.webfx.framework.shared.services.authz.spi.AuthorizationServiceProvider;
 
 }

@@ -15,14 +15,14 @@ module webfx.framework.shared.orm.entity {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports webfx.framework.shared.orm.entity;
-    exports webfx.framework.shared.orm.entity.impl;
-    exports webfx.framework.shared.orm.entity.lciimpl;
-    exports webfx.framework.shared.orm.entity.query_result_to_entities;
-    exports webfx.framework.shared.orm.entity.result;
-    exports webfx.framework.shared.orm.entity.result.impl;
+    exports dev.webfx.framework.shared.orm.entity;
+    exports dev.webfx.framework.shared.orm.entity.impl;
+    exports dev.webfx.framework.shared.orm.entity.lciimpl;
+    exports dev.webfx.framework.shared.orm.entity.query_result_to_entities;
+    exports dev.webfx.framework.shared.orm.entity.result;
+    exports dev.webfx.framework.shared.orm.entity.result.impl;
 
     // Used services
-    uses webfx.framework.shared.orm.entity.EntityFactoryProvider;
+    uses dev.webfx.framework.shared.orm.entity.EntityFactoryProvider;
 
 }

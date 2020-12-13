@@ -12,13 +12,13 @@ module webfx.framework.client.i18n {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports webfx.framework.client.operations.i18n;
-    exports webfx.framework.client.services.i18n;
-    exports webfx.framework.client.services.i18n.spi;
-    exports webfx.framework.client.services.i18n.spi.impl;
+    exports dev.webfx.framework.client.operations.i18n;
+    exports dev.webfx.framework.client.services.i18n;
+    exports dev.webfx.framework.client.services.i18n.spi;
+    exports dev.webfx.framework.client.services.i18n.spi.impl;
 
     // Used services
-    uses webfx.framework.client.operations.i18n.ChangeLanguageRequestEmitter;
-    uses webfx.framework.client.services.i18n.spi.I18nProvider;
+    uses dev.webfx.framework.client.operations.i18n.ChangeLanguageRequestEmitter;
+    uses dev.webfx.framework.client.services.i18n.spi.I18nProvider;
 
 }

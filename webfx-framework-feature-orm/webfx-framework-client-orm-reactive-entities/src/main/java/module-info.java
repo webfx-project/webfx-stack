@@ -18,8 +18,8 @@ module webfx.framework.client.orm.reactive.entities {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports webfx.framework.client.orm.reactive.mapping.dql_to_entities;
-    exports webfx.framework.client.orm.reactive.mapping.entities_to_grid;
-    exports webfx.framework.client.orm.reactive.mapping.entities_to_objects;
+    exports dev.webfx.framework.client.orm.reactive.mapping.dql_to_entities;
+    exports dev.webfx.framework.client.orm.reactive.mapping.entities_to_grid;
+    exports dev.webfx.framework.client.orm.reactive.mapping.entities_to_objects;
 
 }

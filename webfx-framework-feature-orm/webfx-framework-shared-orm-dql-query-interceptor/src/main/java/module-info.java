@@ -11,9 +11,9 @@ module webfx.framework.shared.orm.dql.query.interceptor {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports webfx.framework.shared.interceptors.dqlquery;
+    exports dev.webfx.framework.shared.interceptors.dqlquery;
 
     // Provided services
-    provides webfx.platform.shared.services.appcontainer.spi.ApplicationModuleInitializer with webfx.framework.shared.interceptors.dqlquery.DqlQueryInterceptorModuleInitializer;
+    provides dev.webfx.platform.shared.services.appcontainer.spi.ApplicationModuleInitializer with dev.webfx.framework.shared.interceptors.dqlquery.DqlQueryInterceptorModuleInitializer;
 
 }

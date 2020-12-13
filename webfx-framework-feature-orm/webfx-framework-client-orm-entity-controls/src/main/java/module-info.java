@@ -30,7 +30,7 @@ module webfx.framework.client.orm.entity.controls {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports webfx.framework.client.ui.controls.entity.selector;
-    exports webfx.framework.client.ui.controls.entity.sheet;
+    exports dev.webfx.framework.client.ui.controls.entity.selector;
+    exports dev.webfx.framework.client.ui.controls.entity.sheet;
 
 }

@@ -7,6 +7,6 @@ module webfx.framework.shared.operation {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports webfx.framework.shared.operation;
+    exports dev.webfx.framework.shared.operation;
 
 }

@@ -12,10 +12,10 @@ module webfx.framework.shared.orm.domainmodelservice {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports webfx.framework.shared.services.domainmodel;
-    exports webfx.framework.shared.services.domainmodel.spi;
+    exports dev.webfx.framework.shared.services.domainmodel;
+    exports dev.webfx.framework.shared.services.domainmodel.spi;
 
     // Used services
-    uses webfx.framework.shared.services.domainmodel.spi.DomainModelProvider;
+    uses dev.webfx.framework.shared.services.domainmodel.spi.DomainModelProvider;
 
 }

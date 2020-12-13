@@ -20,10 +20,10 @@ module webfx.framework.client.controls {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports webfx.framework.client.ui.controls;
-    exports webfx.framework.client.ui.controls.alert;
-    exports webfx.framework.client.ui.controls.button;
-    exports webfx.framework.client.ui.controls.dialog;
+    exports dev.webfx.framework.client.ui.controls;
+    exports dev.webfx.framework.client.ui.controls.alert;
+    exports dev.webfx.framework.client.ui.controls.button;
+    exports dev.webfx.framework.client.ui.controls.dialog;
 
     // Resources packages
     opens images.s16.controls;

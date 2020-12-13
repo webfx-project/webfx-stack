@@ -10,13 +10,13 @@ module webfx.framework.shared.router {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports webfx.framework.shared.router;
-    exports webfx.framework.shared.router.auth;
-    exports webfx.framework.shared.router.auth.authz;
-    exports webfx.framework.shared.router.auth.impl;
-    exports webfx.framework.shared.router.impl;
-    exports webfx.framework.shared.router.session;
-    exports webfx.framework.shared.router.session.impl;
-    exports webfx.framework.shared.router.util;
+    exports dev.webfx.framework.shared.router;
+    exports dev.webfx.framework.shared.router.auth;
+    exports dev.webfx.framework.shared.router.auth.authz;
+    exports dev.webfx.framework.shared.router.auth.impl;
+    exports dev.webfx.framework.shared.router.impl;
+    exports dev.webfx.framework.shared.router.session;
+    exports dev.webfx.framework.shared.router.session.impl;
+    exports dev.webfx.framework.shared.router.util;
 
 }

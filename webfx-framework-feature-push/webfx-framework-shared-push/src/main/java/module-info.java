@@ -3,6 +3,6 @@
 module webfx.framework.shared.push {
 
     // Exported packages
-    exports webfx.framework.shared.services.push;
+    exports dev.webfx.framework.shared.services.push;
 
 }

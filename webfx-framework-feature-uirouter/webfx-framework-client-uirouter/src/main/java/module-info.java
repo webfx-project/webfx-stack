@@ -19,24 +19,24 @@ module webfx.framework.client.uirouter {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports webfx.framework.client.activity.impl.elementals.presentation;
-    exports webfx.framework.client.activity.impl.elementals.presentation.impl;
-    exports webfx.framework.client.activity.impl.elementals.presentation.logic;
-    exports webfx.framework.client.activity.impl.elementals.presentation.logic.impl;
-    exports webfx.framework.client.activity.impl.elementals.presentation.view;
-    exports webfx.framework.client.activity.impl.elementals.presentation.view.impl;
-    exports webfx.framework.client.activity.impl.elementals.uiroute;
-    exports webfx.framework.client.activity.impl.elementals.uiroute.impl;
-    exports webfx.framework.client.activity.impl.elementals.view;
-    exports webfx.framework.client.activity.impl.elementals.view.impl;
-    exports webfx.framework.client.operations.route;
-    exports webfx.framework.client.ui.uirouter;
-    exports webfx.framework.client.ui.uirouter.impl;
-    exports webfx.framework.client.ui.uirouter.uisession;
-    exports webfx.framework.client.ui.uirouter.uisession.impl;
+    exports dev.webfx.framework.client.activity.impl.elementals.presentation;
+    exports dev.webfx.framework.client.activity.impl.elementals.presentation.impl;
+    exports dev.webfx.framework.client.activity.impl.elementals.presentation.logic;
+    exports dev.webfx.framework.client.activity.impl.elementals.presentation.logic.impl;
+    exports dev.webfx.framework.client.activity.impl.elementals.presentation.view;
+    exports dev.webfx.framework.client.activity.impl.elementals.presentation.view.impl;
+    exports dev.webfx.framework.client.activity.impl.elementals.uiroute;
+    exports dev.webfx.framework.client.activity.impl.elementals.uiroute.impl;
+    exports dev.webfx.framework.client.activity.impl.elementals.view;
+    exports dev.webfx.framework.client.activity.impl.elementals.view.impl;
+    exports dev.webfx.framework.client.operations.route;
+    exports dev.webfx.framework.client.ui.uirouter;
+    exports dev.webfx.framework.client.ui.uirouter.impl;
+    exports dev.webfx.framework.client.ui.uirouter.uisession;
+    exports dev.webfx.framework.client.ui.uirouter.uisession.impl;
 
     // Used services
-    uses webfx.framework.client.operations.route.RouteRequestEmitter;
-    uses webfx.framework.client.ui.uirouter.UiRoute;
+    uses dev.webfx.framework.client.operations.route.RouteRequestEmitter;
+    uses dev.webfx.framework.client.ui.uirouter.UiRoute;
 
 }

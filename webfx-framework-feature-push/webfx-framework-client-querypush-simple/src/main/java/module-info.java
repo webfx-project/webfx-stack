@@ -9,10 +9,10 @@ module webfx.framework.client.querypush.simple {
     requires webfx.platform.shared.bus;
 
     // Exported packages
-    exports webfx.framework.client.jobs.querypush;
+    exports dev.webfx.framework.client.jobs.querypush;
 
     // Provided services
-    provides webfx.framework.shared.services.querypush.spi.QueryPushServiceProvider with webfx.framework.client.jobs.querypush.QueryPushClientServiceProvider;
-    provides webfx.platform.shared.services.appcontainer.spi.ApplicationJob with webfx.framework.client.jobs.querypush.QueryPushClientJob;
+    provides dev.webfx.framework.shared.services.querypush.spi.QueryPushServiceProvider with dev.webfx.framework.client.jobs.querypush.QueryPushClientServiceProvider;
+    provides dev.webfx.platform.shared.services.appcontainer.spi.ApplicationJob with dev.webfx.framework.client.jobs.querypush.QueryPushClientJob;
 
 }

@@ -13,9 +13,9 @@ module webfx.framework.server.push.simple {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports webfx.framework.server.services.push.spi.impl.simple;
+    exports dev.webfx.framework.server.services.push.spi.impl.simple;
 
     // Provided services
-    provides webfx.framework.server.services.push.spi.PushServerServiceProvider with webfx.framework.server.services.push.spi.impl.simple.SimplePushServerServiceProvider;
+    provides dev.webfx.framework.server.services.push.spi.PushServerServiceProvider with dev.webfx.framework.server.services.push.spi.impl.simple.SimplePushServerServiceProvider;
 
 }

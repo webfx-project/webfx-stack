@@ -22,12 +22,12 @@ module webfx.framework.client.orm.reactive.dql {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports webfx.framework.client.orm.reactive.call;
-    exports webfx.framework.client.orm.reactive.call.query;
-    exports webfx.framework.client.orm.reactive.call.query.push;
-    exports webfx.framework.client.orm.reactive.dql.query;
-    exports webfx.framework.client.orm.reactive.dql.querypush;
-    exports webfx.framework.client.orm.reactive.dql.statement;
-    exports webfx.framework.client.orm.reactive.dql.statement.conventions;
+    exports dev.webfx.framework.client.orm.reactive.call;
+    exports dev.webfx.framework.client.orm.reactive.call.query;
+    exports dev.webfx.framework.client.orm.reactive.call.query.push;
+    exports dev.webfx.framework.client.orm.reactive.dql.query;
+    exports dev.webfx.framework.client.orm.reactive.dql.querypush;
+    exports dev.webfx.framework.client.orm.reactive.dql.statement;
+    exports dev.webfx.framework.client.orm.reactive.dql.statement.conventions;
 
 }

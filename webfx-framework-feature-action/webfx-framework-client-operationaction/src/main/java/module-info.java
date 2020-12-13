@@ -14,6 +14,6 @@ module webfx.framework.client.operationaction {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports webfx.framework.client.ui.action.operation;
+    exports dev.webfx.framework.client.ui.action.operation;
 
 }
