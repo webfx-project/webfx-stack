@@ -9,4 +9,11 @@
 
     </dependencies>
 
+    <libraries>
+        <module name="slf4j-api">
+            <groupId>org.slf4j</groupId>
+            <version>1.7.15</version>
+        </module>
+    </libraries>
+
 </module>
