@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<module>
+
+    <modules>
+        <module>webfx-framework-client-activity</module>
+        <module>webfx-framework-client-uirouter</module>
+        <module>webfx-framework-shared-router</module>
+    </modules>
+
+</module>
+
