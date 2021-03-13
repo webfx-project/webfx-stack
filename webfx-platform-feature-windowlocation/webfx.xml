@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<module>
+
+    <modules>
+        <module>webfx-platform-client-windowlocation</module>
+        <module>webfx-platform-gwt-windowlocation-impl</module>
+        <module>webfx-platform-java-windowlocation-impl</module>
+    </modules>
+    
+</module>

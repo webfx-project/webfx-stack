@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<module>
+
+    <modules>
+        <module>webfx-platform-shared-webworker</module>
+        <module>webfx-platform-gwt-webworker-impl</module>
+        <module>webfx-platform-teavm-webworker-impl</module>
+        <module>webfx-platform-java-webworker-impl</module>
+    </modules>
+    
+</module>

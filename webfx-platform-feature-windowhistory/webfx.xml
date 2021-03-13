@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<module>
+
+    <modules>
+        <module>webfx-platform-client-windowhistory</module>
+        <module>webfx-platform-java-windowhistory-impl</module>
+        <module>webfx-platform-web-windowhistory-impl</module>
+        <module>webfx-platform-gwt-windowhistory-impl</module>
+    </modules>
+    
+</module>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<module>
+
+    <modules>
+        <module>webfx-platform-shared-bus</module>
+        <module>webfx-platform-shared-bus-impl-simple</module>
+        <module>webfx-platform-vertx-bus-impl</module>
+    </modules>
+    
+</module>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<module>
+
+    <modules>
+        <module>webfx-platform-shared-query</module> <!-- depends on buscall, datasource, appcontainer, util modules -->
+        <module>webfx-platform-java-query-impl-jdbc</module>
+        <module>webfx-platform-vertx-query-impl-postgres-mysql-jdbc</module>
+        <module>webfx-platform-shared-query-impl-remote</module>
+    </modules>
+    
+</module>

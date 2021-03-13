@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<module>
+
+    <modules>
+        <module>webfx-platform-client-webassembly</module>
+        <module>webfx-platform-teavm-webassembly-impl</module>
+        <module>webfx-platform-teavm-wasm-util</module>
+    </modules>
+    
+</module>
