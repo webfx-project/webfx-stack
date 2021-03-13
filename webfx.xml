@@ -29,76 +29,77 @@
             </packages>
         </module>
 
-        <module name="teavm-interop">
+        <group>
             <groupId>org.teavm</groupId>
-            <packages>
-                <package>org.teavm.interop</package>
-            </packages>
-        </module>
 
-        <module name="teavm-jso">
-            <groupId>org.teavm</groupId>
-            <packages>
-                <package>org.teavm.jso</package>
-            </packages>
-        </module>
+            <module name="teavm-interop">
+                <packages>
+                    <package>org.teavm.interop</package>
+                </packages>
+            </module>
 
-        <module name="teavm-jso-apis">
-            <groupId>org.teavm</groupId>
-            <packages>
-                <package>org.teavm.jso.core</package>
-                <package>org.teavm.jso.dom.events</package>
-                <package>org.teavm.jso.typedarrays</package>
-            </packages>
-        </module>
+            <module name="teavm-jso">
+                <packages>
+                    <package>org.teavm.jso</package>
+                </packages>
+            </module>
 
-        <module name="vertx-bridge-common">
+            <module name="teavm-jso-apis">
+                <packages>
+                    <package>org.teavm.jso.core</package>
+                    <package>org.teavm.jso.dom.events</package>
+                    <package>org.teavm.jso.typedarrays</package>
+                </packages>
+            </module>
+
+        </group>
+
+        <group>
             <groupId>io.vertx</groupId>
-            <packages>
-                <package>io.vertx.ext.bridge</package>
-            </packages>
-        </module>
 
-        <module name="vertx-core">
-            <groupId>io.vertx</groupId>
-            <packages>
-                <package>io.vertx.core</package>
-                <package>io.vertx.core.eventbus</package>
-                <package>io.vertx.core.http</package>
-                <package>io.vertx.core.json</package>
-                <package>io.vertx.core.net</package>
-            </packages>
-        </module>
+            <module name="vertx-bridge-common">
+                <packages>
+                    <package>io.vertx.ext.bridge</package>
+                </packages>
+            </module>
 
-        <module name="vertx-jdbc-client">
-            <groupId>io.vertx</groupId>
-            <packages>
-                <package>io.vertx.ext.jdbc</package>
-            </packages>
-        </module>
+            <module name="vertx-core">
+                <packages>
+                    <package>io.vertx.core</package>
+                    <package>io.vertx.core.eventbus</package>
+                    <package>io.vertx.core.http</package>
+                    <package>io.vertx.core.json</package>
+                    <package>io.vertx.core.net</package>
+                </packages>
+            </module>
 
-        <module name="vertx-mysql-postgresql-client-jasync">
-            <groupId>io.vertx</groupId>
-            <packages>
-                <package>io.vertx.ext.asyncsql</package>
-            </packages>
-        </module>
+            <module name="vertx-jdbc-client">
+                <packages>
+                    <package>io.vertx.ext.jdbc</package>
+                </packages>
+            </module>
 
-        <module name="vertx-sql-common">
-            <groupId>io.vertx</groupId>
-            <packages>
-                <package>io.vertx.ext.sql</package>
-            </packages>
-        </module>
+            <module name="vertx-mysql-postgresql-client-jasync">
+                <packages>
+                    <package>io.vertx.ext.asyncsql</package>
+                </packages>
+            </module>
 
-        <module name="vertx-web">
-            <groupId>io.vertx</groupId>
-            <packages>
-                <package>io.vertx.ext.web</package>
-                <package>io.vertx.ext.web.handler</package>
-                <package>io.vertx.ext.web.handler.sockjs</package>
-            </packages>
-        </module>
+            <module name="vertx-sql-common">
+                <packages>
+                    <package>io.vertx.ext.sql</package>
+                </packages>
+            </module>
+
+            <module name="vertx-web">
+                <packages>
+                    <package>io.vertx.ext.web</package>
+                    <package>io.vertx.ext.web.handler</package>
+                    <package>io.vertx.ext.web.handler.sockjs</package>
+                </packages>
+            </module>
+
+        </group>
 
     </libraries>
 
