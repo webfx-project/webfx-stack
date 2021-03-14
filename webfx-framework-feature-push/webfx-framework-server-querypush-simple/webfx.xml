@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <module>
 
-    <packages exports="true"/>
+    <packages export-sources="true"/>
 
     <providers>
         <provider spi="dev.webfx.framework.shared.services.querypush.spi.QueryPushServiceProvider">dev.webfx.framework.server.services.querypush.spi.impl.simple.SimpleInMemoryServerQueryPushServiceProvider</provider>
