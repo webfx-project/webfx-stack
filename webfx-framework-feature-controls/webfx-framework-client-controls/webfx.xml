@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <module>
 
-    <packages exports="true"/>
+    <packages exports="true">
+        <package resource="true">images.s16.controls</package>
+    </packages>
+
 
     <dependencies>
 
@@ -11,9 +14,5 @@
         </source-modules>
 
     </dependencies>
-
-    <resource-packages>
-        <package>images.s16.controls</package>
-    </resource-packages>
 
 </module>
