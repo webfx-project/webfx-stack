@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <module>
 
+    <packages exports="true"/>
+
     <providers>
         <provider spi="dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint">dev.webfx.framework.shared.services.querypush.ExecuteQueryPushBusCallEndpoint</provider>
         <provider spi="dev.webfx.platform.shared.services.serial.spi.SerialCodec">dev.webfx.framework.shared.services.querypush.QueryPushArgument$ProvidedSerialCodec</provider>

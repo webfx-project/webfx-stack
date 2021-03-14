@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <module automatic="true">
 
+    <packages exports="true"/>
+
     <required-conditions>
         <if-uses-java-package>dev.webfx.framework.shared.services.querypush</if-uses-java-package>
         <if-uses-java-package>dev.webfx.framework.shared.orm.domainmodel</if-uses-java-package>
