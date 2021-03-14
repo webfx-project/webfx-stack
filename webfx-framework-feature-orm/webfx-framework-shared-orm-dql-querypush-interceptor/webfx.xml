@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<module automatic="true">
+<module>
+
+    <auto-conditions>
+        <if-uses-java-package>dev.webfx.framework.shared.services.querypush</if-uses-java-package>
+        <if-uses-java-package>dev.webfx.framework.shared.orm.domainmodel</if-uses-java-package>
+    </auto-conditions>
 
     <packages>
         <source-packages/>
     </packages>
-
-    <required-conditions>
-        <if-uses-java-package>dev.webfx.framework.shared.services.querypush</if-uses-java-package>
-        <if-uses-java-package>dev.webfx.framework.shared.orm.domainmodel</if-uses-java-package>
-    </required-conditions>
 
     <providers>
         <provider spi="dev.webfx.platform.shared.services.appcontainer.spi.ApplicationModuleInitializer">dev.webfx.framework.shared.interceptors.dqlquerypush.DqlQueryPushInterceptorModuleInitializer</provider>
