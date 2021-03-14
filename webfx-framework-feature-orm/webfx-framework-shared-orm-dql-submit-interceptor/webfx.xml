@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <module automatic="true">
 
-    <packages export-sources="true"/>
+    <packages>
+        <source-packages/>
+    </packages>
 
     <required-conditions>
         <if-uses-java-package>dev.webfx.platform.shared.services.submit</if-uses-java-package>
