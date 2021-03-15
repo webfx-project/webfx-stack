@@ -29,23 +29,23 @@
 
     <libraries>
 
-        <module name="com-zaxxer-hikari">
+        <library name="com-zaxxer-hikari">
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>3.3.1</version>
             <packages>
                 <package>com.zaxxer.hikari</package>
             </packages>
-        </module>
+        </library>
 
-        <module name="java-sql">
+        <library name="java-sql">
             <packages>
                 <package>java.sql</package>
                 <package>javax.sql</package>
             </packages>
-        </module>
+        </library>
 
-        <module name="Java-WebSocket">
+        <library name="Java-WebSocket">
             <groupId>org.java-websocket</groupId>
             <packages>
                 <package>org.java_websocket</package>
@@ -54,43 +54,43 @@
                 <package>org.java_websocket.enums</package>
                 <package>org.java_websocket.handshake</package>
             </packages>
-        </module>
+        </library>
 
         <group>
             <groupId>org.teavm</groupId>
 
-            <module name="teavm-interop">
+            <library name="teavm-interop">
                 <packages>
                     <package>org.teavm.interop</package>
                 </packages>
-            </module>
+            </library>
 
-            <module name="teavm-jso">
+            <library name="teavm-jso">
                 <packages>
                     <package>org.teavm.jso</package>
                 </packages>
-            </module>
+            </library>
 
-            <module name="teavm-jso-apis">
+            <library name="teavm-jso-apis">
                 <packages>
                     <package>org.teavm.jso.core</package>
                     <package>org.teavm.jso.dom.events</package>
                     <package>org.teavm.jso.typedarrays</package>
                 </packages>
-            </module>
+            </library>
 
         </group>
 
         <group>
             <groupId>io.vertx</groupId>
 
-            <module name="vertx-bridge-common">
+            <library name="vertx-bridge-common">
                 <packages>
                     <package>io.vertx.ext.bridge</package>
                 </packages>
-            </module>
+            </library>
 
-            <module name="vertx-core">
+            <library name="vertx-core">
                 <packages>
                     <package>io.vertx.core</package>
                     <package>io.vertx.core.eventbus</package>
@@ -98,33 +98,33 @@
                     <package>io.vertx.core.json</package>
                     <package>io.vertx.core.net</package>
                 </packages>
-            </module>
+            </library>
 
-            <module name="vertx-jdbc-client">
+            <library name="vertx-jdbc-client">
                 <packages>
                     <package>io.vertx.ext.jdbc</package>
                 </packages>
-            </module>
+            </library>
 
-            <module name="vertx-mysql-postgresql-client-jasync">
+            <library name="vertx-mysql-postgresql-client-jasync">
                 <packages>
                     <package>io.vertx.ext.asyncsql</package>
                 </packages>
-            </module>
+            </library>
 
-            <module name="vertx-sql-common">
+            <library name="vertx-sql-common">
                 <packages>
                     <package>io.vertx.ext.sql</package>
                 </packages>
-            </module>
+            </library>
 
-            <module name="vertx-web">
+            <library name="vertx-web">
                 <packages>
                     <package>io.vertx.ext.web</package>
                     <package>io.vertx.ext.web.handler</package>
                     <package>io.vertx.ext.web.handler.sockjs</package>
                 </packages>
-            </module>
+            </library>
 
         </group>
 
