@@ -9,4 +9,8 @@
         <provider spi="dev.webfx.platform.shared.services.submit.spi.SubmitServiceProvider">dev.webfx.platform.vertx.services.submit.spi.impl.VertxSubmitServiceProvider</provider>
     </providers>
 
+    <dependencies>
+        <source-modules/>
+    </dependencies>
+
 </module>

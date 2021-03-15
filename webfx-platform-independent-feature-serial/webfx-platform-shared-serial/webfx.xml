@@ -10,4 +10,8 @@
         <provider spi="dev.webfx.platform.shared.services.serial.spi.SerialCodec">dev.webfx.platform.shared.services.serial.spi.impl.ProvidedBatchSerialCodec</provider>
     </providers>
 
+    <dependencies>
+        <source-modules/>
+    </dependencies>
+
 </module>

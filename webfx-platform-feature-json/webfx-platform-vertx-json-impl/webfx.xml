@@ -9,4 +9,8 @@
         <provider spi="dev.webfx.platform.shared.services.json.spi.JsonProvider">dev.webfx.platform.vertx.services.json.spi.impl.VertxJsonObject</provider>
     </providers>
 
+    <dependencies>
+        <source-modules/>
+    </dependencies>
+
 </module>

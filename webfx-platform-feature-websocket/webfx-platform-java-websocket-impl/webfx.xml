@@ -9,4 +9,8 @@
         <provider spi="dev.webfx.platform.client.services.websocket.spi.WebSocketServiceProvider">dev.webfx.platform.java.services.websocket.spi.impl.JavaWebSocketServiceProvider</provider>
     </providers>
 
+    <dependencies>
+        <source-modules/>
+    </dependencies>
+
 </module>

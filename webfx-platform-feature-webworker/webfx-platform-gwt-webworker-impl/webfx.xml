@@ -9,4 +9,8 @@
         <provider spi="dev.webfx.platform.shared.services.webworker.spi.WorkerServiceProvider">dev.webfx.platform.gwt.services.webworker.spi.impl.GwtWorkerServiceProvider</provider>
     </providers>
 
+    <dependencies>
+        <source-modules/>
+    </dependencies>
+
 </module>

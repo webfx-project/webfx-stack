@@ -9,4 +9,8 @@
         <provider spi="dev.webfx.platform.shared.services.json.spi.JsonProvider">dev.webfx.platform.teavm.services.json.spi.impl.TeaVmJsonObject</provider>
     </providers>
 
+    <dependencies>
+        <source-modules/>
+    </dependencies>
+
 </module>

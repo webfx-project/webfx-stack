@@ -9,6 +9,10 @@
         <provider spi="dev.webfx.platform.client.services.websocket.spi.WebSocketServiceProvider">dev.webfx.platform.gwt.services.websocket.spi.impl.GwtWebSocketServiceProvider</provider>
     </providers>
 
+    <dependencies>
+        <source-modules/>
+    </dependencies>
+
     <html>
         <body order="-10">
             <script type="text/javascript" charset="utf-8" src="dev/webfx/platform/client/services/websocket/spi/impl/gwt/sockjs.min.js"/>

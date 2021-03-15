@@ -6,10 +6,9 @@
     </packages>
 
     <dependencies>
-
+        <source-modules/>
         <source-module>java-sql</source-module> <!-- Module required by vertx-mysql-postgresql-client-jasync -->
         <source-module>slf4j-api</source-module>
-
     </dependencies>
 
     <libraries>

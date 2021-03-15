@@ -9,4 +9,8 @@
         <provider spi="dev.webfx.platform.shared.services.bus.spi.BusServiceProvider">dev.webfx.platform.vertx.services.bus.spi.impl.VertxBusServiceProvider</provider>
     </providers>
 
+    <dependencies>
+        <source-modules/>
+    </dependencies>
+
 </module>

@@ -9,4 +9,8 @@
         <provider spi="dev.webfx.platform.web.services.windowhistory.spi.impl.JsWindowHistory">dev.webfx.platform.gwt.services.windowhistory.spi.impl.GwtJsWindowHistory</provider>
     </providers>
 
+    <dependencies>
+        <source-modules/>
+    </dependencies>
+
 </module>

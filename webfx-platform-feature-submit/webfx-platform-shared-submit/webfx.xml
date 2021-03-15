@@ -13,6 +13,10 @@
         <provider spi="dev.webfx.platform.shared.services.serial.spi.SerialCodec">dev.webfx.platform.shared.services.submit.GeneratedKeyBatchIndex$ProvidedSerialCodec</provider>
     </providers>
 
+    <dependencies>
+        <source-modules/>
+    </dependencies>
+
     <reflect>
         <array-new-instance>
             <class>dev.webfx.platform.shared.services.submit.SubmitResult</class>

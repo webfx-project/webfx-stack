@@ -6,9 +6,8 @@
     </packages>
 
     <dependencies>
-
+        <source-modules/>
         <source-module optional="true">com-zaxxer-hikari</source-module>
-
     </dependencies>
 
 </module>

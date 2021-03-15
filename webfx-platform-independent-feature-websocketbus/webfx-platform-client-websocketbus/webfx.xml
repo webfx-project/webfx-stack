@@ -9,4 +9,8 @@
         <provider spi="dev.webfx.platform.shared.services.bus.spi.BusServiceProvider">dev.webfx.platform.client.services.websocketbus.WebsocketBusServiceProvider</provider>
     </providers>
 
+    <dependencies>
+        <source-modules/>
+    </dependencies>
+
 </module>
