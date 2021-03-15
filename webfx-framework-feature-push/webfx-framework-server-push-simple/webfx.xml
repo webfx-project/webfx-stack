@@ -6,7 +6,7 @@
     </packages>
 
     <providers>
-        <provider spi="dev.webfx.framework.server.services.push.spi.PushServerServiceProvider">dev.webfx.framework.server.services.push.spi.impl.simple.SimplePushServerServiceProvider</provider>
+        <dev.webfx.framework.server.services.push.spi.PushServerServiceProvider>dev.webfx.framework.server.services.push.spi.impl.simple.SimplePushServerServiceProvider</dev.webfx.framework.server.services.push.spi.PushServerServiceProvider>
     </providers>
 
     <dependencies>

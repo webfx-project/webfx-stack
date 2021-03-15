@@ -6,8 +6,8 @@
     </packages>
 
     <providers>
-        <provider spi="dev.webfx.framework.shared.services.querypush.spi.QueryPushServiceProvider">dev.webfx.framework.client.jobs.querypush.QueryPushClientServiceProvider</provider>
-        <provider spi="dev.webfx.platform.shared.services.appcontainer.spi.ApplicationJob">dev.webfx.framework.client.jobs.querypush.QueryPushClientJob</provider>
+        <dev.webfx.framework.shared.services.querypush.spi.QueryPushServiceProvider>dev.webfx.framework.client.jobs.querypush.QueryPushClientServiceProvider</dev.webfx.framework.shared.services.querypush.spi.QueryPushServiceProvider>
+        <dev.webfx.platform.shared.services.appcontainer.spi.ApplicationJob>dev.webfx.framework.client.jobs.querypush.QueryPushClientJob</dev.webfx.platform.shared.services.appcontainer.spi.ApplicationJob>
     </providers>
 
     <dependencies>

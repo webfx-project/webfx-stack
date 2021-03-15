@@ -6,7 +6,7 @@
     </packages>
 
     <providers>
-        <provider spi="dev.webfx.platform.server.services.submitlistener.SubmitListener">dev.webfx.framework.server.services.querypush.QueryPushServerService$ProvidedSubmitListener</provider>
+        <dev.webfx.platform.server.services.submitlistener.SubmitListener>dev.webfx.framework.server.services.querypush.QueryPushServerService$ProvidedSubmitListener</dev.webfx.platform.server.services.submitlistener.SubmitListener>
     </providers>
 
     <dependencies>
