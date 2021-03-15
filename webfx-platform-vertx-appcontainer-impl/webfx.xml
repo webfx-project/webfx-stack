@@ -6,7 +6,7 @@
     </packages>
 
     <providers>
-        <provider spi="dev.webfx.platform.shared.services.appcontainer.spi.ApplicationContainerProvider">dev.webfx.platform.vertx.services.appcontainer.spi.impl.VertxApplicationContainerVerticle</provider>
+        <dev.webfx.platform.shared.services.appcontainer.spi.ApplicationContainerProvider>dev.webfx.platform.vertx.services.appcontainer.spi.impl.VertxApplicationContainerVerticle</dev.webfx.platform.shared.services.appcontainer.spi.ApplicationContainerProvider>
     </providers>
 
     <dependencies>

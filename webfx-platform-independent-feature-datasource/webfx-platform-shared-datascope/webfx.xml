@@ -6,7 +6,7 @@
     </packages>
 
     <providers>
-        <provider spi="dev.webfx.platform.shared.services.serial.spi.SerialCodec">dev.webfx.platform.shared.datascope.aggregate.AggregateScope$ProvidedSerialCodec</provider>
+        <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.datascope.aggregate.AggregateScope$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
     </providers>
 
     <dependencies>

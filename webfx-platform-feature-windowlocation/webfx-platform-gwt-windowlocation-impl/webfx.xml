@@ -6,7 +6,7 @@
     </packages>
 
     <providers>
-        <provider spi="dev.webfx.platform.client.services.windowlocation.spi.WindowLocationProvider">dev.webfx.platform.gwt.services.windowlocation.spi.impl.GwtWindowLocationProvider</provider>
+        <dev.webfx.platform.client.services.windowlocation.spi.WindowLocationProvider>dev.webfx.platform.gwt.services.windowlocation.spi.impl.GwtWindowLocationProvider</dev.webfx.platform.client.services.windowlocation.spi.WindowLocationProvider>
     </providers>
 
     <dependencies>

@@ -6,7 +6,7 @@
     </packages>
 
     <providers>
-        <provider spi="dev.webfx.platform.shared.services.query.spi.QueryServiceProvider">dev.webfx.platform.shared.services.query.spi.impl.remote.RemoteQueryServiceProvider</provider>
+        <dev.webfx.platform.shared.services.query.spi.QueryServiceProvider>dev.webfx.platform.shared.services.query.spi.impl.remote.RemoteQueryServiceProvider</dev.webfx.platform.shared.services.query.spi.QueryServiceProvider>
     </providers>
 
     <dependencies>

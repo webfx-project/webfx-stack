@@ -6,7 +6,7 @@
     </packages>
 
     <providers>
-        <provider spi="dev.webfx.platform.client.services.websocket.spi.WebSocketServiceProvider">dev.webfx.platform.gwt.services.websocket.spi.impl.GwtWebSocketServiceProvider</provider>
+        <dev.webfx.platform.client.services.websocket.spi.WebSocketServiceProvider>dev.webfx.platform.gwt.services.websocket.spi.impl.GwtWebSocketServiceProvider</dev.webfx.platform.client.services.websocket.spi.WebSocketServiceProvider>
     </providers>
 
     <dependencies>

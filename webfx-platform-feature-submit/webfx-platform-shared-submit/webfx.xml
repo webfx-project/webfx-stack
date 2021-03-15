@@ -6,11 +6,11 @@
     </packages>
 
     <providers>
-        <provider spi="dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint">dev.webfx.platform.shared.services.submit.ExecuteSubmitBusCallEndpoint</provider>
-        <provider spi="dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint">dev.webfx.platform.shared.services.submit.ExecuteSubmitBatchBusCallEndpoint</provider>
-        <provider spi="dev.webfx.platform.shared.services.serial.spi.SerialCodec">dev.webfx.platform.shared.services.submit.SubmitArgument$ProvidedSerialCodec</provider>
-        <provider spi="dev.webfx.platform.shared.services.serial.spi.SerialCodec">dev.webfx.platform.shared.services.submit.SubmitResult$ProvidedSerialCodec</provider>
-        <provider spi="dev.webfx.platform.shared.services.serial.spi.SerialCodec">dev.webfx.platform.shared.services.submit.GeneratedKeyBatchIndex$ProvidedSerialCodec</provider>
+        <dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.platform.shared.services.submit.ExecuteSubmitBusCallEndpoint</dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>
+        <dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.platform.shared.services.submit.ExecuteSubmitBatchBusCallEndpoint</dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>
+        <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.submit.SubmitArgument$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
+        <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.submit.SubmitResult$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
+        <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.submit.GeneratedKeyBatchIndex$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
     </providers>
 
     <dependencies>

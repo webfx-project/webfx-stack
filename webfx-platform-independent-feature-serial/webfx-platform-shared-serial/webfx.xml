@@ -6,8 +6,8 @@
     </packages>
 
     <providers>
-        <provider spi="dev.webfx.platform.shared.services.appcontainer.spi.ApplicationModuleInitializer">dev.webfx.platform.shared.services.serial.SerialCodecModuleInitializer</provider>
-        <provider spi="dev.webfx.platform.shared.services.serial.spi.SerialCodec">dev.webfx.platform.shared.services.serial.spi.impl.ProvidedBatchSerialCodec</provider>
+        <dev.webfx.platform.shared.services.appcontainer.spi.ApplicationModuleInitializer>dev.webfx.platform.shared.services.serial.SerialCodecModuleInitializer</dev.webfx.platform.shared.services.appcontainer.spi.ApplicationModuleInitializer>
+        <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.serial.spi.impl.ProvidedBatchSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
     </providers>
 
     <dependencies>

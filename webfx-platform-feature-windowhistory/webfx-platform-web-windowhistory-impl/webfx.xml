@@ -6,7 +6,7 @@
     </packages>
 
     <providers>
-        <provider spi="dev.webfx.platform.client.services.windowhistory.spi.WindowHistoryProvider">dev.webfx.platform.web.services.windowhistory.spi.impl.WebWindowHistoryProvider</provider>
+        <dev.webfx.platform.client.services.windowhistory.spi.WindowHistoryProvider>dev.webfx.platform.web.services.windowhistory.spi.impl.WebWindowHistoryProvider</dev.webfx.platform.client.services.windowhistory.spi.WindowHistoryProvider>
     </providers>
 
     <dependencies>

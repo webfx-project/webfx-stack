@@ -6,7 +6,7 @@
     </packages>
 
     <providers>
-        <provider spi="dev.webfx.platform.shared.services.submit.spi.SubmitServiceProvider">dev.webfx.platform.shared.services.submit.spi.impl.remote.RemoteSubmitServiceProvider</provider>
+        <dev.webfx.platform.shared.services.submit.spi.SubmitServiceProvider>dev.webfx.platform.shared.services.submit.spi.impl.remote.RemoteSubmitServiceProvider</dev.webfx.platform.shared.services.submit.spi.SubmitServiceProvider>
     </providers>
 
     <dependencies>

@@ -6,10 +6,10 @@
     </packages>
 
     <providers>
-        <provider spi="dev.webfx.platform.shared.services.appcontainer.spi.ApplicationModuleInitializer">dev.webfx.platform.shared.services.buscall.BusCallModuleInitializer</provider>
-        <provider spi="dev.webfx.platform.shared.services.serial.spi.SerialCodec">dev.webfx.platform.shared.services.buscall.BusCallArgument$ProvidedSerialCodec</provider>
-        <provider spi="dev.webfx.platform.shared.services.serial.spi.SerialCodec">dev.webfx.platform.shared.services.buscall.BusCallResult$ProvidedSerialCodec</provider>
-        <provider spi="dev.webfx.platform.shared.services.serial.spi.SerialCodec">dev.webfx.platform.shared.services.buscall.SerializableAsyncResult$ProvidedSerialCodec</provider>
+        <dev.webfx.platform.shared.services.appcontainer.spi.ApplicationModuleInitializer>dev.webfx.platform.shared.services.buscall.BusCallModuleInitializer</dev.webfx.platform.shared.services.appcontainer.spi.ApplicationModuleInitializer>
+        <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.buscall.BusCallArgument$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
+        <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.buscall.BusCallResult$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
+        <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.buscall.SerializableAsyncResult$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
     </providers>
 
     <dependencies>
