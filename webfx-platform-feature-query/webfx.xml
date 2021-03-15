@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<module>
+<project>
 
     <modules>
         <module>webfx-platform-shared-query</module> <!-- depends on buscall, datasource, appcontainer, util modules -->
@@ -8,4 +8,4 @@
         <module>webfx-platform-shared-query-impl-remote</module>
     </modules>
     
-</module>
+</project>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<module>
+<project>
 
     <modules>
         <module>webfx-platform-shared-buscall</module> <!-- depends on bus, appcontainer module -->
         <module>webfx-platform-shared-buscalljob</module> <!-- depends on buscall module -->
     </modules>
     
-</module>
+</project>

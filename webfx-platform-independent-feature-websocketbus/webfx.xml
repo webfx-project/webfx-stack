@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<module>
+<project>
 
     <modules>
         <module>webfx-platform-client-websocketbus</module> <!-- depends on bus, websocket, log, resource, scheduler modules -->
         <module>webfx-platform-web-websocketbus</module>
     </modules>
     
-</module>
+</project>
