@@ -9,4 +9,8 @@
         <provider spi="dev.webfx.platform.server.services.submitlistener.SubmitListener">dev.webfx.framework.server.services.querypush.QueryPushServerService$ProvidedSubmitListener</provider>
     </providers>
 
+    <dependencies>
+        <source-modules/>
+    </dependencies>
+
 </module>

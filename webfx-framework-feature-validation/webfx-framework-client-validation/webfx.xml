@@ -6,4 +6,8 @@
         <resource-package>dev.webfx.framework.client.ui.validation.controlsfx.images</resource-package>
     </packages>
 
+    <dependencies>
+        <source-modules/>
+    </dependencies>
+
 </module>

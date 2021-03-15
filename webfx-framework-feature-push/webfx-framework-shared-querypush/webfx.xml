@@ -12,4 +12,8 @@
         <provider spi="dev.webfx.platform.shared.services.serial.spi.SerialCodec">dev.webfx.framework.shared.services.querypush.diff.impl.QueryResultTranslation$ProvidedSerialCodec</provider>
     </providers>
 
+    <dependencies>
+        <source-modules/>
+    </dependencies>
+
 </module>

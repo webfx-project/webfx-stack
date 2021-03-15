@@ -10,4 +10,8 @@
         <provider spi="dev.webfx.platform.shared.services.appcontainer.spi.ApplicationJob">dev.webfx.framework.client.jobs.querypush.QueryPushClientJob</provider>
     </providers>
 
+    <dependencies>
+        <source-modules/>
+    </dependencies>
+
 </module>

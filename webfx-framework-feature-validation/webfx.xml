@@ -5,5 +5,9 @@
         <module>webfx-framework-client-validation</module>
     </modules>
 
+    <dependencies>
+        <source-modules/>
+    </dependencies>
+
 </module>
 

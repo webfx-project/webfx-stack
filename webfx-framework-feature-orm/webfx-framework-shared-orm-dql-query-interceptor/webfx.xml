@@ -14,4 +14,8 @@
         <provider spi="dev.webfx.platform.shared.services.appcontainer.spi.ApplicationModuleInitializer">dev.webfx.framework.shared.interceptors.dqlquery.DqlQueryInterceptorModuleInitializer</provider>
     </providers>
 
+    <dependencies>
+        <source-modules/>
+    </dependencies>
+
 </module>

@@ -6,9 +6,8 @@
     </packages>
 
     <dependencies>
-
+        <source-modules/>
         <source-module>webfx-kit-javafxbase-emul</source-module>
-
     </dependencies>
 
 </module>

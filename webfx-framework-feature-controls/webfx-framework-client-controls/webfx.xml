@@ -6,12 +6,10 @@
         <resource-package>images.s16.controls</resource-package>
     </packages>
 
-
     <dependencies>
-
+        <source-modules/>
         <source-module>webfx-framework-client-activity</source-module>
         <source-module>webfx-extras-type</source-module>
-
     </dependencies>
 
 </module>

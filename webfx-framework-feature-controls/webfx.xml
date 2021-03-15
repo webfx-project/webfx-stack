@@ -6,5 +6,9 @@
         <module>webfx-framework-client-util</module>
     </modules>
 
+    <dependencies>
+        <source-modules/>
+    </dependencies>
+
 </module>
 
