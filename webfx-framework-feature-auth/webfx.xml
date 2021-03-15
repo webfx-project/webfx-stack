@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<module>
+<project>
 
     <modules>
         <module>webfx-framework-shared-authn</module>
         <module>webfx-framework-shared-authz</module>
     </modules>
 
-</module>
+</project>
 

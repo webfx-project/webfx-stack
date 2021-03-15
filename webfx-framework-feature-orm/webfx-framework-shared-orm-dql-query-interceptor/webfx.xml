@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<module>
+<project>
 
     <auto-conditions>
         <if-uses-java-package>dev.webfx.platform.shared.services.query</if-uses-java-package>
@@ -18,4 +18,4 @@
         <source-modules/>
     </dependencies>
 
-</module>
+</project>

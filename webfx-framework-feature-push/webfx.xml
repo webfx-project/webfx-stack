@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<module>
+<project>
 
     <modules>
         <module>webfx-framework-client-push</module>
@@ -14,5 +14,5 @@
         <module>webfx-framework-shared-querypush</module>
     </modules>
 
-</module>
+</project>
 
