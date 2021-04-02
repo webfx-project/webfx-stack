@@ -16,6 +16,8 @@
 
         <module>webfx-platform-client-windowlocation</module>
         <module>webfx-platform-gwt-windowlocation-impl</module>
+        <module>webfx-platform-java-windowlocation-impl</module>
 
     </modules>
+
 </project>
