@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>webfx-parent</artifactId>
+        <artifactId>webfx-stack-parent</artifactId> <!-- webfx-stack-parent instead of webfx-parent : only to get the cup & flex plugins versions for json -->
         <groupId>dev.webfx</groupId>
         <version>0.1.0-SNAPSHOT</version>
     </parent>
