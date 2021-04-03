@@ -14,6 +14,7 @@
         <dependency>
             <groupId>org.teavm</groupId>
             <artifactId>teavm-interop</artifactId>
+            <version>0.6.1</version>
         </dependency>
     
     </dependencies>
