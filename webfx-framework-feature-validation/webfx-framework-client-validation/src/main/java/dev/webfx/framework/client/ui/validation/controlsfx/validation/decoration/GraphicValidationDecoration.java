@@ -55,7 +55,7 @@ public class GraphicValidationDecoration extends AbstractValidationDecoration {
 
     // TODO we shouldn't hardcode this - defer to CSS eventually
 
-    private static final String IMAGES_DIRECTORY = "webfx/framework/client/ui/validation/controlsfx/images/";
+    private static final String IMAGES_DIRECTORY = "dev/webfx/framework/client/ui/validation/controlsfx/images/";
 	
     private static final Image ERROR_IMAGE = new Image(IMAGES_DIRECTORY + "decoration-error.png"); //$NON-NLS-1$
     private static final Image WARNING_IMAGE = new Image(IMAGES_DIRECTORY + "decoration-warning.png"); //$NON-NLS-1$
