@@ -1,5 +1,9 @@
 package dev.webfx.framework.client.ui.util.layout;
 
+import dev.webfx.framework.client.ui.util.background.BackgroundUtil;
+import dev.webfx.kit.launcher.WebFxKitLauncher;
+import dev.webfx.kit.util.properties.Properties;
+import dev.webfx.platform.shared.util.Numbers;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -11,12 +15,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import dev.webfx.framework.client.ui.util.background.BackgroundUtil;
-import dev.webfx.kit.launcher.WebFxKitLauncher;
-import dev.webfx.kit.util.properties.Properties;
-import dev.webfx.platform.client.services.uischeduler.AnimationFramePass;
-import dev.webfx.platform.client.services.uischeduler.UiScheduler;
-import dev.webfx.platform.shared.util.Numbers;
 
 import java.util.function.Predicate;
 
@@ -40,8 +38,9 @@ public final class LayoutUtil {
         goldPane.setAlignment(Pos.TOP_CENTER); // Horizontal alignment
         RowConstraints headerRowConstraints = new RowConstraints();
         // Making the gold pane invisible during a few animation frames because its height may not be stable on start
-        goldPane.setVisible(false);
-        UiScheduler.scheduleInAnimationFrame(() -> goldPane.setVisible(true), 5, AnimationFramePass.SCENE_PULSE_LAYOUT_PASS);
+        // Temporary commented as scheduleInAnimationFrame() doesn't work with the FxUiSchedulerProvider TODO Fix that
+        // goldPane.setVisible(false);
+        // UiScheduler.scheduleInAnimationFrame(() -> goldPane.setVisible(true), 5, AnimationFramePass.SCENE_PULSE_LAYOUT_PASS);
         headerRowConstraints.prefHeightProperty().bind(Properties.combine(goldPane.heightProperty(), child.heightProperty(),
                 (gpHeight, cHeight) -> {
                     if (percentageHeight != 0)
