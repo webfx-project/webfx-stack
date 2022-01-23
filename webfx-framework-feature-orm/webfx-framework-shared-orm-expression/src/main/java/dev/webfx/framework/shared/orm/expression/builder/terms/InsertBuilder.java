@@ -14,7 +14,7 @@ public final class InsertBuilder extends DqlOrderBuilder<Insert> {
     }
 
     @Override
-    protected Insert buildSqlOrder() {
+    protected Insert buildDqlOrder() {
         propagateDomainClasses();
         return new Insert(filterId, buildingClass, buildingClassAlias, definition, sqlDefinition, sqlParameters,
                 setFields.build(),

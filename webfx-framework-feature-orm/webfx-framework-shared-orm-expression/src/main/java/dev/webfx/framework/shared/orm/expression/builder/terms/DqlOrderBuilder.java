@@ -25,9 +25,9 @@ public abstract class DqlOrderBuilder<S extends DqlStatement> implements Referen
     public S build() {
         propagateDomainClasses();
         ThreadLocalReferenceResolver.pushReferenceResolver(this);
-        S sqlOrder = buildSqlOrder();
+        S dqlOrder = buildDqlOrder();
         ThreadLocalReferenceResolver.popReferenceResolver();
-        return sqlOrder;
+        return dqlOrder;
     }
 
     protected void propagateDomainClasses() {
@@ -45,7 +45,7 @@ public abstract class DqlOrderBuilder<S extends DqlStatement> implements Referen
     }
 
 
-    protected abstract S buildSqlOrder();
+    protected abstract S buildDqlOrder();
 
     @Override
     public Expression resolveReference(String name) {

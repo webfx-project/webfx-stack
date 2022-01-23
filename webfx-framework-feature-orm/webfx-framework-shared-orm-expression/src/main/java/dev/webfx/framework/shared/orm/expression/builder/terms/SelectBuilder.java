@@ -19,7 +19,7 @@ public final class SelectBuilder extends DqlOrderBuilder<Select> {
     }
 
     @Override
-    protected Select buildSqlOrder() {
+    protected Select buildDqlOrder() {
         propagateDomainClasses();
         return new Select(filterId, buildingClass, buildingClassAlias, definition, sqlDefinition, sqlParameters,
                 distinct,

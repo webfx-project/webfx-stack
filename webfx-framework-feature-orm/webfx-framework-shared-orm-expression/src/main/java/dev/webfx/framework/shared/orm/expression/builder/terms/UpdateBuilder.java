@@ -14,7 +14,7 @@ public final class UpdateBuilder extends DqlOrderBuilder<Update> {
     }
 
     @Override
-    protected Update buildSqlOrder() {
+    protected Update buildDqlOrder() {
         propagateDomainClasses();
         return new Update(filterId, buildingClass, buildingClassAlias, definition, sqlDefinition, sqlParameters,
                 setFields.build(),

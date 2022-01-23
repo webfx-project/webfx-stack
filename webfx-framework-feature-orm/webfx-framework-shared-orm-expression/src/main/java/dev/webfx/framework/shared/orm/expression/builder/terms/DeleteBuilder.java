@@ -13,7 +13,7 @@ public final class DeleteBuilder extends DqlOrderBuilder<Delete> {
     }
 
     @Override
-    protected Delete buildSqlOrder() {
+    protected Delete buildDqlOrder() {
         propagateDomainClasses();
         return new Delete(filterId, buildingClass, buildingClassAlias, definition, sqlDefinition, sqlParameters,
                 where == null ? null : where.build());
