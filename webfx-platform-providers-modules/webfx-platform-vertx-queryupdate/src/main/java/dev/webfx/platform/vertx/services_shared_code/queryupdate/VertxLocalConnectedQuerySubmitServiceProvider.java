@@ -53,7 +53,8 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
                 .put("password", connectionDetails.getPassword())
                 // used for PostgreSQLClient only
                 .put("host", connectionDetails.getHost())
-                .put("database", connectionDetails.getDatabaseName());
+                .put("database", connectionDetails.getDatabaseName())
+                .put("port", connectionDetails.getPort());
         Vertx vertx = VertxInstance.getVertx();
         // Getting the best (non blocking if possible) sql client depending on the dbms
         DBMS dbms = localDataSource.getDBMS();
