@@ -34,6 +34,8 @@ public final class AggregateScope implements KeyDataScope {
     }
 
     public boolean intersects(AggregateScope otherScope) {
+        if (true) // Temporary disabled while the implementation doesn't work in all situations (ex: drag&drop in rooms graphic => only the new room is refresh, not the old room)
+            return true; // TODO fix the implementation to make it work in all situations
         for (Map.Entry<Object, Object[]> entry : aggregates.entrySet()) {
             Object aggregateType = entry.getKey();
             Object[] otherAggregateKeys = otherScope.aggregates.get(aggregateType);
