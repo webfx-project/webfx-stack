@@ -19,6 +19,8 @@ final class SchemaScopeImpl implements SchemaScope {
     }
 
     public boolean intersects(SchemaScope schemaScope) {
+        if (true) // Temporary hack while the implementation doesn't work in all situations (ex: submit booking from front-end doesn't update bookings table)
+            return true; // TODO fix the implementation to make it work in all situations
         for (ClassScope classScope1 : classScopes.values()) {
             ClassScope classScope2 = schemaScope.getClassScope(classScope1.classId);
             if (classScope2 != null && classScope1.intersects(classScope2))
