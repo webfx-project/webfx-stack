@@ -23,7 +23,8 @@ public final class QueryResultToEntitiesMapper {
         EntityList<E> entities = store.getOrCreateEntityList(listId);
         entities.clear();
         // Now iterating along the query result to create one entity per record
-        for (int rowIndex = 0, rowCount = rs.getRowCount(); rowIndex < rowCount; rowIndex++) {
+        if (rs != null)
+            for (int rowIndex = 0, rowCount = rs.getRowCount(); rowIndex < rowCount; rowIndex++) {
             // Retrieving the primary key of this record
             Object primaryKey = rs.getValue(rowIndex, rowMapping.getPrimaryKeyColumnIndex());
             // Creating the entity (empty for now)
