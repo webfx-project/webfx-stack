@@ -21,7 +21,7 @@
 
         <library name="Java-WebSocket">
             <groupId>org.java-websocket</groupId>
-            <version>1.5.1</version>
+            <version>1.5.2</version>
             <packages>
                 <package>org.java_websocket</package>
                 <package>org.java_websocket.client</package>
