@@ -11,7 +11,7 @@
     </packages>
 
     <providers>
-        <dev.webfx.platform.shared.services.appcontainer.spi.ApplicationModuleInitializer>dev.webfx.framework.shared.interceptors.dqlquerypush.DqlQueryPushInterceptorModuleInitializer</dev.webfx.platform.shared.services.appcontainer.spi.ApplicationModuleInitializer>
+        <dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>dev.webfx.framework.shared.interceptors.dqlquerypush.DqlQueryPushInterceptorModuleBooter</dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>
     </providers>
 
     <dependencies>

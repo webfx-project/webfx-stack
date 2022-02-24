@@ -5,7 +5,7 @@ module webfx.framework.client.querypush.simple {
     // Direct dependencies modules
     requires webfx.framework.client.querypush;
     requires webfx.framework.shared.querypush;
-    requires webfx.platform.shared.appcontainer;
+    requires webfx.platform.shared.boot;
     requires webfx.platform.shared.bus;
 
     // Exported packages
@@ -13,6 +13,6 @@ module webfx.framework.client.querypush.simple {
 
     // Provided services
     provides dev.webfx.framework.shared.services.querypush.spi.QueryPushServiceProvider with dev.webfx.framework.client.jobs.querypush.QueryPushClientServiceProvider;
-    provides dev.webfx.platform.shared.services.appcontainer.spi.ApplicationJob with dev.webfx.framework.client.jobs.querypush.QueryPushClientJob;
+    provides dev.webfx.platform.shared.services.boot.spi.ApplicationJob with dev.webfx.framework.client.jobs.querypush.QueryPushClientJob;
 
 }

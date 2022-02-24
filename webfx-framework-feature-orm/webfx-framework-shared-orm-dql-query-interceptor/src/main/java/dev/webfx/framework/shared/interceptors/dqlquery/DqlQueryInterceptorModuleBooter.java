@@ -2,7 +2,7 @@ package dev.webfx.framework.shared.interceptors.dqlquery;
 
 import dev.webfx.framework.shared.orm.domainmodel.DataSourceModel;
 import dev.webfx.framework.shared.services.datasourcemodel.DataSourceModelService;
-import dev.webfx.platform.shared.services.appcontainer.spi.ApplicationModuleInitializer;
+import dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter;
 import dev.webfx.platform.shared.services.datasource.LocalDataSourceService;
 import dev.webfx.platform.shared.services.query.QueryArgument;
 import dev.webfx.platform.shared.services.query.QueryResult;
@@ -13,7 +13,7 @@ import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
 /**
  * @author Bruno Salmon
  */
-public class DqlQueryInterceptorModuleInitializer implements ApplicationModuleInitializer {
+public class DqlQueryInterceptorModuleBooter implements ApplicationModuleBooter {
 
     @Override
     public String getModuleName() {
@@ -21,12 +21,12 @@ public class DqlQueryInterceptorModuleInitializer implements ApplicationModuleIn
     }
 
     @Override
-    public int getInitLevel() {
-        return APPLICATION_INIT_LEVEL;
+    public int getBootLevel() {
+        return APPLICATION_BOOT_LEVEL;
     }
 
     @Override
-    public void initModule() {
+    public void bootModule() {
         // The purpose of this interceptor is to automatically translate DQL to SQL when the query reaches its local data source
         SingleServiceProvider.registerServiceInterceptor(QueryServiceProvider.class, targetProvider ->
                 argument -> interceptAndExecuteQuery(argument, targetProvider)

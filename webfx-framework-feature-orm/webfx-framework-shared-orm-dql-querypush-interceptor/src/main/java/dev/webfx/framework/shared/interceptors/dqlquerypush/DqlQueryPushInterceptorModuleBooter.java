@@ -12,7 +12,7 @@ import dev.webfx.framework.shared.services.querypush.QueryPushArgument;
 import dev.webfx.framework.shared.services.querypush.spi.QueryPushServiceProvider;
 import dev.webfx.platform.shared.datascope.schema.SchemaScope;
 import dev.webfx.platform.shared.datascope.schema.SchemaScopeBuilder;
-import dev.webfx.platform.shared.services.appcontainer.spi.ApplicationModuleInitializer;
+import dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter;
 import dev.webfx.platform.shared.services.datasource.LocalDataSourceService;
 import dev.webfx.platform.shared.services.query.QueryArgument;
 import dev.webfx.platform.shared.util.async.Future;
@@ -21,7 +21,7 @@ import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
 /**
  * @author Bruno Salmon
  */
-public class DqlQueryPushInterceptorModuleInitializer implements ApplicationModuleInitializer {
+public class DqlQueryPushInterceptorModuleBooter implements ApplicationModuleBooter {
 
     @Override
     public String getModuleName() {
@@ -29,12 +29,12 @@ public class DqlQueryPushInterceptorModuleInitializer implements ApplicationModu
     }
 
     @Override
-    public int getInitLevel() {
-        return APPLICATION_INIT_LEVEL;
+    public int getBootLevel() {
+        return APPLICATION_BOOT_LEVEL;
     }
 
     @Override
-    public void initModule() {
+    public void bootModule() {
         // The purpose of this interceptor is to automatically set the query schema scope if not set (works only with
         // DQL select)
         SingleServiceProvider.registerServiceInterceptor(QueryPushServiceProvider.class, targetProvider ->

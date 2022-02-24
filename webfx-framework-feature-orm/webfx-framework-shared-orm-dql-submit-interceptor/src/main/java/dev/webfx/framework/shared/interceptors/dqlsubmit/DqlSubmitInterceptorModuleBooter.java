@@ -13,7 +13,7 @@ import dev.webfx.platform.shared.datascope.aggregate.AggregateScope;
 import dev.webfx.platform.shared.datascope.aggregate.AggregateScopeBuilder;
 import dev.webfx.platform.shared.datascope.schema.SchemaScope;
 import dev.webfx.platform.shared.datascope.schema.SchemaScopeBuilder;
-import dev.webfx.platform.shared.services.appcontainer.spi.ApplicationModuleInitializer;
+import dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter;
 import dev.webfx.platform.shared.services.datasource.LocalDataSourceService;
 import dev.webfx.platform.shared.services.submit.SubmitArgument;
 import dev.webfx.platform.shared.services.submit.SubmitResult;
@@ -27,7 +27,7 @@ import java.util.Arrays;
 /**
  * @author Bruno Salmon
  */
-public class DqlSubmitInterceptorModuleInitializer implements ApplicationModuleInitializer {
+public class DqlSubmitInterceptorModuleBooter implements ApplicationModuleBooter {
 
     @Override
     public String getModuleName() {
@@ -35,12 +35,12 @@ public class DqlSubmitInterceptorModuleInitializer implements ApplicationModuleI
     }
 
     @Override
-    public int getInitLevel() {
-        return APPLICATION_INIT_LEVEL;
+    public int getBootLevel() {
+        return APPLICATION_BOOT_LEVEL;
     }
 
     @Override
-    public void initModule() {
+    public void bootModule() {
         // The purpose of this interceptor is to automatically translate DQL to SQL and compute the schema scope when
         // the submit reaches its local data source (works only with DQL)
         SingleServiceProvider.registerServiceInterceptor(SubmitServiceProvider.class, targetProvider ->
@@ -85,7 +85,7 @@ public class DqlSubmitInterceptorModuleInitializer implements ApplicationModuleI
     }
 
     private static Batch<SubmitArgument> translateBatch(Batch<SubmitArgument> batch) {
-        return new Batch<>(Arrays.stream(batch.getArray()).map(DqlSubmitInterceptorModuleInitializer::translateSubmit).toArray(SubmitArgument[]::new));
+        return new Batch<>(Arrays.stream(batch.getArray()).map(DqlSubmitInterceptorModuleBooter::translateSubmit).toArray(SubmitArgument[]::new));
     }
 
     private static DataScope createDataScope(String dqlSubmitStatement, DataSourceModel dataSourceModel, Object[] parameters) {

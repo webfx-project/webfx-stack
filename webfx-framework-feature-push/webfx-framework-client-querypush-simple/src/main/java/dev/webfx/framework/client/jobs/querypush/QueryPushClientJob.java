@@ -1,7 +1,7 @@
 package dev.webfx.framework.client.jobs.querypush;
 
 import dev.webfx.framework.client.services.querypush.QueryPushClientService;
-import dev.webfx.platform.shared.services.appcontainer.spi.ApplicationJob;
+import dev.webfx.platform.shared.services.boot.spi.ApplicationJob;
 import dev.webfx.platform.shared.services.bus.Registration;
 import dev.webfx.framework.shared.services.querypush.spi.impl.LocalOrRemoteQueryPushServiceProvider;
 
