@@ -4,7 +4,7 @@ package dev.webfx.platform.server.jobs.buscall;
  * @author Bruno Salmon
  */
 
-import dev.webfx.platform.shared.services.appcontainer.spi.ApplicationJob;
+import dev.webfx.platform.shared.services.boot.spi.ApplicationJob;
 import dev.webfx.platform.shared.services.bus.Registrations;
 import dev.webfx.platform.shared.services.buscall.BusCallService;
 import dev.webfx.platform.shared.services.log.Logger;

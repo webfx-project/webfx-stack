@@ -1,11 +1,11 @@
-package dev.webfx.platform.vertx.services.appcontainer.spi.impl;
+package dev.webfx.platform.vertx.services.boot.spi.impl;
 
 import io.vertx.core.*;
-import dev.webfx.platform.shared.services.appcontainer.ApplicationContainer;
+import dev.webfx.platform.shared.services.boot.ApplicationBooter;
 import dev.webfx.platform.vertx.services_shared_code.instance.VertxInstance;
-import dev.webfx.platform.shared.services.appcontainer.spi.ApplicationContainerProvider;
-import dev.webfx.platform.shared.services.appcontainer.spi.ApplicationJob;
-import dev.webfx.platform.shared.services.appcontainer.spi.impl.ApplicationModuleInitializerManager;
+import dev.webfx.platform.shared.services.boot.spi.ApplicationBooterProvider;
+import dev.webfx.platform.shared.services.boot.spi.ApplicationJob;
+import dev.webfx.platform.shared.services.boot.spi.impl.ApplicationModuleBooterManager;
 import dev.webfx.platform.shared.services.shutdown.Shutdown;
 
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import java.util.Collection;
 
 /**
  * There are 2 possible entry points:
- *   1) one initiated by the ApplicationContainer (this includes the main() method of this class)
+ *   1) one initiated by the ApplicationBooter (this includes the main() method of this class)
  *   2) one initiated by Vertx when deploying this verticle
  *
  *   In case 1), the verticle is not yet deployed so the container need to deploy it (this will create a second instance of this class)
@@ -21,23 +21,23 @@ import java.util.Collection;
  *
  * @author Bruno Salmon
  */
-public final class VertxApplicationContainerVerticle extends AbstractVerticle implements ApplicationContainerProvider {
+public final class VertxApplicationBooterVerticle extends AbstractVerticle implements ApplicationBooterProvider {
 
-    private static VertxApplicationContainerVerticle containerInstance;
-    private static VertxApplicationContainerVerticle verticleInstance;
+    private static VertxApplicationBooterVerticle containerInstance;
+    private static VertxApplicationBooterVerticle verticleInstance;
 
     private final Collection<ApplicationJobVerticle> applicationJobVerticles = new ArrayList<>();
 
     @Override
-    public void initialize() { // Entry point 1)
+    public void boot() { // Entry point 1)
         containerInstance = this;
         if (verticleInstance == null)
-            VertxRunner.runVerticle(VertxApplicationContainerVerticle.class);
-        ApplicationModuleInitializerManager.initialize();
+            VertxRunner.runVerticle(VertxApplicationBooterVerticle.class);
+        ApplicationModuleBooterManager.initialize();
         Shutdown.addShutdownHook(() -> {
             for (String deploymentId : VertxInstance.getVertx().deploymentIDs())
                 VertxInstance.getVertx().undeploy(deploymentId);
-            ApplicationModuleInitializerManager.shutdown();
+            ApplicationModuleBooterManager.shutdown();
             VertxInstance.getVertx().close();
         });
     }
@@ -47,7 +47,7 @@ public final class VertxApplicationContainerVerticle extends AbstractVerticle im
         verticleInstance = this;
         VertxInstance.setVertx(vertx);
         if (containerInstance == null)
-            ApplicationContainer.main(null);
+            ApplicationBooter.main(null);
         vertx.deployVerticle(new VertxWebVerticle());
     }
 
@@ -111,6 +111,6 @@ public final class VertxApplicationContainerVerticle extends AbstractVerticle im
     }
 
     public static void main(String[] args) {
-        ApplicationContainer.main(args);
+        ApplicationBooter.main(args);
     }
 }

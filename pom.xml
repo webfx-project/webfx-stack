@@ -47,7 +47,7 @@
 
         <module>webfx-platform-providers-modules</module>
 
-        <module>webfx-platform-vertx-appcontainer-impl</module>
+        <module>webfx-platform-vertx-boot-impl</module>
         <module>webfx-platform-vertx-scheduler-impl</module>
 
     </modules>

@@ -4,7 +4,7 @@ module webfx.platform.shared.submitlistener {
 
     // Direct dependencies modules
     requires java.base;
-    requires webfx.platform.shared.appcontainer;
+    requires webfx.platform.shared.boot;
     requires webfx.platform.shared.log;
     requires webfx.platform.shared.submit;
     requires webfx.platform.shared.util;
@@ -16,6 +16,6 @@ module webfx.platform.shared.submitlistener {
     uses dev.webfx.platform.server.services.submitlistener.SubmitListener;
 
     // Provided services
-    provides dev.webfx.platform.shared.services.appcontainer.spi.ApplicationModuleInitializer with dev.webfx.platform.server.services.submitlistener.SubmitListenerModuleInitializer;
+    provides dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter with dev.webfx.platform.server.services.submitlistener.SubmitListenerModuleBooter;
 
 }

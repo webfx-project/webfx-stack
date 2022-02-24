@@ -1,8 +1,8 @@
 package dev.webfx.platform.shared.services.buscall;
 
+import dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter;
 import dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint;
 import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.platform.shared.services.appcontainer.spi.ApplicationModuleInitializer;
 import dev.webfx.platform.shared.services.bus.BusService;
 import dev.webfx.platform.shared.util.collection.Collections;
 
@@ -12,7 +12,7 @@ import java.util.ServiceLoader;
 /**
  * @author Bruno Salmon
  */
-public final class BusCallModuleInitializer implements ApplicationModuleInitializer {
+public final class BusCallModuleBooter implements ApplicationModuleBooter {
 
     @Override
     public String getModuleName() {
@@ -20,12 +20,12 @@ public final class BusCallModuleInitializer implements ApplicationModuleInitiali
     }
 
     @Override
-    public int getInitLevel() {
-        return JOBS_START_INIT_LEVEL;
+    public int getBootLevel() {
+        return JOBS_START_BOOT_LEVEL;
     }
 
     @Override
-    public void initModule() {
+    public void bootModule() {
         StringBuilder sb = new StringBuilder();
         List<BusCallEndpoint> endpoints = Collections.listOf(ServiceLoader.load(BusCallEndpoint.class));
         for (BusCallEndpoint endpoint : endpoints) {

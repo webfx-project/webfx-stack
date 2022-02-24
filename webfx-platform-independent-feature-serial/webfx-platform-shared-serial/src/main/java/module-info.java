@@ -4,7 +4,7 @@ module webfx.platform.shared.serial {
 
     // Direct dependencies modules
     requires java.base;
-    requires webfx.platform.shared.appcontainer;
+    requires webfx.platform.shared.boot;
     requires webfx.platform.shared.json;
     requires webfx.platform.shared.log;
     requires webfx.platform.shared.util;
@@ -18,7 +18,7 @@ module webfx.platform.shared.serial {
     uses dev.webfx.platform.shared.services.serial.spi.SerialCodec;
 
     // Provided services
-    provides dev.webfx.platform.shared.services.appcontainer.spi.ApplicationModuleInitializer with dev.webfx.platform.shared.services.serial.SerialCodecModuleInitializer;
+    provides dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter with dev.webfx.platform.shared.services.serial.SerialCodecModuleBooter;
     provides dev.webfx.platform.shared.services.serial.spi.SerialCodec with dev.webfx.platform.shared.services.serial.spi.impl.ProvidedBatchSerialCodec;
 
 }

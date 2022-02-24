@@ -14,7 +14,7 @@
 
     <modules>
 
-        <module>webfx-platform-shared-buscall</module> <!-- depends on bus, appcontainer module -->
+        <module>webfx-platform-shared-buscall</module> <!-- depends on bus, boot module -->
         <module>webfx-platform-shared-buscalljob</module> <!-- depends on buscall module -->
 
     </modules>

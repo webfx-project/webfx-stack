@@ -6,7 +6,7 @@
     </packages>
 
     <providers>
-        <dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>dev.webfx.platform.server.services.submitlistener.SubmitListenerModuleBooter</dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>
+        <dev.webfx.platform.shared.services.boot.spi.ApplicationBooterProvider>dev.webfx.platform.vertx.services.boot.spi.impl.VertxApplicationBooterVerticle</dev.webfx.platform.shared.services.boot.spi.ApplicationBooterProvider>
     </providers>
 
     <dependencies>

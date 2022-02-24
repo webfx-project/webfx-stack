@@ -14,7 +14,7 @@
 
     <modules>
 
-        <module>webfx-platform-shared-submit</module> <!-- depends on buscall, datasource, appcontainer module -->
+        <module>webfx-platform-shared-submit</module> <!-- depends on buscall, datasource, boot module -->
         <module>webfx-platform-java-submit-impl-jdbc</module>
         <module>webfx-platform-vertx-submit-impl-postgres-mysql-jdbc</module>
         <module>webfx-platform-shared-submit-impl-remote</module>

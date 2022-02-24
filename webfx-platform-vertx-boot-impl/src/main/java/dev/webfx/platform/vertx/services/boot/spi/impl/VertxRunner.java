@@ -1,4 +1,4 @@
-package dev.webfx.platform.vertx.services.appcontainer.spi.impl;
+package dev.webfx.platform.vertx.services.boot.spi.impl;
 
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;

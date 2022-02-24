@@ -14,7 +14,7 @@
 
     <modules>
 
-        <module>webfx-platform-shared-query</module> <!-- depends on buscall, datasource, appcontainer, util modules -->
+        <module>webfx-platform-shared-query</module> <!-- depends on buscall, datasource, boot, util modules -->
         <module>webfx-platform-java-query-impl-jdbc</module>
         <module>webfx-platform-vertx-query-impl-postgres-mysql-jdbc</module>
         <module>webfx-platform-shared-query-impl-remote</module>

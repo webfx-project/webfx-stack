@@ -1,6 +1,6 @@
 package dev.webfx.platform.server.services.submitlistener;
 
-import dev.webfx.platform.shared.services.appcontainer.spi.ApplicationModuleInitializer;
+import dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter;
 import dev.webfx.platform.shared.services.log.Logger;
 import dev.webfx.platform.shared.util.collection.Collections;
 
@@ -10,7 +10,7 @@ import java.util.ServiceLoader;
 /**
  * @author Bruno Salmon
  */
-public final class SubmitListenerModuleInitializer implements ApplicationModuleInitializer {
+public final class SubmitListenerModuleBooter implements ApplicationModuleBooter {
 
     private List<SubmitListener> providedListener;
 
@@ -20,12 +20,12 @@ public final class SubmitListenerModuleInitializer implements ApplicationModuleI
     }
 
     @Override
-    public int getInitLevel() {
-        return JOBS_START_INIT_LEVEL;
+    public int getBootLevel() {
+        return JOBS_START_BOOT_LEVEL;
     }
 
     @Override
-    public void initModule() {
+    public void bootModule() {
         providedListener = Collections.listOf(ServiceLoader.load(SubmitListener.class));
         providedListener.forEach(SubmitListenerService::addSubmitListener);
         Logger.log(providedListener.size() + " submit listeners found and registered:");

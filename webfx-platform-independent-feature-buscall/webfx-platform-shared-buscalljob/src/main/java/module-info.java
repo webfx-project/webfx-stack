@@ -3,7 +3,7 @@
 module webfx.platform.shared.buscalljob {
 
     // Direct dependencies modules
-    requires webfx.platform.shared.appcontainer;
+    requires webfx.platform.shared.boot;
     requires webfx.platform.shared.bus;
     requires webfx.platform.shared.buscall;
     requires webfx.platform.shared.log;
@@ -12,6 +12,6 @@ module webfx.platform.shared.buscalljob {
     exports dev.webfx.platform.server.jobs.buscall;
 
     // Provided services
-    provides dev.webfx.platform.shared.services.appcontainer.spi.ApplicationJob with dev.webfx.platform.server.jobs.buscall.BusCallServerJob;
+    provides dev.webfx.platform.shared.services.boot.spi.ApplicationJob with dev.webfx.platform.server.jobs.buscall.BusCallServerJob;
 
 }
