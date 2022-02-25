@@ -7,7 +7,7 @@
 
     <dependencies>
         <source-modules/>
-        <source-module optional="true">com-zaxxer-hikari</source-module>
+        <plugin-module optional="true">com-zaxxer-hikari</plugin-module>
     </dependencies>
 
 </project>
