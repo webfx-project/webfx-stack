@@ -6,7 +6,7 @@
         <library name="com-zaxxer-hikari">
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>3.3.1</version>
+            <version>5.0.1</version>
             <exported-packages>
                 <package>com.zaxxer.hikari</package>
             </exported-packages>
