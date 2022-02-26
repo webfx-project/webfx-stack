@@ -7,28 +7,28 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>3.3.1</version>
-            <packages>
+            <exported-packages>
                 <package>com.zaxxer.hikari</package>
-            </packages>
+            </exported-packages>
         </library>
 
         <library name="java-sql">
-            <packages>
+            <exported-packages>
                 <package>java.sql</package>
                 <package>javax.sql</package>
-            </packages>
+            </exported-packages>
         </library>
 
         <library name="Java-WebSocket">
             <groupId>org.java-websocket</groupId>
             <version>1.5.2</version>
-            <packages>
+            <exported-packages>
                 <package>org.java_websocket</package>
                 <package>org.java_websocket.client</package>
                 <package>org.java_websocket.drafts</package>
                 <package>org.java_websocket.enums</package>
                 <package>org.java_websocket.handshake</package>
-            </packages>
+            </exported-packages>
         </library>
 
         <group>
@@ -36,23 +36,23 @@
             <version>0.6.1</version>
 
             <library name="teavm-interop">
-                <packages>
+                <exported-packages>
                     <package>org.teavm.interop</package>
-                </packages>
+                </exported-packages>
             </library>
 
             <library name="teavm-jso">
-                <packages>
+                <exported-packages>
                     <package>org.teavm.jso</package>
-                </packages>
+                </exported-packages>
             </library>
 
             <library name="teavm-jso-apis">
-                <packages>
+                <exported-packages>
                     <package>org.teavm.jso.core</package>
                     <package>org.teavm.jso.dom.events</package>
                     <package>org.teavm.jso.typedarrays</package>
-                </packages>
+                </exported-packages>
             </library>
 
         </group>
@@ -62,45 +62,45 @@
             <version>3.9.1</version>
 
             <library name="vertx-bridge-common">
-                <packages>
+                <exported-packages>
                     <package>io.vertx.ext.bridge</package>
-                </packages>
+                </exported-packages>
             </library>
 
             <library name="vertx-core">
-                <packages>
+                <exported-packages>
                     <package>io.vertx.core</package>
                     <package>io.vertx.core.eventbus</package>
                     <package>io.vertx.core.http</package>
                     <package>io.vertx.core.json</package>
                     <package>io.vertx.core.net</package>
-                </packages>
+                </exported-packages>
             </library>
 
             <library name="vertx-jdbc-client">
-                <packages>
+                <exported-packages>
                     <package>io.vertx.ext.jdbc</package>
-                </packages>
+                </exported-packages>
             </library>
 
             <library name="vertx-mysql-postgresql-client-jasync">
-                <packages>
+                <exported-packages>
                     <package>io.vertx.ext.asyncsql</package>
-                </packages>
+                </exported-packages>
             </library>
 
             <library name="vertx-sql-common">
-                <packages>
+                <exported-packages>
                     <package>io.vertx.ext.sql</package>
-                </packages>
+                </exported-packages>
             </library>
 
             <library name="vertx-web">
-                <packages>
+                <exported-packages>
                     <package>io.vertx.ext.web</package>
                     <package>io.vertx.ext.web.handler</package>
                     <package>io.vertx.ext.web.handler.sockjs</package>
-                </packages>
+                </exported-packages>
             </library>
 
         </group>

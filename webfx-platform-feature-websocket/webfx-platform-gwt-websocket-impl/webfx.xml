@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project>
 
-    <packages>
+    <exported-packages>
         <source-packages/>
-    </packages>
+    </exported-packages>
 
     <providers>
         <dev.webfx.platform.client.services.websocket.spi.WebSocketServiceProvider>dev.webfx.platform.gwt.services.websocket.spi.impl.GwtWebSocketServiceProvider</dev.webfx.platform.client.services.websocket.spi.WebSocketServiceProvider>

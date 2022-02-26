@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project>
 
-    <packages>
+    <exported-packages>
         <source-packages/>
-    </packages>
+    </exported-packages>
 
     <providers>
         <dev.webfx.platform.shared.services.bus.spi.BusServiceProvider>dev.webfx.platform.vertx.services.bus.spi.impl.VertxBusServiceProvider</dev.webfx.platform.shared.services.bus.spi.BusServiceProvider>

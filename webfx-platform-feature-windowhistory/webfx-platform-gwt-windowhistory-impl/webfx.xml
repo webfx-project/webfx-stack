@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project>
 
-    <packages>
+    <exported-packages>
         <source-packages/>
-    </packages>
+    </exported-packages>
 
     <providers>
         <dev.webfx.platform.web.services.windowhistory.spi.impl.JsWindowHistory>dev.webfx.platform.gwt.services.windowhistory.spi.impl.GwtJsWindowHistory</dev.webfx.platform.web.services.windowhistory.spi.impl.JsWindowHistory>
