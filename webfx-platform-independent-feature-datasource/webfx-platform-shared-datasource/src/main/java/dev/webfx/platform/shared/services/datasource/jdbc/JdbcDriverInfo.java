@@ -23,7 +23,7 @@ public class JdbcDriverInfo {
 
     public String getUrlOrGenerateJdbcUrl(ConnectionDetails connectionDetails) {
         String url = connectionDetails.getUrl();
-        return url != null ? null : generateJdbcUrl(connectionDetails);
+        return url != null ? url : generateJdbcUrl(connectionDetails);
     }
 
     public String generateJdbcUrl(ConnectionDetails connectionDetails) {
