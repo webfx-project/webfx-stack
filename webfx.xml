@@ -59,7 +59,7 @@
 
         <group>
             <groupId>io.vertx</groupId>
-            <version>3.9.1</version>
+            <version>3.9.12</version>
 
             <library name="vertx-bridge-common">
                 <exported-packages>
