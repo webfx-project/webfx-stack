@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project>
 
-    <packages>
+    <exported-packages>
         <source-packages/>
-    </packages>
+    </exported-packages>
 
     <providers>
         <dev.webfx.platform.server.services.submitlistener.SubmitListener>dev.webfx.framework.server.services.querypush.QueryPushServerService$ProvidedSubmitListener</dev.webfx.platform.server.services.submitlistener.SubmitListener>

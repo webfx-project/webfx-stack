@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project>
 
-    <packages>
+    <exported-packages>
         <source-packages/>
-    </packages>
+    </exported-packages>
 
     <providers>
         <dev.webfx.framework.server.services.push.spi.PushServerServiceProvider>dev.webfx.framework.server.services.push.spi.impl.simple.SimplePushServerServiceProvider</dev.webfx.framework.server.services.push.spi.PushServerServiceProvider>
