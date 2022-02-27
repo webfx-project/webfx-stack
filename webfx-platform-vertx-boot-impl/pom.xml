@@ -12,6 +12,13 @@
     <dependencies> <!-- Dependencies managed by WebFX (DO NOT EDIT MANUALLY) -->
 
         <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.7.36</version>
+            <scope>runtime</scope>
+        </dependency>
+    
+        <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-bridge-common</artifactId>
             <version>3.9.12</version>
