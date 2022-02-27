@@ -6,8 +6,9 @@
     </exported-packages>
 
     <dependencies>
-        <used-by-source-modules/>
-        <plugin-module optional="true">com-zaxxer-hikari</plugin-module>
+        <used-by-source-modules>
+            <source-module optional="true">com-zaxxer-hikari</source-module>
+        </used-by-source-modules>
     </dependencies>
 
 </project>
