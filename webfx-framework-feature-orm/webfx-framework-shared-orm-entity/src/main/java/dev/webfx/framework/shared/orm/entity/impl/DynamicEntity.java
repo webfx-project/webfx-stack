@@ -9,6 +9,7 @@ import dev.webfx.platform.shared.services.log.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Bruno Salmon
@@ -106,5 +107,20 @@ public class DynamicEntity implements Entity {
     public void copyAllFieldsFrom(Entity entity) {
         DynamicEntity dynamicEntity = (DynamicEntity) entity;
         fieldValues.putAll(dynamicEntity.fieldValues);
+    }
+
+    // Implementing equals() and hashCode() -- Used by Dan in MoneyFlowsActivity
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DynamicEntity that = (DynamicEntity) o;
+        return id.equals(that.id) && store != that.store;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, store);
     }
 }
