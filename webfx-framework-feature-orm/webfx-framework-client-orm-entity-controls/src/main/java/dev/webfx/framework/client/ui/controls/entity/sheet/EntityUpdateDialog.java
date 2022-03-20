@@ -54,8 +54,13 @@ abstract class EntityUpdateDialog<E extends Entity> implements MaterialFactoryMi
                 ar.cause().printStackTrace();
             else
                 Platform.runLater(() -> {
-                    updateStore = UpdateStore.createAbove(entity.getStore());
-                    updateEntity = updateStore.updateEntity(entity);
+                    if (entity.getStore() instanceof UpdateStore) {
+                        updateStore = (UpdateStore) entity.getStore();
+                        updateEntity = entity;
+                    } else {
+                        updateStore = UpdateStore.createAbove(entity.getStore());
+                        updateEntity = updateStore.updateEntity(entity);
+                    }
                     dialogContent = new DialogContent().setContent(getNode());
                     DialogUtil.showModalNodeInGoldLayout(dialogContent, parent);
                     DialogUtil.armDialogContentButtons(dialogContent, dialogCallback -> {
