@@ -3,8 +3,8 @@
 module webfx.platform.vertx.json.impl {
 
     // Direct dependencies modules
+    requires io.vertx.core;
     requires java.base;
-    requires vertx.core;
     requires webfx.platform.shared.json;
     requires webfx.platform.shared.util;
 

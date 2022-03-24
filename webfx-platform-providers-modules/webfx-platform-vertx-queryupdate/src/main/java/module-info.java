@@ -3,12 +3,12 @@
 module webfx.platform.vertx.queryupdate {
 
     // Direct dependencies modules
+    requires io.vertx.client.jdbc;
+    requires io.vertx.client.sql;
+    requires io.vertx.client.sql.pg;
+    requires io.vertx.core;
     requires java.base;
     requires java.sql;
-    requires vertx.core;
-    requires vertx.jdbc.client;
-    requires vertx.mysql.postgresql.client.jasync;
-    requires vertx.sql.common;
     requires webfx.platform.shared.datasource;
     requires webfx.platform.shared.log;
     requires webfx.platform.shared.query;

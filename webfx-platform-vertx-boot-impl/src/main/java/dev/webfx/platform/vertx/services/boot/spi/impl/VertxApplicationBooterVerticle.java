@@ -91,21 +91,21 @@ public final class VertxApplicationBooterVerticle extends AbstractVerticle imple
         }
 
         @Override
-        public void start(Future<Void> future) {
-            completeVertxFuture(applicationJob.onStartAsync(), future);
+        public void start(Promise<Void> startPromise) {
+            completeVertxPromise(applicationJob.onStartAsync(), startPromise);
         }
 
         @Override
-        public void stop(Future<Void> future) {
-            completeVertxFuture(applicationJob.onStopAsync(), future);
+        public void stop(Promise<Void> stopPromise) {
+            completeVertxPromise(applicationJob.onStopAsync(), stopPromise);
         }
 
-        private void completeVertxFuture(dev.webfx.platform.shared.util.async.Future<Void> webfxFuture, Future<Void> vertxFuture) {
+        private void completeVertxPromise(dev.webfx.platform.shared.util.async.Future<Void> webfxFuture, Promise<Void> vertxPromise) {
             webfxFuture.setHandler(ar -> {
                 if (ar.failed())
-                    vertxFuture.fail(webfxFuture.cause());
+                    vertxPromise.fail(webfxFuture.cause());
                 else
-                    vertxFuture.complete();
+                    vertxPromise.complete();
             });
         }
     }

@@ -19,7 +19,8 @@ import java.util.Map;
 
 public final class SerialCodecManager {
 
-    public static final String CODEC_ID_KEY = "$codec";
+    public final static String CODEC_ID_KEY = "$codec";
+    private final static String INSTANT_VALUE_PREFIX = "$instant:";
 
     private static final Map<Class, SerialCodec> encoders = new HashMap<>();
     private static final Map<String, SerialCodec> decoders = new HashMap<>();
@@ -72,7 +73,7 @@ public final class SerialCodecManager {
                 instant = localDateTime.toInstant(ZoneOffset.UTC);
         }
         if (instant != null)
-            return Dates.formatIso(instant);
+            return INSTANT_VALUE_PREFIX + Dates.formatIso(instant);
         // Other java objects are serialized into json
         return encodeToJsonObject(object);
     }
@@ -107,7 +108,15 @@ public final class SerialCodecManager {
     public static <J> J decodeFromJson(Object object) {
         if (object instanceof JsonObject)
             return decodeFromJsonObject((JsonObject) object);
-        object = Dates.fastToInstantIfIsoString(object);
+        if (object instanceof String) {
+            String s = (String) object;
+            if (s.startsWith(INSTANT_VALUE_PREFIX)) {
+                s = s.substring(INSTANT_VALUE_PREFIX.length());
+                Object instant = Dates.fastToInstantIfIsoString(s);
+                if (instant != s)
+                    object = instant;
+            }
+        }
         return (J) object;
     }
 

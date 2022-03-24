@@ -59,43 +59,51 @@
 
         <group>
             <groupId>io.vertx</groupId>
-            <version>3.9.12</version>
+            <version>4.2.6</version>
 
-            <library name="vertx-bridge-common">
+            <library name="io-vertx-eventbusbridge-common">
+                <artifactId>vertx-bridge-common</artifactId>
                 <exported-packages>
                     <package>io.vertx.ext.bridge</package>
                 </exported-packages>
             </library>
 
-            <library name="vertx-core">
+            <library name="io-vertx-core">
+                <artifactId>vertx-core</artifactId>
                 <exported-packages>
                     <package>io.vertx.core</package>
                     <package>io.vertx.core.eventbus</package>
+                    <package>io.vertx.core.eventbus.impl</package>
                     <package>io.vertx.core.http</package>
                     <package>io.vertx.core.json</package>
                     <package>io.vertx.core.net</package>
+                    <package>io.vertx.core.spi.cluster</package>
                 </exported-packages>
             </library>
 
-            <library name="vertx-jdbc-client">
+            <library name="io-vertx-client-jdbc">
+                <artifactId>vertx-jdbc-client</artifactId>
                 <exported-packages>
-                    <package>io.vertx.ext.jdbc</package>
+                    <package>io.vertx.jdbcclient</package>
                 </exported-packages>
             </library>
 
-            <library name="vertx-mysql-postgresql-client-jasync">
+            <library name="io-vertx-client-sql">
+                <artifactId>vertx-sql-client</artifactId>
                 <exported-packages>
-                    <package>io.vertx.ext.asyncsql</package>
+                    <package>io.vertx.sqlclient</package>
                 </exported-packages>
             </library>
 
-            <library name="vertx-sql-common">
+            <library name="io-vertx-client-sql-pg">
+                <artifactId>vertx-pg-client</artifactId>
                 <exported-packages>
-                    <package>io.vertx.ext.sql</package>
+                    <package>io.vertx.pgclient</package>
                 </exported-packages>
             </library>
 
-            <library name="vertx-web">
+            <library name="io-vertx-web">
+                <artifactId>vertx-web</artifactId>
                 <exported-packages>
                     <package>io.vertx.ext.web</package>
                     <package>io.vertx.ext.web.handler</package>
@@ -104,6 +112,13 @@
             </library>
 
         </group>
+
+        <!-- Additional library required at runtime when authenticating to a postgres database in a docker container -->
+        <library name="com-ongres-scram-client">
+            <artifactId>client</artifactId>
+            <groupId>com.ongres.scram</groupId>
+            <version>2.1</version>
+        </library>
 
     </libraries>
 

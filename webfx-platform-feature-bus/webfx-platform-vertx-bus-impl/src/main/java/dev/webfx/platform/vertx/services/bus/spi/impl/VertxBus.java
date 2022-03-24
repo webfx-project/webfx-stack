@@ -1,7 +1,9 @@
 package dev.webfx.platform.vertx.services.bus.spi.impl;
 
+import io.vertx.core.Promise;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.eventbus.impl.EventBusInternal;
 import io.vertx.core.json.JsonObject;
 import dev.webfx.platform.shared.services.bus.*;
 import dev.webfx.platform.shared.services.json.Json;
@@ -17,7 +19,7 @@ final class VertxBus implements Bus {
 
     private final EventBus eventBus;
     private final BusOptions options;
-    private boolean open;
+    private boolean open = true;
 
     VertxBus(EventBus eventBus, BusOptions options) {
         this.eventBus = eventBus;
@@ -26,7 +28,12 @@ final class VertxBus implements Bus {
 
     @Override
     public void close() {
-        eventBus.close(event -> open = false);
+        if (eventBus instanceof EventBusInternal) {
+            Promise<Void> promise = Promise.promise();
+            ((EventBusInternal) eventBus).close(promise);
+            promise.future().onSuccess(e -> open = false);
+        } else
+            open = false;
     }
 
     @Override

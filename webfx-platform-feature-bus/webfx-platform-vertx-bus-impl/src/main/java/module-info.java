@@ -3,7 +3,7 @@
 module webfx.platform.vertx.bus.impl {
 
     // Direct dependencies modules
-    requires vertx.core;
+    requires io.vertx.core;
     requires webfx.platform.shared.bus;
     requires webfx.platform.shared.json;
     requires webfx.platform.shared.util;

@@ -3,7 +3,7 @@
 module webfx.platform.vertx.scheduler.impl {
 
     // Direct dependencies modules
-    requires vertx.core;
+    requires io.vertx.core;
     requires webfx.platform.shared.scheduler;
     requires webfx.platform.vertx.instance;
 
