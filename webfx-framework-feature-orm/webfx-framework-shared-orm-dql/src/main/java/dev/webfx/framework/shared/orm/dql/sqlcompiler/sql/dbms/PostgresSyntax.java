@@ -33,4 +33,9 @@ public final class PostgresSyntax extends DbmsSqlSyntaxImpl {
         }
         return super.isReservedIdentifier(identifier);
     }
+
+    @Override
+    public String generateParameterToken(int parameterIndex) {
+        return "$" + parameterIndex;
+    }
 }

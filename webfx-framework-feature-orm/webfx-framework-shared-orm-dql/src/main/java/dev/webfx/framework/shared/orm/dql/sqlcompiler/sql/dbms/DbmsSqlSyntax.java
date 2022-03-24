@@ -29,4 +29,8 @@ public interface DbmsSqlSyntax {
         return false;
     }
 
+    default String generateParameterToken(int parameterIndex) {
+        return "?";
+    }
+
 }

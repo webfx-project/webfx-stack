@@ -20,7 +20,7 @@ public final class ParameterSqlCompiler extends AbstractTermSqlCompiler<Paramete
     public void compileParameter(Parameter e, Options o, boolean isRightOperand) {
         String name = e.getName();
         if (name != null) {
-            if (isClientOnly(e, o.clause == SqlClause.SELECT)) // TODO: distinguer les parametres sql des parametres locaux
+            if (isClientOnly(e, o.clause == SqlClause.SELECT)) // TODO: distinguish sql parameters from local parameters
                 return;
             o.build.getParameterNames().add(name);
             if (e.getRightDot() != null)
@@ -64,7 +64,7 @@ public final class ParameterSqlCompiler extends AbstractTermSqlCompiler<Paramete
             }
             */
         }
-        o.build.addColumnInClause(null, "?", null, null, o.clause, o.separator, false, false, o.generateQueryMapping);
+        o.build.addColumnInClause(null, o.build.getDbmsSyntax().generateParameterToken(++o.build.parameterIndex), null, null, o.clause, o.separator, false, false, o.generateQueryMapping);
     }
 
     private boolean isClientOnly(Parameter e, boolean forSelectClause) {

@@ -56,6 +56,7 @@ public final class SqlBuild {
     private final List<String> orderedAliases = new ArrayList<>();
     private final HashMap<String, QueryColumnToEntityFieldMapping> fullColumnNameToColumnMappings = new HashMap<>(); // tableAlias.columnName => columnMapping
     //private int fromTablesCount;
+    public int parameterIndex;
 
     public SqlBuild(SqlBuild parent, Object selectDomainClass, String tableAlias, SqlClause clause, DbmsSqlSyntax dbmsSyntax, CompilerDomainModelReader modelReader) {
         this.parent = parent;

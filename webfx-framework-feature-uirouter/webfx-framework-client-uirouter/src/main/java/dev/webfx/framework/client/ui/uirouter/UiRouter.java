@@ -27,6 +27,8 @@ import dev.webfx.platform.shared.services.json.JsonArray;
 import dev.webfx.platform.shared.services.json.JsonObject;
 import dev.webfx.platform.shared.services.json.WritableJsonObject;
 import dev.webfx.platform.shared.services.log.Logger;
+import dev.webfx.platform.shared.util.Numbers;
+import dev.webfx.platform.shared.util.Objects;
 import dev.webfx.platform.shared.util.async.Handler;
 import dev.webfx.platform.shared.util.collection.Collections;
 import dev.webfx.platform.shared.util.function.Converter;
@@ -316,7 +318,7 @@ public final class UiRouter extends HistoryRouter {
         }
 
         private void applyRoutingContextParamsToActivityContext(JsonObject routingContextParams, C activityContext) {
-            // Temporary applying the parameters to the whole application context so they can be shared between activities
+            // Temporary applying the parameters to the whole application context, so they can be shared between activities
             // (ex: changing :x parameter in activity1 and then pressing a navigation button in a parent container activity
             // that goes to /:x/activity2 => the parent container can get the last :x value changed by activity1)
             WritableJsonObject localParams = null;
@@ -326,6 +328,8 @@ public final class UiRouter extends HistoryRouter {
             for (int i = 0, size = keys.size(); i < size; i++) {
                 String key = keys.getString(i);
                 Object value = routingContextParams.getNativeElement(key);
+                // Strings of digits (such as entities id) are converted to integers, so that they can be directly passed as DQL/SQL parameters in the application code
+                value = Objects.coalesce(Numbers.toInteger(value), value);
                 boolean localParameter = true; //"refresh".equals(key);
                 /*if (!localParameter)
                     appParams.setNativeElement(key, value);
