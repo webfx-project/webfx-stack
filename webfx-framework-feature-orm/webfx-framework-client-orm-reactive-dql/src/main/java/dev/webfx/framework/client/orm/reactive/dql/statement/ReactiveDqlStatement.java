@@ -1,8 +1,5 @@
 package dev.webfx.framework.client.orm.reactive.dql.statement;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableValue;
 import dev.webfx.framework.client.orm.reactive.dql.statement.conventions.*;
 import dev.webfx.framework.shared.orm.dql.DqlStatement;
 import dev.webfx.framework.shared.orm.dql.DqlStatementBuilder;
@@ -12,6 +9,9 @@ import dev.webfx.platform.shared.services.json.JsonObject;
 import dev.webfx.platform.shared.util.Numbers;
 import dev.webfx.platform.shared.util.Strings;
 import dev.webfx.platform.shared.util.function.Converter;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,8 +85,10 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
 
     private DqlStatement mergeDqlStatements() {
         DqlStatementBuilder mergeBuilder = new DqlStatementBuilder(getDomainClassId());
-        for (ObservableValue<DqlStatement> dqlStatementProperty : dqlStatementProperties)
-            mergeBuilder.merge(dqlStatementProperty.getValue());
+        synchronized (dqlStatementProperties) { // to avoid ConcurrentModificationException if another thread wants to add another statement
+            for (ObservableValue<DqlStatement> dqlStatementProperty : dqlStatementProperties)
+                mergeBuilder.merge(dqlStatementProperty.getValue());
+        }
         DqlStatement result = mergeBuilder.build();
         for (Function<DqlStatement, DqlStatement> resultTransformer : resultTransformers)
             if (!result.isInherentlyEmpty())
@@ -105,7 +107,9 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
     }
 
     private ReactiveDqlStatement<E> addWithoutListening(ObservableValue<DqlStatement> dqlStatementProperty) {
-        dqlStatementProperties.add(dqlStatementProperty);
+        synchronized (dqlStatementProperties) { // to avoid ConcurrentModificationException if mergeDqlStatements() is also executed
+            dqlStatementProperties.add(dqlStatementProperty);
+        }
         markDqlStatementsAsChanged();
         return this;
     }
