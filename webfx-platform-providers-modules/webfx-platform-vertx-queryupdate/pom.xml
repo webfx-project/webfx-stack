@@ -14,25 +14,21 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-jdbc-client</artifactId>
-            <version>4.2.6</version>
         </dependency>
     
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-sql-client</artifactId>
-            <version>4.2.6</version>
         </dependency>
     
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-pg-client</artifactId>
-            <version>4.2.6</version>
         </dependency>
     
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-core</artifactId>
-            <version>4.2.6</version>
         </dependency>
     
         <dependency>

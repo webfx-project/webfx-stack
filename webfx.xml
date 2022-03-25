@@ -6,7 +6,6 @@
         <library name="com-zaxxer-hikari">
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>5.0.1</version>
             <exported-packages>
                 <package>com.zaxxer.hikari</package>
             </exported-packages>
@@ -21,7 +20,6 @@
 
         <library name="Java-WebSocket">
             <groupId>org.java-websocket</groupId>
-            <version>1.5.2</version>
             <exported-packages>
                 <package>org.java_websocket</package>
                 <package>org.java_websocket.client</package>
@@ -33,7 +31,6 @@
 
         <group>
             <groupId>org.teavm</groupId>
-            <version>0.6.1</version>
 
             <library name="teavm-interop">
                 <exported-packages>
@@ -59,14 +56,6 @@
 
         <group>
             <groupId>io.vertx</groupId>
-            <version>4.2.6</version>
-
-            <library name="io-vertx-eventbusbridge-common">
-                <artifactId>vertx-bridge-common</artifactId>
-                <exported-packages>
-                    <package>io.vertx.ext.bridge</package>
-                </exported-packages>
-            </library>
 
             <library name="io-vertx-core">
                 <artifactId>vertx-core</artifactId>
@@ -78,6 +67,13 @@
                     <package>io.vertx.core.json</package>
                     <package>io.vertx.core.net</package>
                     <package>io.vertx.core.spi.cluster</package>
+                </exported-packages>
+            </library>
+
+            <library name="io-vertx-eventbusbridge-common">
+                <artifactId>vertx-bridge-common</artifactId>
+                <exported-packages>
+                    <package>io.vertx.ext.bridge</package>
                 </exported-packages>
             </library>
 
@@ -117,7 +113,6 @@
         <library name="com-ongres-scram-client">
             <artifactId>client</artifactId>
             <groupId>com.ongres.scram</groupId>
-            <version>2.1</version>
         </library>
 
     </libraries>
