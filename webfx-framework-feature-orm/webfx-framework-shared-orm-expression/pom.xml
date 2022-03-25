@@ -79,11 +79,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Generating the source artifact for GWT compilation -->
-            <plugin>
-                <artifactId>maven-source-plugin</artifactId>
-            </plugin>
-
             <!-- Relocating the java_cup package to avoid a version conflict that makes TeaVM compilation fail (TeaVM has a dependency on xalan which includes an incompatible version of java_cup) -->
             <!--plugin>
                 <groupId>org.apache.maven.plugins</groupId>
