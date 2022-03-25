@@ -8,7 +8,7 @@ import dev.webfx.framework.client.ui.util.paint.PaintBuilder;
 /**
  * @author Bruno Salmon
  */
-public final class BackgroundUtil {
+public final class BackgroundFactory {
 
     public final static Background TRANSPARENT_BACKGROUND = newBackground(Color.TRANSPARENT);
     public final static Background WHITE_BACKGROUND = newBackground(Color.WHITE);

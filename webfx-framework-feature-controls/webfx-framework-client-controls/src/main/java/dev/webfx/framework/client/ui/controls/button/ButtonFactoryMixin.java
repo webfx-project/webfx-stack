@@ -5,8 +5,8 @@ import javafx.scene.layout.Background;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import dev.webfx.framework.client.ui.action.Action;
-import dev.webfx.framework.client.ui.util.background.BackgroundUtil;
-import dev.webfx.framework.client.ui.util.border.BorderUtil;
+import dev.webfx.framework.client.ui.util.background.BackgroundFactory;
+import dev.webfx.framework.client.ui.util.border.BorderFactory;
 import dev.webfx.framework.client.ui.controls.ControlFactoryMixin;
 import dev.webfx.framework.client.ui.util.layout.LayoutUtil;
 
@@ -84,15 +84,15 @@ public interface ButtonFactoryMixin extends ControlFactoryMixin {
         Paint textFill = Color.WHITE, pressedTextFill = textFill;
         Background background, pressedBackground;
         if (topColor != null && bottomColor != null) {
-            background = BackgroundUtil.newVerticalLinearGradientBackground(topColor, bottomColor, buttonHeight / 2, borderWidth);
-            pressedBackground = BackgroundUtil.newVerticalLinearGradientBackground(bottomColor, topColor, buttonHeight / 2, borderWidth);
+            background = BackgroundFactory.newVerticalLinearGradientBackground(topColor, bottomColor, buttonHeight / 2, borderWidth);
+            pressedBackground = BackgroundFactory.newVerticalLinearGradientBackground(bottomColor, topColor, buttonHeight / 2, borderWidth);
         } else {
-            background = BackgroundUtil.newBackground(Color.TRANSPARENT, buttonHeight / 2, borderWidth - 1);
-            pressedBackground = BackgroundUtil.newBackground(textFill, buttonHeight / 2, borderWidth - 1);
+            background = BackgroundFactory.newBackground(Color.TRANSPARENT, buttonHeight / 2, borderWidth - 1);
+            pressedBackground = BackgroundFactory.newBackground(textFill, buttonHeight / 2, borderWidth - 1);
             pressedTextFill = Color.BLACK;
         }
         return buttonBuilder
-                .setBorder(BorderUtil.newBorder(textFill, buttonHeight / 2, borderWidth))
+                .setBorder(BorderFactory.newBorder(textFill, buttonHeight / 2, borderWidth))
                 .setBackground(background)
                 .setPressedBackground(pressedBackground)
                 .setTextFill(textFill)

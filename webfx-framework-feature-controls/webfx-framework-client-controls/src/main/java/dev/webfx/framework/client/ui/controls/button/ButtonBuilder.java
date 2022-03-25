@@ -184,7 +184,7 @@ public final class ButtonBuilder {
                     button.backgroundProperty().bind(Properties.compute(button.pressedProperty(), pressed -> pressed ? pressedBackground : background));
             }
             if (dropDownArrowDecorated)
-                ButtonUtil.decorateButtonWithDropDownArrow(button);
+                ButtonFactory.decorateButtonWithDropDownArrow(button);
             if (styleFunction != null)
                 button = styleFunction.apply(button);
             if (textFill == null && textFillBuilder != null)

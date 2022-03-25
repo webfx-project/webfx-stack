@@ -11,13 +11,13 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import dev.webfx.framework.client.ui.controls.MaterialFactoryMixin;
 import dev.webfx.framework.client.ui.controls.button.ButtonFactoryMixin;
-import dev.webfx.framework.client.ui.controls.button.ButtonUtil;
+import dev.webfx.framework.client.ui.controls.button.ButtonFactory;
 import dev.webfx.framework.client.ui.controls.dialog.DialogCallback;
 import dev.webfx.framework.client.ui.controls.dialog.DialogUtil;
 import dev.webfx.framework.client.ui.util.layout.LayoutUtil;
 import dev.webfx.framework.client.ui.util.scene.SceneUtil;
 import dev.webfx.extras.materialdesign.textfield.MaterialTextFieldPane;
-import dev.webfx.framework.client.ui.util.border.BorderUtil;
+import dev.webfx.framework.client.ui.util.border.BorderFactory;
 import dev.webfx.kit.util.properties.Properties;
 import dev.webfx.platform.client.services.uischeduler.AnimationFramePass;
 import dev.webfx.platform.client.services.uischeduler.UiScheduler;
@@ -147,7 +147,7 @@ public abstract class ButtonSelector<T> {
 
     public Button getButton() {
         if (button == null)
-            setButton(ButtonUtil.newDropDownButton());
+            setButton(ButtonFactory.newDropDownButton());
         return button;
     }
 
@@ -341,13 +341,13 @@ public abstract class ButtonSelector<T> {
                 dialogCallback = DialogUtil.showModalNodeInGoldLayout(dialogPane, parentNow, 0.95, 0.95);
                 dialogHeightProperty.bind(dialogPane.heightProperty());
                 // Resetting default and cancel buttons (required for JavaFx if displayed a second time)
-                ButtonUtil.resetDefaultAndCancelButtons(okButton, cancelButton);
+                ButtonFactory.resetDefaultAndCancelButtons(okButton, cancelButton);
                 dialogPane.setVisible(true);
                 break;
 
             case DROP_DOWN:
             case DROP_UP:
-                LayoutUtil.removePadding(dialogPane).setBorder(BorderUtil.newBorder(Color.DARKGRAY));
+                LayoutUtil.removePadding(dialogPane).setBorder(BorderFactory.newBorder(Color.DARKGRAY));
                 setMaxPrefSize(dialogContent, USE_COMPUTED_SIZE);
                 double maxHeight = computeMaxAvailableHeightForDropDialog();
                 if (isSearchEnabled())

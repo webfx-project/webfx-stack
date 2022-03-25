@@ -1,6 +1,6 @@
 package dev.webfx.framework.client.ui.util.layout;
 
-import dev.webfx.framework.client.ui.util.background.BackgroundUtil;
+import dev.webfx.framework.client.ui.util.background.BackgroundFactory;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.kit.util.properties.Properties;
 import dev.webfx.platform.shared.util.Numbers;
@@ -30,7 +30,7 @@ public final class LayoutUtil {
     }
 
     public static GridPane createGoldLayout(Region child, double percentageWidth, double percentageHeight) {
-        return createGoldLayout(child, percentageWidth, percentageHeight, BackgroundUtil.newBackground(Color.gray(0.3, 0.5)));
+        return createGoldLayout(child, percentageWidth, percentageHeight, BackgroundFactory.newBackground(Color.gray(0.3, 0.5)));
     }
 
     public static GridPane createGoldLayout(Region child, double percentageWidth, double percentageHeight, Background background) {

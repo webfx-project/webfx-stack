@@ -10,8 +10,8 @@ import javafx.scene.control.Button;
 import javafx.scene.paint.Color;
 import dev.webfx.framework.client.ui.action.Action;
 import dev.webfx.framework.client.ui.controls.Controls;
-import dev.webfx.framework.client.ui.util.background.BackgroundUtil;
-import dev.webfx.framework.client.ui.util.border.BorderUtil;
+import dev.webfx.framework.client.ui.util.background.BackgroundFactory;
+import dev.webfx.framework.client.ui.util.border.BorderFactory;
 import dev.webfx.kit.util.properties.Properties;
 import dev.webfx.extras.imagestore.ImageStore;
 import dev.webfx.framework.client.ui.validation.controlsfx.control.decoration.GraphicDecoration;
@@ -19,7 +19,7 @@ import dev.webfx.framework.client.ui.validation.controlsfx.control.decoration.Gr
 /**
  * @author Bruno Salmon
  */
-public final class ButtonUtil {
+public final class ButtonFactory {
 
     public static Button newButton(Action action) {
         return newButtonBuilder(action).build();
@@ -48,8 +48,8 @@ public final class ButtonUtil {
     public static Button newDropDownButton() {
         Button button = new Button();
         int radius = 6;
-        button.setBorder(BorderUtil.newBorder(Color.LIGHTGRAY, radius, 1));
-        button.setBackground(BackgroundUtil.newVerticalLinearGradientBackground("white", "#E0E0E0", radius));
+        button.setBorder(BorderFactory.newBorder(Color.LIGHTGRAY, radius, 1));
+        button.setBackground(BackgroundFactory.newVerticalLinearGradientBackground("white", "#E0E0E0", radius));
         return decorateButtonWithDropDownArrow(button);
     }
 
