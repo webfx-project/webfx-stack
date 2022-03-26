@@ -2,7 +2,6 @@ package dev.webfx.framework.client.ui.controls.entity.selector;
 
 import dev.webfx.extras.cell.renderer.ValueRenderer;
 import dev.webfx.extras.cell.renderer.ValueRendererFactory;
-import dev.webfx.extras.cell.renderer.ValueRenderingContext;
 import dev.webfx.extras.visual.VisualResult;
 import dev.webfx.extras.visual.controls.grid.SkinnedVisualGrid;
 import dev.webfx.extras.visual.controls.grid.VisualGrid;
@@ -134,7 +133,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> {
     protected Node getOrCreateButtonContentFromSelectedItem() {
         E entity = getSelectedItem();
         Object renderedValue = entity == null ? null : entity.evaluate(renderingExpression);
-        return entityRenderer.renderValue(renderedValue, ValueRenderingContext.DEFAULT_READONLY_CONTEXT);
+        return entityRenderer.renderValue(renderedValue);
     }
 
     @Override

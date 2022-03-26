@@ -21,6 +21,10 @@ public final class Entities {
         return entity == null ? null : entity.getId();
     }
 
+    public static EntityId getId(Object entityInstanceOrId) {
+        return entityInstanceOrId == null ? null : entityInstanceOrId instanceof Entity ? getId((Entity) entityInstanceOrId) : (EntityId) entityInstanceOrId;
+    }
+
     public static Object getPrimaryKey(Entity entity) {
         return entity == null ? null : entity.getPrimaryKey();
     }
