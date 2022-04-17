@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project>
 
     <exported-packages>
@@ -15,12 +15,12 @@
         <plugin-module>org.slf4j.jul</plugin-module>
     </dependencies>
 
-    <libraries>
+    <required-libraries>
         <library name="org.slf4j.jul">
             <artifactId>slf4j-jdk14</artifactId>
             <groupId>org.slf4j</groupId>
             <version>1.7.36</version>
         </library>
-    </libraries>
+    </required-libraries>
 
 </project>
