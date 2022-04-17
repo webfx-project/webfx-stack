@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <parent name="webfx-stack-parent"/>
+
+    <modules>
+        <subdirectories-modules/>
+    </modules>
+
+    <required-libraries>
+        <group>
+            <groupId>dev.webfx</groupId>
+            <version>0.1.0-SNAPSHOT</version>
+            <library name="webfx-extras"/>
+            <library name="webfx-stack-platform"/>
+        </group>
+    </required-libraries>
+
+</project>
