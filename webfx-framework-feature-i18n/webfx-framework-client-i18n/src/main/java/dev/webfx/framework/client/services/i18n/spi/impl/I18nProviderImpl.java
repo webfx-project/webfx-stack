@@ -119,7 +119,7 @@ public class I18nProviderImpl implements I18nProvider {
             if (partTranslation == null) {
                 scheduleMessageLoading(i18nKey, true);
                 if (part == I18nPart.TEXT)
-                    partTranslation = whatToReturnWhenI18nTextIsNotFound(i18nKey);
+                    partTranslation = whatToReturnWhenI18nTextIsNotFound(i18nKey, part);
             }
         }
         return partTranslation;
@@ -133,21 +133,46 @@ public class I18nProviderImpl implements I18nProvider {
                 break;*/
             value = tokenValue;
         }
+        int i1 = 0;
+        while (value != null && value.contains("[")) {
+            i1 = value.indexOf('[', i1);
+            if (i1 < 0)
+                break;
+            int i2 = value.indexOf(']', i1 + 1);
+            if (i2 < 0)
+                break;
+            String token = value.substring(i1 + 1, i2);
+            String tokenValue = interpretToken(i18nKey, part, token);
+            /*if (token.equals(tokenValue))
+                break;*/
+            value = value.substring(0, i1) +  tokenValue + value.substring(i2 + 1);
+        }
         return value;
     }
 
     protected String interpretToken(Object i18nKey, I18nPart part, String token) {
-        return getI18nPartValue(new I18nSubKey(token, i18nKey), part);
+        String tokenValue = findTokenValueInKey(i18nKey, token);
+        return tokenValue != null ? tokenValue : getI18nPartValue(new I18nSubKey(token, i18nKey), part);
+    }
+
+    protected String findTokenValueInKey(Object i18nKey, String token) {
+        if (i18nKey instanceof Map)
+            return Strings.toString(((Map) i18nKey).get(token));
+        if (i18nKey instanceof I18nSubKey)
+            return findTokenValueInKey(((I18nSubKey) i18nKey).getParentI18nKey(), token);
+        return null;
     }
 
     private String getI18nPartValue(Object i18nKey, I18nPart part, Dictionary dictionary, boolean skipPrefixOrSuffix) {
         String partTranslation = null;
         if (dictionary != null && i18nKey != null) {
+            boolean interpreted = false;
             Object dictionaryMessageKey = i18nKeyToDictionaryMessageKey(i18nKey);
             partTranslation = dictionary.getI18nPartValue(dictionaryMessageKey, part);
-            if (skipPrefixOrSuffix && partTranslation != null)
-                partTranslation = interpretDictionaryValue(i18nKey, part, partTranslation);
-            else if (partTranslation == null && !skipPrefixOrSuffix) {
+            if (skipPrefixOrSuffix && partTranslation != null) {
+                //partTranslation = interpretDictionaryValue(i18nKey, part, partTranslation);
+                interpreted = false;
+            } else if (partTranslation == null && !skipPrefixOrSuffix) {
                 String sKey = Strings.asString(dictionaryMessageKey);
                 int length = Strings.length(sKey);
                 if (length > 1) {
@@ -161,6 +186,7 @@ public class I18nProviderImpl implements I18nProvider {
                                 partTranslation = getI18nPartValue(new I18nSubKey(sKey.substring(prefix.length(), length), i18nKey), part, dictionary, true);
                                 if (partTranslation != null && part == I18nPart.TEXT)
                                     partTranslation = getI18nPartValue(prefix, part, true) + partTranslation;
+                                interpreted = true;
                         }
                     }
                 }
@@ -178,10 +204,13 @@ public class I18nProviderImpl implements I18nProvider {
                                 partTranslation = getI18nPartValue(new I18nSubKey(sKey.substring(0, length - suffix.length()), i18nKey), part, dictionary, true);
                                 if (partTranslation != null && part == I18nPart.TEXT)
                                     partTranslation = partTranslation + getI18nPartValue(suffix, part, true);
+                                interpreted = true;
                         }
                     }
                 }
             }
+            if (!interpreted)
+                partTranslation = interpretDictionaryValue(i18nKey, part, partTranslation);
         }
         return partTranslation;
     }
@@ -192,8 +221,9 @@ public class I18nProviderImpl implements I18nProvider {
         return i18nKey;
     }
 
-    private String whatToReturnWhenI18nTextIsNotFound(Object i18nKey) {
-        return Strings.toString(i18nKeyToDictionaryMessageKey(i18nKey));
+    private String whatToReturnWhenI18nTextIsNotFound(Object i18nKey, I18nPart part) {
+        String value = Strings.toString(i18nKeyToDictionaryMessageKey(i18nKey));
+        return interpretDictionaryValue(i18nKey, part, value);
     }
 
     private void onLanguageChanged() {
