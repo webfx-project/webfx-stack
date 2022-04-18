@@ -98,12 +98,12 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
     public Future<Batch<SubmitResult>> submitChanges(SubmitArgument... initialSubmits) {
         try {
             EntityChangesToSubmitBatchGenerator.BatchGenerator updateBatchGenerator = EntityChangesToSubmitBatchGenerator.createSubmitBatchGenerator(getEntityChanges(), dataSourceModel, submitScope, initialSubmits);
-            Batch<SubmitArgument> batch = updateBatchGenerator.generate();
-            Logger.log("Executing submit batch " + Arrays.toStringWithLineFeeds(batch.getArray()));
-            return SubmitService.executeSubmitBatch(batch).compose((ar, finalFuture) -> {
+            Batch<SubmitArgument> argBatch = updateBatchGenerator.generate();
+            Logger.log("Executing submit batch " + Arrays.toStringWithLineFeeds(argBatch.getArray()));
+            return SubmitService.executeSubmitBatch(argBatch).compose(resBatch -> {
                 markChangesAsCommitted();
-                updateBatchGenerator.applyGeneratedKeys(ar, this);
-                finalFuture.complete(ar);
+                updateBatchGenerator.applyGeneratedKeys(resBatch, this);
+                return Future.succeededFuture(resBatch);
             });
         } catch (Exception e) {
             return Future.failedFuture(e);

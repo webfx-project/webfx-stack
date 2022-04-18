@@ -53,12 +53,14 @@ public class I18nProviderImpl implements I18nProvider {
     }
 
     private final ObjectProperty<Object> languageProperty = new SimpleObjectProperty<>();
+
     @Override
     public ObjectProperty<Object> languageProperty() {
         return languageProperty;
     }
 
     private final ObjectProperty<Dictionary> dictionaryProperty = new SimpleObjectProperty<>();
+
     @Override
     public ObservableObjectValue<Dictionary> dictionaryProperty() {
         return dictionaryProperty;
@@ -145,7 +147,7 @@ public class I18nProviderImpl implements I18nProvider {
             String tokenValue = interpretToken(i18nKey, part, token);
             /*if (token.equals(tokenValue))
                 break;*/
-            value = value.substring(0, i1) +  tokenValue + value.substring(i2 + 1);
+            value = value.substring(0, i1) + tokenValue + value.substring(i2 + 1);
         }
         return value;
     }
@@ -287,15 +289,16 @@ public class I18nProviderImpl implements I18nProvider {
             UiScheduler.scheduleDeferred(() -> {
                 Object language = inDefaultLanguage ? getDefaultLanguage() : getLanguage();
                 Set<Object> loadingKeys = getUnloadedKeys(inDefaultLanguage);
-                dictionaryLoader.loadDictionary(language, loadingKeys).setHandler(asyncResult -> {
-                    if (!inDefaultLanguage)
-                        dictionaryProperty.setValue(asyncResult.result());
-                    if (language.equals(getDefaultLanguage()))
-                        defaultDictionaryProperty.setValue(asyncResult.result());
-                    dictionaryLoadRequired = false;
-                    for (Object key : loadingKeys)
-                        refreshMessageTranslations(key);
-                });
+                dictionaryLoader.loadDictionary(language, loadingKeys)
+                        .onSuccess(result -> {
+                            if (!inDefaultLanguage)
+                                dictionaryProperty.setValue(result);
+                            if (language.equals(getDefaultLanguage()))
+                                defaultDictionaryProperty.setValue(result);
+                            dictionaryLoadRequired = false;
+                            for (Object key : loadingKeys)
+                                refreshMessageTranslations(key);
+                        });
                 setUnloadedKeys(null, inDefaultLanguage);
             });
         }

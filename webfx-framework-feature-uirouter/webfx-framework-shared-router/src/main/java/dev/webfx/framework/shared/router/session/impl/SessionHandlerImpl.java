@@ -5,6 +5,7 @@ import dev.webfx.framework.shared.router.session.Session;
 import dev.webfx.framework.shared.router.session.SessionHandler;
 import dev.webfx.framework.shared.router.session.SessionStore;
 import dev.webfx.platform.shared.util.function.Callable;
+
 import java.util.function.Consumer;
 
 /**
@@ -29,18 +30,15 @@ public final class SessionHandlerImpl implements SessionHandler {
             createNewSession(context);
             recordSessionIdAndContinueRouting(context);
         } else {
-            sessionStoreGetter.call().get(sessionId).setHandler(ar -> {
-                if (ar.failed())
-                    context.fail(ar.cause());
-                else {
-                    Session session = ar.result();
-                    if (session != null)
-                        context.setSession(session);
-                    else
-                        createNewSession(context);
-                    recordSessionIdAndContinueRouting(context);
-                }
-            });
+            sessionStoreGetter.call().get(sessionId)
+                    .onFailure(context::fail)
+                    .onSuccess(session -> {
+                        if (session != null)
+                            context.setSession(session);
+                        else
+                            createNewSession(context);
+                        recordSessionIdAndContinueRouting(context);
+                    });
         }
     }
 

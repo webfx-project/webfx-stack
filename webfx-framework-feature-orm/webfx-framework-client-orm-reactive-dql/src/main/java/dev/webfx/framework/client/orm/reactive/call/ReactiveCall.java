@@ -224,11 +224,11 @@ public class ReactiveCall<A,R> {
 
     protected void callAsyncFunction() {
         memorizeLastCallArgument();
-        asyncFunction.apply(getArgument()).setHandler(ar -> onCallResult(ar.result(), ar.cause()));
+        asyncFunction.apply(getArgument()).onComplete(ar -> onCallResult(ar.result(), ar.cause()));
     }
 
     protected void onCallResult(R result, Throwable error) {
-        // Double checking if the argument is still the latest
+        // Double-checking if the argument is still the latest
         if (hasArgumentChangedSinceLastCall())
             log("Ignoring a received result coming from an old call");
         else {

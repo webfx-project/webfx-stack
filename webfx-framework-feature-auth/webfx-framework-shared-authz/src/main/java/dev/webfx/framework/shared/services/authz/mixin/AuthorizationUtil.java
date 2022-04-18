@@ -25,7 +25,7 @@ public final class AuthorizationUtil {
                 Object userPrincipal = userPrincipalProperty == null ? null : userPrincipalProperty.getValue();
                 if (this.context != context || this.userPrincipal != userPrincipal || value == null) {
                     value = false;
-                    authorizationFunction.apply(operationRequestFactory.apply(context)).setHandler(ar -> {
+                    authorizationFunction.apply(operationRequestFactory.apply(context)).onComplete(ar -> {
                         this.context = context;
                         this.userPrincipal = userPrincipal;
                         if (ar.succeeded())

@@ -11,7 +11,9 @@ import dev.webfx.framework.client.activity.impl.elementals.presentation.logic.Pr
 import dev.webfx.framework.client.activity.impl.elementals.presentation.view.PresentationViewActivityContext;
 import dev.webfx.framework.client.activity.impl.elementals.presentation.view.impl.PresentationViewActivityBase;
 import dev.webfx.platform.client.services.uischeduler.UiScheduler;
+import dev.webfx.platform.shared.util.async.AsyncUtil;
 import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.util.async.Promise;
 import dev.webfx.platform.shared.util.function.Callable;
 import dev.webfx.platform.shared.util.function.Factory;
 
@@ -48,10 +50,10 @@ public class PresentationActivityBase
 
     @Override
     protected Future<Void> executeBoth(Callable<Future<Void>> callable1, Callable<Future<Void>> callable2) {
-        Future<Void> future2 = Future.future();
-        UiScheduler.runOutUiThread(() -> callable2.call().setHandler(future2.completer()));
-        Future<Void> future1 = Future.future();
-        UiScheduler.runInUiThread(() -> callable1.call().setHandler(future1.completer()));
-        return Future.allOf(future1, future2);
+        Promise<Void> promise2 = Promise.promise();
+        UiScheduler.runOutUiThread(() -> callable2.call().onComplete(promise2));
+        Promise<Void> promise1 = Promise.promise();
+        UiScheduler.runInUiThread(() -> callable1.call().onComplete(promise1));
+        return AsyncUtil.allOf(promise1.future(), promise2.future());
     }
 }

@@ -127,7 +127,7 @@ public final class ReactiveQueryPushCall extends ReactiveQueryCall {
                 // This consumer will be called each time the server will push a change notification on the result
                 .setQueryPushResultConsumer(queryPushResult -> onCallResult(computeQueryResult(queryPushResult), null))
                 .build()
-        ).setHandler(ar -> { // This handler is called only once when the query push service call returns
+        ).onComplete(ar -> { // This handler is called only once when the query push service call returns
             boolean refreshChildren = false;
             // Cases where we need to trigger a new query push service call:
             if (ar.failed() // 1) on failure (this may happen if queryStreamId is not registered on the server anymore, for ex after server restart with a non persistent query push provider such as the in-memory default one)

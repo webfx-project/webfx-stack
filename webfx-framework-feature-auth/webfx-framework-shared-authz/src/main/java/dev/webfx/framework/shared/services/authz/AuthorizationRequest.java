@@ -1,7 +1,10 @@
 package dev.webfx.framework.shared.services.authz;
 
 import dev.webfx.platform.shared.util.async.AsyncFunction;
+import dev.webfx.platform.shared.util.async.AsyncUtil;
 import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.util.async.Promise;
+
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -47,11 +50,11 @@ public final class AuthorizationRequest<Rq, Rs> {
     }
 
     public AuthorizationRequest<Rq, Rs> onAuthorizedExecute(Consumer<Rq> authorizedExecutor) {
-        return onAuthorizedExecuteAsync(rq -> Future.consumeAsync(authorizedExecutor, rq));
+        return onAuthorizedExecuteAsync(rq -> AsyncUtil.consumeAsync(authorizedExecutor, rq));
     }
 
     public AuthorizationRequest<Rq, Rs> onAuthorizedExecute(Runnable authorizedExecutor) {
-        return onAuthorizedExecuteAsync(rq -> Future.runAsync(authorizedExecutor));
+        return onAuthorizedExecuteAsync(rq -> AsyncUtil.runAsync(authorizedExecutor));
     }
 
     public AsyncFunction<Throwable, ?> getUnauthorizedOperationAsyncExecutor() {
@@ -64,11 +67,11 @@ public final class AuthorizationRequest<Rq, Rs> {
     }
 
     public AuthorizationRequest<Rq, Rs> onUnauthorizedExecute(Consumer<Throwable> authorizedExecutor) {
-        return onUnauthorizedExecuteAsync(o -> Future.consumeAsync(authorizedExecutor, o));
+        return onUnauthorizedExecuteAsync(o -> AsyncUtil.consumeAsync(authorizedExecutor, o));
     }
 
     public AuthorizationRequest<Rq, Rs> onUnauthorizedExecute(Runnable authorizedExecutor) {
-        return onUnauthorizedExecuteAsync(o -> Future.runAsync(authorizedExecutor));
+        return onUnauthorizedExecuteAsync(o -> AsyncUtil.runAsync(authorizedExecutor));
     }
 
     public Future<Boolean> isAuthorizedAsync() {
@@ -76,14 +79,14 @@ public final class AuthorizationRequest<Rq, Rs> {
     }
 
     public Future<Rs> executeAsync() {
-        Future<Rs> future = Future.future();
-        isAuthorizedAsync().setHandler(ar -> {
+        Promise<Rs> promise = Promise.promise();
+        isAuthorizedAsync().onComplete(ar -> {
             if (ar.succeeded() && ar.result())
-                getAuthorizedOperationAsyncExecutor().apply(getOperationRequest()).setHandler(future.completer());
+                getAuthorizedOperationAsyncExecutor().apply(getOperationRequest()).onComplete(ar2 -> promise.complete(ar2.result()));
             else
-                getUnauthorizedOperationAsyncExecutor().apply(ar.cause()).setHandler(ar2 -> future.fail(ar.cause()));
+                getUnauthorizedOperationAsyncExecutor().apply(ar.cause()).onComplete(ar2 -> promise.fail(ar.cause()));
         });
-        return future;
+        return promise.future();
     }
 
 }

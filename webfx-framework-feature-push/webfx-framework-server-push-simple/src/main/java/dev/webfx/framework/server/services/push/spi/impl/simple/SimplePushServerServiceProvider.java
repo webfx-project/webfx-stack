@@ -2,15 +2,15 @@ package dev.webfx.framework.server.services.push.spi.impl.simple;
 
 import dev.webfx.framework.server.services.push.UnresponsivePushClientListener;
 import dev.webfx.framework.server.services.push.spi.PushServerServiceProvider;
+import dev.webfx.framework.shared.services.push.ClientPushBusAddressesSharedByBothClientAndServer;
+import dev.webfx.platform.shared.services.bus.Bus;
+import dev.webfx.platform.shared.services.bus.BusService;
+import dev.webfx.platform.shared.services.buscall.BusCallService;
+import dev.webfx.platform.shared.services.log.Logger;
 import dev.webfx.platform.shared.services.scheduler.Scheduled;
 import dev.webfx.platform.shared.services.scheduler.Scheduler;
 import dev.webfx.platform.shared.util.async.Future;
-import dev.webfx.platform.shared.services.bus.Bus;
-import dev.webfx.platform.shared.services.buscall.BusCallService;
-import dev.webfx.platform.shared.services.bus.BusService;
-import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.framework.shared.services.push.ClientPushBusAddressesSharedByBothClientAndServer;
-import dev.webfx.platform.shared.util.async.AsyncResult;
+import dev.webfx.platform.shared.util.async.Promise;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,18 +29,18 @@ public final class SimplePushServerServiceProvider implements PushServerServiceP
 
     @Override
     public <T> Future<T> callClientService(String serviceAddress, Object javaArgument, Bus bus, Object pushClientId) {
-        Future<T> future = Future.future();
+        Promise<T> promise = Promise.promise();
         PushClientInfo pushClientInfo = getOrCreatePushClientInfo(pushClientId);
         String clientBusCallServiceAddress = ClientPushBusAddressesSharedByBothClientAndServer.computeClientBusCallServiceAddress(pushClientId);
         Logger.log("Pushing " + clientBusCallServiceAddress + " -> " + serviceAddress);
         pushClientInfo.touchCalled();
-        BusCallService.call(clientBusCallServiceAddress, serviceAddress, javaArgument, bus).setHandler(ar -> {
+        BusCallService.<T>call(clientBusCallServiceAddress, serviceAddress, javaArgument, bus).onComplete(ar -> {
             pushClientInfo.touchReceived(ar.cause());
             if (ar.failed())
                 pushFailed(pushClientId);
-            future.complete((AsyncResult<T>) ar);
+            promise.complete(ar.result());
         });
-        return future;
+        return promise.future();
     }
 
     @Override

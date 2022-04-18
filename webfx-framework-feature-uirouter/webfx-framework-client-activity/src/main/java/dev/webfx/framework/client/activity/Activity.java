@@ -1,5 +1,6 @@
 package dev.webfx.framework.client.activity;
 
+import dev.webfx.platform.shared.util.async.AsyncUtil;
 import dev.webfx.platform.shared.util.async.Future;
 
 /**
@@ -9,17 +10,17 @@ public interface Activity<C extends ActivityContext> {
 
     /** Async API **/
 
-    default Future<Void> onCreateAsync(C context) { return Future.consumeAsync(this::onCreate, context); }
+    default Future<Void> onCreateAsync(C context) { return AsyncUtil.consumeAsync(this::onCreate, context); }
 
-    default Future<Void> onStartAsync() { return Future.runAsync(this::onStart); }
+    default Future<Void> onStartAsync() { return AsyncUtil.runAsync(this::onStart); }
 
-    default Future<Void> onResumeAsync() { return Future.runAsync(this::onResume); }
+    default Future<Void> onResumeAsync() { return AsyncUtil.runAsync(this::onResume); }
 
-    default Future<Void> onPauseAsync() { return Future.runAsync(this::onPause); }
+    default Future<Void> onPauseAsync() { return AsyncUtil.runAsync(this::onPause); }
 
-    default Future<Void> onStopAsync() { return Future.runAsync(this::onStop); }
+    default Future<Void> onStopAsync() { return AsyncUtil.runAsync(this::onStop); }
 
-    default Future<Void> onDestroyAsync() { return Future.runAsync(this::onDestroy); }
+    default Future<Void> onDestroyAsync() { return AsyncUtil.runAsync(this::onDestroy); }
 
 
     /** Sync API **/

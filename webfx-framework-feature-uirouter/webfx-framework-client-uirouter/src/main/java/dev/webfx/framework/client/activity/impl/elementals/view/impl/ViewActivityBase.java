@@ -1,12 +1,14 @@
 package dev.webfx.framework.client.activity.impl.elementals.view.impl;
 
-import javafx.scene.Node;
-import dev.webfx.kit.launcher.WebFxKitLauncher;
-import dev.webfx.platform.shared.util.async.Future;
 import dev.webfx.framework.client.activity.impl.elementals.uiroute.impl.UiRouteActivityBase;
 import dev.webfx.framework.client.activity.impl.elementals.view.ViewActivity;
 import dev.webfx.framework.client.activity.impl.elementals.view.ViewActivityContext;
 import dev.webfx.framework.client.activity.impl.elementals.view.ViewActivityContextMixin;
+import dev.webfx.kit.launcher.WebFxKitLauncher;
+import dev.webfx.platform.shared.util.async.AsyncUtil;
+import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.util.async.Promise;
+import javafx.scene.Node;
 
 /**
  * @author Bruno Salmon
@@ -23,13 +25,13 @@ public abstract class ViewActivityBase
     @Override
     public Future<Void> onResumeAsync() {
         if (WebFxKitLauncher.isReady())
-            return Future.runAsync(this::onResume);
-        Future<Void> future = Future.future();
+            return AsyncUtil.runAsync(this::onResume);
+        Promise<Void> promise = Promise.promise();
         WebFxKitLauncher.onReady(() -> {
             onResume();
-            future.complete();
+            promise.complete();
         });
-        return future;
+        return promise.future();
     }
 
     @Override

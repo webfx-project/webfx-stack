@@ -143,12 +143,13 @@ public final class UiRouter extends HistoryRouter {
             if (mountParentRouter != null)
                 return mountParentRouter.getUiSession();
             uiSession = UiSession.get();
-            uiSession.userPrincipalProperty().addListener((observable, oldUser, userPrincipal) -> getSessionStore().get(sessionId).setHandler(ar -> {
-                if (ar.succeeded()) {
-                    UserSessionHandlerImpl.setSessionUserHolder(ar.result(), new UserHolder(userPrincipal));
-                    refresh();
-                }
-            }));
+            uiSession.userPrincipalProperty().addListener((observable, oldUser, userPrincipal) ->
+                    getSessionStore().get(sessionId)
+                            .onSuccess(session -> {
+                                UserSessionHandlerImpl.setSessionUserHolder(session, new UserHolder(userPrincipal));
+                                refresh();
+                            })
+            );
         }
         return uiSession;
     }
@@ -280,10 +281,10 @@ public final class UiRouter extends HistoryRouter {
                 previousActivityManager.pause();
             // Now we transit the current activity (which was either paused or newly created) into the resume state and
             // once done we display the activity node by binding it with the hosting context (done in the UI tread)
-            activityManager.resume().setHandler(event -> {
+            activityManager.resume().onComplete(event -> {
                 if (hostingContext instanceof HasNodeProperty && activityContext instanceof HasNodeProperty)
                     UiScheduler.runInUiThread(() ->
-                        ((HasNodeProperty) hostingContext).nodeProperty().bind(((HasNodeProperty) activityContext).nodeProperty())
+                            ((HasNodeProperty) hostingContext).nodeProperty().bind(((HasNodeProperty) activityContext).nodeProperty())
                     );
             });
             /*--- Sub routing management ---*/
@@ -298,9 +299,9 @@ public final class UiRouter extends HistoryRouter {
                 // The trick is to bind the mount node of the parent activity to the child activity node
                 if (activityContext instanceof HasMountNodeProperty && mountChildSubRouter.hostingContext instanceof HasNodeProperty)
                     UiScheduler.runInUiThread(() ->
-                        ((HasMountNodeProperty) activityContext).mountNodeProperty().bind(((HasNodeProperty) mountChildSubRouter.hostingContext).nodeProperty()) // Using the hosting context node which is bound to the child activity node
+                            ((HasMountNodeProperty) activityContext).mountNodeProperty().bind(((HasNodeProperty) mountChildSubRouter.hostingContext).nodeProperty()) // Using the hosting context node which is bound to the child activity node
                     );
-                // This should display the child activity because a mount parent activity is supposed to bind its context mount node to the UI
+            // This should display the child activity because a mount parent activity is supposed to bind its context mount node to the UI
         }
 
         private C convertRoutingContextToActivityContext(RoutingContext routingContext) {
@@ -333,7 +334,8 @@ public final class UiRouter extends HistoryRouter {
                 boolean localParameter = true; //"refresh".equals(key);
                 /*if (!localParameter)
                     appParams.setNativeElement(key, value);
-                else*/ {
+                else*/
+                {
                     if (localParams == null)
                         localParams = Json.createObject();
                     localParams.set(key, value);

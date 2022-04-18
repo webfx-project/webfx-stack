@@ -2,6 +2,7 @@ package dev.webfx.framework.client.activity.impl.composition.impl;
 
 import dev.webfx.framework.client.activity.*;
 import dev.webfx.framework.client.activity.impl.ActivityBase;
+import dev.webfx.platform.shared.util.async.AsyncUtil;
 import dev.webfx.platform.shared.util.async.Future;
 import dev.webfx.platform.shared.util.function.Callable;
 import dev.webfx.platform.shared.util.function.Factory;
@@ -42,7 +43,7 @@ public class ComposedActivityBase
         C2 context2 = activityManager2.getContextFactory().createContext(context);
         context.setActivityContext1(context1);
         context.setActivityContext2(context2);
-        return Future.allOf(activityManager1.create(context1), activityManager2.create(context2));
+        return AsyncUtil.allOf(activityManager1.create(context1), activityManager2.create(context2));
     }
 
     @Override
@@ -71,6 +72,6 @@ public class ComposedActivityBase
     }
 
     protected Future<Void> executeBoth(Callable<Future<Void>> callable1, Callable<Future<Void>> callable2) {
-        return Future.allOf(callable1.call(), callable2.call());
+        return AsyncUtil.allOf(callable1.call(), callable2.call());
     }
 }

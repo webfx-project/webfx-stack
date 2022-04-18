@@ -4,6 +4,7 @@ import dev.webfx.framework.client.activity.impl.ActivityContextBase;
 import dev.webfx.platform.shared.util.async.AsyncResult;
 import dev.webfx.platform.shared.util.async.Future;
 import dev.webfx.platform.shared.util.async.Handler;
+import dev.webfx.platform.shared.util.async.Promise;
 import dev.webfx.platform.shared.util.function.Factory;
 
 /**
@@ -101,32 +102,29 @@ public final class ActivityManager<C extends ActivityContext<C>> {
     }
 
     public Future<Void> transitTo(State intentState) {
-        return onNoPendingTransitTo(intentState, Future.future(), Future.future());
+        return onNoPendingTransitTo(intentState, Promise.promise(), Promise.promise());
     }
 
-    private Future<Void> lastPendingFuture; // mirror of the last pending transition future - an internal handler can be set on it
+    private Promise<Void> lastPendingPromise; // mirror of the last pending transition future - an internal handler can be set on it
 
-    private Future<Void> onNoPendingTransitTo(State intentState, Future<Void> transitFuture, Future<Void> pendingFuture) {
+    private Future<Void> onNoPendingTransitTo(State intentState, Promise<Void> transitPromise, Promise<Void> pendingPromise) {
         synchronized (this) {
-            Future<Void> waiting = lastPendingFuture;
-            lastPendingFuture = pendingFuture;
+            Promise<Void> waiting = lastPendingPromise;
+            lastPendingPromise = pendingPromise;
             if (waiting == null)
-                return transitTo(intentState, transitFuture, pendingFuture);
+                return transitTo(intentState, transitPromise, pendingPromise);
             // Waiting the last transition to finish before processing this one
-            waiting.setHandler(ar -> {
-                if (ar.failed())
-                    failFutures(ar.cause(), transitFuture, pendingFuture);
-                else
-                    transitTo(intentState, transitFuture, pendingFuture);
-            });
-            return transitFuture;
+            waiting.future()
+                    .onSuccess(v -> transitTo(intentState, transitPromise, pendingPromise))
+                    .onFailure(cause -> failPromises(cause, transitPromise, pendingPromise));
+            return transitPromise.future();
         }
     }
 
-    private Future<Void> transitTo(State intentState, Future<Void> transitFuture, Future<Void> pendingFuture) {
+    private Future<Void> transitTo(State intentState, Promise<Void> transitPromise, Promise<Void> pendingPromise) {
         synchronized (this) {
             if (intentState == currentState)
-                return completeFutures(transitFuture, pendingFuture);
+                return completePromises(transitPromise, pendingPromise);
             State nextState;
             if (intentState.compareTo(currentState) > 0)
                 nextState = State.values()[currentState.ordinal() + 1];
@@ -134,50 +132,50 @@ public final class ActivityManager<C extends ActivityContext<C>> {
                 || currentState == State.STOPPED && intentState == State.STARTED)
                 nextState = intentState;
             else
-                return failFutures("Illegal state transition", transitFuture, pendingFuture);
-            onStateChanged(nextState).setHandler(new Handler<AsyncResult<Void>>() {
+                return failPromises("Illegal state transition", transitPromise, pendingPromise);
+            onStateChanged(nextState).onComplete(new Handler<AsyncResult<Void>>() {
                 @Override
                 public void handle(AsyncResult<Void> result) {
                     if (result.failed())
-                        failFutures(result.cause(), transitFuture, pendingFuture);
+                        failPromises(result.cause(), transitPromise, pendingPromise);
                     else if (intentState == currentState)
-                        completeFutures(transitFuture, pendingFuture);
+                        completePromises(transitPromise, pendingPromise);
                     else
-                        transitTo(intentState, Future.future(), pendingFuture).setHandler(this);
+                        transitTo(intentState, Promise.promise(), pendingPromise).onComplete(this);
                 }
             });
         }
-        return transitFuture;
+        return transitPromise.future();
     }
 
-    private Future<Void> completeFutures(Future<Void> transitFuture, Future<Void> pendingFuture) {
-        transitFuture.complete();
-        return syncFutures(transitFuture, pendingFuture);
+    private Future<Void> completePromises(Promise<Void> transitPromise, Promise<Void> pendingPromise) {
+        transitPromise.complete();
+        return syncPromises(transitPromise, pendingPromise);
     }
 
-    private Future<Void> failFutures(String failureMessage, Future<Void> transitFuture, Future<Void> pendingFuture) {
-        transitFuture.fail(failureMessage);
-        return syncFutures(transitFuture, pendingFuture);
+    private Future<Void> failPromises(String failureMessage, Promise<Void> transitPromise, Promise<Void> pendingPromise) {
+        transitPromise.fail(failureMessage);
+        return syncPromises(transitPromise, pendingPromise);
     }
 
-    private Future<Void> failFutures(Throwable throwable, Future<Void> transitFuture, Future<Void> pendingFuture) {
-        transitFuture.fail(throwable);
-        return syncFutures(transitFuture, pendingFuture);
+    private Future<Void> failPromises(Throwable throwable, Promise<Void> transitPromise, Promise<Void> pendingPromise) {
+        transitPromise.fail(throwable);
+        return syncPromises(transitPromise, pendingPromise);
     }
 
-    private Future<Void> syncFutures(Future<Void> transitFuture, Future<Void> pendingFuture) {
-        if (transitFuture.isComplete()) {
+    private Future<Void> syncPromises(Promise<Void> transitPromise, Promise<Void> pendingPromise) {
+        if (transitPromise.future().isComplete()) {
             synchronized (this) {
-                if (lastPendingFuture == pendingFuture)
-                    lastPendingFuture = null;
+                if (lastPendingPromise == pendingPromise)
+                    lastPendingPromise = null;
             }
-            if (!pendingFuture.isComplete())
-                if (transitFuture.failed())
-                    pendingFuture.fail(transitFuture.cause());
+            if (!pendingPromise.future().isComplete())
+                if (transitPromise.future().failed())
+                    pendingPromise.fail(transitPromise.future().cause());
                 else
-                    pendingFuture.complete();
+                    pendingPromise.complete();
         }
-        return transitFuture;
+        return transitPromise.future();
     }
 
     private Future<Void> onStateChanged(State newState) {

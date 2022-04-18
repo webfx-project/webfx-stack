@@ -89,7 +89,8 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
             if (nextMostUrgentQuery == null)
                 markAsFinished();
             else
-                refreshQuery(nextMostUrgentQuery).setHandler(ar -> refreshNextMostUrgentQueryIfAnyAndLoop());
+                refreshQuery(nextMostUrgentQuery)
+                        .onComplete(ar -> refreshNextMostUrgentQueryIfAnyAndLoop());
         }
 
         Future<Void> refreshQuery(QueryInfo queryInfo) {
@@ -157,8 +158,7 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
             Object queryStreamId = streamInfo.queryStreamId;
             //Logger.log("pushResultToClient() to queryStreamId=" + queryStreamId + " with " + (queryResult != null ? queryResult.getRowCount() + " rows" : "diff"));
             QueryPushServerService.pushQueryResultToClient(new QueryPushResult(queryStreamId, queryResult, queryResultDiff), streamInfo.pushClientId)
-                .setHandler(ar -> {
-                    if (ar.failed()) { // Handling push call failure
+                    .onFailure(cause -> { // Handling push call failure
                         long timeSinceCreation = now() - streamInfo.creationTime;
                         if (timeSinceCreation < 1_000)
                             Scheduler.scheduleDelay(100, () -> {
@@ -166,12 +166,11 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
                                 pushResultToClient(streamInfo, queryResult, queryResultDiff);
                             });
                         else {
-                            Logger.log("Result push failed :" + ar.cause().getMessage());
+                            Logger.log("Result push failed :" + cause.getMessage());
                             pushedFailed++;
                             removeStream(streamInfo);
                         }
-                    }
-                });
+                    });
         }
 
         QueryInfo getNextMostUrgentQuery() {

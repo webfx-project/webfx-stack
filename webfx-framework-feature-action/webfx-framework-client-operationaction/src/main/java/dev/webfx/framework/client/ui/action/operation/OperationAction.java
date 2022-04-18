@@ -28,12 +28,9 @@ public final class OperationAction<Rq, Rs> extends WritableAction {
             Rq operationRequest = operationRequestFactory.apply(actionEvent);
             Logger.log("Executing " + operationRequest);
             long t0 = System.currentTimeMillis();
-            OperationUtil.executeOperation(operationRequest, topOperationExecutor).setHandler(ar -> {
-                if (ar.failed())
-                    Logger.log("Error while executing " + operationRequest, ar.cause());
-                else
-                    Logger.log("Executed " + operationRequest + " in " + (System.currentTimeMillis() - t0) + "ms");
-            });
+            OperationUtil.executeOperation(operationRequest, topOperationExecutor)
+                    .onFailure(cause -> Logger.log("Error while executing " + operationRequest, cause))
+                    .onSuccess(result -> Logger.log("Executed " + operationRequest + " in " + (System.currentTimeMillis() - t0) + "ms"));
         });
         this.operationRequestFactory = operationRequestFactory;
         OperationActionRegistry registry = getOperationActionRegistry();

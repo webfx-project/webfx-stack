@@ -49,7 +49,7 @@ abstract class EntityUpdateDialog<E extends Entity> implements MaterialFactoryMi
 
     void showAsDialog(Pane parent) {
         dialogParent = parent;
-        entity.onExpressionLoaded(expressionToLoad()).setHandler(ar -> {
+        entity.onExpressionLoaded(expressionToLoad()).onComplete(ar -> {
             if (ar.failed())
                 ar.cause().printStackTrace();
             else
@@ -67,7 +67,7 @@ abstract class EntityUpdateDialog<E extends Entity> implements MaterialFactoryMi
                         if (!updateStore.hasChanges())
                             dialogCallback.closeDialog();
                         else {
-                            updateStore.submitChanges().setHandler(ar2 -> {
+                            updateStore.submitChanges().onComplete(ar2 -> {
                                 if (ar2.failed())
                                     dialogCallback.showException(ar2.cause());
                                 else
