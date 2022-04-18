@@ -1,14 +1,15 @@
 package dev.webfx.platform.teavm.services.webassembly.spi.impl;
 
-import org.teavm.jso.JSBody;
-import org.teavm.jso.JSFunctor;
-import org.teavm.jso.JSObject;
 import dev.webfx.platform.client.services.webassembly.WebAssemblyImport;
 import dev.webfx.platform.client.services.webassembly.WebAssemblyInstance;
 import dev.webfx.platform.client.services.webassembly.WebAssemblyModule;
 import dev.webfx.platform.shared.services.json.Json;
 import dev.webfx.platform.shared.services.json.WritableJsonObject;
 import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.util.async.Promise;
+import org.teavm.jso.JSBody;
+import org.teavm.jso.JSFunctor;
+import org.teavm.jso.JSObject;
 
 /**
  * @author Bruno Salmon
@@ -23,7 +24,7 @@ final class TeaVmWebAssemblyModule implements WebAssemblyModule {
 
     @Override
     public Future<WebAssemblyInstance> instantiate(WebAssemblyImport... imports) {
-        Future<WebAssemblyInstance> future = Future.future();
+        Promise<WebAssemblyInstance> promise = Promise.promise();
         WritableJsonObject json = Json.createObject();
         for (WebAssemblyImport i : imports) {
             WritableJsonObject mod = (WritableJsonObject) json.getObject(i.getModuleName());
@@ -32,8 +33,8 @@ final class TeaVmWebAssemblyModule implements WebAssemblyModule {
             BiIntHandler ih = (x, count) -> i.getMethod().handle(x, count);
             setImportFunction((JSObject) mod.getNativeElement(), i.getFunctionName(), ih);
         }
-        instantiateModule(jsModule, (JSObject) json.getNativeElement(), instance -> future.complete(new TeaVmWebAssemblyInstance(instance)), this::putwchar);
-        return future;
+        instantiateModule(jsModule, (JSObject) json.getNativeElement(), instance -> promise.complete(new TeaVmWebAssemblyInstance(instance)), this::putwchar);
+        return promise.future();
     }
 
     @JSBody(params = {"mod", "fname", "fn"}, script = "mod[fname] = fn")

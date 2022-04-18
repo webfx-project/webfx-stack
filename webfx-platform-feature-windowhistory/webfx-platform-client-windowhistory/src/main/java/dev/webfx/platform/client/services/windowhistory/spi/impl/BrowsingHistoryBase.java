@@ -1,15 +1,16 @@
 package dev.webfx.platform.client.services.windowhistory.spi.impl;
 
 import dev.webfx.platform.client.services.windowhistory.spi.BrowsingHistory;
+import dev.webfx.platform.client.services.windowhistory.spi.BrowsingHistoryEvent;
+import dev.webfx.platform.client.services.windowhistory.spi.BrowsingHistoryLocation;
 import dev.webfx.platform.client.services.windowlocation.spi.PathStateLocation;
 import dev.webfx.platform.client.services.windowlocation.spi.impl.PathLocationImpl;
 import dev.webfx.platform.client.services.windowlocation.spi.impl.PathStateLocationImpl;
+import dev.webfx.platform.shared.services.json.JsonObject;
 import dev.webfx.platform.shared.util.Strings;
 import dev.webfx.platform.shared.util.async.Future;
 import dev.webfx.platform.shared.util.async.Handler;
-import dev.webfx.platform.client.services.windowhistory.spi.BrowsingHistoryEvent;
-import dev.webfx.platform.shared.services.json.JsonObject;
-import dev.webfx.platform.client.services.windowhistory.spi.BrowsingHistoryLocation;
+import dev.webfx.platform.shared.util.async.Promise;
 
 import java.util.function.Function;
 
@@ -55,18 +56,18 @@ public abstract class BrowsingHistoryBase implements BrowsingHistory {
     }
 
     protected Future<BrowsingHistoryLocationImpl> checkBeforeThenTransit(PathStateLocation location, BrowsingHistoryEvent event) {
-        Future<BrowsingHistoryLocationImpl> future = Future.future();
+        Promise<BrowsingHistoryLocationImpl> promise = Promise.promise();
         BrowsingHistoryLocationImpl newLocation = location instanceof BrowsingHistoryLocationImpl ? (BrowsingHistoryLocationImpl) location : createHistoryLocation(location, event);
         newLocation.setEvent(event);
-        checkBeforeAsync(newLocation).setHandler(asyncResult -> {
+        checkBeforeAsync(newLocation).onComplete(asyncResult -> {
             if (asyncResult.failed() || !asyncResult.result())
-                future.fail("checkBefore refused transition");
+                promise.fail("checkBefore refused transition");
             else {
                 transit(newLocation);
-                future.complete(newLocation);
+                promise.complete(newLocation);
             }
         } );
-        return future;
+        return promise.future();
     }
 
     protected void transit(BrowsingHistoryLocationImpl newHistoryLocation) {

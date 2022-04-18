@@ -20,15 +20,15 @@ public final class BusCallService {
 
     private final static String DEFAULT_BUS_CALL_SERVICE_ADDRESS = "busCallService";
 
-    public static <T> PendingBusCall<T> call(String address, Object javaArgument) {
+    public static <T> Future<T> call(String address, Object javaArgument) {
         return call(address, javaArgument, null); // bus = null means using the default platform bus
     }
 
-    public static <T> PendingBusCall<T> call(String address, Object javaArgument, Bus bus) {
+    public static <T> Future<T> call(String address, Object javaArgument, Bus bus) {
         return call(DEFAULT_BUS_CALL_SERVICE_ADDRESS, address, javaArgument, bus);
     }
 
-    public static <T> PendingBusCall<T> call(String remoteBusCallServiceAddress, String serviceAddress, Object javaArgument, Bus bus) {
+    public static <T> Future<T> call(String remoteBusCallServiceAddress, String serviceAddress, Object javaArgument, Bus bus) {
         try (ThreadLocalBusContext context = ThreadLocalBusContext.open(bus)) {
             // Creating a PendingBusCall that will be immediately returned to the caller
             PendingBusCall<T> pendingBusCall = new PendingBusCall<>();
@@ -39,7 +39,7 @@ public final class BusCallService {
                     pendingBusCall::onBusCallResult // it just forwards the target result to the caller using the future
             );
             // We return the future immediately while we are waiting for the call result
-            return pendingBusCall; // The caller can set a handler to it that will be called back later on call result reception
+            return pendingBusCall.future(); // The caller can set a handler to it that will be called back later on call result reception
         }
     }
 
@@ -196,7 +196,7 @@ public final class BusCallService {
     public static <A, R> Registration registerBusCallEndpoint(String address, AsyncFunction<A, R> javaAsyncFunction) {
         return BusCallService.<A, R>registerJavaHandlerForLocalCalls(address, (javaArgument , callerMessage) ->
             // Calling the java function each time a java object is received
-            javaAsyncFunction.apply(javaArgument).setHandler(javaAsyncResult -> // the java result of the asynchronous function is now ready
+            javaAsyncFunction.apply(javaArgument).onComplete(javaAsyncResult -> // the java result of the asynchronous function is now ready
                 // Replying to the caller by sending this java async result to it
                 sendJavaReply(
                     // And making sure that it is serializable using SerializableAsyncResult (but assuming that javaAsyncResult.result() is serializable)

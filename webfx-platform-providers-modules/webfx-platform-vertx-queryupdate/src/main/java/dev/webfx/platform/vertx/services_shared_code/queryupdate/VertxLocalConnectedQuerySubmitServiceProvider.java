@@ -17,6 +17,7 @@ import dev.webfx.platform.shared.services.submit.spi.SubmitServiceProvider;
 import dev.webfx.platform.shared.util.Arrays;
 import dev.webfx.platform.shared.util.async.Batch;
 import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.util.async.Promise;
 import dev.webfx.platform.shared.util.tuples.Unit;
 import dev.webfx.platform.vertx.services_shared_code.instance.VertxInstance;
 import io.vertx.core.AsyncResult;
@@ -94,32 +95,32 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
             return singularBatchFuture;
 
         // Now handling real batch with several arguments -> no autocommit with explicit commit() or rollback() handling
-        return connectAndExecuteInTransaction((connection, transaction, batchFuture) -> executeUpdateBatchOnConnection(batch, connection, transaction, batchFuture));
+        return connectAndExecuteInTransaction((connection, transaction, batchPromise) -> executeUpdateBatchOnConnection(batch, connection, transaction, batchPromise));
     }
 
 
     // ==================================== PRIVATE IMPLEMENTATION PART  ===============================================
 
-    private <T> Future<T> connectAndExecute(BiConsumer<SqlConnection, Future<T>> executor) {
-        Future<T> future = Future.future();
+    private <T> Future<T> connectAndExecute(BiConsumer<SqlConnection, Promise<T>> executor) {
+        Promise<T> promise = Promise.promise();
         pool.getConnection()
                 .onFailure(cause -> {
                     Logger.log(cause);
-                    future.fail(cause);
+                    promise.fail(cause);
                 })
-                .onSuccess(connection -> executor.accept(connection, future)); // Note: this is the responsibility of the executor to close the connection
-        return future;
+                .onSuccess(connection -> executor.accept(connection, promise)); // Note: this is the responsibility of the executor to close the connection
+        return promise.future();
     }
 
     private interface TriConsumer<T, U, V> {
         void accept(T t, U u, V v);
     }
 
-    private <T> Future<T> connectAndExecuteInTransaction(TriConsumer<SqlConnection, Transaction, Future<T>> executor) {
-        return connectAndExecute((connection, future) ->
+    private <T> Future<T> connectAndExecuteInTransaction(TriConsumer<SqlConnection, Transaction, Promise<T>> executor) {
+        return connectAndExecute((connection, promise) ->
                 connection.begin()
-                        .onFailure(future::fail)
-                        .onSuccess(transaction -> executor.accept(connection, transaction, future))
+                        .onFailure(promise::fail)
+                        .onSuccess(transaction -> executor.accept(connection, transaction, promise))
         );
     }
 
@@ -136,12 +137,12 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
         SubmitListenerService.fireSuccessfulSubmit(batch.getArray());
     }
 
-    private void executeSingleQueryOnConnection(QueryArgument queryArgument, SqlConnection connection, Future<QueryResult> future) {
+    private void executeSingleQueryOnConnection(QueryArgument queryArgument, SqlConnection connection, Promise<QueryResult> promise) {
         // Logger.log("Single query with " + queryArgument);
         // long t0 = System.currentTimeMillis();
         executeQueryOnConnection(queryArgument.getStatement(), queryArgument.getParameters(), connection, ar -> {
             if (ar.failed()) // Sql error
-                future.fail(ar.cause());
+                promise.fail(ar.cause());
             else { // Sql succeeded
                 // Transforming the result set into columnNames and values arrays
                 RowSet<Row> resultSet = ar.result();
@@ -163,7 +164,7 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
                 }
                 // Logger.log("Sql executed in " + (System.currentTimeMillis() - t0) + " ms: " + queryArgument);
                 // Building and returning the final QueryResult
-                future.complete(rsb.build());
+                promise.complete(rsb.build());
             }
             // Closing the connection, so it can go back to the pool
             closeConnection(connection);
@@ -184,14 +185,14 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
         }
     }
 
-    private Future<SubmitResult> executeSubmitOnConnection(SubmitArgument submitArgument, SqlConnection connection, Transaction transaction, boolean batch, Future<SubmitResult> future) {
+    private Future<SubmitResult> executeSubmitOnConnection(SubmitArgument submitArgument, SqlConnection connection, Transaction transaction, boolean batch, Promise<SubmitResult> promise) {
         //Logger.log(submitArgument);
         executeQueryOnConnection(submitArgument.getStatement(), submitArgument.getParameters(), connection, res -> {
             if (res.failed()) { // Sql error
                 // Unless from batch, closing the connection now, so it can go back to the pool
                 if (!batch)
                     closeConnection(connection);
-                future.fail(res.cause());
+                promise.fail(res.cause());
             } else { // Sql succeeded
                 RowSet<Row> result = res.result();
                 Object[] generatedKeys = null;
@@ -203,27 +204,27 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
                 }
                 SubmitResult submitResult = new SubmitResult(result.rowCount(), generatedKeys);
                 if (batch)
-                    future.complete(submitResult);
+                    promise.complete(submitResult);
                 else {
                     transaction.commit(ar -> {
                         if (ar.failed())
-                            future.fail(ar.cause());
+                            promise.fail(ar.cause());
                         else
-                            future.complete(submitResult);
+                            promise.complete(submitResult);
                         closeConnection(connection);
                         onSuccessfulSubmit(submitArgument);
                     });
                 }
             }
         });
-        return future;
+        return promise.future();
     }
 
-    private void executeUpdateBatchOnConnection(Batch<SubmitArgument> batch, SqlConnection connection, Transaction transaction, Future<Batch<SubmitResult>> batchFuture) {
+    private void executeUpdateBatchOnConnection(Batch<SubmitArgument> batch, SqlConnection connection, Transaction transaction, Promise<Batch<SubmitResult>> batchPromise) {
         List<Object> batchIndexGeneratedKeys = new ArrayList<>(Collections.nCopies(batch.getArray().length, null));
         Unit<Integer> batchIndex = new Unit<>(0);
-        batch.executeSerial(batchFuture, SubmitResult[]::new, updateArgument -> {
-            Future<SubmitResult> statementFuture = Future.future();
+        batch.executeSerial(batchPromise, SubmitResult[]::new, updateArgument -> {
+            Promise<SubmitResult> statementPromise = Promise.promise();
             // Replacing GeneratedKeyBatchIndex parameters with their actual generated keys
             Object[] parameters = updateArgument.getParameters();
             for (int i = 0, length = Arrays.length(parameters); i < length; i++) {
@@ -231,30 +232,29 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
                 if (value instanceof GeneratedKeyBatchIndex)
                     parameters[i] = batchIndexGeneratedKeys.get(((GeneratedKeyBatchIndex) value).getBatchIndex());
             }
-            executeSubmitOnConnection(updateArgument, connection, transaction, true, Future.future()).setHandler(ar -> {
-                if (ar.failed()) { // Sql error
-                    statementFuture.fail(ar.cause());
-                    transaction.rollback(event -> closeConnection(connection));
-                } else { // Sql succeeded
-                    SubmitResult submitResult = ar.result();
-                    Object[] generatedKeys = submitResult.getGeneratedKeys();
-                    if (!Arrays.isEmpty(generatedKeys))
-                        batchIndexGeneratedKeys.set(batchIndex.get(), generatedKeys[0]);
-                    batchIndex.set(batchIndex.get() + 1);
-                    if (batchIndex.get() < batch.getArray().length)
-                        statementFuture.complete(submitResult);
-                    else
-                        transaction.commit(ar2 -> {
-                            if (ar2.failed())
-                                statementFuture.fail(ar2.cause());
-                            else
-                                statementFuture.complete(submitResult);
-                            closeConnection(connection);
-                            onSuccessfulSubmitBatch(batch);
-                        });
-                }
-            });
-            return statementFuture;
+            executeSubmitOnConnection(updateArgument, connection, transaction, true, Promise.promise())
+                    .onFailure(cause -> {
+                        statementPromise.fail(cause);
+                        transaction.rollback(event -> closeConnection(connection));
+                    })
+                    .onSuccess(submitResult -> {
+                        Object[] generatedKeys = submitResult.getGeneratedKeys();
+                        if (!Arrays.isEmpty(generatedKeys))
+                            batchIndexGeneratedKeys.set(batchIndex.get(), generatedKeys[0]);
+                        batchIndex.set(batchIndex.get() + 1);
+                        if (batchIndex.get() < batch.getArray().length)
+                            statementPromise.complete(submitResult);
+                        else
+                            transaction.commit(ar -> {
+                                if (ar.failed())
+                                    statementPromise.fail(ar.cause());
+                                else
+                                    statementPromise.complete(submitResult);
+                                closeConnection(connection);
+                                onSuccessfulSubmitBatch(batch);
+                            });
+                    });
+            return statementPromise.future();
         });
     }
 }

@@ -37,10 +37,8 @@ public class MemoryBrowsingHistory extends BrowsingHistoryBase {
             int previousBackOffset = backOffset;
             backOffset = requestedBackOffset;
             BrowsingHistoryLocationImpl newLocation = getCurrentLocation();
-            checkBeforeUnloadThenCheckBeforeThenTransit(newLocation, BrowsingHistoryEvent.POPPED).setHandler(asyncResult -> {
-                if (asyncResult.failed())
-                    backOffset = previousBackOffset;
-            });
+            checkBeforeUnloadThenCheckBeforeThenTransit(newLocation, BrowsingHistoryEvent.POPPED)
+                    .onFailure(cause -> backOffset = previousBackOffset);
         }
     }
 

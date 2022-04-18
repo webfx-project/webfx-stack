@@ -101,12 +101,9 @@ public final class VertxApplicationBooterVerticle extends AbstractVerticle imple
         }
 
         private void completeVertxPromise(dev.webfx.platform.shared.util.async.Future<Void> webfxFuture, Promise<Void> vertxPromise) {
-            webfxFuture.setHandler(ar -> {
-                if (ar.failed())
-                    vertxPromise.fail(webfxFuture.cause());
-                else
-                    vertxPromise.complete();
-            });
+            webfxFuture
+                    .onFailure(vertxPromise::fail)
+                    .onSuccess(vertxPromise::complete);
         }
     }
 

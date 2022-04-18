@@ -1,11 +1,12 @@
 package dev.webfx.platform.teavm.services.webassembly.spi.impl;
 
-import org.teavm.jso.JSBody;
-import org.teavm.jso.JSFunctor;
-import org.teavm.jso.JSObject;
 import dev.webfx.platform.client.services.webassembly.WebAssemblyModule;
 import dev.webfx.platform.client.services.webassembly.spi.WebAssemblyProvider;
 import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.util.async.Promise;
+import org.teavm.jso.JSBody;
+import org.teavm.jso.JSFunctor;
+import org.teavm.jso.JSObject;
 
 /**
  * @author Bruno Salmon
@@ -37,9 +38,9 @@ public final class TeaVmWebAssemblyProvider implements WebAssemblyProvider {
 
     @Override
     public Future<WebAssemblyModule> loadModule(String url) {
-        Future<WebAssemblyModule> future = Future.future();
-        fetchAndCompileModule(url, jsModule -> future.complete(new TeaVmWebAssemblyModule(jsModule)));
-        return future;
+        Promise<WebAssemblyModule> promise = Promise.promise();
+        fetchAndCompileModule(url, jsModule -> promise.complete(new TeaVmWebAssemblyModule(jsModule)));
+        return promise.future();
     }
 
     @JSBody(params = {"url", "handler"}, script = "fetch(url)" +

@@ -13,6 +13,7 @@ import dev.webfx.platform.shared.services.submit.SubmitResult;
 import dev.webfx.platform.shared.services.submit.spi.SubmitServiceProvider;
 import dev.webfx.platform.shared.util.Arrays;
 import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.util.async.Promise;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -39,7 +40,7 @@ public final class JdbcLocalConnectedQuerySubmitServiceProvider implements Query
 
     @Override
     public Future<QueryResult> executeQuery(QueryArgument arg) {
-        Future<QueryResult> future = Future.future();
+        Promise<QueryResult> promise = Promise.promise();
 
         String sql = arg.getStatement();
         try (
@@ -60,17 +61,17 @@ public final class JdbcLocalConnectedQuerySubmitServiceProvider implements Query
                     rsb.setCurrentRowValue(columnIndex, resultSet.getObject(columnIndex + 1)); // JDBC index starts with 1 (not 0)
             }
             // Building and returning the query result set
-            future.complete(rsb.build());
+            promise.complete(rsb.build());
         } catch (Throwable throwable) {
-            future.fail(throwable);
+            promise.fail(throwable);
         }
 
-        return future;
+        return promise.future();
     }
 
     @Override
     public Future<SubmitResult> executeSubmit(SubmitArgument arg) {
-        Future<SubmitResult> future = Future.future();
+        Promise<SubmitResult> promise = Promise.promise();
 
         String sql = arg.getStatement();
         try (
@@ -87,12 +88,12 @@ public final class JdbcLocalConnectedQuerySubmitServiceProvider implements Query
                     keysList.add(rs.getObject(0));
                 generatedKeys = keysList.toArray();
             }
-            future.complete(new SubmitResult(rowCount, generatedKeys));
+            promise.complete(new SubmitResult(rowCount, generatedKeys));
         } catch (Throwable throwable) {
-            future.fail(throwable);
+            promise.fail(throwable);
         }
 
-        return future;
+        return promise.future();
     }
 
     private Connection getConnection() throws SQLException {
