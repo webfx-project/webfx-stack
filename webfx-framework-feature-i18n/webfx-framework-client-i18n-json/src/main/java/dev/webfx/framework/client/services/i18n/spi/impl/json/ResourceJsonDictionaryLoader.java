@@ -4,7 +4,7 @@ import dev.webfx.framework.client.services.i18n.Dictionary;
 import dev.webfx.framework.client.services.i18n.spi.impl.DictionaryLoader;
 import dev.webfx.platform.shared.services.resource.ResourceService;
 import dev.webfx.platform.shared.util.Strings;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Future;
 
 import java.util.Set;
 

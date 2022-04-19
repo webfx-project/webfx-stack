@@ -2,7 +2,7 @@ package dev.webfx.framework.shared.router;
 
 import dev.webfx.platform.shared.services.json.JsonObject;
 import dev.webfx.framework.shared.router.impl.RouterImpl;
-import dev.webfx.platform.shared.util.async.Handler;
+import dev.webfx.platform.shared.async.Handler;
 
 /**
  * @author Bruno Salmon

@@ -9,6 +9,7 @@ module webfx.framework.client.i18n {
     requires javafx.graphics;
     requires webfx.framework.shared.operation;
     requires webfx.platform.client.uischeduler;
+    requires webfx.platform.shared.async;
     requires webfx.platform.shared.util;
 
     // Exported packages

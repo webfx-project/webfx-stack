@@ -1,10 +1,10 @@
 package dev.webfx.framework.shared.services.authz.spi.impl.inmemory;
 
 import dev.webfx.framework.shared.services.authz.spi.impl.UserPrincipalAuthorizationChecker;
-import dev.webfx.platform.shared.util.async.AsyncResult;
-import dev.webfx.platform.shared.util.async.Future;
-import dev.webfx.platform.shared.util.async.FutureBroadcaster;
-import dev.webfx.platform.shared.util.async.Handler;
+import dev.webfx.platform.shared.async.AsyncResult;
+import dev.webfx.platform.shared.async.Future;
+import dev.webfx.platform.shared.async.FutureBroadcaster;
+import dev.webfx.platform.shared.async.Handler;
 
 /**
  * @author Bruno Salmon

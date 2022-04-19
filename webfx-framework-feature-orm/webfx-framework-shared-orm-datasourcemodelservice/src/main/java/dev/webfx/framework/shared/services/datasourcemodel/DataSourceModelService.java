@@ -2,7 +2,7 @@ package dev.webfx.framework.shared.services.datasourcemodel;
 
 import dev.webfx.framework.shared.orm.domainmodel.DataSourceModel;
 import dev.webfx.framework.shared.services.datasourcemodel.spi.DataSourceModelProvider;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Future;
 import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;

@@ -5,6 +5,7 @@ module webfx.framework.shared.orm.dql.query.interceptor {
     // Direct dependencies modules
     requires webfx.framework.shared.orm.datasourcemodelservice;
     requires webfx.framework.shared.orm.domainmodel;
+    requires webfx.platform.shared.async;
     requires webfx.platform.shared.boot;
     requires webfx.platform.shared.datasource;
     requires webfx.platform.shared.query;

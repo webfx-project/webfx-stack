@@ -3,7 +3,7 @@ package dev.webfx.framework.client.orm.reactive.mapping.entities_to_grid;
 import dev.webfx.framework.client.orm.reactive.mapping.dql_to_entities.ReactiveEntitiesMapper;
 import dev.webfx.framework.shared.orm.entity.Entity;
 import dev.webfx.framework.shared.orm.entity.EntityList;
-import dev.webfx.platform.shared.util.async.Handler;
+import dev.webfx.platform.shared.async.Handler;
 
 import java.util.List;
 

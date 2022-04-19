@@ -5,9 +5,9 @@ import dev.webfx.framework.client.activity.impl.elementals.view.ViewActivity;
 import dev.webfx.framework.client.activity.impl.elementals.view.ViewActivityContext;
 import dev.webfx.framework.client.activity.impl.elementals.view.ViewActivityContextMixin;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
-import dev.webfx.platform.shared.util.async.AsyncUtil;
-import dev.webfx.platform.shared.util.async.Future;
-import dev.webfx.platform.shared.util.async.Promise;
+import dev.webfx.platform.shared.async.AsyncUtil;
+import dev.webfx.platform.shared.async.Future;
+import dev.webfx.platform.shared.async.Promise;
 import javafx.scene.Node;
 
 /**

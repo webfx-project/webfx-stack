@@ -10,6 +10,7 @@ module webfx.framework.client.operationaction {
     requires webfx.framework.shared.operation;
     requires webfx.kit.util;
     requires webfx.platform.client.uischeduler;
+    requires webfx.platform.shared.async;
     requires webfx.platform.shared.log;
     requires webfx.platform.shared.util;
 

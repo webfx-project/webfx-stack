@@ -6,7 +6,7 @@ import javafx.beans.value.ObservableValue;
 import dev.webfx.platform.client.services.uischeduler.UiScheduler;
 import dev.webfx.platform.shared.services.log.Logger;
 import dev.webfx.platform.shared.services.scheduler.Scheduled;
-import dev.webfx.platform.shared.util.async.AsyncFunction;
+import dev.webfx.platform.shared.async.AsyncFunction;
 
 import java.util.Objects;
 import java.util.function.Supplier;

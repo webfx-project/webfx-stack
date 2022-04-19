@@ -14,8 +14,8 @@ import dev.webfx.platform.shared.services.query.QueryArgument;
 import dev.webfx.platform.shared.services.query.QueryResult;
 import dev.webfx.platform.shared.services.query.QueryService;
 import dev.webfx.platform.shared.util.Arrays;
-import dev.webfx.platform.shared.util.async.Batch;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Batch;
+import dev.webfx.platform.shared.async.Future;
 
 /**
  * A store for entities that are transactionally coherent.

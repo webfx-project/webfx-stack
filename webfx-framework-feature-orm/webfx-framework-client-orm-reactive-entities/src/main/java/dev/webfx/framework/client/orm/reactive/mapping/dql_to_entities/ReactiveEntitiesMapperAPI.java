@@ -8,7 +8,7 @@ import dev.webfx.framework.shared.orm.entity.Entity;
 import dev.webfx.framework.shared.orm.entity.EntityList;
 import dev.webfx.framework.shared.orm.entity.EntityStore;
 import dev.webfx.framework.shared.orm.entity.HasEntityStore;
-import dev.webfx.platform.shared.util.async.Handler;
+import dev.webfx.platform.shared.async.Handler;
 
 import java.util.List;
 

@@ -8,8 +8,8 @@ import dev.webfx.framework.client.ui.action.ActionGroupBuilder;
 import dev.webfx.framework.client.ui.action.impl.SeparatorAction;
 import dev.webfx.framework.shared.operation.HasOperationExecutor;
 import dev.webfx.framework.shared.operation.OperationUtil;
-import dev.webfx.platform.shared.util.async.AsyncFunction;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.AsyncFunction;
+import dev.webfx.platform.shared.async.Future;
 import dev.webfx.platform.shared.util.function.Factory;
 
 import java.util.function.Function;

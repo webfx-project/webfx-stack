@@ -11,7 +11,7 @@ import dev.webfx.framework.shared.orm.entity.*;
 import dev.webfx.framework.shared.orm.entity.query_result_to_entities.QueryResultToEntitiesMapper;
 import dev.webfx.kit.util.properties.Properties;
 import dev.webfx.platform.shared.services.query.QueryResult;
-import dev.webfx.platform.shared.util.async.Handler;
+import dev.webfx.platform.shared.async.Handler;
 
 import java.util.ArrayList;
 import java.util.List;

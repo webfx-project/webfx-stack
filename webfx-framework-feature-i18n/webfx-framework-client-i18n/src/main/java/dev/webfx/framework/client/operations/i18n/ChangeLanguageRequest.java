@@ -1,7 +1,7 @@
 package dev.webfx.framework.client.operations.i18n;
 
 import dev.webfx.framework.shared.operation.HasOperationExecutor;
-import dev.webfx.platform.shared.util.async.AsyncFunction;
+import dev.webfx.platform.shared.async.AsyncFunction;
 
 /**
  * @author Bruno Salmon

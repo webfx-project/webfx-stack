@@ -18,8 +18,8 @@ import dev.webfx.platform.shared.services.datasource.LocalDataSourceService;
 import dev.webfx.platform.shared.services.submit.SubmitArgument;
 import dev.webfx.platform.shared.services.submit.SubmitResult;
 import dev.webfx.platform.shared.services.submit.spi.SubmitServiceProvider;
-import dev.webfx.platform.shared.util.async.Batch;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Batch;
+import dev.webfx.platform.shared.async.Future;
 import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
 
 import java.util.Arrays;

@@ -6,7 +6,7 @@ import dev.webfx.framework.shared.services.querypush.QueryPushArgument;
 import dev.webfx.platform.shared.datascope.DataScope;
 import dev.webfx.platform.shared.services.query.QueryArgument;
 import dev.webfx.platform.shared.util.Objects;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Future;
 import dev.webfx.platform.shared.util.collection.Collections;
 
 import java.util.HashMap;

@@ -2,7 +2,7 @@ package dev.webfx.framework.shared.router.session;
 
 import dev.webfx.framework.shared.router.RoutingContext;
 import dev.webfx.framework.shared.router.session.impl.SessionHandlerImpl;
-import dev.webfx.platform.shared.util.async.Handler;
+import dev.webfx.platform.shared.async.Handler;
 import dev.webfx.platform.shared.util.function.Callable;
 import java.util.function.Consumer;
 

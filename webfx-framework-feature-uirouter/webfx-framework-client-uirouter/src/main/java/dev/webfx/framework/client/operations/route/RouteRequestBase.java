@@ -3,7 +3,7 @@ package dev.webfx.framework.client.operations.route;
 import dev.webfx.framework.shared.operation.HasOperationExecutor;
 import dev.webfx.framework.shared.router.auth.authz.RouteRequest;
 import dev.webfx.platform.client.services.windowhistory.spi.BrowsingHistory;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Future;
 
 /**
  * @author Bruno Salmon

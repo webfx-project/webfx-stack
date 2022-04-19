@@ -7,7 +7,7 @@ import dev.webfx.platform.shared.services.datasource.LocalDataSourceService;
 import dev.webfx.platform.shared.services.query.QueryArgument;
 import dev.webfx.platform.shared.services.query.QueryResult;
 import dev.webfx.platform.shared.services.query.spi.QueryServiceProvider;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Future;
 import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
 
 /**

@@ -1,7 +1,7 @@
 package dev.webfx.framework.client.activity;
 
-import dev.webfx.platform.shared.util.async.AsyncUtil;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.AsyncUtil;
+import dev.webfx.platform.shared.async.Future;
 
 /**
  * @author Bruno Salmon

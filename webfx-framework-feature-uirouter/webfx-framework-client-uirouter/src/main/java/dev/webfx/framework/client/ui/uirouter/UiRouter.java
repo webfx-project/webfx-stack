@@ -29,7 +29,7 @@ import dev.webfx.platform.shared.services.json.WritableJsonObject;
 import dev.webfx.platform.shared.services.log.Logger;
 import dev.webfx.platform.shared.util.Numbers;
 import dev.webfx.platform.shared.util.Objects;
-import dev.webfx.platform.shared.util.async.Handler;
+import dev.webfx.platform.shared.async.Handler;
 import dev.webfx.platform.shared.util.collection.Collections;
 import dev.webfx.platform.shared.util.function.Converter;
 import dev.webfx.platform.shared.util.function.Factory;

@@ -1,7 +1,7 @@
 package dev.webfx.framework.shared.services.authn;
 
 import dev.webfx.framework.shared.services.authn.spi.AuthenticationServiceProvider;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Future;
 import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;

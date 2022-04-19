@@ -8,7 +8,7 @@ import dev.webfx.platform.server.services.submitlistener.SubmitListener;
 import dev.webfx.platform.shared.datascope.DataScope;
 import dev.webfx.platform.shared.services.bus.BusService;
 import dev.webfx.platform.shared.services.submit.SubmitArgument;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Future;
 
 import java.util.Arrays;
 

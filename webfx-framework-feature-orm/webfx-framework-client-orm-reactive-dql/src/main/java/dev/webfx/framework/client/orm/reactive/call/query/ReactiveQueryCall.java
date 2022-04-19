@@ -4,7 +4,7 @@ import dev.webfx.framework.client.orm.reactive.call.ReactiveCall;
 import dev.webfx.platform.shared.services.query.QueryArgument;
 import dev.webfx.platform.shared.services.query.QueryResult;
 import dev.webfx.platform.shared.services.query.QueryService;
-import dev.webfx.platform.shared.util.async.AsyncFunction;
+import dev.webfx.platform.shared.async.AsyncFunction;
 
 /**
  * @author Bruno Salmon

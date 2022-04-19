@@ -12,7 +12,7 @@ import dev.webfx.framework.shared.orm.entity.Entity;
 import dev.webfx.framework.shared.orm.entity.EntityList;
 import dev.webfx.framework.shared.orm.expression.Expression;
 import dev.webfx.framework.shared.orm.expression.terms.ExpressionArray;
-import dev.webfx.platform.shared.util.async.Handler;
+import dev.webfx.platform.shared.async.Handler;
 
 import java.util.ArrayList;
 import java.util.List;

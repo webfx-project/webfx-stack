@@ -2,7 +2,7 @@ package dev.webfx.framework.server.services.push;
 
 import dev.webfx.framework.server.services.push.spi.PushServerServiceProvider;
 import dev.webfx.platform.shared.services.bus.Bus;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Future;
 import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;

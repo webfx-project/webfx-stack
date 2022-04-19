@@ -24,6 +24,7 @@ module webfx.framework.client.orm.entity.controls {
     requires webfx.framework.shared.orm.expression;
     requires webfx.kit.util;
     requires webfx.platform.client.uischeduler;
+    requires webfx.platform.shared.async;
     requires webfx.platform.shared.json;
     requires webfx.platform.shared.scheduler;
     requires webfx.platform.shared.submit;

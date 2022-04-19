@@ -2,8 +2,8 @@ package dev.webfx.framework.client.activity.impl.composition.impl;
 
 import dev.webfx.framework.client.activity.*;
 import dev.webfx.framework.client.activity.impl.ActivityBase;
-import dev.webfx.platform.shared.util.async.AsyncUtil;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.AsyncUtil;
+import dev.webfx.platform.shared.async.Future;
 import dev.webfx.platform.shared.util.function.Callable;
 import dev.webfx.platform.shared.util.function.Factory;
 import dev.webfx.framework.client.activity.impl.composition.ComposedActivity;

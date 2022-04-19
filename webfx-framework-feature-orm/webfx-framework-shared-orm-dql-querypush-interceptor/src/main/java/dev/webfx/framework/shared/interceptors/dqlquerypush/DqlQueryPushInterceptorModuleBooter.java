@@ -15,7 +15,7 @@ import dev.webfx.platform.shared.datascope.schema.SchemaScopeBuilder;
 import dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter;
 import dev.webfx.platform.shared.services.datasource.LocalDataSourceService;
 import dev.webfx.platform.shared.services.query.QueryArgument;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Future;
 import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
 
 /**

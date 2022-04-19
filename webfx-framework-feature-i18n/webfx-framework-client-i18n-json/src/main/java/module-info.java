@@ -6,6 +6,7 @@ module webfx.framework.client.i18n.json {
     requires java.base;
     requires javafx.base;
     requires webfx.framework.client.i18n;
+    requires webfx.platform.shared.async;
     requires webfx.platform.shared.json;
     requires webfx.platform.shared.resource;
     requires webfx.platform.shared.util;

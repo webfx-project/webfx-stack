@@ -6,6 +6,7 @@ module webfx.framework.server.querypush {
     requires java.base;
     requires webfx.framework.server.push;
     requires webfx.framework.shared.querypush;
+    requires webfx.platform.shared.async;
     requires webfx.platform.shared.bus;
     requires webfx.platform.shared.datascope;
     requires webfx.platform.shared.log;

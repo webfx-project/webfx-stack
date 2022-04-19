@@ -8,7 +8,7 @@ import dev.webfx.framework.shared.services.querypush.spi.QueryPushServiceProvide
 import dev.webfx.platform.shared.services.datasource.LocalDataSource;
 import dev.webfx.platform.shared.services.buscall.BusCallService;
 import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Future;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -2,7 +2,7 @@ package dev.webfx.framework.client.operations.route;
 
 import dev.webfx.platform.client.services.windowhistory.spi.BrowsingHistory;
 import dev.webfx.platform.shared.services.json.JsonObject;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Future;
 
 /**
  * @author Bruno Salmon

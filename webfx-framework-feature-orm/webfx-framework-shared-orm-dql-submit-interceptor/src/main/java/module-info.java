@@ -7,6 +7,7 @@ module webfx.framework.shared.orm.dql.submit.interceptor {
     requires webfx.framework.shared.orm.datasourcemodelservice;
     requires webfx.framework.shared.orm.domainmodel;
     requires webfx.framework.shared.orm.expression;
+    requires webfx.platform.shared.async;
     requires webfx.platform.shared.boot;
     requires webfx.platform.shared.datascope;
     requires webfx.platform.shared.datasource;

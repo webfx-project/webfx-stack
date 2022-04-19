@@ -7,8 +7,8 @@ import dev.webfx.framework.shared.orm.entity.result.EntityChanges;
 import dev.webfx.platform.shared.datascope.DataScope;
 import dev.webfx.platform.shared.services.submit.SubmitArgument;
 import dev.webfx.platform.shared.services.submit.SubmitResult;
-import dev.webfx.platform.shared.util.async.Batch;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Batch;
+import dev.webfx.platform.shared.async.Future;
 
 /**
  * @author Bruno Salmon

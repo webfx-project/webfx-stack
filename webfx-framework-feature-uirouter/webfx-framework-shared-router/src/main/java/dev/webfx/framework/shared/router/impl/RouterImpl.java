@@ -5,7 +5,7 @@ import dev.webfx.framework.shared.router.Route;
 import dev.webfx.framework.shared.router.Router;
 import dev.webfx.framework.shared.router.RoutingContext;
 import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.platform.shared.util.async.Handler;
+import dev.webfx.platform.shared.async.Handler;
 
 import java.util.ArrayList;
 import java.util.Iterator;

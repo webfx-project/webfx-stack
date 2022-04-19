@@ -1,6 +1,6 @@
 package dev.webfx.framework.shared.services.authz.spi;
 
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Future;
 
 /**
  * @author Bruno Salmon

@@ -23,7 +23,7 @@ import dev.webfx.framework.shared.orm.expression.Expression;
 import dev.webfx.framework.shared.orm.expression.terms.ExpressionArray;
 import dev.webfx.framework.shared.orm.expression.terms.Parameter;
 import dev.webfx.platform.shared.util.Arrays;
-import dev.webfx.platform.shared.util.async.Handler;
+import dev.webfx.platform.shared.async.Handler;
 import dev.webfx.platform.shared.util.function.Callable;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;

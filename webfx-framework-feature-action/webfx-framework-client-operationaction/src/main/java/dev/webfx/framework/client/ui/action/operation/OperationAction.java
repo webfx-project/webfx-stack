@@ -6,7 +6,7 @@ import dev.webfx.framework.client.ui.action.impl.WritableAction;
 import dev.webfx.framework.shared.operation.OperationUtil;
 import dev.webfx.kit.util.properties.Properties;
 import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.platform.shared.util.async.AsyncFunction;
+import dev.webfx.platform.shared.async.AsyncFunction;
 import dev.webfx.platform.shared.util.function.Factory;
 
 import java.util.function.Function;

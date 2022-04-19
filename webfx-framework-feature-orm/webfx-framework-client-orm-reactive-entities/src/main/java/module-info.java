@@ -13,6 +13,7 @@ module webfx.framework.client.orm.reactive.entities {
     requires webfx.framework.shared.orm.entity;
     requires webfx.framework.shared.orm.expression;
     requires webfx.kit.util;
+    requires webfx.platform.shared.async;
     requires webfx.platform.shared.json;
     requires webfx.platform.shared.query;
     requires webfx.platform.shared.util;
