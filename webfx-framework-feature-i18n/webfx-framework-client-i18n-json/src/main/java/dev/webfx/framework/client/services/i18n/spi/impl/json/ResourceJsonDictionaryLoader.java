@@ -2,6 +2,7 @@ package dev.webfx.framework.client.services.i18n.spi.impl.json;
 
 import dev.webfx.framework.client.services.i18n.Dictionary;
 import dev.webfx.framework.client.services.i18n.spi.impl.DictionaryLoader;
+import dev.webfx.platform.shared.async.Promise;
 import dev.webfx.platform.shared.services.resource.ResourceService;
 import dev.webfx.platform.shared.util.Strings;
 import dev.webfx.platform.shared.async.Future;
@@ -25,6 +26,8 @@ final class ResourceJsonDictionaryLoader implements DictionaryLoader {
 
     @Override
     public Future<Dictionary> loadDictionary(Object lang, Set keys) {
-        return ResourceService.getText(getDictionaryResourcePath(lang)).map(JsonDictionary::new);
+        Promise<Dictionary> promise = Promise.promise();
+        ResourceService.loadText(getDictionaryResourcePath(lang),json -> promise.complete(new JsonDictionary(json)), promise::fail);
+        return promise.future();
     }
 }
