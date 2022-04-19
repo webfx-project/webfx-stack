@@ -1,21 +1,21 @@
 package dev.webfx.framework.client.orm.reactive.mapping.entities_to_grid;
 
-import javafx.application.Platform;
-import dev.webfx.framework.client.orm.reactive.mapping.dql_to_entities.ReactiveEntitiesMapper;
-import dev.webfx.framework.shared.orm.dql.DqlStatement;
-import dev.webfx.framework.shared.orm.dql.DqlStatementBuilder;
 import dev.webfx.framework.client.orm.reactive.dql.query.ReactiveDqlQuery;
 import dev.webfx.framework.client.orm.reactive.dql.statement.ReactiveDqlStatement;
+import dev.webfx.framework.client.orm.reactive.mapping.dql_to_entities.ReactiveEntitiesMapper;
 import dev.webfx.framework.shared.orm.domainmodel.DomainClass;
 import dev.webfx.framework.shared.orm.domainmodel.DomainModel;
+import dev.webfx.framework.shared.orm.dql.DqlStatement;
+import dev.webfx.framework.shared.orm.dql.DqlStatementBuilder;
 import dev.webfx.framework.shared.orm.entity.Entity;
 import dev.webfx.framework.shared.orm.entity.EntityList;
 import dev.webfx.framework.shared.orm.expression.Expression;
 import dev.webfx.framework.shared.orm.expression.terms.ExpressionArray;
-import dev.webfx.platform.shared.async.Handler;
+import javafx.application.Platform;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author Bruno Salmon
@@ -29,7 +29,7 @@ public abstract class ReactiveGridMapper<E extends Entity> {
     protected boolean selectFirstRowOnFirstDisplay;
     private boolean applyDomainModelRowStyle;
     protected boolean startsWithEmptyTable = true;
-    protected Handler<E> selectedEntityHandler;
+    protected Consumer<E> selectedEntityHandler;
     private String columnsPersistentFields;
 
     public ReactiveGridMapper(ReactiveEntitiesMapper<E> reactiveEntitiesMapper) {
@@ -84,7 +84,7 @@ public abstract class ReactiveGridMapper<E extends Entity> {
         return this;
     }
 
-    public ReactiveGridMapper<E> setSelectedEntityHandler(Handler<E> selectedEntityHandler) {
+    public ReactiveGridMapper<E> setSelectedEntityHandler(Consumer<E> selectedEntityHandler) {
         this.selectedEntityHandler = selectedEntityHandler;
         return this;
     }

@@ -1,8 +1,5 @@
 package dev.webfx.framework.client.orm.reactive.mapping.entities_to_visual;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleObjectProperty;
 import dev.webfx.extras.type.PrimType;
 import dev.webfx.extras.visual.*;
 import dev.webfx.framework.client.orm.reactive.dql.statement.conventions.HasSelectedGroupProperty;
@@ -16,10 +13,13 @@ import dev.webfx.framework.client.orm.reactive.mapping.entities_to_visual.conven
 import dev.webfx.framework.shared.orm.entity.Entity;
 import dev.webfx.framework.shared.orm.entity.EntityList;
 import dev.webfx.framework.shared.orm.expression.terms.ExpressionArray;
-import dev.webfx.platform.shared.async.Handler;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author Bruno Salmon
@@ -40,7 +40,7 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
         protected void invalidated() {
             VisualSelection visualSelection = get();
             if (selectedEntityHandler != null && visualSelection != null && visualSelection.isSingle())
-                selectedEntityHandler.handle(getSelectedEntity());
+                selectedEntityHandler.accept(getSelectedEntity());
         }
     };
 
@@ -101,7 +101,7 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
     }
 
     @Override
-    public ReactiveVisualMapper<E> setSelectedEntityHandler(Handler<E> selectedEntityHandler) {
+    public ReactiveVisualMapper<E> setSelectedEntityHandler(Consumer<E> selectedEntityHandler) {
         return (ReactiveVisualMapper<E>) super.setSelectedEntityHandler(selectedEntityHandler);
     }
 

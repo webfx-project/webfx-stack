@@ -1,6 +1,5 @@
 package dev.webfx.framework.client.orm.reactive.mapping.dql_to_entities;
 
-import javafx.collections.ObservableList;
 import dev.webfx.framework.client.orm.reactive.dql.query.ReactiveDqlQuery;
 import dev.webfx.framework.client.orm.reactive.dql.query.ReactiveDqlQueryAPI;
 import dev.webfx.framework.shared.orm.domainmodel.DataSourceModel;
@@ -8,9 +7,10 @@ import dev.webfx.framework.shared.orm.entity.Entity;
 import dev.webfx.framework.shared.orm.entity.EntityList;
 import dev.webfx.framework.shared.orm.entity.EntityStore;
 import dev.webfx.framework.shared.orm.entity.HasEntityStore;
-import dev.webfx.platform.shared.async.Handler;
+import javafx.collections.ObservableList;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author Bruno Salmon
@@ -63,12 +63,12 @@ public interface ReactiveEntitiesMapperAPI<E extends Entity, THIS> extends HasEn
         return (THIS) this;
     }
 
-    default THIS addEntitiesHandler(Handler<EntityList<E>> entitiesHandler) {
+    default THIS addEntitiesHandler(Consumer<EntityList<E>> entitiesHandler) {
         getReactiveEntitiesMapper().addEntitiesHandler(entitiesHandler);
         return (THIS) this;
     }
 
-    default THIS removeEntitiesHandler(Handler<EntityList<E>> entitiesHandler) {
+    default THIS removeEntitiesHandler(Consumer<EntityList<E>> entitiesHandler) {
         getReactiveEntitiesMapper().removeEntitiesHandler(entitiesHandler);
         return (THIS) this;
     }

@@ -23,7 +23,6 @@ import dev.webfx.framework.shared.orm.expression.Expression;
 import dev.webfx.framework.shared.orm.expression.terms.ExpressionArray;
 import dev.webfx.framework.shared.orm.expression.terms.Parameter;
 import dev.webfx.platform.shared.util.Arrays;
-import dev.webfx.platform.shared.async.Handler;
 import dev.webfx.platform.shared.util.function.Callable;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -36,6 +35,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static dev.webfx.framework.shared.orm.dql.DqlStatement.limit;
@@ -198,7 +198,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> {
         setUpDialog(false);
         if (entityDialogMapper != null) {
             ReactiveEntitiesMapper<E> reactiveEntitiesMapper = entityDialogMapper.getReactiveEntitiesMapper();
-            Handler<EntityList<E>>[] entitiesHandlerHolder = new Handler[1];
+            Consumer<EntityList<E>>[] entitiesHandlerHolder = new Consumer[1];
             reactiveEntitiesMapper.addEntitiesHandler(entitiesHandlerHolder[0] = entityList -> {
                 setSelectedItem(entityList.stream().filter(predicate).findFirst().orElse(null));
                 reactiveEntitiesMapper.removeEntitiesHandler(entitiesHandlerHolder[0]);

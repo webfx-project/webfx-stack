@@ -1,9 +1,5 @@
 package dev.webfx.framework.client.orm.reactive.mapping.dql_to_entities;
 
-import javafx.application.Platform;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ObservableList;
 import dev.webfx.framework.client.orm.reactive.dql.query.ReactiveDqlQuery;
 import dev.webfx.framework.client.orm.reactive.dql.querypush.ReactiveDqlQueryPush;
 import dev.webfx.framework.shared.orm.dql.sqlcompiler.sql.SqlCompiled;
@@ -11,10 +7,14 @@ import dev.webfx.framework.shared.orm.entity.*;
 import dev.webfx.framework.shared.orm.entity.query_result_to_entities.QueryResultToEntitiesMapper;
 import dev.webfx.kit.util.properties.Properties;
 import dev.webfx.platform.shared.services.query.QueryResult;
-import dev.webfx.platform.shared.async.Handler;
+import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author Bruno Salmon
@@ -31,7 +31,7 @@ public final class ReactiveEntitiesMapper<E extends Entity> implements HasEntity
     private ObservableList<E> observableEntities;
     private List<E> restrictedFilterList;
     private EntityStore store;
-    private List<Handler<EntityList<E>>> entitiesHandlers = new ArrayList<>();
+    private List<Consumer<EntityList<E>>> entitiesHandlers = new ArrayList<>();
     private static int mapperCount = 0;
     private Object listId = "reactiveEntitiesMapper-" + ++mapperCount;
 
@@ -68,12 +68,12 @@ public final class ReactiveEntitiesMapper<E extends Entity> implements HasEntity
         return this;
     }
 
-    public ReactiveEntitiesMapper<E> addEntitiesHandler(Handler<EntityList<E>> entitiesHandler) {
+    public ReactiveEntitiesMapper<E> addEntitiesHandler(Consumer<EntityList<E>> entitiesHandler) {
         entitiesHandlers.add(entitiesHandler);
         return this;
     }
 
-    public ReactiveEntitiesMapper<E> removeEntitiesHandler(Handler<EntityList<E>> entitiesHandler) {
+    public ReactiveEntitiesMapper<E> removeEntitiesHandler(Consumer<EntityList<E>> entitiesHandler) {
         entitiesHandlers.remove(entitiesHandler);
         return this;
     }
@@ -127,7 +127,7 @@ public final class ReactiveEntitiesMapper<E extends Entity> implements HasEntity
         EntityList<E> entities = getEntities();
         //entitiesHandlers.forEach(handler -> handler.handle(entities));
         for (int i = 0; i < entitiesHandlers.size(); i++)
-            entitiesHandlers.get(i).handle(entities);
+            entitiesHandlers.get(i).accept(entities);
     }
 
     public EntityList<E> getEntities() {

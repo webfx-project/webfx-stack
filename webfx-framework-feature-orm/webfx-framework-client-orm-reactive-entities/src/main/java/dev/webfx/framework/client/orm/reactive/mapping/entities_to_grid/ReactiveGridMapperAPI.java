@@ -3,9 +3,9 @@ package dev.webfx.framework.client.orm.reactive.mapping.entities_to_grid;
 import dev.webfx.framework.client.orm.reactive.mapping.dql_to_entities.ReactiveEntitiesMapper;
 import dev.webfx.framework.shared.orm.entity.Entity;
 import dev.webfx.framework.shared.orm.entity.EntityList;
-import dev.webfx.platform.shared.async.Handler;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author Bruno Salmon
@@ -39,7 +39,7 @@ public interface ReactiveGridMapperAPI<E extends Entity, THIS> {
         return (THIS) this;
     }
 
-    default THIS setSelectedEntityHandler(Handler<E> selectedEntityHandler) {
+    default THIS setSelectedEntityHandler(Consumer<E> selectedEntityHandler) {
         getReactiveColumnMapper().setSelectedEntityHandler(selectedEntityHandler);
         return (THIS) this;
     }
