@@ -47,6 +47,7 @@
         <module>webfx-platform-independent-feature-submitlistener</module>
         <module>webfx-platform-independent-feature-websocketbus</module>
         <module>webfx-platform-providers-modules</module>
+        <module>webfx-platform-shared-async</module>
         <module>webfx-platform-vertx-boot-impl</module>
         <module>webfx-platform-vertx-scheduler-impl</module>
     </modules>
