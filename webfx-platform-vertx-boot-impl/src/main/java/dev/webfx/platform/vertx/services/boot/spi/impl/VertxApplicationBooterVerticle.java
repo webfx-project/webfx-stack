@@ -1,13 +1,12 @@
 package dev.webfx.platform.vertx.services.boot.spi.impl;
 
-import dev.webfx.platform.shared.async.Future;
-import io.vertx.core.*;
 import dev.webfx.platform.shared.services.boot.ApplicationBooter;
-import dev.webfx.platform.vertx.services_shared_code.instance.VertxInstance;
 import dev.webfx.platform.shared.services.boot.spi.ApplicationBooterProvider;
 import dev.webfx.platform.shared.services.boot.spi.ApplicationJob;
 import dev.webfx.platform.shared.services.boot.spi.impl.ApplicationModuleBooterManager;
 import dev.webfx.platform.shared.services.shutdown.Shutdown;
+import dev.webfx.platform.vertx.services_shared_code.instance.VertxInstance;
+import io.vertx.core.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -93,19 +92,16 @@ public final class VertxApplicationBooterVerticle extends AbstractVerticle imple
 
         @Override
         public void start(Promise<Void> startPromise) {
-            completeVertxPromise(applicationJob.onStartAsync(), startPromise);
+            applicationJob.onStart();
+            startPromise.complete();
         }
 
         @Override
         public void stop(Promise<Void> stopPromise) {
-            completeVertxPromise(applicationJob.onStopAsync(), stopPromise);
+            applicationJob.onStop();
+            stopPromise.complete();
         }
 
-        private void completeVertxPromise(Future<Void> webfxFuture, Promise<Void> vertxPromise) {
-            webfxFuture
-                    .onFailure(vertxPromise::fail)
-                    .onSuccess(vertxPromise::complete);
-        }
     }
 
     public static void main(String[] args) {

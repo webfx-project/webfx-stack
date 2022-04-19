@@ -24,7 +24,7 @@ public class WebsocketBusServiceProvider extends BusServiceProviderBase {
     @Override
     public void setPlatformBusOptions(BusOptions options) {
         super.setPlatformBusOptions(options);
-        String json = ResourceService.getText("dev/webfx/platform/client/services/websocketbus/conf/BusOptions.json").result();
+        String json = ResourceService.getText("dev/webfx/platform/client/services/websocketbus/conf/BusOptions.json");
         if (json != null)
             options.applyJson(Json.parseObject(json));
     }

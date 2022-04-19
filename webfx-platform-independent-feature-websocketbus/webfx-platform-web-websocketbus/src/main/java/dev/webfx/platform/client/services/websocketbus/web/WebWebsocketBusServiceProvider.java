@@ -32,7 +32,7 @@ public final class WebWebsocketBusServiceProvider extends WebsocketBusServicePro
         if (socketBusOptions.isServerSSL() == null)
             socketBusOptions.setServerSSL("https".equals(WindowLocation.getProtocol()));
         super.setPlatformBusOptions(options);
-        String json = ResourceService.getText("webfx/platform/core/services/bus/client/conf/BusOptions.json").result();
+        String json = ResourceService.getText("webfx/platform/core/services/bus/client/conf/BusOptions.json");
         if (json != null)
             options.applyJson(Json.parseObject(json));
     }
