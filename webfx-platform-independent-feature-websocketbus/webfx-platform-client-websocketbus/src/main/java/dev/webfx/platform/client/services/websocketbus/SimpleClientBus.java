@@ -21,12 +21,12 @@ import dev.webfx.platform.shared.services.bus.Bus;
 import dev.webfx.platform.shared.services.bus.BusHook;
 import dev.webfx.platform.shared.services.log.Logger;
 import dev.webfx.platform.shared.services.scheduler.Scheduler;
-import dev.webfx.platform.shared.util.async.Future;
-import dev.webfx.platform.shared.util.async.Handler;
+import dev.webfx.platform.shared.async.Future;
+import dev.webfx.platform.shared.async.Handler;
 import dev.webfx.platform.shared.services.bus.Message;
 import dev.webfx.platform.shared.services.bus.Registration;
 import dev.webfx.platform.shared.services.json.Json;
-import dev.webfx.platform.shared.util.async.AsyncResult;
+import dev.webfx.platform.shared.async.AsyncResult;
 
 import java.util.*;
 

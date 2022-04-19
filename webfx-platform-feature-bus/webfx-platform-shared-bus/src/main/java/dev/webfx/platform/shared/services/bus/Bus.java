@@ -18,8 +18,8 @@
 
 package dev.webfx.platform.shared.services.bus;
 
-import dev.webfx.platform.shared.util.async.Handler;
-import dev.webfx.platform.shared.util.async.AsyncResult;
+import dev.webfx.platform.shared.async.Handler;
+import dev.webfx.platform.shared.async.AsyncResult;
 
 /**
  * A distributed lightweight event bus which can encompass multiple machines. The event bus

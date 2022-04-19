@@ -17,8 +17,8 @@
  */
 package dev.webfx.platform.shared.services.bus;
 
-import dev.webfx.platform.shared.util.async.Handler;
-import dev.webfx.platform.shared.util.async.AsyncResult;
+import dev.webfx.platform.shared.async.Handler;
+import dev.webfx.platform.shared.async.AsyncResult;
 
 /**
  * A hook that you can use to receive various events on the Bus.

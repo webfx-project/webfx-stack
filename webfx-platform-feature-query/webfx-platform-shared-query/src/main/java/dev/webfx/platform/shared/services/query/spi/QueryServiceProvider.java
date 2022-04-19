@@ -1,8 +1,8 @@
 package dev.webfx.platform.shared.services.query.spi;
 
 import dev.webfx.platform.shared.services.query.QueryResult;
-import dev.webfx.platform.shared.util.async.Batch;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Batch;
+import dev.webfx.platform.shared.async.Future;
 import dev.webfx.platform.shared.services.query.QueryArgument;
 
 /**

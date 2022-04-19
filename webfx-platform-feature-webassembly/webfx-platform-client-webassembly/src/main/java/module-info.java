@@ -4,6 +4,7 @@ module webfx.platform.client.webassembly {
 
     // Direct dependencies modules
     requires java.base;
+    requires webfx.platform.shared.async;
     requires webfx.platform.shared.util;
 
     // Exported packages

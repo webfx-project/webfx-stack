@@ -5,6 +5,7 @@ module webfx.platform.client.windowhistory {
     // Direct dependencies modules
     requires java.base;
     requires webfx.platform.client.windowlocation;
+    requires webfx.platform.shared.async;
     requires webfx.platform.shared.json;
     requires webfx.platform.shared.util;
 

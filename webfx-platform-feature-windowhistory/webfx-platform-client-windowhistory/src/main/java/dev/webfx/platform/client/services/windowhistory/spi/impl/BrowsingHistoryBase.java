@@ -8,9 +8,9 @@ import dev.webfx.platform.client.services.windowlocation.spi.impl.PathLocationIm
 import dev.webfx.platform.client.services.windowlocation.spi.impl.PathStateLocationImpl;
 import dev.webfx.platform.shared.services.json.JsonObject;
 import dev.webfx.platform.shared.util.Strings;
-import dev.webfx.platform.shared.util.async.Future;
-import dev.webfx.platform.shared.util.async.Handler;
-import dev.webfx.platform.shared.util.async.Promise;
+import dev.webfx.platform.shared.async.Future;
+import dev.webfx.platform.shared.async.Handler;
+import dev.webfx.platform.shared.async.Promise;
 
 import java.util.function.Function;
 

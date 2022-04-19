@@ -2,8 +2,8 @@ package dev.webfx.platform.teavm.services.webassembly.spi.impl;
 
 import dev.webfx.platform.client.services.webassembly.WebAssemblyModule;
 import dev.webfx.platform.client.services.webassembly.spi.WebAssemblyProvider;
-import dev.webfx.platform.shared.util.async.Future;
-import dev.webfx.platform.shared.util.async.Promise;
+import dev.webfx.platform.shared.async.Future;
+import dev.webfx.platform.shared.async.Promise;
 import org.teavm.jso.JSBody;
 import org.teavm.jso.JSFunctor;
 import org.teavm.jso.JSObject;

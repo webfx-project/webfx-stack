@@ -4,7 +4,7 @@ import dev.webfx.platform.shared.services.json.JsonObject;
 import dev.webfx.platform.shared.services.json.WritableJsonObject;
 import dev.webfx.platform.shared.services.serial.spi.impl.SerialCodecBase;
 import dev.webfx.platform.shared.services.serial.SerialCodecManager;
-import dev.webfx.platform.shared.util.async.AsyncResult;
+import dev.webfx.platform.shared.async.AsyncResult;
 
 /**
  * @author Bruno Salmon

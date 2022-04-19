@@ -4,10 +4,10 @@ import dev.webfx.platform.shared.services.bus.*;
 import dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint;
 import dev.webfx.platform.shared.services.log.Logger;
 import dev.webfx.platform.shared.services.serial.SerialCodecManager;
-import dev.webfx.platform.shared.util.async.AsyncFunction;
-import dev.webfx.platform.shared.util.async.AsyncResult;
-import dev.webfx.platform.shared.util.async.Future;
-import dev.webfx.platform.shared.util.async.Handler;
+import dev.webfx.platform.shared.async.AsyncFunction;
+import dev.webfx.platform.shared.async.AsyncResult;
+import dev.webfx.platform.shared.async.Future;
+import dev.webfx.platform.shared.async.Handler;
 import dev.webfx.platform.shared.util.function.Callable;
 
 import java.util.function.BiConsumer;

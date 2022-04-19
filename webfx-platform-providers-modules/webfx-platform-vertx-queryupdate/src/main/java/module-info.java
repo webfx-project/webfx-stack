@@ -9,6 +9,7 @@ module webfx.platform.vertx.queryupdate {
     requires io.vertx.core;
     requires java.base;
     requires java.sql;
+    requires webfx.platform.shared.async;
     requires webfx.platform.shared.datasource;
     requires webfx.platform.shared.log;
     requires webfx.platform.shared.query;

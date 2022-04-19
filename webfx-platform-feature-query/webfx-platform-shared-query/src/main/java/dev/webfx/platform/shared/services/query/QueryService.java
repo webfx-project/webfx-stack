@@ -1,8 +1,8 @@
 package dev.webfx.platform.shared.services.query;
 
 import dev.webfx.platform.shared.services.query.spi.QueryServiceProvider;
-import dev.webfx.platform.shared.util.async.Batch;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Batch;
+import dev.webfx.platform.shared.async.Future;
 import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;

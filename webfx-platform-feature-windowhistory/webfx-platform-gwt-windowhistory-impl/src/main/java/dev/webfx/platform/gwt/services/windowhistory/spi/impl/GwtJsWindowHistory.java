@@ -4,7 +4,7 @@ import dev.webfx.platform.gwt.services.windowhistory.spi.impl.jsinterop.Window;
 import dev.webfx.platform.gwt.services.json.spi.impl.GwtJsonObject;
 import dev.webfx.platform.shared.services.json.JsonObject;
 import dev.webfx.platform.web.services.windowhistory.spi.impl.JsWindowHistory;
-import dev.webfx.platform.shared.util.async.Handler;
+import dev.webfx.platform.shared.async.Handler;
 import java.util.function.Function;
 
 /**

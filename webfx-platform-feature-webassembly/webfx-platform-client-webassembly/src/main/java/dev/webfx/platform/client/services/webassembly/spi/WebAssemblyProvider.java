@@ -3,7 +3,7 @@ package dev.webfx.platform.client.services.webassembly.spi;
 import dev.webfx.platform.client.services.webassembly.WebAssemblyImport;
 import dev.webfx.platform.client.services.webassembly.WebAssemblyInstance;
 import dev.webfx.platform.client.services.webassembly.WebAssemblyModule;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Future;
 
 /**
  * @author Bruno Salmon

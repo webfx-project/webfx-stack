@@ -28,8 +28,8 @@ import dev.webfx.platform.shared.services.json.WritableJsonObject;
 import dev.webfx.platform.shared.services.log.Logger;
 import dev.webfx.platform.shared.services.scheduler.Scheduled;
 import dev.webfx.platform.shared.services.scheduler.Scheduler;
-import dev.webfx.platform.shared.util.async.AsyncResult;
-import dev.webfx.platform.shared.util.async.Handler;
+import dev.webfx.platform.shared.async.AsyncResult;
+import dev.webfx.platform.shared.async.Handler;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -5,6 +5,7 @@ module webfx.platform.shared.buscall {
     // Direct dependencies modules
     requires java.base;
     requires javafx.base;
+    requires webfx.platform.shared.async;
     requires webfx.platform.shared.boot;
     requires webfx.platform.shared.bus;
     requires webfx.platform.shared.json;

@@ -1,7 +1,7 @@
 package dev.webfx.platform.shared.services.query.spi.impl;
 
 import dev.webfx.platform.shared.services.buscall.BusCallService;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Future;
 import dev.webfx.platform.shared.services.query.QueryArgument;
 import dev.webfx.platform.shared.services.query.QueryService;
 

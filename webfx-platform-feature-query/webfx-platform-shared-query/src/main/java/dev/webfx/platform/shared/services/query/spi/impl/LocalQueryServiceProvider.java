@@ -5,7 +5,7 @@ import dev.webfx.platform.shared.services.query.QueryArgument;
 import dev.webfx.platform.shared.services.query.QueryResult;
 import dev.webfx.platform.shared.services.query.spi.QueryServiceProvider;
 import dev.webfx.platform.shared.util.Arrays;
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Future;
 import dev.webfx.platform.shared.services.log.Logger;
 
 import static dev.webfx.platform.shared.services.query.spi.impl.LocalConnectedQueryServiceProviderRegistry.getLocalConnectedProvider;

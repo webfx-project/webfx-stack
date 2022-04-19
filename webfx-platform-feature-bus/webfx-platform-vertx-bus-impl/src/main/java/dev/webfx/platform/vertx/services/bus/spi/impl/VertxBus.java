@@ -8,9 +8,9 @@ import io.vertx.core.json.JsonObject;
 import dev.webfx.platform.shared.services.bus.*;
 import dev.webfx.platform.shared.services.json.Json;
 import dev.webfx.platform.shared.services.json.spi.impl.listmap.MapBasedJsonObject;
-import dev.webfx.platform.shared.util.async.AsyncResult;
-import dev.webfx.platform.shared.util.async.Future;
-import dev.webfx.platform.shared.util.async.Handler;
+import dev.webfx.platform.shared.async.AsyncResult;
+import dev.webfx.platform.shared.async.Future;
+import dev.webfx.platform.shared.async.Handler;
 
 /**
  * @author Bruno Salmon

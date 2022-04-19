@@ -1,6 +1,6 @@
 package dev.webfx.platform.shared.services.buscall.spi;
 
-import dev.webfx.platform.shared.util.async.Future;
+import dev.webfx.platform.shared.async.Future;
 
 import java.util.function.Function;
 

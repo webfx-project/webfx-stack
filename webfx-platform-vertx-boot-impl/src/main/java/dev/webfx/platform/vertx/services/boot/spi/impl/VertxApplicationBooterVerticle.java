@@ -1,5 +1,6 @@
 package dev.webfx.platform.vertx.services.boot.spi.impl;
 
+import dev.webfx.platform.shared.async.Future;
 import io.vertx.core.*;
 import dev.webfx.platform.shared.services.boot.ApplicationBooter;
 import dev.webfx.platform.vertx.services_shared_code.instance.VertxInstance;
@@ -100,7 +101,7 @@ public final class VertxApplicationBooterVerticle extends AbstractVerticle imple
             completeVertxPromise(applicationJob.onStopAsync(), stopPromise);
         }
 
-        private void completeVertxPromise(dev.webfx.platform.shared.util.async.Future<Void> webfxFuture, Promise<Void> vertxPromise) {
+        private void completeVertxPromise(Future<Void> webfxFuture, Promise<Void> vertxPromise) {
             webfxFuture
                     .onFailure(vertxPromise::fail)
                     .onSuccess(vertxPromise::complete);

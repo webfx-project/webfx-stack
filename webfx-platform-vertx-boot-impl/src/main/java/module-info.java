@@ -7,9 +7,9 @@ module webfx.platform.vertx.boot.impl {
     requires io.vertx.eventbusbridge.common;
     requires io.vertx.web;
     requires java.base;
+    requires webfx.platform.shared.async;
     requires webfx.platform.shared.boot;
     requires webfx.platform.shared.shutdown;
-    requires webfx.platform.shared.util;
     requires webfx.platform.vertx.instance;
 
     // Exported packages

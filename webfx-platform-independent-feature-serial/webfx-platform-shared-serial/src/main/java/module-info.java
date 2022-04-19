@@ -4,6 +4,7 @@ module webfx.platform.shared.serial {
 
     // Direct dependencies modules
     requires java.base;
+    requires webfx.platform.shared.async;
     requires webfx.platform.shared.boot;
     requires webfx.platform.shared.json;
     requires webfx.platform.shared.log;

@@ -1,8 +1,8 @@
 package dev.webfx.platform.shared.services.buscall;
 
-import dev.webfx.platform.shared.util.async.AsyncResult;
-import dev.webfx.platform.shared.util.async.Future;
-import dev.webfx.platform.shared.util.async.Promise;
+import dev.webfx.platform.shared.async.AsyncResult;
+import dev.webfx.platform.shared.async.Future;
+import dev.webfx.platform.shared.async.Promise;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 

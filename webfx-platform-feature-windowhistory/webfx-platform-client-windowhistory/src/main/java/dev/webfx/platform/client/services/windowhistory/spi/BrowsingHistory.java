@@ -1,8 +1,8 @@
 package dev.webfx.platform.client.services.windowhistory.spi;
 
 import dev.webfx.platform.client.services.windowlocation.spi.PathStateLocation;
-import dev.webfx.platform.shared.util.async.Future;
-import dev.webfx.platform.shared.util.async.Handler;
+import dev.webfx.platform.shared.async.Future;
+import dev.webfx.platform.shared.async.Handler;
 import dev.webfx.platform.shared.services.json.JsonObject;
 
 import java.util.function.Function;

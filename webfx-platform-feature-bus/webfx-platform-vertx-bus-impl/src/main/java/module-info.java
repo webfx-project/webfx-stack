@@ -4,9 +4,9 @@ module webfx.platform.vertx.bus.impl {
 
     // Direct dependencies modules
     requires io.vertx.core;
+    requires webfx.platform.shared.async;
     requires webfx.platform.shared.bus;
     requires webfx.platform.shared.json;
-    requires webfx.platform.shared.util;
     requires webfx.platform.vertx.instance;
 
     // Exported packages

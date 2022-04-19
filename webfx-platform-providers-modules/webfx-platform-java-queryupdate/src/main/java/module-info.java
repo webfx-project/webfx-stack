@@ -6,6 +6,7 @@ module webfx.platform.java.queryupdate {
     requires java.base;
     requires java.sql;
     requires static com.zaxxer.hikari;
+    requires webfx.platform.shared.async;
     requires webfx.platform.shared.datasource;
     requires webfx.platform.shared.query;
     requires webfx.platform.shared.submit;

@@ -4,6 +4,7 @@ module webfx.platform.shared.query {
 
     // Direct dependencies modules
     requires java.base;
+    requires webfx.platform.shared.async;
     requires webfx.platform.shared.buscall;
     requires webfx.platform.shared.datascope;
     requires webfx.platform.shared.datasource;

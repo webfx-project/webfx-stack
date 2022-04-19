@@ -5,6 +5,7 @@ module webfx.platform.client.websocketbus {
     // Direct dependencies modules
     requires java.base;
     requires webfx.platform.client.websocket;
+    requires webfx.platform.shared.async;
     requires webfx.platform.shared.bus;
     requires webfx.platform.shared.json;
     requires webfx.platform.shared.log;

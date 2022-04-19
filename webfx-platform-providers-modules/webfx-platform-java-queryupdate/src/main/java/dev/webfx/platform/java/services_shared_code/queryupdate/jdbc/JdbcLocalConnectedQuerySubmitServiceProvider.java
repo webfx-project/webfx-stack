@@ -12,8 +12,8 @@ import dev.webfx.platform.shared.services.submit.SubmitArgument;
 import dev.webfx.platform.shared.services.submit.SubmitResult;
 import dev.webfx.platform.shared.services.submit.spi.SubmitServiceProvider;
 import dev.webfx.platform.shared.util.Arrays;
-import dev.webfx.platform.shared.util.async.Future;
-import dev.webfx.platform.shared.util.async.Promise;
+import dev.webfx.platform.shared.async.Future;
+import dev.webfx.platform.shared.async.Promise;
 
 import javax.sql.DataSource;
 import java.sql.*;

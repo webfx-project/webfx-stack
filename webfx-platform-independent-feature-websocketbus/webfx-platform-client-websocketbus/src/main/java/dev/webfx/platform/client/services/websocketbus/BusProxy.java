@@ -20,8 +20,8 @@ package dev.webfx.platform.client.services.websocketbus;
 
 import dev.webfx.platform.shared.services.bus.Bus;
 import dev.webfx.platform.shared.services.bus.BusHook;
-import dev.webfx.platform.shared.util.async.AsyncResult;
-import dev.webfx.platform.shared.util.async.Handler;
+import dev.webfx.platform.shared.async.AsyncResult;
+import dev.webfx.platform.shared.async.Handler;
 import dev.webfx.platform.shared.services.bus.Message;
 import dev.webfx.platform.shared.services.bus.Registration;
 
