@@ -8,8 +8,8 @@
 
     <dependencies>
         <used-by-source-modules>
-            <undetected-used-by-source-module>webfx-framework-client-activity</undetected-used-by-source-module>
-            <undetected-used-by-source-module>webfx-extras-type</undetected-used-by-source-module>
+            <undetected-module>webfx-framework-client-activity</undetected-module>
+            <undetected-module>webfx-extras-type</undetected-module>
         </used-by-source-modules>
     </dependencies>
 
