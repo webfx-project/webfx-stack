@@ -13,9 +13,9 @@
             <groupId>dev.webfx</groupId>
             <version>0.1.0-SNAPSHOT</version>
 
-            <library name="webfx"/>
-            <library name="webfx-stack-parent"/>
-            <library name="webfx-lib-javacupruntime"/>
+            <webfx-library name="webfx"/>
+            <webfx-library name="webfx-stack-parent"/>
+            <webfx-library name="webfx-lib-javacupruntime"/>
         </group>
 
         <library name="com-zaxxer-hikari">

@@ -11,7 +11,7 @@
 
     <dependencies>
         <used-by-source-modules/>
-        <!-- Additional library required at runtime when authenticating to a postgres database in a docker container -->
+        <!-- Additional module required at runtime when authenticating to a postgres database in a docker container -->
         <plugin-module>com-ongres-scram-client</plugin-module>
     </dependencies>
 
