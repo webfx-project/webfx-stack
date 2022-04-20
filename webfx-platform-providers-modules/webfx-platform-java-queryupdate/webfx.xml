@@ -7,7 +7,7 @@
 
     <dependencies>
         <used-by-source-modules>
-            <source-module optional="true">com-zaxxer-hikari</source-module>
+            <module optional="true">com-zaxxer-hikari</module>
         </used-by-source-modules>
     </dependencies>
 
