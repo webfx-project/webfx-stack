@@ -3,6 +3,10 @@
 
     <parent name="webfx-stack-parent"/>
 
+    <update-options>
+        <generate-export-snapshot/>
+    </update-options>
+
     <modules>
         <subdirectories-modules/>
     </modules>
@@ -124,5 +128,1608 @@
         </library>
 
     </required-libraries>
+
+    <!--
+
+     ******************************************************************************************************************* 
+     ******************************* Section managed by WebFX (DO NOT EDIT MANUALLY) *********************************** 
+     ******************************************************************************************************************* 
+
+     <export-snapshot> allows a much faster import of this WebFX library into another project. It's a self-contained
+     image of this and children modules. All information required for the import of this library is present in this
+     single file. The export snapshot is optional, and a WebFX library that doesn't generate it can still be imported
+     into another project, but WebFX will then need to download all individual webfx.xml files for every children
+     modules, together with their pom and sources. Knowing that each download requires a maven invocation that takes
+     at least 3s (sometimes 10s or more), the export snapshot brings a significant performance improvement in the
+     import process.
+
+     -->
+
+    <export-snapshot>
+
+        <project name="webfx-stack-platform">
+
+            <parent name="webfx-stack-parent"/>
+
+            <modules>
+                <module>webfx-platform-feature-bus</module>
+                <module>webfx-platform-feature-json</module>
+                <module>webfx-platform-feature-query</module>
+                <module>webfx-platform-feature-submit</module>
+                <module>webfx-platform-feature-webassembly</module>
+                <module>webfx-platform-feature-websocket</module>
+                <module>webfx-platform-feature-webworker</module>
+                <module>webfx-platform-feature-windowhistory</module>
+                <module>webfx-platform-feature-windowlocation</module>
+                <module>webfx-platform-independent-feature-buscall</module>
+                <module>webfx-platform-independent-feature-datasource</module>
+                <module>webfx-platform-independent-feature-serial</module>
+                <module>webfx-platform-independent-feature-submitlistener</module>
+                <module>webfx-platform-independent-feature-websocketbus</module>
+                <module>webfx-platform-providers-modules</module>
+                <module>webfx-platform-shared-async</module>
+                <module>webfx-platform-vertx-boot-impl</module>
+                <module>webfx-platform-vertx-scheduler-impl</module>
+            </modules>
+
+            <required-libraries>
+
+                <group>
+                    <groupId>dev.webfx</groupId>
+                    <version>0.1.0-SNAPSHOT</version>
+
+                    <webfx-library name="webfx"/>
+                    <webfx-library name="webfx-stack-parent"/>
+                    <webfx-library name="webfx-lib-javacupruntime"/>
+                </group>
+
+                <library name="com-zaxxer-hikari">
+                    <groupId>com.zaxxer</groupId>
+                    <artifactId>HikariCP</artifactId>
+                    <exported-packages>
+                        <package>com.zaxxer.hikari</package>
+                    </exported-packages>
+                </library>
+
+                <library name="Java-WebSocket">
+                    <groupId>org.java-websocket</groupId>
+                    <exported-packages>
+                        <package>org.java_websocket</package>
+                        <package>org.java_websocket.client</package>
+                        <package>org.java_websocket.drafts</package>
+                        <package>org.java_websocket.enums</package>
+                        <package>org.java_websocket.handshake</package>
+                    </exported-packages>
+                </library>
+
+                <group>
+                    <groupId>org.teavm</groupId>
+
+                    <library name="teavm-interop">
+                        <exported-packages>
+                            <package>org.teavm.interop</package>
+                        </exported-packages>
+                    </library>
+
+                    <library name="teavm-jso">
+                        <exported-packages>
+                            <package>org.teavm.jso</package>
+                        </exported-packages>
+                    </library>
+
+                    <library name="teavm-jso-apis">
+                        <exported-packages>
+                            <package>org.teavm.jso.core</package>
+                            <package>org.teavm.jso.dom.events</package>
+                            <package>org.teavm.jso.typedarrays</package>
+                        </exported-packages>
+                    </library>
+
+                </group>
+
+                <group>
+                    <groupId>io.vertx</groupId>
+
+                    <library name="io-vertx-core">
+                        <artifactId>vertx-core</artifactId>
+                        <exported-packages>
+                            <package>io.vertx.core</package>
+                            <package>io.vertx.core.eventbus</package>
+                            <package>io.vertx.core.eventbus.impl</package>
+                            <package>io.vertx.core.http</package>
+                            <package>io.vertx.core.json</package>
+                            <package>io.vertx.core.net</package>
+                            <package>io.vertx.core.spi.cluster</package>
+                        </exported-packages>
+                    </library>
+
+                    <library name="io-vertx-eventbusbridge-common">
+                        <artifactId>vertx-bridge-common</artifactId>
+                        <exported-packages>
+                            <package>io.vertx.ext.bridge</package>
+                        </exported-packages>
+                    </library>
+
+                    <library name="io-vertx-client-jdbc">
+                        <artifactId>vertx-jdbc-client</artifactId>
+                        <exported-packages>
+                            <package>io.vertx.jdbcclient</package>
+                        </exported-packages>
+                    </library>
+
+                    <library name="io-vertx-client-sql">
+                        <artifactId>vertx-sql-client</artifactId>
+                        <exported-packages>
+                            <package>io.vertx.sqlclient</package>
+                        </exported-packages>
+                    </library>
+
+                    <library name="io-vertx-client-sql-pg">
+                        <artifactId>vertx-pg-client</artifactId>
+                        <exported-packages>
+                            <package>io.vertx.pgclient</package>
+                        </exported-packages>
+                    </library>
+
+                    <library name="io-vertx-web">
+                        <artifactId>vertx-web</artifactId>
+                        <exported-packages>
+                            <package>io.vertx.ext.web</package>
+                            <package>io.vertx.ext.web.handler</package>
+                            <package>io.vertx.ext.web.handler.sockjs</package>
+                        </exported-packages>
+                    </library>
+
+                </group>
+
+                <!-- Additional library required at runtime when authenticating to a postgres database in a docker container -->
+                <library name="com-ongres-scram-client">
+                    <artifactId>client</artifactId>
+                    <groupId>com.ongres.scram</groupId>
+                </library>
+
+            </required-libraries>
+
+        </project>
+
+        <project name="webfx-platform-feature-bus">
+
+            <modules>
+                <module>webfx-platform-shared-bus</module>
+                <module>webfx-platform-shared-bus-impl-simple</module>
+                <module>webfx-platform-vertx-bus-impl</module>
+            </modules>
+
+        </project>
+
+        <project name="webfx-platform-shared-bus">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-platform-shared-async</module>
+                    <module>webfx-platform-shared-json</module>
+                    <module>webfx-platform-shared-log</module>
+                    <module>webfx-platform-shared-scheduler</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.shared.services.bus</package>
+                <package>dev.webfx.platform.shared.services.bus.spi.impl</package>
+                <package>dev.webfx.platform.shared.services.bus.spi</package>
+            </source-packages>
+
+            <used-services>
+                <required-service>dev.webfx.platform.shared.services.bus.spi.BusServiceProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-platform-shared-bus-impl-simple">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.bus.spi.BusServiceProvider>dev.webfx.platform.shared.services.bus.spi.impl.simple.SimpleBusServiceProvider</dev.webfx.platform.shared.services.bus.spi.BusServiceProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>webfx-platform-shared-bus</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.shared.services.bus.spi.impl.simple</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-vertx-bus-impl">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.bus.spi.BusServiceProvider>dev.webfx.platform.vertx.services.bus.spi.impl.VertxBusServiceProvider</dev.webfx.platform.shared.services.bus.spi.BusServiceProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>io-vertx-core</module>
+                    <module>webfx-platform-shared-async</module>
+                    <module>webfx-platform-shared-bus</module>
+                    <module>webfx-platform-shared-json</module>
+                    <module>webfx-platform-vertx-instance</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.vertx.services.bus.spi.impl</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-feature-json">
+
+            <modules>
+                <module>webfx-platform-gwt-json-impl</module>
+                <module>webfx-platform-shared-json</module>
+                <module>webfx-platform-shared-json-impl</module>
+                <module>webfx-platform-teavm-json-impl</module>
+                <module>webfx-platform-vertx-json-impl</module>
+            </modules>
+
+        </project>
+
+        <project name="webfx-platform-gwt-json-impl">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.json.spi.JsonProvider>dev.webfx.platform.gwt.services.json.spi.impl.GwtJsonObject</dev.webfx.platform.shared.services.json.spi.JsonProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>gwt-user</module>
+                    <module>webfx-platform-shared-json</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.gwt.services.json.spi.impl</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-shared-json">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-lib-javacupruntime</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.shared.services.json</package>
+                <package>dev.webfx.platform.shared.services.json.parser.javacup</package>
+                <package>dev.webfx.platform.shared.services.json.parser</package>
+                <package>dev.webfx.platform.shared.services.json.parser.jflex</package>
+                <package>dev.webfx.platform.shared.services.json.spi.impl.listmap</package>
+                <package>dev.webfx.platform.shared.services.json.spi</package>
+            </source-packages>
+
+            <used-services>
+                <required-service>dev.webfx.platform.shared.services.json.spi.JsonProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-platform-shared-json-impl">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.json.spi.JsonProvider>dev.webfx.platform.shared.services.json.spi.impl.java.JavaJsonProvider</dev.webfx.platform.shared.services.json.spi.JsonProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>webfx-platform-shared-json</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.shared.services.json.spi.impl.java</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-teavm-json-impl">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.json.spi.JsonProvider>dev.webfx.platform.teavm.services.json.spi.impl.TeaVmJsonObject</dev.webfx.platform.shared.services.json.spi.JsonProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>teavm-jso</module>
+                    <module>teavm-jso-apis</module>
+                    <module>webfx-platform-shared-json</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.teavm.services.json.spi.impl</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-vertx-json-impl">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.json.spi.JsonProvider>dev.webfx.platform.vertx.services.json.spi.impl.VertxJsonObject</dev.webfx.platform.shared.services.json.spi.JsonProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>io-vertx-core</module>
+                    <module>java.base</module>
+                    <module>webfx-platform-shared-json</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.vertx.services.json.spi.impl</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-feature-query">
+
+            <modules>
+                <module>webfx-platform-java-query-impl-jdbc</module>
+                <module>webfx-platform-shared-query</module>
+                <module>webfx-platform-shared-query-impl-remote</module>
+                <module>webfx-platform-vertx-query-impl-postgres-mysql-jdbc</module>
+            </modules>
+
+        </project>
+
+        <project name="webfx-platform-java-query-impl-jdbc">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.query.spi.QueryServiceProvider>dev.webfx.platform.java.services.query.spi.impl.jdbc.JdbcQueryServiceProvider</dev.webfx.platform.shared.services.query.spi.QueryServiceProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>webfx-platform-java-queryupdate</module>
+                    <module>webfx-platform-shared-datasource</module>
+                    <module>webfx-platform-shared-query</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.java.services.query.spi.impl.jdbc</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-shared-query">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.platform.shared.services.query.ExecuteQueryBusCallEndpoint</dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>
+                <dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.platform.shared.services.query.ExecuteQueryBatchBusCallEndpoint</dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>
+                <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.query.QueryArgument$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
+                <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.query.QueryResult$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-platform-shared-async</module>
+                    <module>webfx-platform-shared-buscall</module>
+                    <module>webfx-platform-shared-datascope</module>
+                    <module>webfx-platform-shared-datasource</module>
+                    <module>webfx-platform-shared-json</module>
+                    <module>webfx-platform-shared-log</module>
+                    <module>webfx-platform-shared-serial</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <reflect>
+                <array-new-instance>
+                    <class>dev.webfx.platform.shared.services.query.QueryResult</class>
+                </array-new-instance>
+            </reflect>
+
+            <source-packages>
+                <package>dev.webfx.platform.shared.services.query</package>
+                <package>dev.webfx.platform.shared.services.query.spi.impl</package>
+                <package>dev.webfx.platform.shared.services.query.spi</package>
+                <package>dev.webfx.platform.shared.services.query.compression.repeat</package>
+                <package>dev.webfx.platform.shared.services.query.compression</package>
+            </source-packages>
+
+            <used-services>
+                <required-service>dev.webfx.platform.shared.services.query.spi.QueryServiceProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-platform-shared-query-impl-remote">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.query.spi.QueryServiceProvider>dev.webfx.platform.shared.services.query.spi.impl.remote.RemoteQueryServiceProvider</dev.webfx.platform.shared.services.query.spi.QueryServiceProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>webfx-platform-shared-query</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.shared.services.query.spi.impl.remote</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-vertx-query-impl-postgres-mysql-jdbc">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.query.spi.QueryServiceProvider>dev.webfx.platform.vertx.services.query.spi.impl.VertxQueryServiceProvider</dev.webfx.platform.shared.services.query.spi.QueryServiceProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>webfx-platform-shared-datasource</module>
+                    <module>webfx-platform-shared-query</module>
+                    <module>webfx-platform-vertx-queryupdate</module>
+                </used-by-source-modules>
+                <!-- Additional module required at runtime when authenticating to a postgres database in a docker container -->
+                <plugin-module>com-ongres-scram-client</plugin-module>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.vertx.services.query.spi.impl</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-feature-submit">
+
+            <modules>
+                <module>webfx-platform-java-submit-impl-jdbc</module>
+                <module>webfx-platform-shared-submit</module>
+                <module>webfx-platform-shared-submit-impl-remote</module>
+                <module>webfx-platform-vertx-submit-impl-postgres-mysql-jdbc</module>
+            </modules>
+
+        </project>
+
+        <project name="webfx-platform-java-submit-impl-jdbc">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.submit.spi.SubmitServiceProvider>dev.webfx.platform.java.services.submit.spi.impl.jdbc.JdbcSubmitServiceProvider</dev.webfx.platform.shared.services.submit.spi.SubmitServiceProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>webfx-platform-java-queryupdate</module>
+                    <module>webfx-platform-shared-datasource</module>
+                    <module>webfx-platform-shared-submit</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.java.services.submit.spi.impl.jdbc</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-shared-submit">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.platform.shared.services.submit.ExecuteSubmitBusCallEndpoint</dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>
+                <dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.platform.shared.services.submit.ExecuteSubmitBatchBusCallEndpoint</dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>
+                <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.submit.SubmitArgument$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
+                <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.submit.SubmitResult$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
+                <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.submit.GeneratedKeyBatchIndex$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-platform-shared-async</module>
+                    <module>webfx-platform-shared-buscall</module>
+                    <module>webfx-platform-shared-datascope</module>
+                    <module>webfx-platform-shared-datasource</module>
+                    <module>webfx-platform-shared-json</module>
+                    <module>webfx-platform-shared-serial</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <reflect>
+                <array-new-instance>
+                    <class>dev.webfx.platform.shared.services.submit.SubmitResult</class>
+                </array-new-instance>
+            </reflect>
+
+            <source-packages>
+                <package>dev.webfx.platform.shared.services.submit</package>
+                <package>dev.webfx.platform.shared.services.submit.spi.impl</package>
+                <package>dev.webfx.platform.shared.services.submit.spi</package>
+            </source-packages>
+
+            <used-services>
+                <required-service>dev.webfx.platform.shared.services.submit.spi.SubmitServiceProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-platform-shared-submit-impl-remote">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.submit.spi.SubmitServiceProvider>dev.webfx.platform.shared.services.submit.spi.impl.remote.RemoteSubmitServiceProvider</dev.webfx.platform.shared.services.submit.spi.SubmitServiceProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>webfx-platform-shared-submit</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.shared.services.submit.spi.impl.remote</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-vertx-submit-impl-postgres-mysql-jdbc">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.submit.spi.SubmitServiceProvider>dev.webfx.platform.vertx.services.submit.spi.impl.VertxSubmitServiceProvider</dev.webfx.platform.shared.services.submit.spi.SubmitServiceProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>webfx-platform-shared-datasource</module>
+                    <module>webfx-platform-shared-submit</module>
+                    <module>webfx-platform-vertx-queryupdate</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.vertx.services.submit.spi.impl</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-feature-webassembly">
+
+            <modules>
+                <module>webfx-platform-client-webassembly</module>
+                <module>webfx-platform-teavm-wasm-util</module>
+                <module>webfx-platform-teavm-webassembly-impl</module>
+            </modules>
+
+        </project>
+
+        <project name="webfx-platform-client-webassembly">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-platform-shared-async</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.client.services.webassembly</package>
+                <package>dev.webfx.platform.client.services.webassembly.spi</package>
+            </source-packages>
+
+            <used-services>
+                <required-service>dev.webfx.platform.client.services.webassembly.spi.WebAssemblyProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-platform-teavm-wasm-util">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java-nio-emul</module>
+                    <module>teavm-interop</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.teavm.wasm</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-teavm-webassembly-impl">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.client.services.webassembly.spi.WebAssemblyProvider>dev.webfx.platform.teavm.services.webassembly.spi.impl.TeaVmWebAssemblyProvider</dev.webfx.platform.client.services.webassembly.spi.WebAssemblyProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java-nio-emul</module>
+                    <module>teavm-jso</module>
+                    <module>teavm-jso-apis</module>
+                    <module>webfx-platform-client-webassembly</module>
+                    <module>webfx-platform-shared-async</module>
+                    <module>webfx-platform-shared-json</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.teavm.services.webassembly.spi.impl</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-feature-websocket">
+
+            <modules>
+                <module>webfx-platform-client-websocket</module>
+                <module>webfx-platform-gwt-websocket-impl</module>
+                <module>webfx-platform-java-websocket-impl</module>
+            </modules>
+
+        </project>
+
+        <project name="webfx-platform-client-websocket">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-platform-shared-json</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.client.services.websocket</package>
+                <package>dev.webfx.platform.client.services.websocket.spi</package>
+            </source-packages>
+
+            <used-services>
+                <required-service>dev.webfx.platform.client.services.websocket.spi.WebSocketServiceProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-platform-gwt-websocket-impl">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.client.services.websocket.spi.WebSocketServiceProvider>dev.webfx.platform.gwt.services.websocket.spi.impl.GwtWebSocketServiceProvider</dev.webfx.platform.client.services.websocket.spi.WebSocketServiceProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>gwt-user</module>
+                    <module>webfx-platform-client-websocket</module>
+                    <module>webfx-platform-shared-json</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <html>
+                <body order="-10">
+                    <script charset="utf-8" src="dev/webfx/platform/client/services/websocket/spi/impl/gwt/sockjs.min.js" type="text/javascript"/>
+                    <script charset="utf-8" src="dev/webfx/platform/client/services/websocket/spi/impl/gwt/sockjs-quickstart.js" type="text/javascript"/>
+                </body>
+            </html>
+
+            <source-packages>
+                <package>dev.webfx.platform.gwt.services.websocket.spi.impl</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-java-websocket-impl">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.client.services.websocket.spi.WebSocketServiceProvider>dev.webfx.platform.java.services.websocket.spi.impl.JavaWebSocketServiceProvider</dev.webfx.platform.client.services.websocket.spi.WebSocketServiceProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>Java-WebSocket</module>
+                    <module>java-nio-emul</module>
+                    <module>java.base</module>
+                    <module>webfx-platform-client-websocket</module>
+                    <module>webfx-platform-shared-json</module>
+                    <module>webfx-platform-shared-log</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.java.services.websocket.spi.impl</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-feature-webworker">
+
+            <modules>
+                <module>webfx-platform-gwt-webworker-impl</module>
+                <module>webfx-platform-java-webworker-impl</module>
+                <module>webfx-platform-shared-webworker</module>
+                <module>webfx-platform-teavm-webworker-impl</module>
+            </modules>
+
+        </project>
+
+        <project name="webfx-platform-gwt-webworker-impl">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.webworker.spi.WorkerServiceProvider>dev.webfx.platform.gwt.services.webworker.spi.impl.GwtWorkerServiceProvider</dev.webfx.platform.shared.services.webworker.spi.WorkerServiceProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>elemental2-dom</module>
+                    <module>java.base</module>
+                    <module>webfx-platform-shared-webworker</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.gwt.services.webworker.spi.impl</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-java-webworker-impl">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.webworker.spi.WorkerServiceProvider>dev.webfx.platform.java.services.webworker.spi.impl.JavaWorkerServiceProvider</dev.webfx.platform.shared.services.webworker.spi.WorkerServiceProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-platform-client-uischeduler</module>
+                    <module>webfx-platform-shared-json</module>
+                    <module>webfx-platform-shared-log</module>
+                    <module>webfx-platform-shared-webworker</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.java.services.webworker.spi.impl</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-shared-webworker">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.shared.services.webworker.spi</package>
+                <package>dev.webfx.platform.shared.services.webworker.spi.base</package>
+                <package>dev.webfx.platform.shared.services.webworker</package>
+                <package>dev.webfx.platform.shared.services.webworker.pool</package>
+            </source-packages>
+
+            <used-services>
+                <required-service>dev.webfx.platform.shared.services.webworker.spi.WorkerServiceProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-platform-teavm-webworker-impl">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>teavm-interop</module>
+                    <module>teavm-jso</module>
+                    <module>teavm-jso-apis</module>
+                    <module>webfx-platform-shared-webworker</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.teavm.services.webworker.spi.impl</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-feature-windowhistory">
+
+            <modules>
+                <module>webfx-platform-client-windowhistory</module>
+                <module>webfx-platform-gwt-windowhistory-impl</module>
+                <module>webfx-platform-java-windowhistory-impl</module>
+                <module>webfx-platform-web-windowhistory-impl</module>
+            </modules>
+
+        </project>
+
+        <project name="webfx-platform-client-windowhistory">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-platform-client-windowlocation</module>
+                    <module>webfx-platform-shared-async</module>
+                    <module>webfx-platform-shared-json</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.client.services.windowhistory</package>
+                <package>dev.webfx.platform.client.services.windowhistory.spi.impl</package>
+                <package>dev.webfx.platform.client.services.windowhistory.spi</package>
+            </source-packages>
+
+            <used-services>
+                <required-service>dev.webfx.platform.client.services.windowhistory.spi.WindowHistoryProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-platform-gwt-windowhistory-impl">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.web.services.windowhistory.spi.impl.JsWindowHistory>dev.webfx.platform.gwt.services.windowhistory.spi.impl.GwtJsWindowHistory</dev.webfx.platform.web.services.windowhistory.spi.impl.JsWindowHistory>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>gwt-user</module>
+                    <module>java.base</module>
+                    <module>jsinterop-annotations</module>
+                    <module>webfx-platform-gwt-json-impl</module>
+                    <module>webfx-platform-shared-async</module>
+                    <module>webfx-platform-shared-json</module>
+                    <module>webfx-platform-web-windowhistory-impl</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.gwt.services.windowhistory.spi.impl.jsinterop</package>
+                <package>dev.webfx.platform.gwt.services.windowhistory.spi.impl</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-java-windowhistory-impl">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.client.services.windowhistory.spi.WindowHistoryProvider>dev.webfx.platform.java.services.windowhistory.spi.impl.JavaWindowHistoryProvider</dev.webfx.platform.client.services.windowhistory.spi.WindowHistoryProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>webfx-platform-client-windowhistory</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.java.services.windowhistory.spi.impl</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-web-windowhistory-impl">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.client.services.windowhistory.spi.WindowHistoryProvider>dev.webfx.platform.web.services.windowhistory.spi.impl.WebWindowHistoryProvider</dev.webfx.platform.client.services.windowhistory.spi.WindowHistoryProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-platform-client-uischeduler</module>
+                    <module>webfx-platform-client-windowhistory</module>
+                    <module>webfx-platform-client-windowlocation</module>
+                    <module>webfx-platform-shared-async</module>
+                    <module>webfx-platform-shared-json</module>
+                    <module>webfx-platform-shared-log</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.web.services.windowhistory.spi.impl</package>
+            </source-packages>
+
+            <used-services>
+                <required-service>dev.webfx.platform.web.services.windowhistory.spi.impl.JsWindowHistory</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-platform-feature-windowlocation">
+
+            <modules>
+                <module>webfx-platform-client-windowlocation</module>
+                <module>webfx-platform-gwt-windowlocation-impl</module>
+                <module>webfx-platform-java-windowlocation-impl</module>
+            </modules>
+
+        </project>
+
+        <project name="webfx-platform-client-windowlocation">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-platform-shared-json</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.client.services.windowlocation.spi.impl</package>
+                <package>dev.webfx.platform.client.services.windowlocation.spi</package>
+                <package>dev.webfx.platform.client.services.windowlocation</package>
+            </source-packages>
+
+            <used-services>
+                <required-service>dev.webfx.platform.client.services.windowlocation.spi.WindowLocationProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-platform-gwt-windowlocation-impl">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.client.services.windowlocation.spi.WindowLocationProvider>dev.webfx.platform.gwt.services.windowlocation.spi.impl.GwtWindowLocationProvider</dev.webfx.platform.client.services.windowlocation.spi.WindowLocationProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>gwt-user</module>
+                    <module>jsinterop-annotations</module>
+                    <module>webfx-platform-client-windowlocation</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.gwt.services.windowlocation.spi.impl.jsinterop</package>
+                <package>dev.webfx.platform.gwt.services.windowlocation.spi.impl</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-java-windowlocation-impl">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.client.services.windowlocation.spi.WindowLocationProvider>dev.webfx.platform.java.services.windowlocation.spi.impl.JavaWindowLocationProvider</dev.webfx.platform.client.services.windowlocation.spi.WindowLocationProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>webfx-platform-client-websocketbus</module>
+                    <module>webfx-platform-client-windowhistory</module>
+                    <module>webfx-platform-client-windowlocation</module>
+                    <module>webfx-platform-shared-bus</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.java.services.windowlocation.spi.impl</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-independent-feature-buscall">
+
+            <modules>
+                <module>webfx-platform-shared-buscall</module>
+                <module>webfx-platform-shared-buscalljob</module>
+            </modules>
+
+        </project>
+
+        <project name="webfx-platform-shared-buscall">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>dev.webfx.platform.shared.services.buscall.BusCallModuleBooter</dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>
+                <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.buscall.BusCallArgument$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
+                <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.buscall.BusCallResult$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
+                <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.buscall.SerializableAsyncResult$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-kit-javafxbase-emul</module>
+                    <module>webfx-platform-shared-async</module>
+                    <module>webfx-platform-shared-boot</module>
+                    <module>webfx-platform-shared-bus</module>
+                    <module>webfx-platform-shared-json</module>
+                    <module>webfx-platform-shared-log</module>
+                    <module>webfx-platform-shared-serial</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.shared.services.buscall</package>
+                <package>dev.webfx.platform.shared.services.buscall.spi</package>
+            </source-packages>
+
+            <used-services>
+                <optional-service>dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint</optional-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-platform-shared-buscalljob">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.boot.spi.ApplicationJob>dev.webfx.platform.server.jobs.buscall.BusCallServerJob</dev.webfx.platform.shared.services.boot.spi.ApplicationJob>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>webfx-platform-shared-boot</module>
+                    <module>webfx-platform-shared-bus</module>
+                    <module>webfx-platform-shared-buscall</module>
+                    <module>webfx-platform-shared-log</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.server.jobs.buscall</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-independent-feature-datasource">
+
+            <modules>
+                <module>webfx-platform-shared-datascope</module>
+                <module>webfx-platform-shared-datasource</module>
+            </modules>
+
+        </project>
+
+        <project name="webfx-platform-shared-datascope">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.datascope.aggregate.AggregateScope$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-platform-shared-json</module>
+                    <module>webfx-platform-shared-serial</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.shared.datascope</package>
+                <package>dev.webfx.platform.shared.datascope.aggregate</package>
+                <package>dev.webfx.platform.shared.datascope.schema</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-shared-datasource">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.shared.services.datasource.jdbc</package>
+                <package>dev.webfx.platform.shared.services.datasource.spi.simple</package>
+                <package>dev.webfx.platform.shared.services.datasource.spi</package>
+                <package>dev.webfx.platform.shared.services.datasource</package>
+            </source-packages>
+
+            <used-services>
+                <required-service>dev.webfx.platform.shared.services.datasource.spi.LocalDataSourceProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-platform-independent-feature-serial">
+
+            <modules>
+                <module>webfx-platform-shared-serial</module>
+            </modules>
+
+        </project>
+
+        <project name="webfx-platform-shared-serial">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>dev.webfx.platform.shared.services.serial.SerialCodecModuleBooter</dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>
+                <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.serial.spi.impl.ProvidedBatchSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-platform-shared-async</module>
+                    <module>webfx-platform-shared-boot</module>
+                    <module>webfx-platform-shared-json</module>
+                    <module>webfx-platform-shared-log</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.shared.services.serial</package>
+                <package>dev.webfx.platform.shared.services.serial.spi.impl</package>
+                <package>dev.webfx.platform.shared.services.serial.spi</package>
+            </source-packages>
+
+            <used-services>
+                <optional-service>dev.webfx.platform.shared.services.serial.spi.SerialCodec</optional-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-platform-independent-feature-submitlistener">
+
+            <modules>
+                <module>webfx-platform-shared-submitlistener</module>
+            </modules>
+
+        </project>
+
+        <project name="webfx-platform-shared-submitlistener">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>dev.webfx.platform.server.services.submitlistener.SubmitListenerModuleBooter</dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-platform-shared-boot</module>
+                    <module>webfx-platform-shared-log</module>
+                    <module>webfx-platform-shared-submit</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.server.services.submitlistener</package>
+            </source-packages>
+
+            <used-services>
+                <optional-service>dev.webfx.platform.server.services.submitlistener.SubmitListener</optional-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-platform-independent-feature-websocketbus">
+
+            <modules>
+                <module>webfx-platform-client-websocketbus</module>
+                <module>webfx-platform-web-websocketbus</module>
+            </modules>
+
+        </project>
+
+        <project name="webfx-platform-client-websocketbus">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.bus.spi.BusServiceProvider>dev.webfx.platform.client.services.websocketbus.WebsocketBusServiceProvider</dev.webfx.platform.shared.services.bus.spi.BusServiceProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-platform-client-websocket</module>
+                    <module>webfx-platform-shared-async</module>
+                    <module>webfx-platform-shared-bus</module>
+                    <module>webfx-platform-shared-json</module>
+                    <module>webfx-platform-shared-log</module>
+                    <module>webfx-platform-shared-resource</module>
+                    <module>webfx-platform-shared-scheduler</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.client.services.websocketbus</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-web-websocketbus">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.bus.spi.BusServiceProvider>dev.webfx.platform.client.services.websocketbus.web.WebWebsocketBusServiceProvider</dev.webfx.platform.shared.services.bus.spi.BusServiceProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>webfx-platform-client-websocketbus</module>
+                    <module>webfx-platform-client-windowlocation</module>
+                    <module>webfx-platform-shared-bus</module>
+                    <module>webfx-platform-shared-json</module>
+                    <module>webfx-platform-shared-resource</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.client.services.websocketbus.web</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-providers-modules">
+
+            <modules>
+                <module>webfx-platform-java-queryupdate</module>
+                <module>webfx-platform-vertx-instance</module>
+                <module>webfx-platform-vertx-queryupdate</module>
+            </modules>
+
+        </project>
+
+        <project name="webfx-platform-java-queryupdate">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module optional="true">com-zaxxer-hikari</module>
+                    <module>com-zaxxer-hikari</module>
+                    <module>java.base</module>
+                    <module>java.sql</module>
+                    <module>webfx-platform-shared-async</module>
+                    <module>webfx-platform-shared-datasource</module>
+                    <module>webfx-platform-shared-query</module>
+                    <module>webfx-platform-shared-submit</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.java.services_shared_code.queryupdate.jdbc</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-vertx-instance">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>io-vertx-core</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.vertx.services_shared_code.instance</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-vertx-queryupdate">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>io-vertx-client-jdbc</module>
+                    <module>io-vertx-client-sql</module>
+                    <module>io-vertx-client-sql-pg</module>
+                    <module>io-vertx-core</module>
+                    <module>java.base</module>
+                    <module>webfx-platform-shared-async</module>
+                    <module>webfx-platform-shared-datasource</module>
+                    <module>webfx-platform-shared-log</module>
+                    <module>webfx-platform-shared-query</module>
+                    <module>webfx-platform-shared-submit</module>
+                    <module>webfx-platform-shared-submitlistener</module>
+                    <module>webfx-platform-shared-util</module>
+                    <module>webfx-platform-vertx-instance</module>
+                </used-by-source-modules>
+                <plugin-module>java.sql</plugin-module>                <!-- Module required by vertx-mysql-postgresql-client-jasync -->
+                <plugin-module>slf4j-api</plugin-module>
+            </dependencies>
+
+            <required-libraries>
+                <library artifact="org.slf4j:slf4j-api:1.7.15">
+
+                    <exported-packages>
+                        <package>org.slf4j</package>
+                        <package>org.slf4j.spi</package>
+                        <package>org.slf4j.impl</package>
+                        <package>org.slf4j.helpers</package>
+                        <package>org.slf4j.event</package>
+                    </exported-packages>
+
+                </library>
+            </required-libraries>
+
+            <source-packages>
+                <package>dev.webfx.platform.vertx.services_shared_code.queryupdate</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-shared-async">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>java.logging</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.shared.async</package>
+                <package>dev.webfx.platform.shared.async.impl</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-vertx-boot-impl">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.boot.spi.ApplicationBooterProvider>dev.webfx.platform.vertx.services.boot.spi.impl.VertxApplicationBooterVerticle</dev.webfx.platform.shared.services.boot.spi.ApplicationBooterProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>io-vertx-core</module>
+                    <module>io-vertx-eventbusbridge-common</module>
+                    <module>io-vertx-web</module>
+                    <module>java-nio-emul</module>
+                    <module>java.base</module>
+                    <module>webfx-platform-shared-boot</module>
+                    <module>webfx-platform-shared-shutdown</module>
+                    <module>webfx-platform-vertx-instance</module>
+                </used-by-source-modules>
+                <!-- Using slf4j-jdk14 at runtime (Vert.x uses slf4j for logging) -->
+                <plugin-module>org.slf4j.jul</plugin-module>
+            </dependencies>
+
+            <required-libraries>
+                <library name="org.slf4j.jul">
+                    <artifactId>slf4j-jdk14</artifactId>
+                    <groupId>org.slf4j</groupId>
+                    <version>1.7.36</version>
+        
+                    <exported-packages>
+                        <package>org.slf4j.impl</package>
+                    </exported-packages>
+
+                </library>
+            </required-libraries>
+
+            <source-packages>
+                <package>dev.webfx.platform.vertx.services.boot.spi.impl</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-platform-vertx-scheduler-impl">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.platform.shared.services.scheduler.spi.SchedulerProvider>dev.webfx.platform.vertx.services.scheduler.spi.impl.VertxSchedulerProvider</dev.webfx.platform.shared.services.scheduler.spi.SchedulerProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>io-vertx-core</module>
+                    <module>webfx-platform-shared-scheduler</module>
+                    <module>webfx-platform-vertx-instance</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.platform.vertx.services.scheduler.spi.impl</package>
+            </source-packages>
+
+        </project>
+
+    </export-snapshot>
 
 </project>
