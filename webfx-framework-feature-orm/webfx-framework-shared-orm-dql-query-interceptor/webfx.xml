@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
 
-    <auto-conditions>
+    <module-auto-injection-conditions>
         <if-uses-java-package>dev.webfx.platform.shared.services.query</if-uses-java-package>
         <if-uses-java-package>dev.webfx.framework.shared.orm.domainmodel</if-uses-java-package>
-    </auto-conditions>
+    </module-auto-injection-conditions>
 
     <exported-packages>
         <source-packages/>

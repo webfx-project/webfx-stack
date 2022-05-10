@@ -710,10 +710,10 @@
 
         <project name="webfx-framework-shared-orm-dql-query-interceptor">
 
-            <auto-conditions>
+            <module-auto-injection-conditions>
                 <if-uses-java-package>dev.webfx.platform.shared.services.query</if-uses-java-package>
                 <if-uses-java-package>dev.webfx.framework.shared.orm.domainmodel</if-uses-java-package>
-            </auto-conditions>
+            </module-auto-injection-conditions>
 
             <exported-packages>
                 <source-packages/>
@@ -745,10 +745,10 @@
 
         <project name="webfx-framework-shared-orm-dql-querypush-interceptor">
 
-            <auto-conditions>
+            <module-auto-injection-conditions>
                 <if-uses-java-package>dev.webfx.framework.shared.services.querypush</if-uses-java-package>
                 <if-uses-java-package>dev.webfx.framework.shared.orm.domainmodel</if-uses-java-package>
-            </auto-conditions>
+            </module-auto-injection-conditions>
 
             <exported-packages>
                 <source-packages/>
@@ -783,10 +783,10 @@
 
         <project name="webfx-framework-shared-orm-dql-submit-interceptor">
 
-            <auto-conditions>
+            <module-auto-injection-conditions>
                 <if-uses-java-package>dev.webfx.platform.shared.services.submit</if-uses-java-package>
                 <if-uses-java-package>dev.webfx.framework.shared.orm.domainmodel</if-uses-java-package>
-            </auto-conditions>
+            </module-auto-injection-conditions>
 
             <exported-packages>
                 <source-packages/>
