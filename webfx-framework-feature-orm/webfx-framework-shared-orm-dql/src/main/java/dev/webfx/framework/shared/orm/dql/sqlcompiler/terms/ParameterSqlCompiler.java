@@ -64,7 +64,7 @@ public final class ParameterSqlCompiler extends AbstractTermSqlCompiler<Paramete
             }
             */
         }
-        o.build.addColumnInClause(null, o.build.getDbmsSyntax().generateParameterToken(++o.build.parameterIndex), null, null, o.clause, o.separator, false, false, o.generateQueryMapping);
+        o.build.addColumnInClause(null, o.build.getDbmsSyntax().generateParameterToken(o.build.incrementParameterIndex()), null, null, o.clause, o.separator, false, false, o.generateQueryMapping);
     }
 
     private boolean isClientOnly(Parameter e, boolean forSelectClause) {
