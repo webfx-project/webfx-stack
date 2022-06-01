@@ -7,7 +7,10 @@ import dev.webfx.framework.shared.orm.expression.terms.DqlStatement;
 import dev.webfx.framework.shared.orm.expression.terms.ExpressionArray;
 import dev.webfx.framework.shared.orm.expression.terms.Select;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Bruno Salmon
@@ -29,6 +32,13 @@ public final class DomainModel {
 
     public DomainClass getClass(Object classId) {
         return classMap.get(classId);
+    }
+
+    public List<DomainClass> getAllClasses() {
+        return classMap.values().stream()
+                .distinct()
+                .sorted(Comparator.comparing(DomainClass::getName))
+                .collect(Collectors.toList());
     }
 
     public ParserDomainModelReaderImpl getParserDomainModelReader() {
