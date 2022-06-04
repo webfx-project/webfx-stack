@@ -24,9 +24,14 @@ import static dev.webfx.framework.shared.orm.dql.DqlStatement.limit;
  */
 public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E, ReactiveDqlStatement<E>> {
 
+    // Entity Java class (not used in the code so far, just passed in the constructor to type E)
     private Class<E> domainJavaClass;
+    // Domain class ID taken from DqlStatements (they should all have the same domain class ID)
+    // Note: it's the responsibility of the developer to make domainClassId and domainJavaClass match)
     private Object domainClassId;
+    // The list of DqlStatement properties (each DqlStatement value may change in reaction to other JavaFX properties such as user interface)
     private final List<ObservableValue<DqlStatement>> dqlStatementProperties = new ArrayList<>();
+    // The base statement is the fist sample of dql statements giving the domain class ID
     private DqlStatement baseStatement;
     private boolean markDqlStatementsAsChanged;
     private final ObjectProperty<DqlStatement> resultingDqlStatementProperty = new SimpleObjectProperty<>();
@@ -49,11 +54,13 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
 
     @Override
     public Object getDomainClassId() {
+        fetchBaseStatementAndDomainClassIdIfNecessary();
         return domainClassId;
     }
 
     @Override
     public DqlStatement getBaseStatement() {
+        fetchBaseStatementAndDomainClassIdIfNecessary();
         return baseStatement;
     }
 
@@ -70,6 +77,20 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
     @Override
     public void addResultTransformer(Function<DqlStatement, DqlStatement> resultTransformer) {
         resultTransformers.add(resultTransformer);
+    }
+
+    private void fetchBaseStatementAndDomainClassIdIfNecessary() {
+        if (baseStatement == null || markDqlStatementsAsChanged) {
+            synchronized (dqlStatementProperties) { // to avoid ConcurrentModificationException if another thread wants to add another statement
+                for (ObservableValue<DqlStatement> dqlStatementProperty : dqlStatementProperties) {
+                    baseStatement = dqlStatementProperty.getValue();
+                    if (baseStatement != null)
+                        domainClassId = baseStatement.getDomainClassId();
+                    if (domainClassId != null)
+                        break;
+                }
+            }
+        }
     }
 
     private void markDqlStatementsAsChanged() {
@@ -116,10 +137,6 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
 
     @Override
     public ReactiveDqlStatement<E> always(DqlStatement dqlStatement) {
-        if (domainClassId == null) {
-            domainClassId = dqlStatement.getDomainClassId();
-            baseStatement = dqlStatement;
-        }
         return addWithoutListening(new SimpleObjectProperty<>(dqlStatement));
     }
 

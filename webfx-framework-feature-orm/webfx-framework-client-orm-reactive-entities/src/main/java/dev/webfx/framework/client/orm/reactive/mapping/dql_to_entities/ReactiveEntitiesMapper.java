@@ -51,7 +51,7 @@ public final class ReactiveEntitiesMapper<E extends Entity> implements HasEntity
     }
 
     @Override
-    public final EntityStore getStore() {
+    public EntityStore getStore() {
         // If not store has been explicitly set, we implicitly create a new one
         if (store == null)
             setStore(EntityStore.create(getDataSourceModel()));

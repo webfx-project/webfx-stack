@@ -187,14 +187,15 @@ public class ReactiveDqlQuery<E> implements ReactiveDqlQueryAPI<E, ReactiveDqlQu
     }
 
     private ReferenceResolver rootAliasReferenceResolver;
+    private DqlStatement rootAliasBaseStatement; // Keeping a reference to know if the resolver cache needs to be cleared
 
     @Override
     public ReferenceResolver getRootAliasReferenceResolver() {
-        if (rootAliasReferenceResolver == null) {
+        if (rootAliasReferenceResolver == null || rootAliasBaseStatement != getBaseStatement()) {
             // Before parsing, we prepare a ReferenceResolver to resolve possible references to root aliases
             Map<String, Alias<?>> rootAliases = new HashMap<>();
             rootAliasReferenceResolver = rootAliases::get;
-            DqlStatement baseStatement = getBaseStatement();
+            DqlStatement baseStatement = rootAliasBaseStatement = getBaseStatement();
             if (baseStatement != null) { // Root aliases are stored in the baseStatement
                 // The first possible root alias is the base statement alias. Ex: Event e => the alias "e" then acts in a
                 // similar way as "this" in java because it refers to the current Event row in the select, so some

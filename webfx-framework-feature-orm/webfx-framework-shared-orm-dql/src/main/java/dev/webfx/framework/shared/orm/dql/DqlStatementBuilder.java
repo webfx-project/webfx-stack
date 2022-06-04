@@ -58,7 +58,7 @@ public final class DqlStatementBuilder {
     }
 
     private boolean isApplicable(Object domainClassId) {
-        return domainClassId == null || this.domainClassId != null && this.domainClassId.equals(domainClassId);
+        return domainClassId == null || this.domainClassId == null || this.domainClassId.equals(domainClassId);
     }
 
     public DqlStatementBuilder applyFilter(DqlStatement f) {
