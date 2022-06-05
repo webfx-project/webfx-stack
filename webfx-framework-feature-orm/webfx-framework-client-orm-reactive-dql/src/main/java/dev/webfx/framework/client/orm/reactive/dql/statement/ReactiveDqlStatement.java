@@ -83,11 +83,13 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
         if (baseStatement == null || markDqlStatementsAsChanged) {
             synchronized (dqlStatementProperties) { // to avoid ConcurrentModificationException if another thread wants to add another statement
                 for (ObservableValue<DqlStatement> dqlStatementProperty : dqlStatementProperties) {
-                    baseStatement = dqlStatementProperty.getValue();
-                    if (baseStatement != null)
-                        domainClassId = baseStatement.getDomainClassId();
-                    if (domainClassId != null)
+                    DqlStatement dqlStatement = dqlStatementProperty.getValue();
+                    if (dqlStatement != null)
+                        domainClassId = dqlStatement.getDomainClassId();
+                    if (domainClassId != null) {
+                        baseStatement = dqlStatement;
                         break;
+                    }
                 }
             }
         }
