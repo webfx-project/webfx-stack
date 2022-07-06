@@ -156,6 +156,7 @@ public abstract class ButtonSelector<T> {
         button.setOnAction(e -> onButtonClicked());
         button.setOnMouseEntered(e -> onMouseEntered());
         button.setOnMouseExited( e -> onMouseExited());
+        updateButtonContentOnNewSelectedItem();
     }
 
     public MaterialTextFieldPane toMaterialButton(Object i18nKey) {
