@@ -314,8 +314,8 @@
 
             <source-packages>
                 <package>dev.webfx.platform.shared.services.bus</package>
-                <package>dev.webfx.platform.shared.services.bus.spi.impl</package>
                 <package>dev.webfx.platform.shared.services.bus.spi</package>
+                <package>dev.webfx.platform.shared.services.bus.spi.impl</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -434,11 +434,11 @@
 
             <source-packages>
                 <package>dev.webfx.platform.shared.services.json</package>
-                <package>dev.webfx.platform.shared.services.json.parser.javacup</package>
                 <package>dev.webfx.platform.shared.services.json.parser</package>
+                <package>dev.webfx.platform.shared.services.json.parser.javacup</package>
                 <package>dev.webfx.platform.shared.services.json.parser.jflex</package>
-                <package>dev.webfx.platform.shared.services.json.spi.impl.listmap</package>
                 <package>dev.webfx.platform.shared.services.json.spi</package>
+                <package>dev.webfx.platform.shared.services.json.spi.impl.listmap</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -592,10 +592,10 @@
 
             <source-packages>
                 <package>dev.webfx.platform.shared.services.query</package>
-                <package>dev.webfx.platform.shared.services.query.spi.impl</package>
-                <package>dev.webfx.platform.shared.services.query.spi</package>
-                <package>dev.webfx.platform.shared.services.query.compression.repeat</package>
                 <package>dev.webfx.platform.shared.services.query.compression</package>
+                <package>dev.webfx.platform.shared.services.query.compression.repeat</package>
+                <package>dev.webfx.platform.shared.services.query.spi</package>
+                <package>dev.webfx.platform.shared.services.query.spi.impl</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -731,8 +731,8 @@
 
             <source-packages>
                 <package>dev.webfx.platform.shared.services.submit</package>
-                <package>dev.webfx.platform.shared.services.submit.spi.impl</package>
                 <package>dev.webfx.platform.shared.services.submit.spi</package>
+                <package>dev.webfx.platform.shared.services.submit.spi.impl</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -1064,10 +1064,10 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.platform.shared.services.webworker.spi</package>
-                <package>dev.webfx.platform.shared.services.webworker.spi.base</package>
                 <package>dev.webfx.platform.shared.services.webworker</package>
                 <package>dev.webfx.platform.shared.services.webworker.pool</package>
+                <package>dev.webfx.platform.shared.services.webworker.spi</package>
+                <package>dev.webfx.platform.shared.services.webworker.spi.base</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -1128,8 +1128,8 @@
 
             <source-packages>
                 <package>dev.webfx.platform.client.services.windowhistory</package>
-                <package>dev.webfx.platform.client.services.windowhistory.spi.impl</package>
                 <package>dev.webfx.platform.client.services.windowhistory.spi</package>
+                <package>dev.webfx.platform.client.services.windowhistory.spi.impl</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -1161,8 +1161,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.platform.gwt.services.windowhistory.spi.impl.jsinterop</package>
                 <package>dev.webfx.platform.gwt.services.windowhistory.spi.impl</package>
+                <package>dev.webfx.platform.gwt.services.windowhistory.spi.impl.jsinterop</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -1257,9 +1257,9 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.platform.client.services.windowlocation.spi.impl</package>
-                <package>dev.webfx.platform.client.services.windowlocation.spi</package>
                 <package>dev.webfx.platform.client.services.windowlocation</package>
+                <package>dev.webfx.platform.client.services.windowlocation.spi</package>
+                <package>dev.webfx.platform.client.services.windowlocation.spi.impl</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -1289,8 +1289,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.platform.gwt.services.windowlocation.spi.impl.jsinterop</package>
                 <package>dev.webfx.platform.gwt.services.windowlocation.spi.impl</package>
+                <package>dev.webfx.platform.gwt.services.windowlocation.spi.impl.jsinterop</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -1453,10 +1453,10 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.platform.shared.services.datasource.jdbc</package>
-                <package>dev.webfx.platform.shared.services.datasource.spi.simple</package>
-                <package>dev.webfx.platform.shared.services.datasource.spi</package>
                 <package>dev.webfx.platform.shared.services.datasource</package>
+                <package>dev.webfx.platform.shared.services.datasource.jdbc</package>
+                <package>dev.webfx.platform.shared.services.datasource.spi</package>
+                <package>dev.webfx.platform.shared.services.datasource.spi.simple</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -1495,8 +1495,8 @@
 
             <source-packages>
                 <package>dev.webfx.platform.shared.services.serial</package>
-                <package>dev.webfx.platform.shared.services.serial.spi.impl</package>
                 <package>dev.webfx.platform.shared.services.serial.spi</package>
+                <package>dev.webfx.platform.shared.services.serial.spi.impl</package>
             </source-packages>
 
             <used-by-source-modules>
