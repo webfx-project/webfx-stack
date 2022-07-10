@@ -14,14 +14,14 @@ module webfx.platform.shared.buscall {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.platform.shared.services.buscall;
-    exports dev.webfx.platform.shared.services.buscall.spi;
+    exports dev.webfx.stack.platform.shared.services.buscall;
+    exports dev.webfx.stack.platform.shared.services.buscall.spi;
 
     // Used services
-    uses dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint;
+    uses dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint;
 
     // Provided services
-    provides dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter with dev.webfx.platform.shared.services.buscall.BusCallModuleBooter;
-    provides dev.webfx.platform.shared.services.serial.spi.SerialCodec with dev.webfx.platform.shared.services.buscall.BusCallArgument.ProvidedSerialCodec, dev.webfx.platform.shared.services.buscall.BusCallResult.ProvidedSerialCodec, dev.webfx.platform.shared.services.buscall.SerializableAsyncResult.ProvidedSerialCodec;
+    provides dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter with dev.webfx.stack.platform.shared.services.buscall.BusCallModuleBooter;
+    provides dev.webfx.stack.com.serial.spi.SerialCodec with dev.webfx.stack.platform.shared.services.buscall.BusCallArgument.ProvidedSerialCodec, dev.webfx.stack.platform.shared.services.buscall.BusCallResult.ProvidedSerialCodec, dev.webfx.stack.platform.shared.services.buscall.SerializableAsyncResult.ProvidedSerialCodec;
 
 }

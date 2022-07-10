@@ -1,1 +1,1 @@
-dev.webfx.platform.vertx.services.boot.spi.impl.VertxApplicationBooterVerticle
+dev.webfx.stack.platform.vertx.services.boot.spi.impl.VertxApplicationBooterVerticle

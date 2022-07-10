@@ -7,12 +7,12 @@ module webfx.platform.shared.datasource {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.platform.shared.services.datasource;
-    exports dev.webfx.platform.shared.services.datasource.jdbc;
-    exports dev.webfx.platform.shared.services.datasource.spi;
-    exports dev.webfx.platform.shared.services.datasource.spi.simple;
+    exports dev.webfx.stack.platform.shared.services.datasource;
+    exports dev.webfx.stack.platform.shared.services.datasource.jdbc;
+    exports dev.webfx.stack.platform.shared.services.datasource.spi;
+    exports dev.webfx.stack.platform.shared.services.datasource.spi.simple;
 
     // Used services
-    uses dev.webfx.platform.shared.services.datasource.spi.LocalDataSourceProvider;
+    uses dev.webfx.stack.platform.shared.services.datasource.spi.LocalDataSourceProvider;
 
 }

@@ -7,12 +7,12 @@ module webfx.platform.shared.webworker {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.platform.shared.services.webworker;
-    exports dev.webfx.platform.shared.services.webworker.pool;
-    exports dev.webfx.platform.shared.services.webworker.spi;
-    exports dev.webfx.platform.shared.services.webworker.spi.base;
+    exports dev.webfx.stack.platform.webworker;
+    exports dev.webfx.stack.platform.webworker.pool;
+    exports dev.webfx.stack.platform.webworker.spi;
+    exports dev.webfx.stack.platform.webworker.spi.base;
 
     // Used services
-    uses dev.webfx.platform.shared.services.webworker.spi.WorkerServiceProvider;
+    uses dev.webfx.stack.platform.webworker.spi.WorkerServiceProvider;
 
 }

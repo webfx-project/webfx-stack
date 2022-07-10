@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.platform.client.services.websocket.spi.WebSocketServiceProvider>dev.webfx.platform.java.services.websocket.spi.impl.JavaWebSocketServiceProvider</dev.webfx.platform.client.services.websocket.spi.WebSocketServiceProvider>
+        <dev.webfx.stack.platform.websocket.spi.WebSocketServiceProvider>dev.webfx.stack.platform.websocket.spi.impl.java.JavaWebSocketServiceProvider</dev.webfx.stack.platform.websocket.spi.WebSocketServiceProvider>
     </providers>
 
     <dependencies>

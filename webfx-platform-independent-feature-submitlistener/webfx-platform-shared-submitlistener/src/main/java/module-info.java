@@ -10,12 +10,12 @@ module webfx.platform.shared.submitlistener {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.platform.server.services.submitlistener;
+    exports dev.webfx.stack.platform.server.services.submitlistener;
 
     // Used services
-    uses dev.webfx.platform.server.services.submitlistener.SubmitListener;
+    uses dev.webfx.stack.platform.server.services.submitlistener.SubmitListener;
 
     // Provided services
-    provides dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter with dev.webfx.platform.server.services.submitlistener.SubmitListenerModuleBooter;
+    provides dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter with dev.webfx.stack.platform.server.services.submitlistener.SubmitListenerModuleBooter;
 
 }

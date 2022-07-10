@@ -10,9 +10,9 @@ module webfx.platform.java.websocket.impl {
     requires webfx.platform.shared.log;
 
     // Exported packages
-    exports dev.webfx.platform.java.services.websocket.spi.impl;
+    exports dev.webfx.stack.platform.websocket.spi.impl.java;
 
     // Provided services
-    provides dev.webfx.platform.client.services.websocket.spi.WebSocketServiceProvider with dev.webfx.platform.java.services.websocket.spi.impl.JavaWebSocketServiceProvider;
+    provides dev.webfx.stack.platform.websocket.spi.WebSocketServiceProvider with dev.webfx.stack.platform.websocket.spi.impl.java.JavaWebSocketServiceProvider;
 
 }

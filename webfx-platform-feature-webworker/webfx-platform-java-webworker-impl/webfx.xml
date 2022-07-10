@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.platform.shared.services.webworker.spi.WorkerServiceProvider>dev.webfx.platform.java.services.webworker.spi.impl.JavaWorkerServiceProvider</dev.webfx.platform.shared.services.webworker.spi.WorkerServiceProvider>
+        <dev.webfx.stack.platform.webworker.spi.WorkerServiceProvider>dev.webfx.stack.platform.webworker.spi.impl.java.JavaWorkerServiceProvider</dev.webfx.stack.platform.webworker.spi.WorkerServiceProvider>
     </providers>
 
     <dependencies>

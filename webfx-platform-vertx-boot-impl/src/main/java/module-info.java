@@ -12,9 +12,9 @@ module webfx.platform.vertx.boot.impl {
     requires webfx.platform.vertx.instance;
 
     // Exported packages
-    exports dev.webfx.platform.vertx.services.boot.spi.impl;
+    exports dev.webfx.stack.platform.vertx.services.boot.spi.impl;
 
     // Provided services
-    provides dev.webfx.platform.shared.services.boot.spi.ApplicationBooterProvider with dev.webfx.platform.vertx.services.boot.spi.impl.VertxApplicationBooterVerticle;
+    provides dev.webfx.platform.shared.services.boot.spi.ApplicationBooterProvider with dev.webfx.stack.platform.vertx.services.boot.spi.impl.VertxApplicationBooterVerticle;
 
 }

@@ -8,11 +8,11 @@ module webfx.platform.client.windowlocation {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.platform.client.services.windowlocation;
-    exports dev.webfx.platform.client.services.windowlocation.spi;
-    exports dev.webfx.platform.client.services.windowlocation.spi.impl;
+    exports dev.webfx.stack.platform.windowlocation;
+    exports dev.webfx.stack.platform.windowlocation.spi;
+    exports dev.webfx.stack.platform.windowlocation.spi.impl;
 
     // Used services
-    uses dev.webfx.platform.client.services.windowlocation.spi.WindowLocationProvider;
+    uses dev.webfx.stack.platform.windowlocation.spi.WindowLocationProvider;
 
 }

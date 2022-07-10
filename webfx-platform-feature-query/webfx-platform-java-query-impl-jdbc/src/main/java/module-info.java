@@ -8,9 +8,9 @@ module webfx.platform.java.query.impl.jdbc {
     requires webfx.platform.shared.query;
 
     // Exported packages
-    exports dev.webfx.platform.java.services.query.spi.impl.jdbc;
+    exports dev.webfx.stack.platform.java.services.query.spi.impl.jdbc;
 
     // Provided services
-    provides dev.webfx.platform.shared.services.query.spi.QueryServiceProvider with dev.webfx.platform.java.services.query.spi.impl.jdbc.JdbcQueryServiceProvider;
+    provides dev.webfx.stack.platform.shared.services.query.spi.QueryServiceProvider with dev.webfx.stack.platform.java.services.query.spi.impl.jdbc.JdbcQueryServiceProvider;
 
 }

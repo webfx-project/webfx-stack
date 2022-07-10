@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.platform.shared.services.json.spi.JsonProvider>dev.webfx.platform.vertx.services.json.spi.impl.VertxJsonObject</dev.webfx.platform.shared.services.json.spi.JsonProvider>
+        <dev.webfx.stack.platform.json.spi.JsonProvider>dev.webfx.stack.platform.vertx.services.json.spi.impl.VertxJsonObject</dev.webfx.stack.platform.json.spi.JsonProvider>
     </providers>
 
     <dependencies>

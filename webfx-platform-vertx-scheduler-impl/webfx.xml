@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.platform.shared.services.scheduler.spi.SchedulerProvider>dev.webfx.platform.vertx.services.scheduler.spi.impl.VertxSchedulerProvider</dev.webfx.platform.shared.services.scheduler.spi.SchedulerProvider>
+        <dev.webfx.platform.shared.services.scheduler.spi.SchedulerProvider>dev.webfx.stack.platform.vertx.services.scheduler.spi.impl.VertxSchedulerProvider</dev.webfx.platform.shared.services.scheduler.spi.SchedulerProvider>
     </providers>
 
     <dependencies>

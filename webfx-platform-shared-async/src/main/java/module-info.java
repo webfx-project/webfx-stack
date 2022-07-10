@@ -8,7 +8,7 @@ module webfx.platform.shared.async {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.platform.shared.async;
-    exports dev.webfx.platform.shared.async.impl;
+    exports dev.webfx.stack.platform.async;
+    exports dev.webfx.stack.platform.async.impl;
 
 }

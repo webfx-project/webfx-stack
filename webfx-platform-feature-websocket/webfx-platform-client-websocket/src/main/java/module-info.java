@@ -8,10 +8,10 @@ module webfx.platform.client.websocket {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.platform.client.services.websocket;
-    exports dev.webfx.platform.client.services.websocket.spi;
+    exports dev.webfx.stack.platform.websocket;
+    exports dev.webfx.stack.platform.websocket.spi;
 
     // Used services
-    uses dev.webfx.platform.client.services.websocket.spi.WebSocketServiceProvider;
+    uses dev.webfx.stack.platform.websocket.spi.WebSocketServiceProvider;
 
 }

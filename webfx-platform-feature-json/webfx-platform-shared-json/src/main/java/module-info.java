@@ -8,14 +8,14 @@ module webfx.platform.shared.json {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.platform.shared.services.json;
-    exports dev.webfx.platform.shared.services.json.parser;
-    exports dev.webfx.platform.shared.services.json.parser.javacup;
-    exports dev.webfx.platform.shared.services.json.parser.jflex;
-    exports dev.webfx.platform.shared.services.json.spi;
-    exports dev.webfx.platform.shared.services.json.spi.impl.listmap;
+    exports dev.webfx.stack.platform.json;
+    exports dev.webfx.stack.platform.json.parser;
+    exports dev.webfx.stack.platform.json.parser.javacup;
+    exports dev.webfx.stack.platform.json.parser.jflex;
+    exports dev.webfx.stack.platform.json.spi;
+    exports dev.webfx.stack.platform.json.spi.impl.listmap;
 
     // Used services
-    uses dev.webfx.platform.shared.services.json.spi.JsonProvider;
+    uses dev.webfx.stack.platform.json.spi.JsonProvider;
 
 }

@@ -14,17 +14,17 @@ module webfx.platform.shared.query {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.platform.shared.services.query;
-    exports dev.webfx.platform.shared.services.query.compression;
-    exports dev.webfx.platform.shared.services.query.compression.repeat;
-    exports dev.webfx.platform.shared.services.query.spi;
-    exports dev.webfx.platform.shared.services.query.spi.impl;
+    exports dev.webfx.stack.platform.shared.services.query;
+    exports dev.webfx.stack.platform.shared.services.query.compression;
+    exports dev.webfx.stack.platform.shared.services.query.compression.repeat;
+    exports dev.webfx.stack.platform.shared.services.query.spi;
+    exports dev.webfx.stack.platform.shared.services.query.spi.impl;
 
     // Used services
-    uses dev.webfx.platform.shared.services.query.spi.QueryServiceProvider;
+    uses dev.webfx.stack.platform.shared.services.query.spi.QueryServiceProvider;
 
     // Provided services
-    provides dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint with dev.webfx.platform.shared.services.query.ExecuteQueryBusCallEndpoint, dev.webfx.platform.shared.services.query.ExecuteQueryBatchBusCallEndpoint;
-    provides dev.webfx.platform.shared.services.serial.spi.SerialCodec with dev.webfx.platform.shared.services.query.QueryArgument.ProvidedSerialCodec, dev.webfx.platform.shared.services.query.QueryResult.ProvidedSerialCodec;
+    provides dev.webfx.stack.com.serial.spi.SerialCodec with dev.webfx.stack.platform.shared.services.query.QueryArgument.ProvidedSerialCodec, dev.webfx.stack.platform.shared.services.query.QueryResult.ProvidedSerialCodec;
+    provides dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint with dev.webfx.stack.platform.shared.services.query.ExecuteQueryBusCallEndpoint, dev.webfx.stack.platform.shared.services.query.ExecuteQueryBatchBusCallEndpoint;
 
 }

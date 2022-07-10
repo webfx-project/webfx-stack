@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.platform.client.services.windowhistory.spi.WindowHistoryProvider>dev.webfx.platform.java.services.windowhistory.spi.impl.JavaWindowHistoryProvider</dev.webfx.platform.client.services.windowhistory.spi.WindowHistoryProvider>
+        <dev.webfx.stack.platform.windowhistory.spi.WindowHistoryProvider>dev.webfx.stack.platform.windowhistory.spi.impl.java.JavaWindowHistoryProvider</dev.webfx.stack.platform.windowhistory.spi.WindowHistoryProvider>
     </providers>
 
     <dependencies>

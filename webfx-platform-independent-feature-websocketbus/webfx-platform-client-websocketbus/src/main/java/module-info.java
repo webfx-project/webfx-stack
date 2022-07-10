@@ -14,9 +14,9 @@ module webfx.platform.client.websocketbus {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.platform.client.services.websocketbus;
+    exports dev.webfx.stack.platform.websocketbus;
 
     // Provided services
-    provides dev.webfx.platform.shared.services.bus.spi.BusServiceProvider with dev.webfx.platform.client.services.websocketbus.WebsocketBusServiceProvider;
+    provides dev.webfx.stack.platform.shared.services.bus.spi.BusServiceProvider with dev.webfx.stack.platform.websocketbus.WebsocketBusServiceProvider;
 
 }

@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.platform.web.services.windowhistory.spi.impl.JsWindowHistory>dev.webfx.platform.gwt.services.windowhistory.spi.impl.GwtJsWindowHistory</dev.webfx.platform.web.services.windowhistory.spi.impl.JsWindowHistory>
+        <dev.webfx.stack.platform.windowhistory.spi.impl.web.JsWindowHistory>dev.webfx.stack.platform.windowhistory.spi.impl.gwt.GwtJsWindowHistory</dev.webfx.stack.platform.windowhistory.spi.impl.web.JsWindowHistory>
     </providers>
 
     <dependencies>

@@ -11,11 +11,11 @@ module webfx.platform.shared.bus {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.platform.shared.services.bus;
-    exports dev.webfx.platform.shared.services.bus.spi;
-    exports dev.webfx.platform.shared.services.bus.spi.impl;
+    exports dev.webfx.stack.platform.shared.services.bus;
+    exports dev.webfx.stack.platform.shared.services.bus.spi;
+    exports dev.webfx.stack.platform.shared.services.bus.spi.impl;
 
     // Used services
-    uses dev.webfx.platform.shared.services.bus.spi.BusServiceProvider;
+    uses dev.webfx.stack.platform.shared.services.bus.spi.BusServiceProvider;
 
 }

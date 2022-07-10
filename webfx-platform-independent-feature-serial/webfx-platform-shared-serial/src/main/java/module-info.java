@@ -11,15 +11,15 @@ module webfx.platform.shared.serial {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.platform.shared.services.serial;
-    exports dev.webfx.platform.shared.services.serial.spi;
-    exports dev.webfx.platform.shared.services.serial.spi.impl;
+    exports dev.webfx.stack.com.serial;
+    exports dev.webfx.stack.com.serial.spi;
+    exports dev.webfx.stack.com.serial.spi.impl;
 
     // Used services
-    uses dev.webfx.platform.shared.services.serial.spi.SerialCodec;
+    uses dev.webfx.stack.com.serial.spi.SerialCodec;
 
     // Provided services
-    provides dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter with dev.webfx.platform.shared.services.serial.SerialCodecModuleBooter;
-    provides dev.webfx.platform.shared.services.serial.spi.SerialCodec with dev.webfx.platform.shared.services.serial.spi.impl.ProvidedBatchSerialCodec;
+    provides dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter with dev.webfx.stack.com.serial.SerialCodecModuleBooter;
+    provides dev.webfx.stack.com.serial.spi.SerialCodec with dev.webfx.stack.com.serial.spi.impl.ProvidedBatchSerialCodec;
 
 }

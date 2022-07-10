@@ -13,15 +13,15 @@ module webfx.platform.shared.submit {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.platform.shared.services.submit;
-    exports dev.webfx.platform.shared.services.submit.spi;
-    exports dev.webfx.platform.shared.services.submit.spi.impl;
+    exports dev.webfx.stack.platform.shared.services.submit;
+    exports dev.webfx.stack.platform.shared.services.submit.spi;
+    exports dev.webfx.stack.platform.shared.services.submit.spi.impl;
 
     // Used services
-    uses dev.webfx.platform.shared.services.submit.spi.SubmitServiceProvider;
+    uses dev.webfx.stack.platform.shared.services.submit.spi.SubmitServiceProvider;
 
     // Provided services
-    provides dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint with dev.webfx.platform.shared.services.submit.ExecuteSubmitBusCallEndpoint, dev.webfx.platform.shared.services.submit.ExecuteSubmitBatchBusCallEndpoint;
-    provides dev.webfx.platform.shared.services.serial.spi.SerialCodec with dev.webfx.platform.shared.services.submit.SubmitArgument.ProvidedSerialCodec, dev.webfx.platform.shared.services.submit.SubmitResult.ProvidedSerialCodec, dev.webfx.platform.shared.services.submit.GeneratedKeyBatchIndex.ProvidedSerialCodec;
+    provides dev.webfx.stack.com.serial.spi.SerialCodec with dev.webfx.stack.platform.shared.services.submit.SubmitArgument.ProvidedSerialCodec, dev.webfx.stack.platform.shared.services.submit.SubmitResult.ProvidedSerialCodec, dev.webfx.stack.platform.shared.services.submit.GeneratedKeyBatchIndex.ProvidedSerialCodec;
+    provides dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint with dev.webfx.stack.platform.shared.services.submit.ExecuteSubmitBusCallEndpoint, dev.webfx.stack.platform.shared.services.submit.ExecuteSubmitBatchBusCallEndpoint;
 
 }

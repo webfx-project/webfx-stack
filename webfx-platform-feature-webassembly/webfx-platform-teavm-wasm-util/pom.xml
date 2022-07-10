@@ -13,13 +13,4 @@
 
     <artifactId>webfx-platform-teavm-wasm-util</artifactId>
 
-    <dependencies>
-
-        <dependency>
-            <groupId>org.teavm</groupId>
-            <artifactId>teavm-interop</artifactId>
-        </dependency>
-
-    </dependencies>
-
 </project>

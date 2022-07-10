@@ -6,10 +6,10 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.platform.shared.services.query.ExecuteQueryBusCallEndpoint</dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>
-        <dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.platform.shared.services.query.ExecuteQueryBatchBusCallEndpoint</dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>
-        <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.query.QueryArgument$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
-        <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.query.QueryResult$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
+        <dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.stack.platform.shared.services.query.ExecuteQueryBusCallEndpoint</dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint>
+        <dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.stack.platform.shared.services.query.ExecuteQueryBatchBusCallEndpoint</dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint>
+        <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.platform.shared.services.query.QueryArgument$ProvidedSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
+        <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.platform.shared.services.query.QueryResult$ProvidedSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
     </providers>
 
     <dependencies>
@@ -18,7 +18,7 @@
 
     <reflect>
         <array-new-instance>
-            <class>dev.webfx.platform.shared.services.query.QueryResult</class>
+            <class>dev.webfx.stack.platform.shared.services.query.QueryResult</class>
         </array-new-instance>
     </reflect>
 

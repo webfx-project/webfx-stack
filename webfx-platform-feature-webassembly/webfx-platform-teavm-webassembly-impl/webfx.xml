@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.platform.client.services.webassembly.spi.WebAssemblyProvider>dev.webfx.platform.teavm.services.webassembly.spi.impl.TeaVmWebAssemblyProvider</dev.webfx.platform.client.services.webassembly.spi.WebAssemblyProvider>
+        <dev.webfx.stack.platform.webassembly.spi.WebAssemblyProvider>dev.webfx.stack.platform.webassembly.spi.impl.teavm.TeaVmWebAssemblyProvider</dev.webfx.stack.platform.webassembly.spi.WebAssemblyProvider>
     </providers>
 
     <dependencies>

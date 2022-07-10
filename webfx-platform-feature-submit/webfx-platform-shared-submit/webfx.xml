@@ -6,11 +6,11 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.platform.shared.services.submit.ExecuteSubmitBusCallEndpoint</dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>
-        <dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.platform.shared.services.submit.ExecuteSubmitBatchBusCallEndpoint</dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>
-        <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.submit.SubmitArgument$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
-        <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.submit.SubmitResult$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
-        <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.platform.shared.services.submit.GeneratedKeyBatchIndex$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
+        <dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.stack.platform.shared.services.submit.ExecuteSubmitBusCallEndpoint</dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint>
+        <dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.stack.platform.shared.services.submit.ExecuteSubmitBatchBusCallEndpoint</dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint>
+        <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.platform.shared.services.submit.SubmitArgument$ProvidedSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
+        <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.platform.shared.services.submit.SubmitResult$ProvidedSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
+        <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.platform.shared.services.submit.GeneratedKeyBatchIndex$ProvidedSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
     </providers>
 
     <dependencies>
@@ -19,7 +19,7 @@
 
     <reflect>
         <array-new-instance>
-            <class>dev.webfx.platform.shared.services.submit.SubmitResult</class>
+            <class>dev.webfx.stack.platform.shared.services.submit.SubmitResult</class>
         </array-new-instance>
     </reflect>
 
