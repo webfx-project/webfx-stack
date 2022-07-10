@@ -10,9 +10,9 @@ module webfx.framework.client.push.simple {
     requires webfx.platform.shared.log;
 
     // Exported packages
-    exports dev.webfx.framework.client.services.push.spi.impl.simple;
+    exports dev.webfx.stack.framework.client.services.push.spi.impl.simple;
 
     // Provided services
-    provides dev.webfx.framework.client.services.push.spi.PushClientServiceProvider with dev.webfx.framework.client.services.push.spi.impl.simple.SimplePushClientServiceProvider;
+    provides dev.webfx.stack.framework.client.services.push.spi.PushClientServiceProvider with dev.webfx.stack.framework.client.services.push.spi.impl.simple.SimplePushClientServiceProvider;
 
 }

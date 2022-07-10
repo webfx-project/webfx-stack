@@ -85,8 +85,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.client.ui.action</package>
-                <package>dev.webfx.framework.client.ui.action.impl</package>
+                <package>dev.webfx.stack.framework.client.ui.action</package>
+                <package>dev.webfx.stack.framework.client.ui.action.impl</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -113,7 +113,7 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.client.ui.action.operation</package>
+                <package>dev.webfx.stack.framework.client.ui.action.operation</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -142,7 +142,7 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.shared.operation</package>
+                <package>dev.webfx.stack.framework.shared.operation</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -172,8 +172,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.shared.services.authn</package>
-                <package>dev.webfx.framework.shared.services.authn.spi</package>
+                <package>dev.webfx.stack.framework.shared.services.authn</package>
+                <package>dev.webfx.stack.framework.shared.services.authn.spi</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -183,7 +183,7 @@
             </used-by-source-modules>
 
             <used-services>
-                <required-service>dev.webfx.framework.shared.services.authn.spi.AuthenticationServiceProvider</required-service>
+                <required-service>dev.webfx.stack.framework.shared.services.authn.spi.AuthenticationServiceProvider</required-service>
             </used-services>
 
         </project>
@@ -199,13 +199,13 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.shared.operation.authz</package>
-                <package>dev.webfx.framework.shared.services.authz</package>
-                <package>dev.webfx.framework.shared.services.authz.mixin</package>
-                <package>dev.webfx.framework.shared.services.authz.spi</package>
-                <package>dev.webfx.framework.shared.services.authz.spi.impl</package>
-                <package>dev.webfx.framework.shared.services.authz.spi.impl.inmemory</package>
-                <package>dev.webfx.framework.shared.services.authz.spi.impl.inmemory.parser</package>
+                <package>dev.webfx.stack.framework.shared.operation.authz</package>
+                <package>dev.webfx.stack.framework.shared.services.authz</package>
+                <package>dev.webfx.stack.framework.shared.services.authz.mixin</package>
+                <package>dev.webfx.stack.framework.shared.services.authz.spi</package>
+                <package>dev.webfx.stack.framework.shared.services.authz.spi.impl</package>
+                <package>dev.webfx.stack.framework.shared.services.authz.spi.impl.inmemory</package>
+                <package>dev.webfx.stack.framework.shared.services.authz.spi.impl.inmemory.parser</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -218,7 +218,7 @@
             </used-by-source-modules>
 
             <used-services>
-                <required-service>dev.webfx.framework.shared.services.authz.spi.AuthorizationServiceProvider</required-service>
+                <required-service>dev.webfx.stack.framework.shared.services.authz.spi.AuthorizationServiceProvider</required-service>
             </used-services>
 
         </project>
@@ -247,10 +247,10 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.client.ui.controls</package>
-                <package>dev.webfx.framework.client.ui.controls.alert</package>
-                <package>dev.webfx.framework.client.ui.controls.button</package>
-                <package>dev.webfx.framework.client.ui.controls.dialog</package>
+                <package>dev.webfx.stack.framework.client.ui.controls</package>
+                <package>dev.webfx.stack.framework.client.ui.controls.alert</package>
+                <package>dev.webfx.stack.framework.client.ui.controls.button</package>
+                <package>dev.webfx.stack.framework.client.ui.controls.dialog</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -282,13 +282,13 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.client.ui.util.anim</package>
-                <package>dev.webfx.framework.client.ui.util.background</package>
-                <package>dev.webfx.framework.client.ui.util.border</package>
-                <package>dev.webfx.framework.client.ui.util.image</package>
-                <package>dev.webfx.framework.client.ui.util.layout</package>
-                <package>dev.webfx.framework.client.ui.util.paint</package>
-                <package>dev.webfx.framework.client.ui.util.scene</package>
+                <package>dev.webfx.stack.framework.client.ui.util.anim</package>
+                <package>dev.webfx.stack.framework.client.ui.util.background</package>
+                <package>dev.webfx.stack.framework.client.ui.util.border</package>
+                <package>dev.webfx.stack.framework.client.ui.util.image</package>
+                <package>dev.webfx.stack.framework.client.ui.util.layout</package>
+                <package>dev.webfx.stack.framework.client.ui.util.paint</package>
+                <package>dev.webfx.stack.framework.client.ui.util.scene</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -327,10 +327,10 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.client.operations.i18n</package>
-                <package>dev.webfx.framework.client.services.i18n</package>
-                <package>dev.webfx.framework.client.services.i18n.spi</package>
-                <package>dev.webfx.framework.client.services.i18n.spi.impl</package>
+                <package>dev.webfx.stack.framework.client.operations.i18n</package>
+                <package>dev.webfx.stack.framework.client.services.i18n</package>
+                <package>dev.webfx.stack.framework.client.services.i18n.spi</package>
+                <package>dev.webfx.stack.framework.client.services.i18n.spi.impl</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -345,8 +345,8 @@
             </used-by-source-modules>
 
             <used-services>
-                <required-service>dev.webfx.framework.client.services.i18n.spi.I18nProvider</required-service>
-                <optional-service>dev.webfx.framework.client.operations.i18n.ChangeLanguageRequestEmitter</optional-service>
+                <required-service>dev.webfx.stack.framework.client.services.i18n.spi.I18nProvider</required-service>
+                <optional-service>dev.webfx.stack.framework.client.operations.i18n.ChangeLanguageRequestEmitter</optional-service>
             </used-services>
 
         </project>
@@ -364,7 +364,7 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.client.services.i18n.spi.impl.json</package>
+                <package>dev.webfx.stack.framework.client.services.i18n.spi.impl.json</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -412,13 +412,13 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.client.activity.impl.combinations.domainpresentation</package>
-                <package>dev.webfx.framework.client.activity.impl.combinations.domainpresentation.impl</package>
-                <package>dev.webfx.framework.client.activity.impl.combinations.domainpresentationlogic.impl</package>
-                <package>dev.webfx.framework.client.activity.impl.combinations.viewdomain</package>
-                <package>dev.webfx.framework.client.activity.impl.combinations.viewdomain.impl</package>
-                <package>dev.webfx.framework.client.activity.impl.elementals.domain</package>
-                <package>dev.webfx.framework.client.activity.impl.elementals.domain.impl</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.combinations.domainpresentation</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.combinations.domainpresentation.impl</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.combinations.domainpresentationlogic.impl</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.combinations.viewdomain</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.combinations.viewdomain.impl</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.elementals.domain</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.elementals.domain.impl</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -444,8 +444,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.client.ui.controls.entity.selector</package>
-                <package>dev.webfx.framework.client.ui.controls.entity.sheet</package>
+                <package>dev.webfx.stack.framework.client.ui.controls.entity.selector</package>
+                <package>dev.webfx.stack.framework.client.ui.controls.entity.sheet</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -488,13 +488,13 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.client.orm.reactive.call</package>
-                <package>dev.webfx.framework.client.orm.reactive.call.query</package>
-                <package>dev.webfx.framework.client.orm.reactive.call.query.push</package>
-                <package>dev.webfx.framework.client.orm.reactive.dql.query</package>
-                <package>dev.webfx.framework.client.orm.reactive.dql.querypush</package>
-                <package>dev.webfx.framework.client.orm.reactive.dql.statement</package>
-                <package>dev.webfx.framework.client.orm.reactive.dql.statement.conventions</package>
+                <package>dev.webfx.stack.framework.client.orm.reactive.call</package>
+                <package>dev.webfx.stack.framework.client.orm.reactive.call.query</package>
+                <package>dev.webfx.stack.framework.client.orm.reactive.call.query.push</package>
+                <package>dev.webfx.stack.framework.client.orm.reactive.dql.query</package>
+                <package>dev.webfx.stack.framework.client.orm.reactive.dql.querypush</package>
+                <package>dev.webfx.stack.framework.client.orm.reactive.dql.statement</package>
+                <package>dev.webfx.stack.framework.client.orm.reactive.dql.statement.conventions</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -533,9 +533,9 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.client.orm.reactive.mapping.dql_to_entities</package>
-                <package>dev.webfx.framework.client.orm.reactive.mapping.entities_to_grid</package>
-                <package>dev.webfx.framework.client.orm.reactive.mapping.entities_to_objects</package>
+                <package>dev.webfx.stack.framework.client.orm.reactive.mapping.dql_to_entities</package>
+                <package>dev.webfx.stack.framework.client.orm.reactive.mapping.entities_to_grid</package>
+                <package>dev.webfx.stack.framework.client.orm.reactive.mapping.entities_to_objects</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -566,8 +566,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.client.orm.reactive.mapping.entities_to_visual</package>
-                <package>dev.webfx.framework.client.orm.reactive.mapping.entities_to_visual.conventions</package>
+                <package>dev.webfx.stack.framework.client.orm.reactive.mapping.entities_to_visual</package>
+                <package>dev.webfx.stack.framework.client.orm.reactive.mapping.entities_to_visual.conventions</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -600,8 +600,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.shared.services.datasourcemodel</package>
-                <package>dev.webfx.framework.shared.services.datasourcemodel.spi</package>
+                <package>dev.webfx.stack.framework.shared.services.datasourcemodel</package>
+                <package>dev.webfx.stack.framework.shared.services.datasourcemodel.spi</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -612,7 +612,7 @@
             </used-by-source-modules>
 
             <used-services>
-                <required-service>dev.webfx.framework.shared.services.datasourcemodel.spi.DataSourceModelProvider</required-service>
+                <required-service>dev.webfx.stack.framework.shared.services.datasourcemodel.spi.DataSourceModelProvider</required-service>
             </used-services>
 
         </project>
@@ -628,10 +628,10 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.shared.orm.domainmodel</package>
-                <package>dev.webfx.framework.shared.orm.domainmodel.builder</package>
-                <package>dev.webfx.framework.shared.orm.domainmodel.formatter</package>
-                <package>dev.webfx.framework.shared.orm.domainmodel.lciimpl</package>
+                <package>dev.webfx.stack.framework.shared.orm.domainmodel</package>
+                <package>dev.webfx.stack.framework.shared.orm.domainmodel.builder</package>
+                <package>dev.webfx.stack.framework.shared.orm.domainmodel.formatter</package>
+                <package>dev.webfx.stack.framework.shared.orm.domainmodel.lciimpl</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -656,8 +656,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.shared.services.domainmodel</package>
-                <package>dev.webfx.framework.shared.services.domainmodel.spi</package>
+                <package>dev.webfx.stack.framework.shared.services.domainmodel</package>
+                <package>dev.webfx.stack.framework.shared.services.domainmodel.spi</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -672,7 +672,7 @@
             </used-by-source-modules>
 
             <used-services>
-                <required-service>dev.webfx.framework.shared.services.domainmodel.spi.DomainModelProvider</required-service>
+                <required-service>dev.webfx.stack.framework.shared.services.domainmodel.spi.DomainModelProvider</required-service>
             </used-services>
 
         </project>
@@ -688,14 +688,14 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.shared.orm.dql</package>
-                <package>dev.webfx.framework.shared.orm.dql.sqlcompiler</package>
-                <package>dev.webfx.framework.shared.orm.dql.sqlcompiler.lci</package>
-                <package>dev.webfx.framework.shared.orm.dql.sqlcompiler.lci.mock</package>
-                <package>dev.webfx.framework.shared.orm.dql.sqlcompiler.mapping</package>
-                <package>dev.webfx.framework.shared.orm.dql.sqlcompiler.sql</package>
-                <package>dev.webfx.framework.shared.orm.dql.sqlcompiler.sql.dbms</package>
-                <package>dev.webfx.framework.shared.orm.dql.sqlcompiler.terms</package>
+                <package>dev.webfx.stack.framework.shared.orm.dql</package>
+                <package>dev.webfx.stack.framework.shared.orm.dql.sqlcompiler</package>
+                <package>dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.lci</package>
+                <package>dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.lci.mock</package>
+                <package>dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.mapping</package>
+                <package>dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.sql</package>
+                <package>dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.sql.dbms</package>
+                <package>dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.terms</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -711,8 +711,8 @@
         <project name="webfx-framework-shared-orm-dql-query-interceptor">
 
             <module-auto-injection-conditions>
-                <if-uses-java-package>dev.webfx.platform.shared.services.query</if-uses-java-package>
-                <if-uses-java-package>dev.webfx.framework.shared.orm.domainmodel</if-uses-java-package>
+                <if-uses-java-package>dev.webfx.stack.platform.shared.services.query</if-uses-java-package>
+                <if-uses-java-package>dev.webfx.stack.framework.shared.orm.domainmodel</if-uses-java-package>
             </module-auto-injection-conditions>
 
             <exported-packages>
@@ -720,7 +720,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>dev.webfx.framework.shared.interceptors.dqlquery.DqlQueryInterceptorModuleBooter</dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>
+                <dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>dev.webfx.stack.framework.shared.interceptors.dqlquery.DqlQueryInterceptorModuleBooter</dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>
             </providers>
 
             <dependencies>
@@ -728,7 +728,7 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.shared.interceptors.dqlquery</package>
+                <package>dev.webfx.stack.framework.shared.interceptors.dqlquery</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -746,8 +746,8 @@
         <project name="webfx-framework-shared-orm-dql-querypush-interceptor">
 
             <module-auto-injection-conditions>
-                <if-uses-java-package>dev.webfx.framework.shared.services.querypush</if-uses-java-package>
-                <if-uses-java-package>dev.webfx.framework.shared.orm.domainmodel</if-uses-java-package>
+                <if-uses-java-package>dev.webfx.stack.framework.shared.services.querypush</if-uses-java-package>
+                <if-uses-java-package>dev.webfx.stack.framework.shared.orm.domainmodel</if-uses-java-package>
             </module-auto-injection-conditions>
 
             <exported-packages>
@@ -755,7 +755,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>dev.webfx.framework.shared.interceptors.dqlquerypush.DqlQueryPushInterceptorModuleBooter</dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>
+                <dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>dev.webfx.stack.framework.shared.interceptors.dqlquerypush.DqlQueryPushInterceptorModuleBooter</dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>
             </providers>
 
             <dependencies>
@@ -763,7 +763,7 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.shared.interceptors.dqlquerypush</package>
+                <package>dev.webfx.stack.framework.shared.interceptors.dqlquerypush</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -784,8 +784,8 @@
         <project name="webfx-framework-shared-orm-dql-submit-interceptor">
 
             <module-auto-injection-conditions>
-                <if-uses-java-package>dev.webfx.platform.shared.services.submit</if-uses-java-package>
-                <if-uses-java-package>dev.webfx.framework.shared.orm.domainmodel</if-uses-java-package>
+                <if-uses-java-package>dev.webfx.stack.platform.shared.services.submit</if-uses-java-package>
+                <if-uses-java-package>dev.webfx.stack.framework.shared.orm.domainmodel</if-uses-java-package>
             </module-auto-injection-conditions>
 
             <exported-packages>
@@ -793,7 +793,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>dev.webfx.framework.shared.interceptors.dqlsubmit.DqlSubmitInterceptorModuleBooter</dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>
+                <dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>dev.webfx.stack.framework.shared.interceptors.dqlsubmit.DqlSubmitInterceptorModuleBooter</dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>
             </providers>
 
             <dependencies>
@@ -801,7 +801,7 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.shared.interceptors.dqlsubmit</package>
+                <package>dev.webfx.stack.framework.shared.interceptors.dqlsubmit</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -830,12 +830,12 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.shared.orm.entity</package>
-                <package>dev.webfx.framework.shared.orm.entity.impl</package>
-                <package>dev.webfx.framework.shared.orm.entity.lciimpl</package>
-                <package>dev.webfx.framework.shared.orm.entity.query_result_to_entities</package>
-                <package>dev.webfx.framework.shared.orm.entity.result</package>
-                <package>dev.webfx.framework.shared.orm.entity.result.impl</package>
+                <package>dev.webfx.stack.framework.shared.orm.entity</package>
+                <package>dev.webfx.stack.framework.shared.orm.entity.impl</package>
+                <package>dev.webfx.stack.framework.shared.orm.entity.lciimpl</package>
+                <package>dev.webfx.stack.framework.shared.orm.entity.query_result_to_entities</package>
+                <package>dev.webfx.stack.framework.shared.orm.entity.result</package>
+                <package>dev.webfx.stack.framework.shared.orm.entity.result.impl</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -853,7 +853,7 @@
             </used-by-source-modules>
 
             <used-services>
-                <optional-service>dev.webfx.framework.shared.orm.entity.EntityFactoryProvider</optional-service>
+                <optional-service>dev.webfx.stack.framework.shared.orm.entity.EntityFactoryProvider</optional-service>
             </used-services>
 
         </project>
@@ -869,18 +869,18 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.shared.orm.expression</package>
-                <package>dev.webfx.framework.shared.orm.expression.builder</package>
-                <package>dev.webfx.framework.shared.orm.expression.builder.terms</package>
-                <package>dev.webfx.framework.shared.orm.expression.lci</package>
-                <package>dev.webfx.framework.shared.orm.expression.parser</package>
-                <package>dev.webfx.framework.shared.orm.expression.parser.javacup</package>
-                <package>dev.webfx.framework.shared.orm.expression.parser.jflex</package>
-                <package>dev.webfx.framework.shared.orm.expression.parser.lci</package>
-                <package>dev.webfx.framework.shared.orm.expression.parser.lci.mock</package>
-                <package>dev.webfx.framework.shared.orm.expression.terms</package>
-                <package>dev.webfx.framework.shared.orm.expression.terms.function</package>
-                <package>dev.webfx.framework.shared.orm.expression.terms.function.java</package>
+                <package>dev.webfx.stack.framework.shared.orm.expression</package>
+                <package>dev.webfx.stack.framework.shared.orm.expression.builder</package>
+                <package>dev.webfx.stack.framework.shared.orm.expression.builder.terms</package>
+                <package>dev.webfx.stack.framework.shared.orm.expression.lci</package>
+                <package>dev.webfx.stack.framework.shared.orm.expression.parser</package>
+                <package>dev.webfx.stack.framework.shared.orm.expression.parser.javacup</package>
+                <package>dev.webfx.stack.framework.shared.orm.expression.parser.jflex</package>
+                <package>dev.webfx.stack.framework.shared.orm.expression.parser.lci</package>
+                <package>dev.webfx.stack.framework.shared.orm.expression.parser.lci.mock</package>
+                <package>dev.webfx.stack.framework.shared.orm.expression.terms</package>
+                <package>dev.webfx.stack.framework.shared.orm.expression.terms.function</package>
+                <package>dev.webfx.stack.framework.shared.orm.expression.terms.function.java</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -922,8 +922,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.client.services.push</package>
-                <package>dev.webfx.framework.client.services.push.spi</package>
+                <package>dev.webfx.stack.framework.client.services.push</package>
+                <package>dev.webfx.stack.framework.client.services.push.spi</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -937,7 +937,7 @@
             </used-by-source-modules>
 
             <used-services>
-                <required-service>dev.webfx.framework.client.services.push.spi.PushClientServiceProvider</required-service>
+                <required-service>dev.webfx.stack.framework.client.services.push.spi.PushClientServiceProvider</required-service>
             </used-services>
 
         </project>
@@ -949,7 +949,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.framework.client.services.push.spi.PushClientServiceProvider>dev.webfx.framework.client.services.push.spi.impl.simple.SimplePushClientServiceProvider</dev.webfx.framework.client.services.push.spi.PushClientServiceProvider>
+                <dev.webfx.stack.framework.client.services.push.spi.PushClientServiceProvider>dev.webfx.stack.framework.client.services.push.spi.impl.simple.SimplePushClientServiceProvider</dev.webfx.stack.framework.client.services.push.spi.PushClientServiceProvider>
             </providers>
 
             <dependencies>
@@ -957,7 +957,7 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.client.services.push.spi.impl.simple</package>
+                <package>dev.webfx.stack.framework.client.services.push.spi.impl.simple</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -981,7 +981,7 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.client.services.querypush</package>
+                <package>dev.webfx.stack.framework.client.services.querypush</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -1000,8 +1000,8 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.framework.shared.services.querypush.spi.QueryPushServiceProvider>dev.webfx.framework.client.jobs.querypush.QueryPushClientServiceProvider</dev.webfx.framework.shared.services.querypush.spi.QueryPushServiceProvider>
-                <dev.webfx.platform.shared.services.boot.spi.ApplicationJob>dev.webfx.framework.client.jobs.querypush.QueryPushClientJob</dev.webfx.platform.shared.services.boot.spi.ApplicationJob>
+                <dev.webfx.stack.framework.shared.services.querypush.spi.QueryPushServiceProvider>dev.webfx.stack.framework.client.jobs.querypush.QueryPushClientServiceProvider</dev.webfx.stack.framework.shared.services.querypush.spi.QueryPushServiceProvider>
+                <dev.webfx.platform.shared.services.boot.spi.ApplicationJob>dev.webfx.stack.framework.client.jobs.querypush.QueryPushClientJob</dev.webfx.platform.shared.services.boot.spi.ApplicationJob>
             </providers>
 
             <dependencies>
@@ -1009,7 +1009,7 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.client.jobs.querypush</package>
+                <package>dev.webfx.stack.framework.client.jobs.querypush</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -1032,8 +1032,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.server.services.push</package>
-                <package>dev.webfx.framework.server.services.push.spi</package>
+                <package>dev.webfx.stack.framework.server.services.push</package>
+                <package>dev.webfx.stack.framework.server.services.push.spi</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -1045,7 +1045,7 @@
             </used-by-source-modules>
 
             <used-services>
-                <required-service>dev.webfx.framework.server.services.push.spi.PushServerServiceProvider</required-service>
+                <required-service>dev.webfx.stack.framework.server.services.push.spi.PushServerServiceProvider</required-service>
             </used-services>
 
         </project>
@@ -1057,7 +1057,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.framework.server.services.push.spi.PushServerServiceProvider>dev.webfx.framework.server.services.push.spi.impl.simple.SimplePushServerServiceProvider</dev.webfx.framework.server.services.push.spi.PushServerServiceProvider>
+                <dev.webfx.stack.framework.server.services.push.spi.PushServerServiceProvider>dev.webfx.stack.framework.server.services.push.spi.impl.simple.SimplePushServerServiceProvider</dev.webfx.stack.framework.server.services.push.spi.PushServerServiceProvider>
             </providers>
 
             <dependencies>
@@ -1065,7 +1065,7 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.server.services.push.spi.impl.simple</package>
+                <package>dev.webfx.stack.framework.server.services.push.spi.impl.simple</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -1088,7 +1088,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.platform.server.services.submitlistener.SubmitListener>dev.webfx.framework.server.services.querypush.QueryPushServerService$ProvidedSubmitListener</dev.webfx.platform.server.services.submitlistener.SubmitListener>
+                <dev.webfx.stack.platform.server.services.submitlistener.SubmitListener>dev.webfx.stack.framework.server.services.querypush.QueryPushServerService$ProvidedSubmitListener</dev.webfx.stack.platform.server.services.submitlistener.SubmitListener>
             </providers>
 
             <dependencies>
@@ -1096,8 +1096,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.server.services.querypush</package>
-                <package>dev.webfx.framework.server.services.querypush.spi.impl</package>
+                <package>dev.webfx.stack.framework.server.services.querypush</package>
+                <package>dev.webfx.stack.framework.server.services.querypush.spi.impl</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -1124,7 +1124,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.framework.shared.services.querypush.spi.QueryPushServiceProvider>dev.webfx.framework.server.services.querypush.spi.impl.simple.SimpleInMemoryServerQueryPushServiceProvider</dev.webfx.framework.shared.services.querypush.spi.QueryPushServiceProvider>
+                <dev.webfx.stack.framework.shared.services.querypush.spi.QueryPushServiceProvider>dev.webfx.stack.framework.server.services.querypush.spi.impl.simple.SimpleInMemoryServerQueryPushServiceProvider</dev.webfx.stack.framework.shared.services.querypush.spi.QueryPushServiceProvider>
             </providers>
 
             <dependencies>
@@ -1132,7 +1132,7 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.server.services.querypush.spi.impl.simple</package>
+                <package>dev.webfx.stack.framework.server.services.querypush.spi.impl.simple</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -1158,7 +1158,7 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.shared.services.push</package>
+                <package>dev.webfx.stack.framework.shared.services.push</package>
             </source-packages>
 
             <used-by-source-modules/>
@@ -1172,10 +1172,10 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.framework.shared.services.querypush.ExecuteQueryPushBusCallEndpoint</dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>
-                <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.framework.shared.services.querypush.QueryPushArgument$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
-                <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.framework.shared.services.querypush.QueryPushResult$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
-                <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.framework.shared.services.querypush.diff.impl.QueryResultTranslation$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
+                <dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.stack.framework.shared.services.querypush.ExecuteQueryPushBusCallEndpoint</dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint>
+                <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.framework.shared.services.querypush.QueryPushArgument$ProvidedSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
+                <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.framework.shared.services.querypush.QueryPushResult$ProvidedSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
+                <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.framework.shared.services.querypush.diff.impl.QueryResultTranslation$ProvidedSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
             </providers>
 
             <dependencies>
@@ -1183,11 +1183,11 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.shared.services.querypush</package>
-                <package>dev.webfx.framework.shared.services.querypush.diff</package>
-                <package>dev.webfx.framework.shared.services.querypush.diff.impl</package>
-                <package>dev.webfx.framework.shared.services.querypush.spi</package>
-                <package>dev.webfx.framework.shared.services.querypush.spi.impl</package>
+                <package>dev.webfx.stack.framework.shared.services.querypush</package>
+                <package>dev.webfx.stack.framework.shared.services.querypush.diff</package>
+                <package>dev.webfx.stack.framework.shared.services.querypush.diff.impl</package>
+                <package>dev.webfx.stack.framework.shared.services.querypush.spi</package>
+                <package>dev.webfx.stack.framework.shared.services.querypush.spi.impl</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -1204,7 +1204,7 @@
             </used-by-source-modules>
 
             <used-services>
-                <required-service>dev.webfx.framework.shared.services.querypush.spi.QueryPushServiceProvider</required-service>
+                <required-service>dev.webfx.stack.framework.shared.services.querypush.spi.QueryPushServiceProvider</required-service>
             </used-services>
 
         </project>
@@ -1230,12 +1230,12 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.client.activity</package>
-                <package>dev.webfx.framework.client.activity.impl</package>
-                <package>dev.webfx.framework.client.activity.impl.composition</package>
-                <package>dev.webfx.framework.client.activity.impl.composition.impl</package>
-                <package>dev.webfx.framework.client.activity.impl.elementals.activeproperty</package>
-                <package>dev.webfx.framework.client.activity.impl.elementals.activeproperty.impl</package>
+                <package>dev.webfx.stack.framework.client.activity</package>
+                <package>dev.webfx.stack.framework.client.activity.impl</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.composition</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.composition.impl</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.elementals.activeproperty</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.elementals.activeproperty.impl</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -1258,21 +1258,21 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.client.activity.impl.elementals.presentation</package>
-                <package>dev.webfx.framework.client.activity.impl.elementals.presentation.impl</package>
-                <package>dev.webfx.framework.client.activity.impl.elementals.presentation.logic</package>
-                <package>dev.webfx.framework.client.activity.impl.elementals.presentation.logic.impl</package>
-                <package>dev.webfx.framework.client.activity.impl.elementals.presentation.view</package>
-                <package>dev.webfx.framework.client.activity.impl.elementals.presentation.view.impl</package>
-                <package>dev.webfx.framework.client.activity.impl.elementals.uiroute</package>
-                <package>dev.webfx.framework.client.activity.impl.elementals.uiroute.impl</package>
-                <package>dev.webfx.framework.client.activity.impl.elementals.view</package>
-                <package>dev.webfx.framework.client.activity.impl.elementals.view.impl</package>
-                <package>dev.webfx.framework.client.operations.route</package>
-                <package>dev.webfx.framework.client.ui.uirouter</package>
-                <package>dev.webfx.framework.client.ui.uirouter.impl</package>
-                <package>dev.webfx.framework.client.ui.uirouter.uisession</package>
-                <package>dev.webfx.framework.client.ui.uirouter.uisession.impl</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.elementals.presentation</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.elementals.presentation.impl</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.elementals.presentation.logic</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.elementals.presentation.logic.impl</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.elementals.presentation.view</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.elementals.presentation.view.impl</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.elementals.uiroute</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.elementals.uiroute.impl</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.elementals.view</package>
+                <package>dev.webfx.stack.framework.client.activity.impl.elementals.view.impl</package>
+                <package>dev.webfx.stack.framework.client.operations.route</package>
+                <package>dev.webfx.stack.framework.client.ui.uirouter</package>
+                <package>dev.webfx.stack.framework.client.ui.uirouter.impl</package>
+                <package>dev.webfx.stack.framework.client.ui.uirouter.uisession</package>
+                <package>dev.webfx.stack.framework.client.ui.uirouter.uisession.impl</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -1294,8 +1294,8 @@
             </used-by-source-modules>
 
             <used-services>
-                <optional-service>dev.webfx.framework.client.ui.uirouter.UiRoute</optional-service>
-                <optional-service>dev.webfx.framework.client.operations.route.RouteRequestEmitter</optional-service>
+                <optional-service>dev.webfx.stack.framework.client.ui.uirouter.UiRoute</optional-service>
+                <optional-service>dev.webfx.stack.framework.client.operations.route.RouteRequestEmitter</optional-service>
             </used-services>
 
         </project>
@@ -1311,14 +1311,14 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.shared.router</package>
-                <package>dev.webfx.framework.shared.router.auth</package>
-                <package>dev.webfx.framework.shared.router.auth.authz</package>
-                <package>dev.webfx.framework.shared.router.auth.impl</package>
-                <package>dev.webfx.framework.shared.router.impl</package>
-                <package>dev.webfx.framework.shared.router.session</package>
-                <package>dev.webfx.framework.shared.router.session.impl</package>
-                <package>dev.webfx.framework.shared.router.util</package>
+                <package>dev.webfx.stack.framework.shared.router</package>
+                <package>dev.webfx.stack.framework.shared.router.auth</package>
+                <package>dev.webfx.stack.framework.shared.router.auth.authz</package>
+                <package>dev.webfx.stack.framework.shared.router.auth.impl</package>
+                <package>dev.webfx.stack.framework.shared.router.impl</package>
+                <package>dev.webfx.stack.framework.shared.router.session</package>
+                <package>dev.webfx.stack.framework.shared.router.session.impl</package>
+                <package>dev.webfx.stack.framework.shared.router.util</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -1344,7 +1344,7 @@
 
             <exported-packages>
                 <source-packages/>
-                <resource-package>dev.webfx.framework.client.ui.validation.controlsfx.images</resource-package>
+                <resource-package>dev.webfx.stack.framework.client.ui.validation.controlsfx.images</resource-package>
             </exported-packages>
 
             <dependencies>
@@ -1352,14 +1352,14 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.framework.client.ui.validation.controlsfx.control.decoration</package>
-                <package>dev.webfx.framework.client.ui.validation.controlsfx.impl</package>
-                <package>dev.webfx.framework.client.ui.validation.controlsfx.impl.skin</package>
-                <package>dev.webfx.framework.client.ui.validation.controlsfx.tools</package>
-                <package>dev.webfx.framework.client.ui.validation.controlsfx.validation</package>
-                <package>dev.webfx.framework.client.ui.validation.controlsfx.validation.decoration</package>
-                <package>dev.webfx.framework.client.ui.validation.mvvmfx</package>
-                <package>dev.webfx.framework.client.ui.validation.mvvmfx.visualization</package>
+                <package>dev.webfx.stack.framework.client.ui.validation.controlsfx.control.decoration</package>
+                <package>dev.webfx.stack.framework.client.ui.validation.controlsfx.impl</package>
+                <package>dev.webfx.stack.framework.client.ui.validation.controlsfx.impl.skin</package>
+                <package>dev.webfx.stack.framework.client.ui.validation.controlsfx.tools</package>
+                <package>dev.webfx.stack.framework.client.ui.validation.controlsfx.validation</package>
+                <package>dev.webfx.stack.framework.client.ui.validation.controlsfx.validation.decoration</package>
+                <package>dev.webfx.stack.framework.client.ui.validation.mvvmfx</package>
+                <package>dev.webfx.stack.framework.client.ui.validation.mvvmfx.visualization</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -1373,7 +1373,7 @@
 
         <usages>
 
-            <java-package name="dev.webfx.framework.shared.orm.domainmodel">
+            <java-package name="dev.webfx.stack.framework.shared.orm.domainmodel">
                 <module>webfx-framework-client-orm-domainmodel-activity</module>
                 <module>webfx-framework-client-orm-entity-controls</module>
                 <module>webfx-framework-client-orm-reactive-dql</module>
@@ -1388,7 +1388,7 @@
                 <module>webfx-framework-shared-orm-entity</module>
             </java-package>
 
-            <java-package name="dev.webfx.framework.shared.services.querypush">
+            <java-package name="dev.webfx.stack.framework.shared.services.querypush">
                 <module>webfx-framework-client-orm-reactive-dql</module>
                 <module>webfx-framework-client-querypush</module>
                 <module>webfx-framework-server-querypush</module>
@@ -1397,7 +1397,7 @@
                 <module>webfx-framework-shared-querypush</module>
             </java-package>
 
-            <java-package name="dev.webfx.platform.shared.services.query">
+            <java-package name="dev.webfx.stack.platform.shared.services.query">
                 <module>webfx-framework-client-orm-reactive-dql</module>
                 <module>webfx-framework-client-orm-reactive-entities</module>
                 <module>webfx-framework-server-querypush</module>
@@ -1412,7 +1412,7 @@
                 <module>webfx-platform-vertx-queryupdate</module>
             </java-package>
 
-            <java-package name="dev.webfx.platform.shared.services.submit">
+            <java-package name="dev.webfx.stack.platform.shared.services.submit">
                 <module>webfx-framework-server-querypush</module>
                 <module>webfx-framework-shared-orm-dql-submit-interceptor</module>
                 <module>webfx-framework-shared-orm-entity</module>

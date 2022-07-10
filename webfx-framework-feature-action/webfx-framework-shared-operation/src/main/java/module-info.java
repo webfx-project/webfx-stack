@@ -7,6 +7,6 @@ module webfx.framework.shared.operation {
     requires webfx.platform.shared.async;
 
     // Exported packages
-    exports dev.webfx.framework.shared.operation;
+    exports dev.webfx.stack.framework.shared.operation;
 
 }

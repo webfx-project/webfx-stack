@@ -11,9 +11,9 @@ module webfx.framework.shared.orm.domainmodel {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.framework.shared.orm.domainmodel;
-    exports dev.webfx.framework.shared.orm.domainmodel.builder;
-    exports dev.webfx.framework.shared.orm.domainmodel.formatter;
-    exports dev.webfx.framework.shared.orm.domainmodel.lciimpl;
+    exports dev.webfx.stack.framework.shared.orm.domainmodel;
+    exports dev.webfx.stack.framework.shared.orm.domainmodel.builder;
+    exports dev.webfx.stack.framework.shared.orm.domainmodel.formatter;
+    exports dev.webfx.stack.framework.shared.orm.domainmodel.lciimpl;
 
 }

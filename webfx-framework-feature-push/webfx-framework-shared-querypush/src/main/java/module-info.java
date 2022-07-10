@@ -15,17 +15,17 @@ module webfx.framework.shared.querypush {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.framework.shared.services.querypush;
-    exports dev.webfx.framework.shared.services.querypush.diff;
-    exports dev.webfx.framework.shared.services.querypush.diff.impl;
-    exports dev.webfx.framework.shared.services.querypush.spi;
-    exports dev.webfx.framework.shared.services.querypush.spi.impl;
+    exports dev.webfx.stack.framework.shared.services.querypush;
+    exports dev.webfx.stack.framework.shared.services.querypush.diff;
+    exports dev.webfx.stack.framework.shared.services.querypush.diff.impl;
+    exports dev.webfx.stack.framework.shared.services.querypush.spi;
+    exports dev.webfx.stack.framework.shared.services.querypush.spi.impl;
 
     // Used services
-    uses dev.webfx.framework.shared.services.querypush.spi.QueryPushServiceProvider;
+    uses dev.webfx.stack.framework.shared.services.querypush.spi.QueryPushServiceProvider;
 
     // Provided services
-    provides dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint with dev.webfx.framework.shared.services.querypush.ExecuteQueryPushBusCallEndpoint;
-    provides dev.webfx.platform.shared.services.serial.spi.SerialCodec with dev.webfx.framework.shared.services.querypush.QueryPushArgument.ProvidedSerialCodec, dev.webfx.framework.shared.services.querypush.QueryPushResult.ProvidedSerialCodec, dev.webfx.framework.shared.services.querypush.diff.impl.QueryResultTranslation.ProvidedSerialCodec;
+    provides dev.webfx.stack.com.serial.spi.SerialCodec with dev.webfx.stack.framework.shared.services.querypush.QueryPushArgument.ProvidedSerialCodec, dev.webfx.stack.framework.shared.services.querypush.QueryPushResult.ProvidedSerialCodec, dev.webfx.stack.framework.shared.services.querypush.diff.impl.QueryResultTranslation.ProvidedSerialCodec;
+    provides dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint with dev.webfx.stack.framework.shared.services.querypush.ExecuteQueryPushBusCallEndpoint;
 
 }

@@ -24,11 +24,11 @@
                                 <goal>generate</goal>
                             </goals>
                             <configuration>
-                                <cupDefinition>src/main/java/dev/webfx/framework/shared/orm/expression/parser/javacup/ExpressionParser.cup</cupDefinition>
+                                <cupDefinition>src/main/java/dev/webfx/stack/framework/shared/orm/expression/parser/javacup/ExpressionParser.cup</cupDefinition>
                                 <outputDirectory>src/main/java/</outputDirectory>
                                 <className>JavaCupExpressionParser</className>
                                 <symbolsName>ExpressionSymbols</symbolsName>
-                                <packageName>dev.webfx.framework.shared.orm.expression.parser.javacup</packageName>
+                                <packageName>dev.webfx.stack.framework.shared.orm.expression.parser.javacup</packageName>
                             </configuration>
                         </execution>
                     </executions>
@@ -41,7 +41,7 @@
                     <configuration>
                         <outputDirectory>src/main/java</outputDirectory>
                         <lexDefinitions>
-                            <lexDefinition>src/main/java/dev/webfx/framework/shared/orm/expression/parser/jflex/ExpressionLexer.flex</lexDefinition>
+                            <lexDefinition>src/main/java/dev/webfx/stack/framework/shared/orm/expression/parser/jflex/ExpressionLexer.flex</lexDefinition>
                         </lexDefinitions>
                     </configuration>
                 </plugin>

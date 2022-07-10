@@ -15,9 +15,9 @@ module webfx.framework.shared.orm.dql.querypush.interceptor {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.framework.shared.interceptors.dqlquerypush;
+    exports dev.webfx.stack.framework.shared.interceptors.dqlquerypush;
 
     // Provided services
-    provides dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter with dev.webfx.framework.shared.interceptors.dqlquerypush.DqlQueryPushInterceptorModuleBooter;
+    provides dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter with dev.webfx.stack.framework.shared.interceptors.dqlquerypush.DqlQueryPushInterceptorModuleBooter;
 
 }

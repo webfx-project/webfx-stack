@@ -11,17 +11,17 @@ module webfx.framework.shared.orm.expression {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.framework.shared.orm.expression;
-    exports dev.webfx.framework.shared.orm.expression.builder;
-    exports dev.webfx.framework.shared.orm.expression.builder.terms;
-    exports dev.webfx.framework.shared.orm.expression.lci;
-    exports dev.webfx.framework.shared.orm.expression.parser;
-    exports dev.webfx.framework.shared.orm.expression.parser.javacup;
-    exports dev.webfx.framework.shared.orm.expression.parser.jflex;
-    exports dev.webfx.framework.shared.orm.expression.parser.lci;
-    exports dev.webfx.framework.shared.orm.expression.parser.lci.mock;
-    exports dev.webfx.framework.shared.orm.expression.terms;
-    exports dev.webfx.framework.shared.orm.expression.terms.function;
-    exports dev.webfx.framework.shared.orm.expression.terms.function.java;
+    exports dev.webfx.stack.framework.shared.orm.expression;
+    exports dev.webfx.stack.framework.shared.orm.expression.builder;
+    exports dev.webfx.stack.framework.shared.orm.expression.builder.terms;
+    exports dev.webfx.stack.framework.shared.orm.expression.lci;
+    exports dev.webfx.stack.framework.shared.orm.expression.parser;
+    exports dev.webfx.stack.framework.shared.orm.expression.parser.javacup;
+    exports dev.webfx.stack.framework.shared.orm.expression.parser.jflex;
+    exports dev.webfx.stack.framework.shared.orm.expression.parser.lci;
+    exports dev.webfx.stack.framework.shared.orm.expression.parser.lci.mock;
+    exports dev.webfx.stack.framework.shared.orm.expression.terms;
+    exports dev.webfx.stack.framework.shared.orm.expression.terms.function;
+    exports dev.webfx.stack.framework.shared.orm.expression.terms.function.java;
 
 }

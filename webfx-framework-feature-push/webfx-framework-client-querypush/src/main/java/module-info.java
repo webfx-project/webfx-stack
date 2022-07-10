@@ -9,6 +9,6 @@ module webfx.framework.client.querypush {
     requires webfx.platform.shared.bus;
 
     // Exported packages
-    exports dev.webfx.framework.client.services.querypush;
+    exports dev.webfx.stack.framework.client.services.querypush;
 
 }

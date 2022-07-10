@@ -6,10 +6,10 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.framework.shared.services.querypush.ExecuteQueryPushBusCallEndpoint</dev.webfx.platform.shared.services.buscall.spi.BusCallEndpoint>
-        <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.framework.shared.services.querypush.QueryPushArgument$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
-        <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.framework.shared.services.querypush.QueryPushResult$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
-        <dev.webfx.platform.shared.services.serial.spi.SerialCodec>dev.webfx.framework.shared.services.querypush.diff.impl.QueryResultTranslation$ProvidedSerialCodec</dev.webfx.platform.shared.services.serial.spi.SerialCodec>
+        <dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.stack.framework.shared.services.querypush.ExecuteQueryPushBusCallEndpoint</dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint>
+        <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.framework.shared.services.querypush.QueryPushArgument$ProvidedSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
+        <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.framework.shared.services.querypush.QueryPushResult$ProvidedSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
+        <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.framework.shared.services.querypush.diff.impl.QueryResultTranslation$ProvidedSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
     </providers>
 
     <dependencies>

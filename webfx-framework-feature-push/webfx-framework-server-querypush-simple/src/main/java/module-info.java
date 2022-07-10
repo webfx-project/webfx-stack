@@ -12,9 +12,9 @@ module webfx.framework.server.querypush.simple {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.framework.server.services.querypush.spi.impl.simple;
+    exports dev.webfx.stack.framework.server.services.querypush.spi.impl.simple;
 
     // Provided services
-    provides dev.webfx.framework.shared.services.querypush.spi.QueryPushServiceProvider with dev.webfx.framework.server.services.querypush.spi.impl.simple.SimpleInMemoryServerQueryPushServiceProvider;
+    provides dev.webfx.stack.framework.shared.services.querypush.spi.QueryPushServiceProvider with dev.webfx.stack.framework.server.services.querypush.spi.impl.simple.SimpleInMemoryServerQueryPushServiceProvider;
 
 }

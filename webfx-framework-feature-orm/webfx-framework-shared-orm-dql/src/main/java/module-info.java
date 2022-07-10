@@ -10,13 +10,13 @@ module webfx.framework.shared.orm.dql {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.framework.shared.orm.dql;
-    exports dev.webfx.framework.shared.orm.dql.sqlcompiler;
-    exports dev.webfx.framework.shared.orm.dql.sqlcompiler.lci;
-    exports dev.webfx.framework.shared.orm.dql.sqlcompiler.lci.mock;
-    exports dev.webfx.framework.shared.orm.dql.sqlcompiler.mapping;
-    exports dev.webfx.framework.shared.orm.dql.sqlcompiler.sql;
-    exports dev.webfx.framework.shared.orm.dql.sqlcompiler.sql.dbms;
-    exports dev.webfx.framework.shared.orm.dql.sqlcompiler.terms;
+    exports dev.webfx.stack.framework.shared.orm.dql;
+    exports dev.webfx.stack.framework.shared.orm.dql.sqlcompiler;
+    exports dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.lci;
+    exports dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.lci.mock;
+    exports dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.mapping;
+    exports dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.sql;
+    exports dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.sql.dbms;
+    exports dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.terms;
 
 }

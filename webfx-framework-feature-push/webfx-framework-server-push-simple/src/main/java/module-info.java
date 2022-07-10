@@ -13,9 +13,9 @@ module webfx.framework.server.push.simple {
     requires webfx.platform.shared.scheduler;
 
     // Exported packages
-    exports dev.webfx.framework.server.services.push.spi.impl.simple;
+    exports dev.webfx.stack.framework.server.services.push.spi.impl.simple;
 
     // Provided services
-    provides dev.webfx.framework.server.services.push.spi.PushServerServiceProvider with dev.webfx.framework.server.services.push.spi.impl.simple.SimplePushServerServiceProvider;
+    provides dev.webfx.stack.framework.server.services.push.spi.PushServerServiceProvider with dev.webfx.stack.framework.server.services.push.spi.impl.simple.SimplePushServerServiceProvider;
 
 }

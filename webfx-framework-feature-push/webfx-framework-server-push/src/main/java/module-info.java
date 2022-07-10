@@ -10,10 +10,10 @@ module webfx.framework.server.push {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.framework.server.services.push;
-    exports dev.webfx.framework.server.services.push.spi;
+    exports dev.webfx.stack.framework.server.services.push;
+    exports dev.webfx.stack.framework.server.services.push.spi;
 
     // Used services
-    uses dev.webfx.framework.server.services.push.spi.PushServerServiceProvider;
+    uses dev.webfx.stack.framework.server.services.push.spi.PushServerServiceProvider;
 
 }

@@ -9,10 +9,10 @@ module webfx.framework.shared.orm.datasourcemodelservice {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.framework.shared.services.datasourcemodel;
-    exports dev.webfx.framework.shared.services.datasourcemodel.spi;
+    exports dev.webfx.stack.framework.shared.services.datasourcemodel;
+    exports dev.webfx.stack.framework.shared.services.datasourcemodel.spi;
 
     // Used services
-    uses dev.webfx.framework.shared.services.datasourcemodel.spi.DataSourceModelProvider;
+    uses dev.webfx.stack.framework.shared.services.datasourcemodel.spi.DataSourceModelProvider;
 
 }

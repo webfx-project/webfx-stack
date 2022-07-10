@@ -1,0 +1,14 @@
+package dev.webfx.stack.framework.client.activity.impl.elementals.view.impl;
+
+import dev.webfx.stack.framework.client.activity.ActivityContext;
+import dev.webfx.stack.framework.client.activity.ActivityContextFactory;
+
+/**
+ * @author Bruno Salmon
+ */
+public final class ViewActivityContextFinal extends ViewActivityContextBase<ViewActivityContextFinal> {
+
+    public ViewActivityContextFinal(ActivityContext parentContext, ActivityContextFactory<ViewActivityContextFinal> contextFactory) {
+        super(parentContext, contextFactory);
+    }
+}

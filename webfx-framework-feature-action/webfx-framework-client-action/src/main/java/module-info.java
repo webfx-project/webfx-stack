@@ -13,7 +13,7 @@ module webfx.framework.client.action {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.framework.client.ui.action;
-    exports dev.webfx.framework.client.ui.action.impl;
+    exports dev.webfx.stack.framework.client.ui.action;
+    exports dev.webfx.stack.framework.client.ui.action.impl;
 
 }

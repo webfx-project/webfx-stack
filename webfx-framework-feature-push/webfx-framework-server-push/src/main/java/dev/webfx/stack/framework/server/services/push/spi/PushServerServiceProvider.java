@@ -1,0 +1,23 @@
+package dev.webfx.stack.framework.server.services.push.spi;
+
+import dev.webfx.stack.framework.server.services.push.UnresponsivePushClientListener;
+import dev.webfx.stack.platform.async.Future;
+import dev.webfx.stack.platform.shared.services.bus.Bus;
+import dev.webfx.stack.framework.shared.services.push.ClientPushBusAddressesSharedByBothClientAndServer;
+
+/**
+ * @author Bruno Salmon
+ */
+public interface PushServerServiceProvider {
+
+    <T> Future<T> callClientService(String serviceAddress, Object javaArgument, Bus bus, Object pushClientId);
+
+    default Future pingPushClient(Bus bus, Object pushClientId) {
+        return callClientService(ClientPushBusAddressesSharedByBothClientAndServer.PUSH_PING_CLIENT_LISTENER_SERVICE_ADDRESS, "Server ping for push client " + pushClientId, bus, pushClientId);
+    }
+
+    void addUnresponsivePushClientListener(UnresponsivePushClientListener listener);
+
+    void removeUnresponsivePushClientListener(UnresponsivePushClientListener listener);
+
+}

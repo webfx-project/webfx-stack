@@ -12,6 +12,6 @@ module webfx.framework.client.i18n.json {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.framework.client.services.i18n.spi.impl.json;
+    exports dev.webfx.stack.framework.client.services.i18n.spi.impl.json;
 
 }

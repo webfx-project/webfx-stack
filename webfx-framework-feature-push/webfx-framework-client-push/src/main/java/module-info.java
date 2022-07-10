@@ -12,10 +12,10 @@ module webfx.framework.client.push {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.framework.client.services.push;
-    exports dev.webfx.framework.client.services.push.spi;
+    exports dev.webfx.stack.framework.client.services.push;
+    exports dev.webfx.stack.framework.client.services.push.spi;
 
     // Used services
-    uses dev.webfx.framework.client.services.push.spi.PushClientServiceProvider;
+    uses dev.webfx.stack.framework.client.services.push.spi.PushClientServiceProvider;
 
 }

@@ -16,12 +16,12 @@ module webfx.framework.client.util {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.framework.client.ui.util.anim;
-    exports dev.webfx.framework.client.ui.util.background;
-    exports dev.webfx.framework.client.ui.util.border;
-    exports dev.webfx.framework.client.ui.util.image;
-    exports dev.webfx.framework.client.ui.util.layout;
-    exports dev.webfx.framework.client.ui.util.paint;
-    exports dev.webfx.framework.client.ui.util.scene;
+    exports dev.webfx.stack.framework.client.ui.util.anim;
+    exports dev.webfx.stack.framework.client.ui.util.background;
+    exports dev.webfx.stack.framework.client.ui.util.border;
+    exports dev.webfx.stack.framework.client.ui.util.image;
+    exports dev.webfx.stack.framework.client.ui.util.layout;
+    exports dev.webfx.stack.framework.client.ui.util.paint;
+    exports dev.webfx.stack.framework.client.ui.util.scene;
 
 }

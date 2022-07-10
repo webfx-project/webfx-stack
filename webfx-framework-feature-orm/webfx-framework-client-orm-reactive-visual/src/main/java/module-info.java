@@ -19,7 +19,7 @@ module webfx.framework.client.orm.reactive.visual {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.framework.client.orm.reactive.mapping.entities_to_visual;
-    exports dev.webfx.framework.client.orm.reactive.mapping.entities_to_visual.conventions;
+    exports dev.webfx.stack.framework.client.orm.reactive.mapping.entities_to_visual;
+    exports dev.webfx.stack.framework.client.orm.reactive.mapping.entities_to_visual.conventions;
 
 }

@@ -9,11 +9,11 @@ module webfx.framework.client.activity {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.framework.client.activity;
-    exports dev.webfx.framework.client.activity.impl;
-    exports dev.webfx.framework.client.activity.impl.composition;
-    exports dev.webfx.framework.client.activity.impl.composition.impl;
-    exports dev.webfx.framework.client.activity.impl.elementals.activeproperty;
-    exports dev.webfx.framework.client.activity.impl.elementals.activeproperty.impl;
+    exports dev.webfx.stack.framework.client.activity;
+    exports dev.webfx.stack.framework.client.activity.impl;
+    exports dev.webfx.stack.framework.client.activity.impl.composition;
+    exports dev.webfx.stack.framework.client.activity.impl.composition.impl;
+    exports dev.webfx.stack.framework.client.activity.impl.elementals.activeproperty;
+    exports dev.webfx.stack.framework.client.activity.impl.elementals.activeproperty.impl;
 
 }

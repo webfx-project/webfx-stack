@@ -8,10 +8,10 @@ module webfx.framework.shared.authn {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.framework.shared.services.authn;
-    exports dev.webfx.framework.shared.services.authn.spi;
+    exports dev.webfx.stack.framework.shared.services.authn;
+    exports dev.webfx.stack.framework.shared.services.authn.spi;
 
     // Used services
-    uses dev.webfx.framework.shared.services.authn.spi.AuthenticationServiceProvider;
+    uses dev.webfx.stack.framework.shared.services.authn.spi.AuthenticationServiceProvider;
 
 }

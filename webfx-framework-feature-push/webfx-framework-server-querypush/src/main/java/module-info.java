@@ -17,10 +17,10 @@ module webfx.framework.server.querypush {
     requires webfx.platform.shared.util;
 
     // Exported packages
-    exports dev.webfx.framework.server.services.querypush;
-    exports dev.webfx.framework.server.services.querypush.spi.impl;
+    exports dev.webfx.stack.framework.server.services.querypush;
+    exports dev.webfx.stack.framework.server.services.querypush.spi.impl;
 
     // Provided services
-    provides dev.webfx.platform.server.services.submitlistener.SubmitListener with dev.webfx.framework.server.services.querypush.QueryPushServerService.ProvidedSubmitListener;
+    provides dev.webfx.stack.platform.server.services.submitlistener.SubmitListener with dev.webfx.stack.framework.server.services.querypush.QueryPushServerService.ProvidedSubmitListener;
 
 }

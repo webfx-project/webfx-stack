@@ -1,0 +1,14 @@
+package dev.webfx.stack.framework.shared.services.authz.spi.impl;
+
+import dev.webfx.stack.platform.async.Future;
+
+/**
+ * @author Bruno Salmon
+ */
+public interface UserPrincipalAuthorizationChecker {
+
+    Object getUserPrincipal();
+
+    Future<Boolean> isAuthorized(Object operationAuthorizationRequest);
+
+}

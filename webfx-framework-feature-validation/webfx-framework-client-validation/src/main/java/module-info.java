@@ -9,16 +9,16 @@ module webfx.framework.client.validation {
     requires javafx.graphics;
 
     // Exported packages
-    exports dev.webfx.framework.client.ui.validation.controlsfx.control.decoration;
-    exports dev.webfx.framework.client.ui.validation.controlsfx.impl;
-    exports dev.webfx.framework.client.ui.validation.controlsfx.impl.skin;
-    exports dev.webfx.framework.client.ui.validation.controlsfx.tools;
-    exports dev.webfx.framework.client.ui.validation.controlsfx.validation;
-    exports dev.webfx.framework.client.ui.validation.controlsfx.validation.decoration;
-    exports dev.webfx.framework.client.ui.validation.mvvmfx;
-    exports dev.webfx.framework.client.ui.validation.mvvmfx.visualization;
+    exports dev.webfx.stack.framework.client.ui.validation.controlsfx.control.decoration;
+    exports dev.webfx.stack.framework.client.ui.validation.controlsfx.impl;
+    exports dev.webfx.stack.framework.client.ui.validation.controlsfx.impl.skin;
+    exports dev.webfx.stack.framework.client.ui.validation.controlsfx.tools;
+    exports dev.webfx.stack.framework.client.ui.validation.controlsfx.validation;
+    exports dev.webfx.stack.framework.client.ui.validation.controlsfx.validation.decoration;
+    exports dev.webfx.stack.framework.client.ui.validation.mvvmfx;
+    exports dev.webfx.stack.framework.client.ui.validation.mvvmfx.visualization;
 
     // Resources packages
-    opens dev.webfx.framework.client.ui.validation.controlsfx.images;
+    opens dev.webfx.stack.framework.client.ui.validation.controlsfx.images;
 
 }
