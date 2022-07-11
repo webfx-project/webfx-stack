@@ -13,10 +13,6 @@
 
     <artifactId>webfx-stack-platform-json-vertx</artifactId>
 
-    <packaging>pom</packaging>
-
-    <modules/>
-
     <dependencies>
 
         <dependency>
