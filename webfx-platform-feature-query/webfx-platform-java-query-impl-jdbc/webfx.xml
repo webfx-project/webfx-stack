@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.stack.platform.shared.services.query.spi.QueryServiceProvider>dev.webfx.stack.platform.java.services.query.spi.impl.jdbc.JdbcQueryServiceProvider</dev.webfx.stack.platform.shared.services.query.spi.QueryServiceProvider>
+        <provider interface="dev.webfx.stack.platform.shared.services.query.spi.QueryServiceProvider">dev.webfx.stack.platform.java.services.query.spi.impl.jdbc.JdbcQueryServiceProvider</provider>
     </providers>
 
     <dependencies>

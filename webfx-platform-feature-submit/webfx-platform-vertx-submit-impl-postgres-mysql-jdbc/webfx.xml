@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.stack.platform.shared.services.submit.spi.SubmitServiceProvider>dev.webfx.stack.platform.vertx.services.submit.spi.impl.VertxSubmitServiceProvider</dev.webfx.stack.platform.shared.services.submit.spi.SubmitServiceProvider>
+        <provider interface="dev.webfx.stack.platform.shared.services.submit.spi.SubmitServiceProvider">dev.webfx.stack.platform.vertx.services.submit.spi.impl.VertxSubmitServiceProvider</provider>
     </providers>
 
     <dependencies>

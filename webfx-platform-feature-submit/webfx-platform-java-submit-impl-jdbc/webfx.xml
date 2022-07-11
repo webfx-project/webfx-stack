@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.stack.platform.shared.services.submit.spi.SubmitServiceProvider>dev.webfx.stack.platform.java.services.submit.spi.impl.jdbc.JdbcSubmitServiceProvider</dev.webfx.stack.platform.shared.services.submit.spi.SubmitServiceProvider>
+        <provider interface="dev.webfx.stack.platform.shared.services.submit.spi.SubmitServiceProvider">dev.webfx.stack.platform.java.services.submit.spi.impl.jdbc.JdbcSubmitServiceProvider</provider>
     </providers>
 
     <dependencies>

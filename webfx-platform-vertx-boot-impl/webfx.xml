@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.platform.shared.services.boot.spi.ApplicationBooterProvider>dev.webfx.stack.platform.vertx.services.boot.spi.impl.VertxApplicationBooterVerticle</dev.webfx.platform.shared.services.boot.spi.ApplicationBooterProvider>
+        <provider interface="dev.webfx.platform.shared.services.boot.spi.ApplicationBooterProvider">dev.webfx.stack.platform.vertx.services.boot.spi.impl.VertxApplicationBooterVerticle</provider>
     </providers>
 
     <dependencies>

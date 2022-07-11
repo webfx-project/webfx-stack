@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.stack.platform.shared.services.bus.spi.BusServiceProvider>dev.webfx.stack.platform.vertx.services.bus.spi.impl.VertxBusServiceProvider</dev.webfx.stack.platform.shared.services.bus.spi.BusServiceProvider>
+        <provider interface="dev.webfx.stack.platform.shared.services.bus.spi.BusServiceProvider">dev.webfx.stack.platform.vertx.services.bus.spi.impl.VertxBusServiceProvider</provider>
     </providers>
 
     <dependencies>

@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.stack.platform.shared.services.bus.spi.BusServiceProvider>dev.webfx.stack.platform.websocketbus.WebsocketBusServiceProvider</dev.webfx.stack.platform.shared.services.bus.spi.BusServiceProvider>
+        <provider interface="dev.webfx.stack.platform.shared.services.bus.spi.BusServiceProvider">dev.webfx.stack.platform.websocketbus.WebsocketBusServiceProvider</provider>
     </providers>
 
     <dependencies>

@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.platform.shared.services.boot.spi.ApplicationJob>dev.webfx.stack.platform.server.jobs.buscall.BusCallServerJob</dev.webfx.platform.shared.services.boot.spi.ApplicationJob>
+        <provider interface="dev.webfx.platform.shared.services.boot.spi.ApplicationJob">dev.webfx.stack.platform.server.jobs.buscall.BusCallServerJob</provider>
     </providers>
 
     <dependencies>

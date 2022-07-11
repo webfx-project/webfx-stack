@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.stack.platform.websocket.spi.WebSocketServiceProvider>dev.webfx.stack.platform.websocket.spi.impl.gwt.GwtWebSocketServiceProvider</dev.webfx.stack.platform.websocket.spi.WebSocketServiceProvider>
+        <provider interface="dev.webfx.stack.platform.websocket.spi.WebSocketServiceProvider">dev.webfx.stack.platform.websocket.spi.impl.gwt.GwtWebSocketServiceProvider</provider>
     </providers>
 
     <dependencies>

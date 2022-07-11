@@ -340,7 +340,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.shared.services.bus.spi.BusServiceProvider>dev.webfx.stack.platform.shared.services.bus.spi.impl.simple.SimpleBusServiceProvider</dev.webfx.stack.platform.shared.services.bus.spi.BusServiceProvider>
+                <provider interface="dev.webfx.stack.platform.shared.services.bus.spi.BusServiceProvider">dev.webfx.stack.platform.shared.services.bus.spi.impl.simple.SimpleBusServiceProvider</provider>
             </providers>
 
             <dependencies>
@@ -364,7 +364,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.shared.services.bus.spi.BusServiceProvider>dev.webfx.stack.platform.vertx.services.bus.spi.impl.VertxBusServiceProvider</dev.webfx.stack.platform.shared.services.bus.spi.BusServiceProvider>
+                <provider interface="dev.webfx.stack.platform.shared.services.bus.spi.BusServiceProvider">dev.webfx.stack.platform.vertx.services.bus.spi.impl.VertxBusServiceProvider</provider>
             </providers>
 
             <dependencies>
@@ -404,7 +404,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.json.spi.JsonProvider>dev.webfx.stack.platform.json.spi.impl.gwt.GwtJsonObject</dev.webfx.stack.platform.json.spi.JsonProvider>
+                <provider interface="dev.webfx.stack.platform.json.spi.JsonProvider">dev.webfx.stack.platform.json.spi.impl.gwt.GwtJsonObject</provider>
             </providers>
 
             <dependencies>
@@ -460,7 +460,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.json.spi.JsonProvider>dev.webfx.stack.platform.json.spi.impl.java.JavaJsonProvider</dev.webfx.stack.platform.json.spi.JsonProvider>
+                <provider interface="dev.webfx.stack.platform.json.spi.JsonProvider">dev.webfx.stack.platform.json.spi.impl.java.JavaJsonProvider</provider>
             </providers>
 
             <dependencies>
@@ -484,7 +484,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.json.spi.JsonProvider>dev.webfx.stack.platform.json.spi.impl.teavm.TeaVmJsonObject</dev.webfx.stack.platform.json.spi.JsonProvider>
+                <provider interface="dev.webfx.stack.platform.json.spi.JsonProvider">dev.webfx.stack.platform.json.spi.impl.teavm.TeaVmJsonObject</provider>
             </providers>
 
             <dependencies>
@@ -510,7 +510,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.json.spi.JsonProvider>dev.webfx.stack.platform.vertx.services.json.spi.impl.VertxJsonObject</dev.webfx.stack.platform.json.spi.JsonProvider>
+                <provider interface="dev.webfx.stack.platform.json.spi.JsonProvider">dev.webfx.stack.platform.vertx.services.json.spi.impl.VertxJsonObject</provider>
             </providers>
 
             <dependencies>
@@ -548,7 +548,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.shared.services.query.spi.QueryServiceProvider>dev.webfx.stack.platform.java.services.query.spi.impl.jdbc.JdbcQueryServiceProvider</dev.webfx.stack.platform.shared.services.query.spi.QueryServiceProvider>
+                <provider interface="dev.webfx.stack.platform.shared.services.query.spi.QueryServiceProvider">dev.webfx.stack.platform.java.services.query.spi.impl.jdbc.JdbcQueryServiceProvider</provider>
             </providers>
 
             <dependencies>
@@ -574,10 +574,10 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.stack.platform.shared.services.query.ExecuteQueryBusCallEndpoint</dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint>
-                <dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.stack.platform.shared.services.query.ExecuteQueryBatchBusCallEndpoint</dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint>
-                <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.platform.shared.services.query.QueryArgument$ProvidedSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
-                <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.platform.shared.services.query.QueryResult$ProvidedSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
+                <provider interface="dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint">dev.webfx.stack.platform.shared.services.query.ExecuteQueryBusCallEndpoint</provider>
+                <provider interface="dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint">dev.webfx.stack.platform.shared.services.query.ExecuteQueryBatchBusCallEndpoint</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.platform.shared.services.query.QueryArgument$ProvidedSerialCodec</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.platform.shared.services.query.QueryResult$ProvidedSerialCodec</provider>
             </providers>
 
             <dependencies>
@@ -623,7 +623,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.shared.services.query.spi.QueryServiceProvider>dev.webfx.stack.platform.shared.services.query.spi.impl.remote.RemoteQueryServiceProvider</dev.webfx.stack.platform.shared.services.query.spi.QueryServiceProvider>
+                <provider interface="dev.webfx.stack.platform.shared.services.query.spi.QueryServiceProvider">dev.webfx.stack.platform.shared.services.query.spi.impl.remote.RemoteQueryServiceProvider</provider>
             </providers>
 
             <dependencies>
@@ -647,7 +647,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.shared.services.query.spi.QueryServiceProvider>dev.webfx.stack.platform.vertx.services.query.spi.impl.VertxQueryServiceProvider</dev.webfx.stack.platform.shared.services.query.spi.QueryServiceProvider>
+                <provider interface="dev.webfx.stack.platform.shared.services.query.spi.QueryServiceProvider">dev.webfx.stack.platform.vertx.services.query.spi.impl.VertxQueryServiceProvider</provider>
             </providers>
 
             <dependencies>
@@ -686,7 +686,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.shared.services.submit.spi.SubmitServiceProvider>dev.webfx.stack.platform.java.services.submit.spi.impl.jdbc.JdbcSubmitServiceProvider</dev.webfx.stack.platform.shared.services.submit.spi.SubmitServiceProvider>
+                <provider interface="dev.webfx.stack.platform.shared.services.submit.spi.SubmitServiceProvider">dev.webfx.stack.platform.java.services.submit.spi.impl.jdbc.JdbcSubmitServiceProvider</provider>
             </providers>
 
             <dependencies>
@@ -712,11 +712,11 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.stack.platform.shared.services.submit.ExecuteSubmitBusCallEndpoint</dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint>
-                <dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint>dev.webfx.stack.platform.shared.services.submit.ExecuteSubmitBatchBusCallEndpoint</dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint>
-                <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.platform.shared.services.submit.SubmitArgument$ProvidedSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
-                <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.platform.shared.services.submit.SubmitResult$ProvidedSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
-                <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.platform.shared.services.submit.GeneratedKeyBatchIndex$ProvidedSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
+                <provider interface="dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint">dev.webfx.stack.platform.shared.services.submit.ExecuteSubmitBusCallEndpoint</provider>
+                <provider interface="dev.webfx.stack.platform.shared.services.buscall.spi.BusCallEndpoint">dev.webfx.stack.platform.shared.services.submit.ExecuteSubmitBatchBusCallEndpoint</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.platform.shared.services.submit.SubmitArgument$ProvidedSerialCodec</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.platform.shared.services.submit.SubmitResult$ProvidedSerialCodec</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.platform.shared.services.submit.GeneratedKeyBatchIndex$ProvidedSerialCodec</provider>
             </providers>
 
             <dependencies>
@@ -759,7 +759,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.shared.services.submit.spi.SubmitServiceProvider>dev.webfx.stack.platform.shared.services.submit.spi.impl.remote.RemoteSubmitServiceProvider</dev.webfx.stack.platform.shared.services.submit.spi.SubmitServiceProvider>
+                <provider interface="dev.webfx.stack.platform.shared.services.submit.spi.SubmitServiceProvider">dev.webfx.stack.platform.shared.services.submit.spi.impl.remote.RemoteSubmitServiceProvider</provider>
             </providers>
 
             <dependencies>
@@ -783,7 +783,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.shared.services.submit.spi.SubmitServiceProvider>dev.webfx.stack.platform.vertx.services.submit.spi.impl.VertxSubmitServiceProvider</dev.webfx.stack.platform.shared.services.submit.spi.SubmitServiceProvider>
+                <provider interface="dev.webfx.stack.platform.shared.services.submit.spi.SubmitServiceProvider">dev.webfx.stack.platform.vertx.services.submit.spi.impl.VertxSubmitServiceProvider</provider>
             </providers>
 
             <dependencies>
@@ -806,7 +806,6 @@
 
             <modules>
                 <module>webfx-platform-client-webassembly</module>
-                <module>webfx-platform-teavm-wasm-util</module>
                 <module>webfx-platform-teavm-webassembly-impl</module>
             </modules>
 
@@ -839,20 +838,6 @@
 
         </project>
 
-        <project name="webfx-platform-teavm-wasm-util">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <used-by-source-modules/>
-
-        </project>
-
         <project name="webfx-platform-teavm-webassembly-impl">
 
             <exported-packages>
@@ -860,7 +845,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.webassembly.spi.WebAssemblyProvider>dev.webfx.stack.platform.webassembly.spi.impl.teavm.TeaVmWebAssemblyProvider</dev.webfx.stack.platform.webassembly.spi.WebAssemblyProvider>
+                <provider interface="dev.webfx.stack.platform.webassembly.spi.WebAssemblyProvider">dev.webfx.stack.platform.webassembly.spi.impl.teavm.TeaVmWebAssemblyProvider</provider>
             </providers>
 
             <dependencies>
@@ -928,7 +913,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.websocket.spi.WebSocketServiceProvider>dev.webfx.stack.platform.websocket.spi.impl.gwt.GwtWebSocketServiceProvider</dev.webfx.stack.platform.websocket.spi.WebSocketServiceProvider>
+                <provider interface="dev.webfx.stack.platform.websocket.spi.WebSocketServiceProvider">dev.webfx.stack.platform.websocket.spi.impl.gwt.GwtWebSocketServiceProvider</provider>
             </providers>
 
             <dependencies>
@@ -961,7 +946,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.websocket.spi.WebSocketServiceProvider>dev.webfx.stack.platform.websocket.spi.impl.java.JavaWebSocketServiceProvider</dev.webfx.stack.platform.websocket.spi.WebSocketServiceProvider>
+                <provider interface="dev.webfx.stack.platform.websocket.spi.WebSocketServiceProvider">dev.webfx.stack.platform.websocket.spi.impl.java.JavaWebSocketServiceProvider</provider>
             </providers>
 
             <dependencies>
@@ -1001,7 +986,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.webworker.spi.WorkerServiceProvider>dev.webfx.stack.platform.webworker.spi.impl.gwt.GwtWorkerServiceProvider</dev.webfx.stack.platform.webworker.spi.WorkerServiceProvider>
+                <provider interface="dev.webfx.stack.platform.webworker.spi.WorkerServiceProvider">dev.webfx.stack.platform.webworker.spi.impl.gwt.GwtWorkerServiceProvider</provider>
             </providers>
 
             <dependencies>
@@ -1027,7 +1012,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.webworker.spi.WorkerServiceProvider>dev.webfx.stack.platform.webworker.spi.impl.java.JavaWorkerServiceProvider</dev.webfx.stack.platform.webworker.spi.WorkerServiceProvider>
+                <provider interface="dev.webfx.stack.platform.webworker.spi.WorkerServiceProvider">dev.webfx.stack.platform.webworker.spi.impl.java.JavaWorkerServiceProvider</provider>
             </providers>
 
             <dependencies>
@@ -1148,7 +1133,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.windowhistory.spi.impl.web.JsWindowHistory>dev.webfx.stack.platform.windowhistory.spi.impl.gwt.GwtJsWindowHistory</dev.webfx.stack.platform.windowhistory.spi.impl.web.JsWindowHistory>
+                <provider interface="dev.webfx.stack.platform.windowhistory.spi.impl.web.JsWindowHistory">dev.webfx.stack.platform.windowhistory.spi.impl.gwt.GwtJsWindowHistory</provider>
             </providers>
 
             <dependencies>
@@ -1179,7 +1164,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.windowhistory.spi.WindowHistoryProvider>dev.webfx.stack.platform.windowhistory.spi.impl.java.JavaWindowHistoryProvider</dev.webfx.stack.platform.windowhistory.spi.WindowHistoryProvider>
+                <provider interface="dev.webfx.stack.platform.windowhistory.spi.WindowHistoryProvider">dev.webfx.stack.platform.windowhistory.spi.impl.java.JavaWindowHistoryProvider</provider>
             </providers>
 
             <dependencies>
@@ -1203,7 +1188,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.windowhistory.spi.WindowHistoryProvider>dev.webfx.stack.platform.windowhistory.spi.impl.web.WebWindowHistoryProvider</dev.webfx.stack.platform.windowhistory.spi.WindowHistoryProvider>
+                <provider interface="dev.webfx.stack.platform.windowhistory.spi.WindowHistoryProvider">dev.webfx.stack.platform.windowhistory.spi.impl.web.WebWindowHistoryProvider</provider>
             </providers>
 
             <dependencies>
@@ -1276,7 +1261,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.windowlocation.spi.WindowLocationProvider>dev.webfx.stack.platform.windowlocation.spi.impl.gwt.GwtWindowLocationProvider</dev.webfx.stack.platform.windowlocation.spi.WindowLocationProvider>
+                <provider interface="dev.webfx.stack.platform.windowlocation.spi.WindowLocationProvider">dev.webfx.stack.platform.windowlocation.spi.impl.gwt.GwtWindowLocationProvider</provider>
             </providers>
 
             <dependencies>
@@ -1304,7 +1289,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.windowlocation.spi.WindowLocationProvider>dev.webfx.stack.platform.windowlocation.spi.impl.java.JavaWindowLocationProvider</dev.webfx.stack.platform.windowlocation.spi.WindowLocationProvider>
+                <provider interface="dev.webfx.stack.platform.windowlocation.spi.WindowLocationProvider">dev.webfx.stack.platform.windowlocation.spi.impl.java.JavaWindowLocationProvider</provider>
             </providers>
 
             <dependencies>
@@ -1340,10 +1325,10 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>dev.webfx.stack.platform.shared.services.buscall.BusCallModuleBooter</dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>
-                <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.platform.shared.services.buscall.BusCallArgument$ProvidedSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
-                <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.platform.shared.services.buscall.BusCallResult$ProvidedSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
-                <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.platform.shared.services.buscall.SerializableAsyncResult$ProvidedSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
+                <provider interface="dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter">dev.webfx.stack.platform.shared.services.buscall.BusCallModuleBooter</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.platform.shared.services.buscall.BusCallArgument$ProvidedSerialCodec</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.platform.shared.services.buscall.BusCallResult$ProvidedSerialCodec</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.platform.shared.services.buscall.SerializableAsyncResult$ProvidedSerialCodec</provider>
             </providers>
 
             <dependencies>
@@ -1380,7 +1365,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.platform.shared.services.boot.spi.ApplicationJob>dev.webfx.stack.platform.server.jobs.buscall.BusCallServerJob</dev.webfx.platform.shared.services.boot.spi.ApplicationJob>
+                <provider interface="dev.webfx.platform.shared.services.boot.spi.ApplicationJob">dev.webfx.stack.platform.server.jobs.buscall.BusCallServerJob</provider>
             </providers>
 
             <dependencies>
@@ -1416,7 +1401,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.platform.shared.datascope.aggregate.AggregateScope$ProvidedSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.platform.shared.datascope.aggregate.AggregateScope$ProvidedSerialCodec</provider>
             </providers>
 
             <dependencies>
@@ -1480,8 +1465,8 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>dev.webfx.stack.com.serial.SerialCodecModuleBooter</dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>
-                <dev.webfx.stack.com.serial.spi.SerialCodec>dev.webfx.stack.com.serial.spi.impl.ProvidedBatchSerialCodec</dev.webfx.stack.com.serial.spi.SerialCodec>
+                <provider interface="dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter">dev.webfx.stack.com.serial.SerialCodecModuleBooter</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.com.serial.spi.impl.ProvidedBatchSerialCodec</provider>
             </providers>
 
             <dependencies>
@@ -1524,7 +1509,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>dev.webfx.stack.platform.server.services.submitlistener.SubmitListenerModuleBooter</dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>
+                <provider interface="dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter">dev.webfx.stack.platform.server.services.submitlistener.SubmitListenerModuleBooter</provider>
             </providers>
 
             <dependencies>
@@ -1565,7 +1550,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.shared.services.bus.spi.BusServiceProvider>dev.webfx.stack.platform.websocketbus.WebsocketBusServiceProvider</dev.webfx.stack.platform.shared.services.bus.spi.BusServiceProvider>
+                <provider interface="dev.webfx.stack.platform.shared.services.bus.spi.BusServiceProvider">dev.webfx.stack.platform.websocketbus.WebsocketBusServiceProvider</provider>
             </providers>
 
             <dependencies>
@@ -1597,7 +1582,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.stack.platform.shared.services.bus.spi.BusServiceProvider>dev.webfx.stack.platform.websocketbus.web.WebWebsocketBusServiceProvider</dev.webfx.stack.platform.shared.services.bus.spi.BusServiceProvider>
+                <provider interface="dev.webfx.stack.platform.shared.services.bus.spi.BusServiceProvider">dev.webfx.stack.platform.websocketbus.web.WebWebsocketBusServiceProvider</provider>
             </providers>
 
             <dependencies>
@@ -1755,7 +1740,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.platform.shared.services.boot.spi.ApplicationBooterProvider>dev.webfx.stack.platform.vertx.services.boot.spi.impl.VertxApplicationBooterVerticle</dev.webfx.platform.shared.services.boot.spi.ApplicationBooterProvider>
+                <provider interface="dev.webfx.platform.shared.services.boot.spi.ApplicationBooterProvider">dev.webfx.stack.platform.vertx.services.boot.spi.impl.VertxApplicationBooterVerticle</provider>
             </providers>
 
             <dependencies>
@@ -1801,7 +1786,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.platform.shared.services.scheduler.spi.SchedulerProvider>dev.webfx.stack.platform.vertx.services.scheduler.spi.impl.VertxSchedulerProvider</dev.webfx.platform.shared.services.scheduler.spi.SchedulerProvider>
+                <provider interface="dev.webfx.platform.shared.services.scheduler.spi.SchedulerProvider">dev.webfx.stack.platform.vertx.services.scheduler.spi.impl.VertxSchedulerProvider</provider>
             </providers>
 
             <dependencies>
