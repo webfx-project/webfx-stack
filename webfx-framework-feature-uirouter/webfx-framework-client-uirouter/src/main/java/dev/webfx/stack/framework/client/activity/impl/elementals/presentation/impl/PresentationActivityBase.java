@@ -11,9 +11,9 @@ import dev.webfx.stack.framework.client.activity.impl.elementals.presentation.lo
 import dev.webfx.stack.framework.client.activity.impl.elementals.presentation.view.PresentationViewActivityContext;
 import dev.webfx.stack.framework.client.activity.impl.elementals.presentation.view.impl.PresentationViewActivityBase;
 import dev.webfx.platform.client.services.uischeduler.UiScheduler;
-import dev.webfx.stack.platform.async.AsyncUtil;
-import dev.webfx.stack.platform.async.Future;
-import dev.webfx.stack.platform.async.Promise;
+import dev.webfx.stack.async.AsyncUtil;
+import dev.webfx.stack.async.Future;
+import dev.webfx.stack.async.Promise;
 import dev.webfx.platform.shared.util.function.Callable;
 import dev.webfx.platform.shared.util.function.Factory;
 

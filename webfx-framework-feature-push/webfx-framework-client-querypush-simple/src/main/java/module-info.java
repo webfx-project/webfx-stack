@@ -6,7 +6,7 @@ module webfx.framework.client.querypush.simple {
     requires webfx.framework.client.querypush;
     requires webfx.framework.shared.querypush;
     requires webfx.platform.shared.boot;
-    requires webfx.platform.shared.bus;
+    requires webfx.stack.com.bus;
 
     // Exported packages
     exports dev.webfx.stack.framework.client.jobs.querypush;

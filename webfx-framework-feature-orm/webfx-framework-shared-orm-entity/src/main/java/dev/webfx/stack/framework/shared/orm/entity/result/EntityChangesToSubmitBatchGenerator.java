@@ -11,12 +11,12 @@ import dev.webfx.stack.framework.shared.orm.entity.EntityStore;
 import dev.webfx.stack.framework.shared.orm.expression.Expression;
 import dev.webfx.stack.framework.shared.orm.expression.parser.lci.ParserDomainModelReader;
 import dev.webfx.stack.framework.shared.orm.expression.terms.*;
-import dev.webfx.stack.platform.shared.datascope.DataScope;
-import dev.webfx.stack.platform.shared.services.submit.GeneratedKeyBatchIndex;
-import dev.webfx.stack.platform.shared.services.submit.SubmitArgument;
-import dev.webfx.stack.platform.shared.services.submit.SubmitResult;
+import dev.webfx.stack.db.datascope.DataScope;
+import dev.webfx.stack.db.submit.GeneratedKeyBatchIndex;
+import dev.webfx.stack.db.submit.SubmitArgument;
+import dev.webfx.stack.db.submit.SubmitResult;
 import dev.webfx.platform.shared.util.Arrays;
-import dev.webfx.stack.platform.async.Batch;
+import dev.webfx.stack.async.Batch;
 
 import java.io.Serializable;
 import java.util.*;

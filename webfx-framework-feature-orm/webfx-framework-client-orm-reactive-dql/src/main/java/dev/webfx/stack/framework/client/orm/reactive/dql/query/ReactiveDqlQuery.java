@@ -19,10 +19,10 @@ import dev.webfx.stack.framework.shared.orm.expression.builder.ThreadLocalRefere
 import dev.webfx.stack.framework.shared.orm.expression.terms.Alias;
 import dev.webfx.stack.framework.shared.orm.expression.terms.As;
 import dev.webfx.kit.util.properties.Properties;
-import dev.webfx.stack.platform.shared.datascope.aggregate.AggregateScope;
+import dev.webfx.stack.db.datascope.aggregate.AggregateScope;
 import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.stack.platform.shared.services.query.QueryArgument;
-import dev.webfx.stack.platform.shared.services.query.QueryResult;
+import dev.webfx.stack.db.query.QueryArgument;
+import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.platform.shared.util.function.Converter;
 
 import java.util.HashMap;

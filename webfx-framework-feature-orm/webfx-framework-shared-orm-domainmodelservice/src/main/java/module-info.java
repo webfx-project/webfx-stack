@@ -7,10 +7,10 @@ module webfx.framework.shared.orm.domainmodelservice {
     requires webfx.extras.label;
     requires webfx.extras.type;
     requires webfx.framework.shared.orm.domainmodel;
-    requires webfx.platform.shared.async;
     requires webfx.platform.shared.log;
-    requires webfx.platform.shared.query;
     requires webfx.platform.shared.util;
+    requires webfx.stack.async;
+    requires webfx.stack.db.query;
 
     // Exported packages
     exports dev.webfx.stack.framework.shared.services.domainmodel;

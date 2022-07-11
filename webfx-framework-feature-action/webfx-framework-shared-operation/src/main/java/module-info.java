@@ -4,7 +4,7 @@ module webfx.framework.shared.operation {
 
     // Direct dependencies modules
     requires java.base;
-    requires webfx.platform.shared.async;
+    requires webfx.stack.async;
 
     // Exported packages
     exports dev.webfx.stack.framework.shared.operation;

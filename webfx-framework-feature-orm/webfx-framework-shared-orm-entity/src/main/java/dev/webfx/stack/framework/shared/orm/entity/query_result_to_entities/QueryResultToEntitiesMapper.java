@@ -7,7 +7,7 @@ import dev.webfx.stack.framework.shared.orm.entity.EntityList;
 import dev.webfx.stack.framework.shared.orm.entity.EntityStore;
 import dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.mapping.QueryColumnToEntityFieldMapping;
 import dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.mapping.QueryRowToEntityMapping;
-import dev.webfx.stack.platform.shared.services.query.QueryResult;
+import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.platform.shared.util.Dates;
 
 import java.time.LocalDate;

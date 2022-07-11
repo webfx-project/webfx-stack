@@ -4,8 +4,8 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import dev.webfx.stack.framework.client.services.push.spi.PushClientServiceProvider;
 import dev.webfx.stack.framework.shared.services.push.ClientPushBusAddressesSharedByBothClientAndServer;
-import dev.webfx.stack.platform.shared.services.bus.Registration;
-import dev.webfx.stack.platform.shared.services.buscall.BusCallService;
+import dev.webfx.stack.com.bus.Registration;
+import dev.webfx.stack.com.buscall.BusCallService;
 import dev.webfx.platform.shared.services.log.Logger;
 import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
 

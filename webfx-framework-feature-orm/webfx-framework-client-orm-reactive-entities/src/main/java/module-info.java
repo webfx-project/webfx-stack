@@ -13,9 +13,9 @@ module webfx.framework.client.orm.reactive.entities {
     requires webfx.framework.shared.orm.entity;
     requires webfx.framework.shared.orm.expression;
     requires webfx.kit.util;
-    requires webfx.platform.shared.json;
-    requires webfx.platform.shared.query;
     requires webfx.platform.shared.util;
+    requires webfx.stack.db.query;
+    requires webfx.stack.platform.json;
 
     // Exported packages
     exports dev.webfx.stack.framework.client.orm.reactive.mapping.dql_to_entities;

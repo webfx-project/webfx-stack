@@ -1,8 +1,8 @@
 package dev.webfx.stack.framework.shared.orm.entity;
 
 import dev.webfx.stack.framework.shared.orm.domainmodel.DataSourceModel;
-import dev.webfx.stack.platform.shared.datascope.aggregate.AggregateScope;
-import dev.webfx.stack.platform.shared.services.query.QueryArgument;
+import dev.webfx.stack.db.datascope.aggregate.AggregateScope;
+import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.platform.shared.util.Arrays;
 
 /**

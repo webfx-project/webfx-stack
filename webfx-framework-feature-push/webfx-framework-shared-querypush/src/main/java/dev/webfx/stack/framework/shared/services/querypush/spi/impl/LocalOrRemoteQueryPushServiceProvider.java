@@ -5,10 +5,10 @@ import dev.webfx.stack.framework.shared.services.querypush.QueryPushArgument;
 import dev.webfx.stack.framework.shared.services.querypush.QueryPushResult;
 import dev.webfx.stack.framework.shared.services.querypush.QueryPushService;
 import dev.webfx.stack.framework.shared.services.querypush.spi.QueryPushServiceProvider;
-import dev.webfx.stack.platform.shared.services.datasource.LocalDataSource;
-import dev.webfx.stack.platform.shared.services.buscall.BusCallService;
+import dev.webfx.stack.db.datasource.LocalDataSource;
+import dev.webfx.stack.com.buscall.BusCallService;
 import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.stack.platform.async.Future;
+import dev.webfx.stack.async.Future;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -7,8 +7,8 @@ module webfx.framework.shared.authz {
     requires javafx.base;
     requires webfx.framework.shared.operation;
     requires webfx.platform.client.uischeduler;
-    requires webfx.platform.shared.async;
     requires webfx.platform.shared.util;
+    requires webfx.stack.async;
 
     // Exported packages
     exports dev.webfx.stack.framework.shared.operation.authz;

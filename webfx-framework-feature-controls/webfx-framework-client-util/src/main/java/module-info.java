@@ -11,9 +11,9 @@ module webfx.framework.client.util {
     requires webfx.kit.launcher;
     requires webfx.kit.util;
     requires webfx.platform.client.uischeduler;
-    requires webfx.platform.shared.json;
     requires webfx.platform.shared.scheduler;
     requires webfx.platform.shared.util;
+    requires webfx.stack.platform.json;
 
     // Exported packages
     exports dev.webfx.stack.framework.client.ui.util.anim;

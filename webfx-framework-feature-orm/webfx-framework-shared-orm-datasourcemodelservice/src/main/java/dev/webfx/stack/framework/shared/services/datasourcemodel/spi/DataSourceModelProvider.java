@@ -1,7 +1,7 @@
 package dev.webfx.stack.framework.shared.services.datasourcemodel.spi;
 
 import dev.webfx.stack.framework.shared.orm.domainmodel.DataSourceModel;
-import dev.webfx.stack.platform.async.Future;
+import dev.webfx.stack.async.Future;
 
 /**
  * @author Bruno Salmon

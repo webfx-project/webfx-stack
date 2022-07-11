@@ -2,7 +2,7 @@ package dev.webfx.stack.framework.shared.router.auth;
 
 import dev.webfx.stack.framework.shared.router.RoutingContext;
 import dev.webfx.stack.framework.shared.router.auth.impl.RedirectAuthHandlerImpl;
-import dev.webfx.stack.platform.async.Handler;
+import dev.webfx.stack.async.Handler;
 
 /**
  * @author Bruno Salmon

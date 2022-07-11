@@ -4,11 +4,11 @@ import dev.webfx.stack.framework.server.services.push.PushServerService;
 import dev.webfx.stack.framework.shared.services.querypush.PulseArgument;
 import dev.webfx.stack.framework.shared.services.querypush.QueryPushResult;
 import dev.webfx.stack.framework.shared.services.querypush.QueryPushService;
-import dev.webfx.stack.platform.server.services.submitlistener.SubmitListener;
-import dev.webfx.stack.platform.shared.datascope.DataScope;
-import dev.webfx.stack.platform.shared.services.bus.BusService;
-import dev.webfx.stack.platform.shared.services.submit.SubmitArgument;
-import dev.webfx.stack.platform.async.Future;
+import dev.webfx.stack.db.submitlistener.SubmitListener;
+import dev.webfx.stack.db.datascope.DataScope;
+import dev.webfx.stack.com.bus.BusService;
+import dev.webfx.stack.db.submit.SubmitArgument;
+import dev.webfx.stack.async.Future;
 
 import java.util.Arrays;
 

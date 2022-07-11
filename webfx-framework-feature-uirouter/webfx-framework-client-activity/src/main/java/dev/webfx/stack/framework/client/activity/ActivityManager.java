@@ -1,10 +1,10 @@
 package dev.webfx.stack.framework.client.activity;
 
 import dev.webfx.stack.framework.client.activity.impl.ActivityContextBase;
-import dev.webfx.stack.platform.async.AsyncResult;
-import dev.webfx.stack.platform.async.Future;
-import dev.webfx.stack.platform.async.Handler;
-import dev.webfx.stack.platform.async.Promise;
+import dev.webfx.stack.async.AsyncResult;
+import dev.webfx.stack.async.Future;
+import dev.webfx.stack.async.Handler;
+import dev.webfx.stack.async.Promise;
 import dev.webfx.platform.shared.util.function.Factory;
 
 /**

@@ -2,7 +2,7 @@
 <project>
 
     <module-auto-injection-conditions>
-        <if-uses-java-package>dev.webfx.stack.platform.shared.services.query</if-uses-java-package>
+        <if-uses-java-package>dev.webfx.stack.db.query</if-uses-java-package>
         <if-uses-java-package>dev.webfx.stack.framework.shared.orm.domainmodel</if-uses-java-package>
     </module-auto-injection-conditions>
 
@@ -11,7 +11,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>dev.webfx.stack.framework.shared.interceptors.dqlquery.DqlQueryInterceptorModuleBooter</dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter>
+        <provider interface="dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter">dev.webfx.stack.framework.shared.interceptors.dqlquery.DqlQueryInterceptorModuleBooter</provider>
     </providers>
 
     <dependencies>

@@ -1,6 +1,6 @@
 package dev.webfx.stack.framework.shared.services.querypush;
 
-import dev.webfx.stack.platform.shared.services.query.QueryResult;
+import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 import dev.webfx.stack.platform.json.JsonObject;

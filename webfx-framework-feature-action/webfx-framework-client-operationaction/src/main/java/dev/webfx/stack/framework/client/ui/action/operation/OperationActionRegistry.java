@@ -10,8 +10,8 @@ import dev.webfx.stack.framework.client.ui.action.ActionBinder;
 import dev.webfx.stack.framework.shared.operation.HasOperationCode;
 import dev.webfx.stack.framework.shared.services.authz.mixin.AuthorizationUtil;
 import dev.webfx.platform.client.services.uischeduler.UiScheduler;
-import dev.webfx.stack.platform.async.AsyncFunction;
-import dev.webfx.stack.platform.async.Future;
+import dev.webfx.stack.async.AsyncFunction;
+import dev.webfx.stack.async.Future;
 
 import java.util.ArrayList;
 import java.util.Collection;

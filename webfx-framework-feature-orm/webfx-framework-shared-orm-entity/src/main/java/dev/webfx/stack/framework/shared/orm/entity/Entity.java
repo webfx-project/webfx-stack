@@ -9,7 +9,7 @@ import dev.webfx.platform.shared.util.Booleans;
 import dev.webfx.platform.shared.util.Dates;
 import dev.webfx.platform.shared.util.Numbers;
 import dev.webfx.platform.shared.util.Strings;
-import dev.webfx.stack.platform.async.Future;
+import dev.webfx.stack.async.Future;
 
 import java.time.Instant;
 import java.time.LocalDate;

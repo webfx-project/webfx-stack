@@ -6,10 +6,10 @@ module webfx.framework.server.querypush.simple {
     requires java.base;
     requires webfx.framework.server.querypush;
     requires webfx.framework.shared.querypush;
-    requires webfx.platform.shared.async;
-    requires webfx.platform.shared.datascope;
-    requires webfx.platform.shared.query;
     requires webfx.platform.shared.util;
+    requires webfx.stack.async;
+    requires webfx.stack.db.datascope;
+    requires webfx.stack.db.query;
 
     // Exported packages
     exports dev.webfx.stack.framework.server.services.querypush.spi.impl.simple;

@@ -4,8 +4,8 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import dev.webfx.stack.framework.client.orm.reactive.call.query.ReactiveQueryCall;
 import dev.webfx.stack.framework.client.orm.reactive.call.SwitchableReactiveCall;
-import dev.webfx.stack.platform.shared.services.query.QueryArgument;
-import dev.webfx.stack.platform.shared.services.query.QueryResult;
+import dev.webfx.stack.db.query.QueryArgument;
+import dev.webfx.stack.db.query.QueryResult;
 
 /**
  * @author Bruno Salmon

@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.stack.framework.shared.services.querypush.spi.QueryPushServiceProvider>dev.webfx.stack.framework.server.services.querypush.spi.impl.simple.SimpleInMemoryServerQueryPushServiceProvider</dev.webfx.stack.framework.shared.services.querypush.spi.QueryPushServiceProvider>
+        <provider interface="dev.webfx.stack.framework.shared.services.querypush.spi.QueryPushServiceProvider">dev.webfx.stack.framework.server.services.querypush.spi.impl.simple.SimpleInMemoryServerQueryPushServiceProvider</provider>
     </providers>
 
     <dependencies>

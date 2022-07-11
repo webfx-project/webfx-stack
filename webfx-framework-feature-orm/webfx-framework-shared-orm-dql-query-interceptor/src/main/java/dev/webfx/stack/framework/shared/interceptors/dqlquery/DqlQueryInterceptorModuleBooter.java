@@ -3,11 +3,11 @@ package dev.webfx.stack.framework.shared.interceptors.dqlquery;
 import dev.webfx.stack.framework.shared.orm.domainmodel.DataSourceModel;
 import dev.webfx.stack.framework.shared.services.datasourcemodel.DataSourceModelService;
 import dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter;
-import dev.webfx.stack.platform.shared.services.datasource.LocalDataSourceService;
-import dev.webfx.stack.platform.shared.services.query.QueryArgument;
-import dev.webfx.stack.platform.shared.services.query.QueryResult;
-import dev.webfx.stack.platform.shared.services.query.spi.QueryServiceProvider;
-import dev.webfx.stack.platform.async.Future;
+import dev.webfx.stack.db.datasource.LocalDataSourceService;
+import dev.webfx.stack.db.query.QueryArgument;
+import dev.webfx.stack.db.query.QueryResult;
+import dev.webfx.stack.db.query.spi.QueryServiceProvider;
+import dev.webfx.stack.async.Future;
 import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
 
 /**

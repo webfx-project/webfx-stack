@@ -1,6 +1,6 @@
 package dev.webfx.stack.framework.shared.services.querypush;
 
-import dev.webfx.stack.platform.shared.services.query.QueryArgument;
+import dev.webfx.stack.db.query.QueryArgument;
 
 import java.util.function.Consumer;
 

@@ -7,15 +7,15 @@ import dev.webfx.stack.framework.shared.orm.entity.EntityId;
 import dev.webfx.stack.framework.shared.orm.entity.EntityStore;
 import dev.webfx.stack.framework.shared.orm.entity.UpdateStore;
 import dev.webfx.stack.framework.shared.orm.entity.result.*;
-import dev.webfx.stack.platform.shared.datascope.DataScope;
+import dev.webfx.stack.db.datascope.DataScope;
 import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.stack.platform.shared.services.submit.SubmitArgument;
-import dev.webfx.stack.platform.shared.services.submit.SubmitService;
-import dev.webfx.stack.platform.shared.services.submit.SubmitResult;
+import dev.webfx.stack.db.submit.SubmitArgument;
+import dev.webfx.stack.db.submit.SubmitService;
+import dev.webfx.stack.db.submit.SubmitResult;
 import dev.webfx.platform.shared.util.Arrays;
 import dev.webfx.platform.shared.util.Objects;
-import dev.webfx.stack.platform.async.Batch;
-import dev.webfx.stack.platform.async.Future;
+import dev.webfx.stack.async.Batch;
+import dev.webfx.stack.async.Future;
 
 /**
  * @author Bruno Salmon

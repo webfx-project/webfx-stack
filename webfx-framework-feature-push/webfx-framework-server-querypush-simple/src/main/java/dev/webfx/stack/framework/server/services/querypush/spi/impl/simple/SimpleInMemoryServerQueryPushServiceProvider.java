@@ -3,10 +3,10 @@ package dev.webfx.stack.framework.server.services.querypush.spi.impl.simple;
 import dev.webfx.stack.framework.server.services.querypush.spi.impl.ServerQueryPushServiceProviderBase;
 import dev.webfx.stack.framework.shared.services.querypush.PulseArgument;
 import dev.webfx.stack.framework.shared.services.querypush.QueryPushArgument;
-import dev.webfx.stack.platform.shared.datascope.DataScope;
-import dev.webfx.stack.platform.shared.services.query.QueryArgument;
+import dev.webfx.stack.db.datascope.DataScope;
+import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.platform.shared.util.Objects;
-import dev.webfx.stack.platform.async.Future;
+import dev.webfx.stack.async.Future;
 import dev.webfx.platform.shared.util.collection.Collections;
 
 import java.util.HashMap;

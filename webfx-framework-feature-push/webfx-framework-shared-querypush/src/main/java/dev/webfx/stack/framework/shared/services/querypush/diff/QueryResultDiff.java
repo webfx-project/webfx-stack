@@ -1,6 +1,6 @@
 package dev.webfx.stack.framework.shared.services.querypush.diff;
 
-import dev.webfx.stack.platform.shared.services.query.QueryResult;
+import dev.webfx.stack.db.query.QueryResult;
 
 /**
  * @author Bruno Salmon

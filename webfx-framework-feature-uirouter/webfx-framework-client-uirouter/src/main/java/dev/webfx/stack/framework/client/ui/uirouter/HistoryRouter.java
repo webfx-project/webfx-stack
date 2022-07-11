@@ -4,7 +4,7 @@ import dev.webfx.stack.platform.windowhistory.spi.BrowsingHistory;
 import dev.webfx.stack.platform.windowhistory.spi.BrowsingHistoryLocation;
 import dev.webfx.stack.framework.shared.router.Router;
 import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.stack.platform.async.Handler;
+import dev.webfx.stack.async.Handler;
 
 /**
  * @author Bruno Salmon

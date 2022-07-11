@@ -1,6 +1,6 @@
 package dev.webfx.stack.framework.shared.services.querypush;
 
-import dev.webfx.stack.platform.shared.services.buscall.spi.AsyncFunctionBusCallEndpoint;
+import dev.webfx.stack.com.buscall.spi.AsyncFunctionBusCallEndpoint;
 
 /**
  * @author Bruno Salmon

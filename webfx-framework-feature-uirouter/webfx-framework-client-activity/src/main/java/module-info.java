@@ -5,8 +5,8 @@ module webfx.framework.client.activity {
     // Direct dependencies modules
     requires java.base;
     requires javafx.base;
-    requires webfx.platform.shared.async;
     requires webfx.platform.shared.util;
+    requires webfx.stack.async;
 
     // Exported packages
     exports dev.webfx.stack.framework.client.activity;

@@ -10,12 +10,12 @@ import dev.webfx.stack.framework.shared.orm.domainmodel.HasDataSourceModel;
 import dev.webfx.stack.framework.shared.orm.entity.impl.DynamicEntity;
 import dev.webfx.stack.framework.shared.orm.entity.impl.EntityStoreImpl;
 import dev.webfx.stack.framework.shared.orm.entity.lciimpl.EntityDomainWriter;
-import dev.webfx.stack.platform.shared.services.query.QueryArgument;
-import dev.webfx.stack.platform.shared.services.query.QueryResult;
-import dev.webfx.stack.platform.shared.services.query.QueryService;
+import dev.webfx.stack.db.query.QueryArgument;
+import dev.webfx.stack.db.query.QueryResult;
+import dev.webfx.stack.db.query.QueryService;
 import dev.webfx.platform.shared.util.Arrays;
-import dev.webfx.stack.platform.async.Batch;
-import dev.webfx.stack.platform.async.Future;
+import dev.webfx.stack.async.Batch;
+import dev.webfx.stack.async.Future;
 
 /**
  * A store for entities that are transactionally coherent.

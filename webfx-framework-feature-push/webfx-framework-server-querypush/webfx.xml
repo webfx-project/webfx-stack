@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.stack.platform.server.services.submitlistener.SubmitListener>dev.webfx.stack.framework.server.services.querypush.QueryPushServerService$ProvidedSubmitListener</dev.webfx.stack.platform.server.services.submitlistener.SubmitListener>
+        <provider interface="dev.webfx.stack.db.submitlistener.SubmitListener">dev.webfx.stack.framework.server.services.querypush.QueryPushServerService$ProvidedSubmitListener</provider>
     </providers>
 
     <dependencies>

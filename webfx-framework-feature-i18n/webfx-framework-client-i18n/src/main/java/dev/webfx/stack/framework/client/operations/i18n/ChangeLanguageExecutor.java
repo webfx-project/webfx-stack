@@ -1,7 +1,7 @@
 package dev.webfx.stack.framework.client.operations.i18n;
 
 import dev.webfx.stack.framework.client.services.i18n.I18n;
-import dev.webfx.stack.platform.async.Future;
+import dev.webfx.stack.async.Future;
 
 /**
  * @author Bruno Salmon

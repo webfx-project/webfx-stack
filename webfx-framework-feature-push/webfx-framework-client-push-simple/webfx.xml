@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.stack.framework.client.services.push.spi.PushClientServiceProvider>dev.webfx.stack.framework.client.services.push.spi.impl.simple.SimplePushClientServiceProvider</dev.webfx.stack.framework.client.services.push.spi.PushClientServiceProvider>
+        <provider interface="dev.webfx.stack.framework.client.services.push.spi.PushClientServiceProvider">dev.webfx.stack.framework.client.services.push.spi.impl.simple.SimplePushClientServiceProvider</provider>
     </providers>
 
     <dependencies>

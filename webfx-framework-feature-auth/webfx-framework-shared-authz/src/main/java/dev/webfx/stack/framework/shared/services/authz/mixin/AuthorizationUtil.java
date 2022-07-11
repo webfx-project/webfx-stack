@@ -4,7 +4,7 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import dev.webfx.platform.client.services.uischeduler.UiScheduler;
-import dev.webfx.stack.platform.async.AsyncFunction;
+import dev.webfx.stack.async.AsyncFunction;
 import java.util.function.Function;
 
 /**

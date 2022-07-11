@@ -10,8 +10,8 @@ import dev.webfx.stack.framework.shared.orm.domainmodel.DomainClass;
 import dev.webfx.stack.framework.shared.orm.domainmodel.HasDataSourceModel;
 import dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.sql.SqlCompiled;
 import dev.webfx.stack.framework.shared.orm.expression.builder.ReferenceResolver;
-import dev.webfx.stack.platform.shared.datascope.aggregate.AggregateScope;
-import dev.webfx.stack.platform.shared.services.query.QueryResult;
+import dev.webfx.stack.db.datascope.aggregate.AggregateScope;
+import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.platform.shared.util.function.Converter;
 
 /**

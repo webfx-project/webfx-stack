@@ -4,7 +4,7 @@ import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 import dev.webfx.stack.platform.json.JsonObject;
 import dev.webfx.stack.platform.json.WritableJsonObject;
-import dev.webfx.stack.platform.shared.services.query.QueryArgument;
+import dev.webfx.stack.db.query.QueryArgument;
 import java.util.function.Consumer;
 
 /**

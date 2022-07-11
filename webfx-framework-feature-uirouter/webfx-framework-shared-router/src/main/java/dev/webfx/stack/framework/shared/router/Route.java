@@ -1,6 +1,6 @@
 package dev.webfx.stack.framework.shared.router;
 
-import dev.webfx.stack.platform.async.Handler;
+import dev.webfx.stack.async.Handler;
 
 /**
  * @author Bruno Salmon

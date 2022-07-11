@@ -10,8 +10,8 @@ import dev.webfx.stack.framework.shared.services.querypush.QueryPushResult;
 import dev.webfx.stack.framework.shared.services.querypush.QueryPushService;
 import dev.webfx.stack.framework.shared.services.querypush.diff.QueryResultDiff;
 import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.stack.platform.shared.services.query.QueryArgument;
-import dev.webfx.stack.platform.shared.services.query.QueryResult;
+import dev.webfx.stack.db.query.QueryArgument;
+import dev.webfx.stack.db.query.QueryResult;
 
 import java.util.ArrayList;
 import java.util.List;

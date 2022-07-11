@@ -5,10 +5,10 @@ module webfx.framework.shared.router {
     // Direct dependencies modules
     requires java.base;
     requires webfx.framework.shared.authz;
-    requires webfx.platform.shared.async;
-    requires webfx.platform.shared.json;
     requires webfx.platform.shared.log;
     requires webfx.platform.shared.util;
+    requires webfx.stack.async;
+    requires webfx.stack.platform.json;
 
     // Exported packages
     exports dev.webfx.stack.framework.shared.router;

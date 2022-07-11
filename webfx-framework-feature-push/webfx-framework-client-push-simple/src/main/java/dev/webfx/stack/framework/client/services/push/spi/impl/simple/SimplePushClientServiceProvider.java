@@ -1,8 +1,8 @@
 package dev.webfx.stack.framework.client.services.push.spi.impl.simple;
 
 import dev.webfx.stack.framework.client.services.push.spi.PushClientServiceProvider;
-import dev.webfx.stack.platform.shared.services.bus.Registration;
-import dev.webfx.stack.platform.shared.services.buscall.BusCallService;
+import dev.webfx.stack.com.bus.Registration;
+import dev.webfx.stack.com.buscall.BusCallService;
 import dev.webfx.platform.shared.services.log.Logger;
 import dev.webfx.stack.framework.shared.services.push.ClientPushBusAddressesSharedByBothClientAndServer;
 

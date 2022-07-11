@@ -1,7 +1,7 @@
 package dev.webfx.stack.framework.client.activity;
 
-import dev.webfx.stack.platform.async.AsyncUtil;
-import dev.webfx.stack.platform.async.Future;
+import dev.webfx.stack.async.AsyncUtil;
+import dev.webfx.stack.async.Future;
 
 /**
  * @author Bruno Salmon

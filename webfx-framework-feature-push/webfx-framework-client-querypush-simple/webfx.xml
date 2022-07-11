@@ -6,8 +6,8 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.stack.framework.shared.services.querypush.spi.QueryPushServiceProvider>dev.webfx.stack.framework.client.jobs.querypush.QueryPushClientServiceProvider</dev.webfx.stack.framework.shared.services.querypush.spi.QueryPushServiceProvider>
-        <dev.webfx.platform.shared.services.boot.spi.ApplicationJob>dev.webfx.stack.framework.client.jobs.querypush.QueryPushClientJob</dev.webfx.platform.shared.services.boot.spi.ApplicationJob>
+        <provider interface="dev.webfx.stack.framework.shared.services.querypush.spi.QueryPushServiceProvider">dev.webfx.stack.framework.client.jobs.querypush.QueryPushClientServiceProvider</provider>
+        <provider interface="dev.webfx.platform.shared.services.boot.spi.ApplicationJob">dev.webfx.stack.framework.client.jobs.querypush.QueryPushClientJob</provider>
     </providers>
 
     <dependencies>

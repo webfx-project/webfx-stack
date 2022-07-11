@@ -4,7 +4,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import dev.webfx.stack.framework.shared.services.authz.AuthorizationRequest;
-import dev.webfx.stack.platform.async.Future;
+import dev.webfx.stack.async.Future;
 import dev.webfx.platform.shared.util.function.Factory;
 import java.util.function.Function;
 

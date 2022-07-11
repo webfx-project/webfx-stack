@@ -7,12 +7,12 @@ module webfx.framework.shared.orm.dql.querypush.interceptor {
     requires webfx.framework.shared.orm.domainmodel;
     requires webfx.framework.shared.orm.expression;
     requires webfx.framework.shared.querypush;
-    requires webfx.platform.shared.async;
     requires webfx.platform.shared.boot;
-    requires webfx.platform.shared.datascope;
-    requires webfx.platform.shared.datasource;
-    requires webfx.platform.shared.query;
     requires webfx.platform.shared.util;
+    requires webfx.stack.async;
+    requires webfx.stack.db.datascope;
+    requires webfx.stack.db.datasource;
+    requires webfx.stack.db.query;
 
     // Exported packages
     exports dev.webfx.stack.framework.shared.interceptors.dqlquerypush;

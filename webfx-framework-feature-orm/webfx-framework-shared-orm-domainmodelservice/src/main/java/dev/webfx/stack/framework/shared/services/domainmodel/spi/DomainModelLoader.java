@@ -1,21 +1,21 @@
 package dev.webfx.stack.framework.shared.services.domainmodel.spi;
 
 import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.stack.platform.shared.services.query.QueryResult;
-import dev.webfx.stack.platform.shared.services.query.QueryService;
+import dev.webfx.stack.db.query.QueryResult;
+import dev.webfx.stack.db.query.QueryService;
 import dev.webfx.extras.type.DerivedType;
 import dev.webfx.extras.type.PrimType;
 import dev.webfx.extras.type.Type;
 import dev.webfx.platform.shared.util.Numbers;
-import dev.webfx.stack.platform.async.Batch;
-import dev.webfx.stack.platform.async.Future;
+import dev.webfx.stack.async.Batch;
+import dev.webfx.stack.async.Future;
 import dev.webfx.stack.framework.shared.orm.domainmodel.DomainModel;
 import dev.webfx.stack.framework.shared.orm.domainmodel.builder.DomainClassBuilder;
 import dev.webfx.stack.framework.shared.orm.domainmodel.builder.DomainFieldBuilder;
 import dev.webfx.stack.framework.shared.orm.domainmodel.builder.DomainFieldsGroupBuilder;
 import dev.webfx.stack.framework.shared.orm.domainmodel.builder.DomainModelBuilder;
 import dev.webfx.extras.label.Label;
-import dev.webfx.stack.platform.shared.services.query.QueryArgument;
+import dev.webfx.stack.db.query.QueryArgument;
 
 import java.util.HashMap;
 import java.util.Map;

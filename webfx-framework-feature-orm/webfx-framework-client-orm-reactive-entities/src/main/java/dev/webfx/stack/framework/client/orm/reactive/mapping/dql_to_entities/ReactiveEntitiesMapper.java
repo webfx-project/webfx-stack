@@ -6,7 +6,7 @@ import dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.sql.SqlCompiled;
 import dev.webfx.stack.framework.shared.orm.entity.*;
 import dev.webfx.stack.framework.shared.orm.entity.query_result_to_entities.QueryResultToEntitiesMapper;
 import dev.webfx.kit.util.properties.Properties;
-import dev.webfx.stack.platform.shared.services.query.QueryResult;
+import dev.webfx.stack.db.query.QueryResult;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;

@@ -1,7 +1,7 @@
 package dev.webfx.stack.framework.shared.services.querypush;
 
 
-import dev.webfx.stack.platform.shared.datascope.DataScope;
+import dev.webfx.stack.db.datascope.DataScope;
 
 /**
  * @author Bruno Salmon

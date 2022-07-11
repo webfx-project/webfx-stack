@@ -1,8 +1,8 @@
 package dev.webfx.stack.framework.shared.services.querypush.diff;
 
 import dev.webfx.stack.framework.shared.services.querypush.diff.impl.QueryResultTranslation;
-import dev.webfx.stack.platform.shared.services.query.QueryResult;
-import dev.webfx.stack.platform.shared.services.query.QueryResultBuilder;
+import dev.webfx.stack.db.query.QueryResult;
+import dev.webfx.stack.db.query.QueryResultBuilder;
 
 import java.util.Objects;
 

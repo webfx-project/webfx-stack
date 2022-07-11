@@ -5,9 +5,9 @@ module webfx.framework.server.push {
     // Direct dependencies modules
     requires java.base;
     requires webfx.framework.shared.push;
-    requires webfx.platform.shared.async;
-    requires webfx.platform.shared.bus;
     requires webfx.platform.shared.util;
+    requires webfx.stack.async;
+    requires webfx.stack.com.bus;
 
     // Exported packages
     exports dev.webfx.stack.framework.server.services.push;
