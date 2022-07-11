@@ -13,10 +13,6 @@
 
     <artifactId>webfx-stack-db-querysubmit-vertx</artifactId>
 
-    <packaging>pom</packaging>
-
-    <modules/>
-
     <dependencies>
 
         <dependency>
