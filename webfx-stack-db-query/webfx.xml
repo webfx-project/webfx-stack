@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <providers>
+        <provider interface="dev.webfx.stack.com.buscall.spi.BusCallEndpoint">dev.webfx.stack.db.query.ExecuteQueryBusCallEndpoint</provider>
+        <provider interface="dev.webfx.stack.com.buscall.spi.BusCallEndpoint">dev.webfx.stack.db.query.ExecuteQueryBatchBusCallEndpoint</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.query.QueryArgument$ProvidedSerialCodec</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.query.QueryResult$ProvidedSerialCodec</provider>
+    </providers>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+    <reflect>
+        <array-new-instance>
+            <class>dev.webfx.stack.db.query.QueryResult</class>
+        </array-new-instance>
+    </reflect>
+
+</project>

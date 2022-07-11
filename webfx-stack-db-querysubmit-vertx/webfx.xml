@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <providers>
+        <provider interface="dev.webfx.stack.db.query.spi.QueryServiceProvider">dev.webfx.stack.db.query.spi.impl.vertx.VertxQueryServiceProvider</provider>
+        <provider interface="dev.webfx.stack.db.submit.spi.SubmitServiceProvider">dev.webfx.stack.db.submit.spi.impl.vertx.VertxSubmitServiceProvider</provider>
+    </providers>
+
+    <dependencies>
+        <used-by-source-modules/>
+        <plugin-module>java.sql</plugin-module> <!-- Module required by vertx-mysql-postgresql-client-jasync -->
+        <!-- Additional module required at runtime when authenticating to a postgres database in a docker container -->
+        <plugin-module>com-ongres-scram-client</plugin-module>
+    </dependencies>
+
+
+</project>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <providers>
+        <provider interface="dev.webfx.stack.com.buscall.spi.BusCallEndpoint">dev.webfx.stack.db.submit.ExecuteSubmitBusCallEndpoint</provider>
+        <provider interface="dev.webfx.stack.com.buscall.spi.BusCallEndpoint">dev.webfx.stack.db.submit.ExecuteSubmitBatchBusCallEndpoint</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.submit.SubmitArgument$ProvidedSerialCodec</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.submit.SubmitResult$ProvidedSerialCodec</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.submit.GeneratedKeyBatchIndex$ProvidedSerialCodec</provider>
+    </providers>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+    <reflect>
+        <array-new-instance>
+            <class>dev.webfx.stack.db.submit.SubmitResult</class>
+        </array-new-instance>
+    </reflect>
+
+</project>

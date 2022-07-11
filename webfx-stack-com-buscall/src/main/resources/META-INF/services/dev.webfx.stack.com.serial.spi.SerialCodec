@@ -1,0 +1,3 @@
+dev.webfx.stack.com.buscall.BusCallArgument$ProvidedSerialCodec
+dev.webfx.stack.com.buscall.BusCallResult$ProvidedSerialCodec
+dev.webfx.stack.com.buscall.SerializableAsyncResult$ProvidedSerialCodec

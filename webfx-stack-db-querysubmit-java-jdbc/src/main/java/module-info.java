@@ -1,0 +1,24 @@
+// File managed by WebFX (DO NOT EDIT MANUALLY)
+
+module webfx.stack.db.querysubmit.java.jdbc {
+
+    // Direct dependencies modules
+    requires java.base;
+    requires java.sql;
+    requires static com.zaxxer.hikari;
+    requires webfx.platform.shared.util;
+    requires webfx.stack.async;
+    requires webfx.stack.db.datasource;
+    requires webfx.stack.db.query;
+    requires webfx.stack.db.submit;
+
+    // Exported packages
+    exports dev.webfx.stack.db.query.spi.impl.jdbc;
+    exports dev.webfx.stack.db.querysubmit.jdbc;
+    exports dev.webfx.stack.db.submit.spi.impl.jdbc;
+
+    // Provided services
+    provides dev.webfx.stack.db.query.spi.QueryServiceProvider with dev.webfx.stack.db.query.spi.impl.jdbc.JdbcQueryServiceProvider;
+    provides dev.webfx.stack.db.submit.spi.SubmitServiceProvider with dev.webfx.stack.db.submit.spi.impl.jdbc.JdbcSubmitServiceProvider;
+
+}
