@@ -27,7 +27,7 @@ public final class AlertUtil {
         stackTraceArea.setEditable(false);
         stackTraceArea.setMinWidth(400);
         stackTraceArea.setMinHeight(300);
-        //stackTraceArea.setWrapText(true); // Not implemented yet by WebFx
+        //stackTraceArea.setWrapText(true); // Not implemented yet by WebFX
         setMaxSizeToInfinite(stackTraceArea);
         GridPane.setVgrow(stackTraceArea, Priority.ALWAYS);
         GridPane.setHgrow(stackTraceArea, Priority.ALWAYS);
@@ -43,7 +43,7 @@ public final class AlertUtil {
         DialogUtil.showModalNodeInGoldLayout(dialogContent, (Pane) owner.getScene().getRoot());
         DialogUtil.armDialogContentButtons(dialogContent, null);
 
-/* Version using Alert (not working yet with WebFx)
+/* Version using Alert (not working yet with WebFX)
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.initOwner(owner);
         alert.setTitle("An error occurred");

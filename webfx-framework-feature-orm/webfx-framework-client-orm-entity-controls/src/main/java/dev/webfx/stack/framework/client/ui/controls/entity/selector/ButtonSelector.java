@@ -341,7 +341,7 @@ public abstract class ButtonSelector<T> {
                 dialogPane.setBottom(buttonBar);
                 dialogCallback = DialogUtil.showModalNodeInGoldLayout(dialogPane, parentNow, 0.95, 0.95);
                 dialogHeightProperty.bind(dialogPane.heightProperty());
-                // Resetting default and cancel buttons (required for JavaFx if displayed a second time)
+                // Resetting default and cancel buttons (required for JavaFX if displayed a second time)
                 ButtonFactory.resetDefaultAndCancelButtons(okButton, cancelButton);
                 dialogPane.setVisible(true);
                 break;

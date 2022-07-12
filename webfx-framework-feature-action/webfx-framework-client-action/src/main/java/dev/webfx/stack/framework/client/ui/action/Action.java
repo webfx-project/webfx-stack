@@ -9,7 +9,7 @@ import javafx.scene.Node;
 import dev.webfx.stack.framework.client.ui.action.impl.ReadOnlyAction;
 
 /**
- * An action compatible with standard JavaFx API (ex: can be passed to Button.setOnAction()) but enriched with graphical
+ * An action compatible with standard JavaFX API (ex: can be passed to Button.setOnAction()) but enriched with graphical
  * properties (ie text, graphic, disabled and visible properties). The ActionBinder utility class can be used to help
  * binding graphical components (such as buttons) to actions. The ActionBuilder utility class can be used to
  *

@@ -139,7 +139,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> {
     @Override
     protected Region getOrCreateDialogContent() {
         if (dialogVisualGrid == null && entityRenderer != null) {
-            dialogVisualGrid = new SkinnedVisualGrid(); // Better rendering in desktop JavaFx (but might be slower in web version)
+            dialogVisualGrid = new SkinnedVisualGrid(); // Better rendering in desktop JavaFX (but might be slower in web version)
             dialogVisualGrid.setHeaderVisible(false);
             dialogVisualGrid.setCursor(Cursor.HAND);
             BorderPane.setAlignment(dialogVisualGrid, Pos.TOP_LEFT);

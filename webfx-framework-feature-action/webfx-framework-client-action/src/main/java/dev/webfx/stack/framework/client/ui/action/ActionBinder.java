@@ -42,7 +42,7 @@ public final class ActionBinder {
     }
 
     private static void bindGraphicProperties(ObjectProperty<Node> dstGraphicProperty, ObservableObjectValue<Node> srcGraphicProperty) {
-        // Needs to make a copy of the graphic in case it is used in several places (JavaFx nodes must be unique instances in the scene graph)
+        // Needs to make a copy of the graphic in case it is used in several places (JavaFX nodes must be unique instances in the scene graph)
         Properties.runNowAndOnPropertiesChange(p -> dstGraphicProperty.setValue(copyGraphic(srcGraphicProperty.getValue())), srcGraphicProperty);
     }
 
