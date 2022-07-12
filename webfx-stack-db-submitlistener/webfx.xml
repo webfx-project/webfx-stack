@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <provider interface="dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter">dev.webfx.stack.db.submitlistener.SubmitListenerModuleBooter</provider>
+        <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.db.submitlistener.SubmitListenerModuleBooter</provider>
     </providers>
 
     <dependencies>

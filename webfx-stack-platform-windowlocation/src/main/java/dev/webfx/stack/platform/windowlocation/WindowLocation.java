@@ -1,8 +1,8 @@
 package dev.webfx.stack.platform.windowlocation;
 
 import dev.webfx.stack.platform.windowlocation.spi.WindowLocationProvider;
-import dev.webfx.platform.shared.util.Strings;
-import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.util.Strings;
+import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;
 

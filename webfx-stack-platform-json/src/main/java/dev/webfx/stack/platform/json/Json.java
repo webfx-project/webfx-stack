@@ -2,9 +2,9 @@ package dev.webfx.stack.platform.json;
 
 import dev.webfx.stack.platform.json.spi.JsonProvider;
 import dev.webfx.stack.platform.json.spi.impl.listmap.MapJsonObject;
-import dev.webfx.platform.shared.util.noreflect.IndexedArray;
-import dev.webfx.platform.shared.util.noreflect.KeyObject;
-import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.util.noreflect.IndexedArray;
+import dev.webfx.platform.util.noreflect.KeyObject;
+import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;
 

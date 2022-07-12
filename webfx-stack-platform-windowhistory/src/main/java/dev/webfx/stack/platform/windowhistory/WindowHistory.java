@@ -2,7 +2,7 @@ package dev.webfx.stack.platform.windowhistory;
 
 import dev.webfx.stack.platform.windowhistory.spi.BrowsingHistoryLocation;
 import dev.webfx.stack.platform.windowhistory.spi.WindowHistoryProvider;
-import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;
 

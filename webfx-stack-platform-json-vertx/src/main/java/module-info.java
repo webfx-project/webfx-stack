@@ -5,7 +5,7 @@ module webfx.stack.platform.json.vertx {
     // Direct dependencies modules
     requires io.vertx.core;
     requires java.base;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.util;
     requires webfx.stack.platform.json;
 
     // Exported packages

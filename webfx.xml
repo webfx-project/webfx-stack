@@ -323,7 +323,7 @@
             </exported-packages>
 
             <providers>
-                <provider interface="dev.webfx.platform.shared.services.boot.spi.ApplicationBooterProvider">dev.webfx.platform.boot.spi.impl.vertx.VertxApplicationBooterVerticle</provider>
+                <provider interface="dev.webfx.platform.boot.spi.ApplicationBooterProvider">dev.webfx.platform.boot.spi.impl.vertx.VertxApplicationBooterVerticle</provider>
             </providers>
 
             <dependencies>
@@ -340,8 +340,8 @@
                 <module>io-vertx-web</module>
                 <module>java-nio-emul</module>
                 <module>java.base</module>
-                <module>webfx-platform-shared-boot</module>
-                <module>webfx-platform-shared-shutdown</module>
+                <module>webfx-platform-boot</module>
+                <module>webfx-platform-shutdown</module>
                 <module>webfx-stack-vertx-common</module>
             </used-by-source-modules>
 
@@ -354,7 +354,7 @@
             </exported-packages>
 
             <providers>
-                <provider interface="dev.webfx.platform.shared.services.scheduler.spi.SchedulerProvider">dev.webfx.platform.scheduler.spi.impl.vertx.VertxSchedulerProvider</provider>
+                <provider interface="dev.webfx.platform.scheduler.spi.SchedulerProvider">dev.webfx.platform.scheduler.spi.impl.vertx.VertxSchedulerProvider</provider>
             </providers>
 
             <dependencies>
@@ -367,7 +367,7 @@
 
             <used-by-source-modules>
                 <module>io-vertx-core</module>
-                <module>webfx-platform-shared-scheduler</module>
+                <module>webfx-platform-scheduler</module>
                 <module>webfx-stack-vertx-common</module>
             </used-by-source-modules>
 
@@ -391,7 +391,7 @@
             <used-by-source-modules>
                 <module>java.base</module>
                 <module>java.logging</module>
-                <module>webfx-platform-shared-util</module>
+                <module>webfx-platform-util</module>
             </used-by-source-modules>
 
         </project>
@@ -414,9 +414,9 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
-                <module>webfx-platform-shared-log</module>
-                <module>webfx-platform-shared-scheduler</module>
-                <module>webfx-platform-shared-util</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-scheduler</module>
+                <module>webfx-platform-util</module>
                 <module>webfx-stack-async</module>
                 <module>webfx-stack-platform-json</module>
             </used-by-source-modules>
@@ -486,7 +486,7 @@
             </exported-packages>
 
             <providers>
-                <provider interface="dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter">dev.webfx.stack.com.buscall.BusCallModuleBooter</provider>
+                <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.com.buscall.BusCallModuleBooter</provider>
                 <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.com.buscall.BusCallArgument$ProvidedSerialCodec</provider>
                 <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.com.buscall.BusCallResult$ProvidedSerialCodec</provider>
                 <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.com.buscall.SerializableAsyncResult$ProvidedSerialCodec</provider>
@@ -504,9 +504,9 @@
             <used-by-source-modules>
                 <module>java.base</module>
                 <module>webfx-kit-javafxbase-emul</module>
-                <module>webfx-platform-shared-boot</module>
-                <module>webfx-platform-shared-log</module>
-                <module>webfx-platform-shared-util</module>
+                <module>webfx-platform-boot</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-util</module>
                 <module>webfx-stack-async</module>
                 <module>webfx-stack-com-bus</module>
                 <module>webfx-stack-com-serial</module>
@@ -526,7 +526,7 @@
             </exported-packages>
 
             <providers>
-                <provider interface="dev.webfx.platform.shared.services.boot.spi.ApplicationJob">dev.webfx.stack.com.buscall.job.BusCallServerJob</provider>
+                <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.com.buscall.job.BusCallServerJob</provider>
             </providers>
 
             <dependencies>
@@ -538,8 +538,8 @@
             </source-packages>
 
             <used-by-source-modules>
-                <module>webfx-platform-shared-boot</module>
-                <module>webfx-platform-shared-log</module>
+                <module>webfx-platform-boot</module>
+                <module>webfx-platform-console</module>
                 <module>webfx-stack-com-bus</module>
                 <module>webfx-stack-com-buscall</module>
             </used-by-source-modules>
@@ -553,7 +553,7 @@
             </exported-packages>
 
             <providers>
-                <provider interface="dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter">dev.webfx.stack.com.serial.SerialCodecModuleBooter</provider>
+                <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.com.serial.SerialCodecModuleBooter</provider>
                 <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.com.serial.spi.impl.ProvidedBatchSerialCodec</provider>
             </providers>
 
@@ -569,9 +569,9 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
-                <module>webfx-platform-shared-boot</module>
-                <module>webfx-platform-shared-log</module>
-                <module>webfx-platform-shared-util</module>
+                <module>webfx-platform-boot</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-util</module>
                 <module>webfx-stack-async</module>
                 <module>webfx-stack-platform-json</module>
             </used-by-source-modules>
@@ -599,7 +599,7 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
-                <module>webfx-platform-shared-util</module>
+                <module>webfx-platform-util</module>
                 <module>webfx-stack-platform-json</module>
             </used-by-source-modules>
 
@@ -664,7 +664,7 @@
                 <module>Java-WebSocket</module>
                 <module>java-nio-emul</module>
                 <module>java.base</module>
-                <module>webfx-platform-shared-log</module>
+                <module>webfx-platform-console</module>
                 <module>webfx-stack-com-websocket</module>
                 <module>webfx-stack-platform-json</module>
             </used-by-source-modules>
@@ -691,10 +691,10 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
-                <module>webfx-platform-shared-log</module>
-                <module>webfx-platform-shared-resource</module>
-                <module>webfx-platform-shared-scheduler</module>
-                <module>webfx-platform-shared-util</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-resource</module>
+                <module>webfx-platform-scheduler</module>
+                <module>webfx-platform-util</module>
                 <module>webfx-stack-async</module>
                 <module>webfx-stack-com-bus</module>
                 <module>webfx-stack-com-websocket</module>
@@ -722,7 +722,7 @@
             </source-packages>
 
             <used-by-source-modules>
-                <module>webfx-platform-shared-resource</module>
+                <module>webfx-platform-resource</module>
                 <module>webfx-stack-com-bus</module>
                 <module>webfx-stack-com-websocketbus</module>
                 <module>webfx-stack-platform-json</module>
@@ -778,7 +778,7 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
-                <module>webfx-platform-shared-util</module>
+                <module>webfx-platform-util</module>
             </used-by-source-modules>
 
             <used-services>
@@ -820,8 +820,8 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
-                <module>webfx-platform-shared-log</module>
-                <module>webfx-platform-shared-util</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-util</module>
                 <module>webfx-stack-async</module>
                 <module>webfx-stack-com-buscall</module>
                 <module>webfx-stack-com-serial</module>
@@ -887,7 +887,7 @@
                 <module>com-zaxxer-hikari</module>
                 <module>java.base</module>
                 <module>java.sql</module>
-                <module>webfx-platform-shared-util</module>
+                <module>webfx-platform-util</module>
                 <module>webfx-stack-async</module>
                 <module>webfx-stack-db-datasource</module>
                 <module>webfx-stack-db-query</module>
@@ -927,8 +927,8 @@
                 <module>io-vertx-client-sql-pg</module>
                 <module>io-vertx-core</module>
                 <module>java.base</module>
-                <module>webfx-platform-shared-log</module>
-                <module>webfx-platform-shared-util</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-util</module>
                 <module>webfx-stack-async</module>
                 <module>webfx-stack-db-datasource</module>
                 <module>webfx-stack-db-query</module>
@@ -971,7 +971,7 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
-                <module>webfx-platform-shared-util</module>
+                <module>webfx-platform-util</module>
                 <module>webfx-stack-async</module>
                 <module>webfx-stack-com-buscall</module>
                 <module>webfx-stack-com-serial</module>
@@ -1017,7 +1017,7 @@
             </exported-packages>
 
             <providers>
-                <provider interface="dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter">dev.webfx.stack.db.submitlistener.SubmitListenerModuleBooter</provider>
+                <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.db.submitlistener.SubmitListenerModuleBooter</provider>
             </providers>
 
             <dependencies>
@@ -1030,9 +1030,9 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
-                <module>webfx-platform-shared-boot</module>
-                <module>webfx-platform-shared-log</module>
-                <module>webfx-platform-shared-util</module>
+                <module>webfx-platform-boot</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-util</module>
                 <module>webfx-stack-db-submit</module>
             </used-by-source-modules>
 
@@ -1064,7 +1064,7 @@
             <used-by-source-modules>
                 <module>java.base</module>
                 <module>webfx-lib-javacupruntime</module>
-                <module>webfx-platform-shared-util</module>
+                <module>webfx-platform-util</module>
             </used-by-source-modules>
 
             <used-services>
@@ -1169,7 +1169,7 @@
             <used-by-source-modules>
                 <module>io-vertx-core</module>
                 <module>java.base</module>
-                <module>webfx-platform-shared-util</module>
+                <module>webfx-platform-util</module>
                 <module>webfx-stack-platform-json</module>
             </used-by-source-modules>
 
@@ -1192,7 +1192,7 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
-                <module>webfx-platform-shared-util</module>
+                <module>webfx-platform-util</module>
                 <module>webfx-stack-async</module>
             </used-by-source-modules>
 
@@ -1252,7 +1252,7 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
-                <module>webfx-platform-shared-util</module>
+                <module>webfx-platform-util</module>
             </used-by-source-modules>
 
             <used-services>
@@ -1307,8 +1307,8 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
-                <module>webfx-platform-client-uischeduler</module>
-                <module>webfx-platform-shared-log</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-uischeduler</module>
                 <module>webfx-stack-platform-json</module>
                 <module>webfx-stack-platform-webworker</module>
             </used-by-source-modules>
@@ -1357,7 +1357,7 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
-                <module>webfx-platform-shared-util</module>
+                <module>webfx-platform-util</module>
                 <module>webfx-stack-async</module>
                 <module>webfx-stack-platform-json</module>
                 <module>webfx-stack-platform-windowlocation</module>
@@ -1444,9 +1444,9 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
-                <module>webfx-platform-client-uischeduler</module>
-                <module>webfx-platform-shared-log</module>
-                <module>webfx-platform-shared-util</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-uischeduler</module>
+                <module>webfx-platform-util</module>
                 <module>webfx-stack-async</module>
                 <module>webfx-stack-platform-json</module>
                 <module>webfx-stack-platform-windowhistory</module>
@@ -1477,7 +1477,7 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
-                <module>webfx-platform-shared-util</module>
+                <module>webfx-platform-util</module>
                 <module>webfx-stack-platform-json</module>
             </used-by-source-modules>
 
@@ -1509,7 +1509,7 @@
             <used-by-source-modules>
                 <module>gwt-user</module>
                 <module>jsinterop-annotations</module>
-                <module>webfx-platform-shared-util</module>
+                <module>webfx-platform-util</module>
                 <module>webfx-stack-platform-windowlocation</module>
             </used-by-source-modules>
 

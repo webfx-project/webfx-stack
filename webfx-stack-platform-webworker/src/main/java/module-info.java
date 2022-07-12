@@ -4,7 +4,7 @@ module webfx.stack.platform.webworker {
 
     // Direct dependencies modules
     requires java.base;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.stack.platform.webworker;

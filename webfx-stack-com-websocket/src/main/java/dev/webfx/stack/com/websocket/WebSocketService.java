@@ -2,7 +2,7 @@ package dev.webfx.stack.com.websocket;
 
 import dev.webfx.stack.com.websocket.spi.WebSocketServiceProvider;
 import dev.webfx.stack.platform.json.JsonObject;
-import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;
 

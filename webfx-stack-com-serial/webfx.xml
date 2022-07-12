@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <provider interface="dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter">dev.webfx.stack.com.serial.SerialCodecModuleBooter</provider>
+        <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.com.serial.SerialCodecModuleBooter</provider>
         <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.com.serial.spi.impl.ProvidedBatchSerialCodec</provider>
     </providers>
 

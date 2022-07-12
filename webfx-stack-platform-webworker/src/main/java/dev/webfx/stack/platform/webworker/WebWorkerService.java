@@ -2,7 +2,7 @@ package dev.webfx.stack.platform.webworker;
 
 import dev.webfx.stack.platform.webworker.spi.WorkerServiceProvider;
 import dev.webfx.stack.platform.webworker.spi.base.JavaCodedWebWorkerBase;
-import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;
 

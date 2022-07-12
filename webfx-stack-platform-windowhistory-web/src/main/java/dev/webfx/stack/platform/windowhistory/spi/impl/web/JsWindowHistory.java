@@ -2,7 +2,7 @@ package dev.webfx.stack.platform.windowhistory.spi.impl.web;
 
 import dev.webfx.stack.platform.json.JsonObject;
 import dev.webfx.stack.async.Handler;
-import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;
 import java.util.function.Function;

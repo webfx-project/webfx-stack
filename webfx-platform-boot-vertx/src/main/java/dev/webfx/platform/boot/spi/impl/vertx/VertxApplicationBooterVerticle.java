@@ -1,10 +1,10 @@
 package dev.webfx.platform.boot.spi.impl.vertx;
 
-import dev.webfx.platform.shared.services.boot.ApplicationBooter;
-import dev.webfx.platform.shared.services.boot.spi.ApplicationBooterProvider;
-import dev.webfx.platform.shared.services.boot.spi.ApplicationJob;
-import dev.webfx.platform.shared.services.boot.spi.impl.ApplicationModuleBooterManager;
-import dev.webfx.platform.shared.services.shutdown.Shutdown;
+import dev.webfx.platform.boot.ApplicationBooter;
+import dev.webfx.platform.boot.spi.ApplicationBooterProvider;
+import dev.webfx.platform.boot.spi.ApplicationJob;
+import dev.webfx.platform.boot.spi.impl.ApplicationModuleBooterManager;
+import dev.webfx.platform.shutdown.Shutdown;
 import dev.webfx.stack.vertx.common.VertxInstance;
 import io.vertx.core.*;
 

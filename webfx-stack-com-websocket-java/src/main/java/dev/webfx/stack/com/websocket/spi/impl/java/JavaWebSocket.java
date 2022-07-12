@@ -24,7 +24,7 @@ import dev.webfx.stack.com.websocket.WebSocket;
 import dev.webfx.stack.com.websocket.WebSocketListener;
 import dev.webfx.stack.platform.json.Json;
 import dev.webfx.stack.platform.json.WritableJsonObject;
-import dev.webfx.platform.shared.services.log.Logger;
+import dev.webfx.platform.console.Console;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -82,7 +82,7 @@ public final class JavaWebSocket implements WebSocket {
                     if (listener != null)
                         listener.onMessage(JavaWebSocket.toString(buffer));
                 } catch (CharacterCodingException e) {
-                    Logger.log("Websocket Failed when Charset Decoding", e);
+                    Console.log("Websocket Failed when Charset Decoding", e);
                 }
             }
 

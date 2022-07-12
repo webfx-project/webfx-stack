@@ -1,6 +1,6 @@
 package dev.webfx.stack.db.query.compression.repeat;
 
-import dev.webfx.platform.shared.util.Numbers;
+import dev.webfx.platform.util.Numbers;
 import dev.webfx.stack.db.query.compression.ValuesCompressor;
 
 import java.util.*;

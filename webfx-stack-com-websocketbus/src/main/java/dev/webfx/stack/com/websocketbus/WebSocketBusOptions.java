@@ -1,6 +1,6 @@
 package dev.webfx.stack.com.websocketbus;
 
-import dev.webfx.platform.shared.util.Objects;
+import dev.webfx.platform.util.Objects;
 import dev.webfx.stack.com.bus.BusOptions;
 import dev.webfx.stack.platform.json.JsonObject;
 

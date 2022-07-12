@@ -4,9 +4,9 @@ import dev.webfx.stack.db.datasource.LocalDataSource;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.spi.QueryServiceProvider;
-import dev.webfx.platform.shared.util.Arrays;
+import dev.webfx.platform.util.Arrays;
 import dev.webfx.stack.async.Future;
-import dev.webfx.platform.shared.services.log.Logger;
+import dev.webfx.platform.console.Console;
 
 /**
  * @author Bruno Salmon
@@ -17,7 +17,7 @@ public class LocalQueryServiceProvider implements QueryServiceProvider {
     public Future<QueryResult> executeQuery(QueryArgument argument) {
         Object dataSourceId = argument.getDataSourceId();
         String queryString = argument.getStatement();
-        Logger.log("Query: " + queryString + (argument.getParameters() == null ? "" : "\nParameters: " + Arrays.toString(argument.getParameters())));
+        Console.log("Query: " + queryString + (argument.getParameters() == null ? "" : "\nParameters: " + Arrays.toString(argument.getParameters())));
         QueryServiceProvider localConnectedProvider = getOrCreateLocalConnectedProvider(dataSourceId);
         if (localConnectedProvider != null)
             return localConnectedProvider.executeQuery(argument);

@@ -17,10 +17,10 @@
  */
 package dev.webfx.stack.com.websocketbus;
 
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.stack.com.bus.BusHook;
-import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.platform.shared.services.scheduler.Scheduler;
+import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.stack.async.Future;
 import dev.webfx.stack.async.Handler;
 import dev.webfx.stack.com.bus.Message;
@@ -124,7 +124,7 @@ public class SimpleClientBus implements Bus {
 
     protected void onOpen() {
         open = true;
-        Logger.log("Bus open");
+        Console.log("Bus open");
         if (hook != null)
             hook.handleOpened();
     }
@@ -135,7 +135,7 @@ public class SimpleClientBus implements Bus {
     }
 
     protected void onClose(Object reason) {
-        Logger.log("Bus closed, reason = " + reason);
+        Console.log("Bus closed, reason = " + reason);
         open = false;
         clearHandlers();
         if (hook != null)
@@ -241,7 +241,7 @@ public class SimpleClientBus implements Bus {
                 replyHandlers.remove(address);
                 scheduleHandleAsync(address, handler, message);
             } else
-                Logger.log("Unknown message address: " + address);
+                Console.log("Unknown message address: " + address);
         }
     }
 
@@ -250,7 +250,7 @@ public class SimpleClientBus implements Bus {
         try {
             handler.handle(Future.succeededFuture(message));
         } catch (Throwable e) {
-            Logger.log("Failed to handle on address: " + address, e);
+            Console.log("Failed to handle on address: " + address, e);
             publishLocal(ON_ERROR, Json.createObject().set("address", address).set("message", message).set("cause", e));
         }
     }
@@ -258,7 +258,7 @@ public class SimpleClientBus implements Bus {
     private void scheduleHandle(String address, Handler<Message> handler, Message message) {
         scheduleHandleAsync(address, ar -> {
             if (ar.failed())
-                Logger.log(ar.cause());
+                Console.log(ar.cause());
             else
                 handler.handle(ar.result());
         }, message);

@@ -4,10 +4,10 @@ package dev.webfx.stack.com.buscall.job;
  * @author Bruno Salmon
  */
 
-import dev.webfx.platform.shared.services.boot.spi.ApplicationJob;
+import dev.webfx.platform.boot.spi.ApplicationJob;
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.com.bus.Registrations;
 import dev.webfx.stack.com.buscall.BusCallService;
-import dev.webfx.platform.shared.services.log.Logger;
 
 public final class BusCallServerJob implements ApplicationJob {
 
@@ -17,7 +17,7 @@ public final class BusCallServerJob implements ApplicationJob {
     public void onStart() {
         // At this stage of initialization, the bus call end points should be already registered
         // So now starting the BusCallService by listening entry calls
-        Logger.log("- Starting listening bus entry calls");
+        Console.log("- Starting listening bus entry calls");
         registrations.add(BusCallService.listenBusEntryCalls());
     }
 

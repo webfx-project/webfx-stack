@@ -1,6 +1,6 @@
 package dev.webfx.stack.platform.json.spi.impl.listmap;
 
-import dev.webfx.platform.shared.util.Numbers;
+import dev.webfx.platform.util.Numbers;
 import dev.webfx.stack.platform.json.*;
 
 import java.util.ArrayList;

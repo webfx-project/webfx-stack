@@ -5,7 +5,7 @@ import dev.webfx.stack.platform.json.JsonObject;
 import dev.webfx.stack.platform.json.WritableJsonObject;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
-import dev.webfx.platform.shared.util.Arrays;
+import dev.webfx.platform.util.Arrays;
 
 /**
  * @author Bruno Salmon

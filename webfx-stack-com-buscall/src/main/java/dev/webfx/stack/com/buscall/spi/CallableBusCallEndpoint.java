@@ -1,6 +1,6 @@
 package dev.webfx.stack.com.buscall.spi;
 
-import dev.webfx.platform.shared.util.function.Callable;
+import dev.webfx.platform.util.function.Callable;
 
 /**
  * @author Bruno Salmon

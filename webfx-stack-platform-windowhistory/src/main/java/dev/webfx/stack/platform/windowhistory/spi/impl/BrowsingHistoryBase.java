@@ -7,7 +7,7 @@ import dev.webfx.stack.platform.windowlocation.spi.PathStateLocation;
 import dev.webfx.stack.platform.windowlocation.spi.impl.PathLocationImpl;
 import dev.webfx.stack.platform.windowlocation.spi.impl.PathStateLocationImpl;
 import dev.webfx.stack.platform.json.JsonObject;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Strings;
 import dev.webfx.stack.async.Future;
 import dev.webfx.stack.async.Handler;
 import dev.webfx.stack.async.Promise;

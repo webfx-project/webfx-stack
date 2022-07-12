@@ -4,8 +4,8 @@ module webfx.stack.platform.webworker.java {
 
     // Direct dependencies modules
     requires java.base;
-    requires webfx.platform.client.uischeduler;
-    requires webfx.platform.shared.log;
+    requires webfx.platform.console;
+    requires webfx.platform.uischeduler;
     requires webfx.stack.platform.json;
     requires webfx.stack.platform.webworker;
 

@@ -4,7 +4,7 @@ import dev.webfx.stack.platform.json.ElementType;
 import dev.webfx.stack.platform.json.JsonArray;
 import dev.webfx.stack.platform.json.JsonObject;
 import dev.webfx.stack.platform.json.WritableJsonArray;
-import dev.webfx.platform.shared.util.Numbers;
+import dev.webfx.platform.util.Numbers;
 import dev.webfx.stack.platform.json.spi.impl.listmap.ListMapBasedJsonElement;
 import dev.webfx.stack.platform.json.spi.impl.listmap.MapBasedJsonObject;
 

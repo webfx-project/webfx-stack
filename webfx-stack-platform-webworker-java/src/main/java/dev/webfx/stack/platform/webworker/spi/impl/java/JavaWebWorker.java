@@ -1,8 +1,8 @@
 package dev.webfx.stack.platform.webworker.spi.impl.java;
 
-import dev.webfx.platform.client.services.uischeduler.UiScheduler;
+import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.stack.platform.json.JsonObject;
-import dev.webfx.platform.shared.services.log.Logger;
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.platform.webworker.spi.base.JavaCodedWebWorkerBase;
 import dev.webfx.stack.platform.webworker.spi.base.PlatformWebWorkerBase;
 import dev.webfx.stack.platform.webworker.spi.base.WebWorkerBase;
@@ -22,12 +22,12 @@ public class JavaWebWorker extends WebWorkerBase { // this instance represents t
     private final PlatformWebWorkerBase javaPlatformWorker = new PlatformWebWorkerBase() { // This instance represents the java platform layer the application worker interacts with
         @Override
         public void log(String message) {
-            Logger.log(message);
+            Console.log(message);
         }
 
         @Override
         public void log(Object object) {
-            Logger.log(object);
+            Console.log(object);
         }
 
         @Override

@@ -6,7 +6,7 @@ module webfx.stack.db.querysubmit.java.jdbc {
     requires java.base;
     requires java.sql;
     requires static com.zaxxer.hikari;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.util;
     requires webfx.stack.async;
     requires webfx.stack.db.datasource;
     requires webfx.stack.db.query;

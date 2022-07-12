@@ -1,6 +1,6 @@
 package dev.webfx.stack.async;
 
-import dev.webfx.platform.shared.util.tuples.Unit;
+import dev.webfx.platform.util.tuples.Unit;
 
 import java.util.function.IntFunction;
 

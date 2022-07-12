@@ -1,7 +1,7 @@
 package dev.webfx.stack.platform.windowlocation.spi.impl.gwt;
 
 import dev.webfx.stack.platform.windowlocation.spi.WindowLocationProvider;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Strings;
 
 /**
  * @author Bruno Salmon

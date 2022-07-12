@@ -1,10 +1,10 @@
 package dev.webfx.stack.com.buscall;
 
-import dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter;
+import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
 import dev.webfx.stack.com.buscall.spi.BusCallEndpoint;
-import dev.webfx.platform.shared.services.log.Logger;
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.com.bus.BusService;
-import dev.webfx.platform.shared.util.collection.Collections;
+import dev.webfx.platform.util.collection.Collections;
 
 import java.util.List;
 import java.util.ServiceLoader;
@@ -32,7 +32,7 @@ public final class BusCallModuleBooter implements ApplicationModuleBooter {
             BusCallService.registerBusCallEndpoint(endpoint);
             sb.append(sb.length() == 0 ? endpoints.size() + " endpoints provided for addresses: " : ", ").append(endpoint.getAddress());
         }
-        Logger.log(sb);
+        Console.log(sb);
         // Initializing the bus immediately to make the connection connection process happen while the application is initializing
         BusService.bus(); // Instantiating the bus (if not already done) is enough to open the connection
     }

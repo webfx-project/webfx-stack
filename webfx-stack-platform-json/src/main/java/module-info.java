@@ -5,7 +5,7 @@ module webfx.stack.platform.json {
     // Direct dependencies modules
     requires java.base;
     requires webfx.lib.javacupruntime;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.stack.platform.json;

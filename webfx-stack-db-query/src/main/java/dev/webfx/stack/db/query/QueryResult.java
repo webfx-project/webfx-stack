@@ -2,7 +2,7 @@ package dev.webfx.stack.db.query;
 
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 import dev.webfx.stack.db.query.compression.repeat.RepeatedValuesCompressor;
-import dev.webfx.platform.shared.util.Numbers;
+import dev.webfx.platform.util.Numbers;
 import dev.webfx.stack.platform.json.Json;
 import dev.webfx.stack.platform.json.JsonArray;
 import dev.webfx.stack.platform.json.JsonObject;

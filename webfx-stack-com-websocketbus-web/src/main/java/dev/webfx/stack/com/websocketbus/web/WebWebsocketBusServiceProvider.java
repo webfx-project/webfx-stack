@@ -4,7 +4,7 @@ import dev.webfx.stack.com.bus.BusOptions;
 import dev.webfx.stack.com.websocketbus.WebsocketBusServiceProvider;
 import dev.webfx.stack.com.websocketbus.WebSocketBusOptions;
 import dev.webfx.stack.platform.json.Json;
-import dev.webfx.platform.shared.services.resource.ResourceService;
+import dev.webfx.platform.resource.Resource;
 import dev.webfx.stack.platform.windowlocation.WindowLocation;
 
 /**
@@ -32,7 +32,7 @@ public final class WebWebsocketBusServiceProvider extends WebsocketBusServicePro
         if (socketBusOptions.isServerSSL() == null)
             socketBusOptions.setServerSSL("https".equals(WindowLocation.getProtocol()));
         super.setPlatformBusOptions(options);
-        String json = ResourceService.getText("dev/webfx/stack/com/websocketbus/conf/BusOptions.json");
+        String json = Resource.getText("dev/webfx/stack/com/websocketbus/conf/BusOptions.json");
         if (json != null)
             options.applyJson(Json.parseObject(json));
     }

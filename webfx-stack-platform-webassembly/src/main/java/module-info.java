@@ -4,7 +4,7 @@ module webfx.stack.platform.webassembly {
 
     // Direct dependencies modules
     requires java.base;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.util;
     requires webfx.stack.async;
 
     // Exported packages

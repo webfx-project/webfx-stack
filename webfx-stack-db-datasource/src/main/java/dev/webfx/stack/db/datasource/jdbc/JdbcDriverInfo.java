@@ -2,7 +2,7 @@ package dev.webfx.stack.db.datasource.jdbc;
 
 import dev.webfx.stack.db.datasource.ConnectionDetails;
 import dev.webfx.stack.db.datasource.DBMS;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Strings;
 
 /**
  * @author Bruno Salmon

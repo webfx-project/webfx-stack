@@ -1,7 +1,7 @@
 package dev.webfx.stack.com.buscall;
 
-import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.platform.shared.util.function.Callable;
+import dev.webfx.platform.console.Console;
+import dev.webfx.platform.util.function.Callable;
 import dev.webfx.stack.async.AsyncFunction;
 import dev.webfx.stack.async.AsyncResult;
 import dev.webfx.stack.async.Future;
@@ -151,7 +151,7 @@ public final class BusCallService {
                 // and calling the java handler with that java object
                 javaHandler.accept(javaObject, jsonMessage);
             } catch (Throwable throwable) {
-                Logger.log(throwable); // what else to do?
+                Console.log(throwable); // what else to do?
             }
         };
     }

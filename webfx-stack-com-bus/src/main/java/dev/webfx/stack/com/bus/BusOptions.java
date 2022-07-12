@@ -1,7 +1,7 @@
 package dev.webfx.stack.com.bus;
 
 
-import dev.webfx.platform.shared.util.Objects;
+import dev.webfx.platform.util.Objects;
 import dev.webfx.stack.platform.json.JsonObject;
 
 /**

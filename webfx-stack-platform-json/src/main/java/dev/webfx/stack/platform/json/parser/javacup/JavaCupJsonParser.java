@@ -8,8 +8,8 @@ package dev.webfx.stack.platform.json.parser.javacup;
 import dev.webfx.stack.platform.json.Json;
 import dev.webfx.stack.platform.json.WritableJsonArray;
 import dev.webfx.stack.platform.json.WritableJsonObject;
-import dev.webfx.platform.shared.util.Numbers;
-import dev.webfx.platform.shared.util.tuples.Pair;
+import dev.webfx.platform.util.Numbers;
+import dev.webfx.platform.util.tuples.Pair;
 
 /** CUP v0.11b 20160615 (GIT 4ac7450) generated parser.
   */

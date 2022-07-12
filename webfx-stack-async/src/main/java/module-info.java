@@ -5,7 +5,7 @@ module webfx.stack.async {
     // Direct dependencies modules
     requires java.base;
     requires java.logging;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.stack.async;

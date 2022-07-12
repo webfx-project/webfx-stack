@@ -1,6 +1,6 @@
 package dev.webfx.stack.platform.json;
 
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Strings;
 
 /**
  * @author Bruno Salmon

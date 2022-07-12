@@ -2,8 +2,8 @@ package dev.webfx.stack.platform.windowlocation.spi.impl;
 
 import dev.webfx.stack.platform.windowlocation.spi.PathLocation;
 import dev.webfx.stack.platform.json.JsonObject;
-import dev.webfx.platform.shared.util.Objects;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Objects;
+import dev.webfx.platform.util.Strings;
 
 /**
  * @author Bruno Salmon

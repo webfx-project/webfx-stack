@@ -25,9 +25,9 @@ import dev.webfx.stack.com.bus.spi.impl.SimpleBus;
 import dev.webfx.stack.platform.json.Json;
 import dev.webfx.stack.platform.json.JsonObject;
 import dev.webfx.stack.platform.json.WritableJsonObject;
-import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.platform.shared.services.scheduler.Scheduled;
-import dev.webfx.platform.shared.services.scheduler.Scheduler;
+import dev.webfx.platform.console.Console;
+import dev.webfx.platform.scheduler.Scheduled;
+import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.stack.async.AsyncResult;
 import dev.webfx.stack.async.Handler;
 
@@ -115,7 +115,7 @@ public class WebSocketBus extends SimpleBus {
             sessionId = makeUUID();
 
         if (webSocketListener == null)
-            Logger.log("Connecting bus to " + serverUri);
+            Console.log("Connecting bus to " + serverUri);
 
         webSocket = WebSocketService.createWebSocket(serverUri, options.getSocketOptions());
         webSocket.setListener(internalWebSocketHandler);
@@ -231,7 +231,7 @@ public class WebSocketBus extends SimpleBus {
 */
 
     private void sendPing() {
-        Logger.log("Sending client ping to server");
+        Console.log("Sending client ping to server");
         send(Json.createObject().set(TYPE, "ping"));
         scheduleNextPing(); // in order to schedule the next ping
     }

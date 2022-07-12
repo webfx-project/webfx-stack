@@ -1,7 +1,7 @@
 package dev.webfx.stack.com.serial;
 
-import dev.webfx.platform.shared.util.Dates;
-import dev.webfx.platform.shared.util.Numbers;
+import dev.webfx.platform.util.Dates;
+import dev.webfx.platform.util.Numbers;
 import dev.webfx.stack.com.serial.spi.SerialCodec;
 import dev.webfx.stack.com.serial.spi.impl.ExceptionSerialCodec;
 import dev.webfx.stack.platform.json.*;

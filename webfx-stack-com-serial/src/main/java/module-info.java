@@ -4,9 +4,9 @@ module webfx.stack.com.serial {
 
     // Direct dependencies modules
     requires java.base;
-    requires webfx.platform.shared.boot;
-    requires webfx.platform.shared.log;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.boot;
+    requires webfx.platform.console;
+    requires webfx.platform.util;
     requires webfx.stack.async;
     requires webfx.stack.platform.json;
 
@@ -19,7 +19,7 @@ module webfx.stack.com.serial {
     uses dev.webfx.stack.com.serial.spi.SerialCodec;
 
     // Provided services
-    provides dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter with dev.webfx.stack.com.serial.SerialCodecModuleBooter;
+    provides dev.webfx.platform.boot.spi.ApplicationModuleBooter with dev.webfx.stack.com.serial.SerialCodecModuleBooter;
     provides dev.webfx.stack.com.serial.spi.SerialCodec with dev.webfx.stack.com.serial.spi.impl.ProvidedBatchSerialCodec;
 
 }

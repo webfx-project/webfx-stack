@@ -5,7 +5,7 @@ import dev.webfx.stack.db.datasource.ConnectionDetails;
 import dev.webfx.stack.db.datasource.DBMS;
 import dev.webfx.stack.db.datasource.LocalDataSource;
 import dev.webfx.stack.db.datasource.jdbc.JdbcDriverInfo;
-import dev.webfx.platform.shared.services.log.Logger;
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.QueryResultBuilder;
@@ -14,11 +14,11 @@ import dev.webfx.stack.db.submit.GeneratedKeyBatchIndex;
 import dev.webfx.stack.db.submit.SubmitArgument;
 import dev.webfx.stack.db.submit.SubmitResult;
 import dev.webfx.stack.db.submit.spi.SubmitServiceProvider;
-import dev.webfx.platform.shared.util.Arrays;
+import dev.webfx.platform.util.Arrays;
 import dev.webfx.stack.async.Batch;
 import dev.webfx.stack.async.Future;
 import dev.webfx.stack.async.Promise;
-import dev.webfx.platform.shared.util.tuples.Unit;
+import dev.webfx.platform.util.tuples.Unit;
 import dev.webfx.stack.vertx.common.VertxInstance;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -105,7 +105,7 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
         Promise<T> promise = Promise.promise();
         pool.getConnection()
                 .onFailure(cause -> {
-                    Logger.log(cause);
+                    Console.log(cause);
                     promise.fail(cause);
                 })
                 .onSuccess(connection -> executor.accept(connection, promise)); // Note: this is the responsibility of the executor to close the connection

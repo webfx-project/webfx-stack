@@ -1,9 +1,9 @@
 package dev.webfx.platform.scheduler.spi.impl.vertx;
 
 import io.vertx.core.Vertx;
-import dev.webfx.platform.shared.services.scheduler.Scheduled;
+import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.stack.vertx.common.VertxInstance;
-import dev.webfx.platform.shared.services.scheduler.spi.SchedulerProvider;
+import dev.webfx.platform.scheduler.spi.SchedulerProvider;
 
 /**
  * @author Bruno Salmon

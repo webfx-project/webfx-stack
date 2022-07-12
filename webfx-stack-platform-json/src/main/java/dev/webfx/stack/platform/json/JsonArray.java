@@ -1,6 +1,6 @@
 package dev.webfx.stack.platform.json;
 
-import dev.webfx.platform.shared.util.noreflect.IndexedArray;
+import dev.webfx.platform.util.noreflect.IndexedArray;
 
 /**
  * @author Bruno Salmon

@@ -1,8 +1,8 @@
 package dev.webfx.stack.platform.json;
 
-import dev.webfx.platform.shared.util.noreflect.IndexedArray;
-import dev.webfx.platform.shared.util.noreflect.KeyObject;
-import dev.webfx.platform.shared.util.noreflect.WritableIndexedArray;
+import dev.webfx.platform.util.noreflect.IndexedArray;
+import dev.webfx.platform.util.noreflect.KeyObject;
+import dev.webfx.platform.util.noreflect.WritableIndexedArray;
 
 /**
  * @author Bruno Salmon

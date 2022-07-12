@@ -5,7 +5,7 @@ module webfx.stack.com.websocket.java {
     // Direct dependencies modules
     requires Java.WebSocket;
     requires java.base;
-    requires webfx.platform.shared.log;
+    requires webfx.platform.console;
     requires webfx.stack.com.websocket;
     requires webfx.stack.platform.json;
 

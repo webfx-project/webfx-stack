@@ -1,6 +1,6 @@
 package dev.webfx.stack.async;
 
-import dev.webfx.platform.shared.util.function.Callable;
+import dev.webfx.platform.util.function.Callable;
 
 import java.util.ArrayList;
 import java.util.Collection;

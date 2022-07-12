@@ -2,7 +2,7 @@ package dev.webfx.stack.platform.webassembly;
 
 import dev.webfx.stack.platform.webassembly.spi.WebAssemblyProvider;
 import dev.webfx.stack.async.Future;
-import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;
 

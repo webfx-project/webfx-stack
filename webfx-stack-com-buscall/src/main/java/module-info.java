@@ -5,9 +5,9 @@ module webfx.stack.com.buscall {
     // Direct dependencies modules
     requires java.base;
     requires javafx.base;
-    requires webfx.platform.shared.boot;
-    requires webfx.platform.shared.log;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.boot;
+    requires webfx.platform.console;
+    requires webfx.platform.util;
     requires webfx.stack.async;
     requires webfx.stack.com.bus;
     requires webfx.stack.com.serial;
@@ -21,7 +21,7 @@ module webfx.stack.com.buscall {
     uses dev.webfx.stack.com.buscall.spi.BusCallEndpoint;
 
     // Provided services
-    provides dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter with dev.webfx.stack.com.buscall.BusCallModuleBooter;
+    provides dev.webfx.platform.boot.spi.ApplicationModuleBooter with dev.webfx.stack.com.buscall.BusCallModuleBooter;
     provides dev.webfx.stack.com.serial.spi.SerialCodec with dev.webfx.stack.com.buscall.BusCallArgument.ProvidedSerialCodec, dev.webfx.stack.com.buscall.BusCallResult.ProvidedSerialCodec, dev.webfx.stack.com.buscall.SerializableAsyncResult.ProvidedSerialCodec;
 
 }
