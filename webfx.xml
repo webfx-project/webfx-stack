@@ -455,8 +455,8 @@
                 <module>webfx-extras-label</module>
                 <module>webfx-extras-materialdesign</module>
                 <module>webfx-extras-type</module>
-                <module>webfx-extras-visual-base</module>
-                <module>webfx-extras-visual-controls-grid</module>
+                <module>webfx-extras-visual</module>
+                <module>webfx-extras-visual-grid</module>
                 <module>webfx-framework-client-controls</module>
                 <module>webfx-framework-client-orm-reactive-entities</module>
                 <module>webfx-framework-client-orm-reactive-visual</module>
@@ -575,7 +575,7 @@
                 <module>webfx-extras-cell</module>
                 <module>webfx-extras-label</module>
                 <module>webfx-extras-type</module>
-                <module>webfx-extras-visual-base</module>
+                <module>webfx-extras-visual</module>
                 <module>webfx-framework-client-i18n</module>
                 <module>webfx-framework-client-orm-reactive-dql</module>
                 <module>webfx-framework-client-orm-reactive-entities</module>
@@ -1427,7 +1427,7 @@
             </java-package>
 
             <java-class name="javafx.scene.control.ScrollPane">
-                <module>webfx-extras-visual-controls-grid</module>
+                <module>webfx-extras-visual-grid</module>
                 <module>webfx-framework-client-controls</module>
                 <module>webfx-framework-client-util</module>
             </java-class>

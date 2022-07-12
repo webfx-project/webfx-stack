@@ -12,8 +12,8 @@ module webfx.framework.client.orm.entity.controls {
     requires webfx.extras.label;
     requires webfx.extras.materialdesign;
     requires webfx.extras.type;
-    requires webfx.extras.visual.base;
-    requires webfx.extras.visual.controls.grid;
+    requires webfx.extras.visual;
+    requires webfx.extras.visual.grid;
     requires webfx.framework.client.controls;
     requires webfx.framework.client.orm.reactive.entities;
     requires webfx.framework.client.orm.reactive.visual;

@@ -8,7 +8,7 @@ module webfx.framework.client.orm.reactive.visual {
     requires webfx.extras.cell;
     requires webfx.extras.label;
     requires webfx.extras.type;
-    requires webfx.extras.visual.base;
+    requires webfx.extras.visual;
     requires webfx.framework.client.i18n;
     requires webfx.framework.client.orm.reactive.dql;
     requires webfx.framework.client.orm.reactive.entities;
