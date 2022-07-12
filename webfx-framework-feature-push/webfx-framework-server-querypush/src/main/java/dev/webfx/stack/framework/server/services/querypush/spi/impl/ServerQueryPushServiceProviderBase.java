@@ -1,5 +1,6 @@
 package dev.webfx.stack.framework.server.services.querypush.spi.impl;
 
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.framework.server.services.push.PushServerService;
 import dev.webfx.stack.framework.server.services.querypush.QueryPushServerService;
 import dev.webfx.stack.framework.shared.services.querypush.PulseArgument;
@@ -9,13 +10,12 @@ import dev.webfx.stack.framework.shared.services.querypush.diff.QueryResultCompa
 import dev.webfx.stack.framework.shared.services.querypush.diff.QueryResultDiff;
 import dev.webfx.stack.framework.shared.services.querypush.spi.QueryPushServiceProvider;
 import dev.webfx.stack.db.datascope.DataScope;
-import dev.webfx.platform.shared.services.log.Logger;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.QueryService;
-import dev.webfx.platform.shared.services.scheduler.Scheduler;
+import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.stack.async.Future;
-import dev.webfx.platform.shared.util.collection.Collections;
+import dev.webfx.platform.util.collection.Collections;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -162,11 +162,11 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
                         long timeSinceCreation = now() - streamInfo.creationTime;
                         if (timeSinceCreation < 1_000)
                             Scheduler.scheduleDelay(100, () -> {
-                                Logger.log("Retrying result push to client " + streamInfo.pushClientId + " since it failed less than 1s after the stream creation (the client push registration may have not been completed)");
+                                Console.log("Retrying result push to client " + streamInfo.pushClientId + " since it failed less than 1s after the stream creation (the client push registration may have not been completed)");
                                 pushResultToClient(streamInfo, queryResult, queryResultDiff);
                             });
                         else {
-                            Logger.log("Result push failed :" + cause.getMessage());
+                            Console.log("Result push failed :" + cause.getMessage());
                             pushedFailed++;
                             removeStream(streamInfo);
                         }
@@ -206,7 +206,7 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
                         sb.append(", failed: ").append(pushedFailed);
                 }
             }
-            Logger.log(sb);
+            Console.log(sb);
         }
 
         protected String finishedStringStart() {
@@ -342,7 +342,7 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
             parentStreamInfo = getStreamInfo(parentQueryStreamId);
             if (parentStreamInfo != null)
                 parentStreamInfo.childrenStreamInfos.add(this);
-            Logger.log(">>> parentStreamInfoId = " + parentQueryStreamId + ", parentStreamInfo " + (parentStreamInfo == null ? "null" : "not null"));
+            Console.log(">>> parentStreamInfoId = " + parentQueryStreamId + ", parentStreamInfo " + (parentStreamInfo == null ? "null" : "not null"));
             active = arg.getActive();
             close = arg.getClose();
             setStreamQueryArgument(this, arg.getQueryArgument());

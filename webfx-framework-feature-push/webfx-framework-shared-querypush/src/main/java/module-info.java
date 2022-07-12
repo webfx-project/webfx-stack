@@ -4,8 +4,8 @@ module webfx.framework.shared.querypush {
 
     // Direct dependencies modules
     requires java.base;
-    requires webfx.platform.shared.log;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.console;
+    requires webfx.platform.util;
     requires webfx.stack.async;
     requires webfx.stack.com.buscall;
     requires webfx.stack.com.serial;

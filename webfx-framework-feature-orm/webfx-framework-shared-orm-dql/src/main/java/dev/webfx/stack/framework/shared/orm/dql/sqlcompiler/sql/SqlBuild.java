@@ -7,8 +7,8 @@ import dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.sql.dbms.HsqlSyntax;
 import dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.terms.Options;
 import dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.mapping.QueryColumnToEntityFieldMapping;
 import dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.mapping.QueryRowToEntityMapping;
-import dev.webfx.platform.shared.util.Numbers;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Numbers;
+import dev.webfx.platform.util.Strings;
 
 import java.util.ArrayList;
 import java.util.HashMap;

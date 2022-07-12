@@ -8,7 +8,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import dev.webfx.stack.framework.client.ui.action.Action;
-import dev.webfx.platform.shared.util.Arrays;
+import dev.webfx.platform.util.Arrays;
 
 /**
  * An writable action where properties (text, graphic, disabled, visible) can be set later (ie after constructor call)

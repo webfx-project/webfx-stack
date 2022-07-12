@@ -5,8 +5,10 @@
 
 package dev.webfx.stack.framework.shared.orm.expression.parser.javacup;
 
+import java_cup.runtime.lr_parser;
 import dev.webfx.stack.framework.shared.orm.expression.builder.terms.*;
-import dev.webfx.platform.shared.util.Numbers;
+import dev.webfx.platform.util.Numbers;
+import java_cup.runtime.XMLElement;
 
 /** CUP v0.11b 20160615 (GIT 4ac7450) generated parser.
   */

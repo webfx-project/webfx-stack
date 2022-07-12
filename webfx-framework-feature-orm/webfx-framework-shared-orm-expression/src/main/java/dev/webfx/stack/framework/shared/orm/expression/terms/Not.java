@@ -4,7 +4,7 @@ import dev.webfx.stack.framework.shared.orm.expression.Expression;
 import dev.webfx.stack.framework.shared.orm.expression.lci.DomainReader;
 import dev.webfx.extras.type.PrimType;
 import dev.webfx.extras.type.Type;
-import dev.webfx.platform.shared.util.Booleans;
+import dev.webfx.platform.util.Booleans;
 
 /**
  * @author Bruno Salmon

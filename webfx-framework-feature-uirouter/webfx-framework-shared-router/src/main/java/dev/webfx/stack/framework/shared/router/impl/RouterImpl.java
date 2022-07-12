@@ -1,10 +1,10 @@
 package dev.webfx.stack.framework.shared.router.impl;
 
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.platform.json.JsonObject;
 import dev.webfx.stack.framework.shared.router.Route;
 import dev.webfx.stack.framework.shared.router.Router;
 import dev.webfx.stack.framework.shared.router.RoutingContext;
-import dev.webfx.platform.shared.services.log.Logger;
 import dev.webfx.stack.async.Handler;
 
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ public final class RouterImpl implements Router {
 
     @Override
     public void accept(String path, JsonObject state) {
-        Logger.log("Routing " + path);
+        Console.log("Routing " + path);
         new RoutingContextImpl(null, this, path, routes, state).next();
     }
 

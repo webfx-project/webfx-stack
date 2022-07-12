@@ -1,6 +1,6 @@
 package dev.webfx.stack.framework.client.operations.i18n;
 
-import dev.webfx.platform.shared.util.function.Factory;
+import dev.webfx.platform.util.function.Factory;
 
 /**
  * @author Bruno Salmon

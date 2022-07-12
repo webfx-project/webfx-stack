@@ -19,11 +19,11 @@ import dev.webfx.stack.framework.client.ui.util.scene.SceneUtil;
 import dev.webfx.extras.materialdesign.textfield.MaterialTextFieldPane;
 import dev.webfx.stack.framework.client.ui.util.border.BorderFactory;
 import dev.webfx.kit.util.properties.Properties;
-import dev.webfx.platform.client.services.uischeduler.AnimationFramePass;
-import dev.webfx.platform.client.services.uischeduler.UiScheduler;
-import dev.webfx.platform.shared.services.scheduler.Scheduled;
-import dev.webfx.platform.shared.services.scheduler.Scheduler;
-import dev.webfx.platform.shared.util.function.Callable;
+import dev.webfx.platform.uischeduler.AnimationFramePass;
+import dev.webfx.platform.uischeduler.UiScheduler;
+import dev.webfx.platform.scheduler.Scheduled;
+import dev.webfx.platform.scheduler.Scheduler;
+import dev.webfx.platform.util.function.Callable;
 
 import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 import static dev.webfx.stack.framework.client.ui.util.layout.LayoutUtil.*;

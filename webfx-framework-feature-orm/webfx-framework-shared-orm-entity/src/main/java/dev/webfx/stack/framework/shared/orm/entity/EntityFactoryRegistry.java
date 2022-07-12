@@ -1,6 +1,6 @@
 package dev.webfx.stack.framework.shared.orm.entity;
 
-import dev.webfx.platform.shared.services.log.Logger;
+import dev.webfx.platform.console.Console;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,7 +22,7 @@ public final class EntityFactoryRegistry {
                 sb.append(", ");
             sb.append(entityFactoryProvider.domainClassId());
         }
-        Logger.log(factories.size() + " entity factories provided for: " + sb);
+        Console.log(factories.size() + " entity factories provided for: " + sb);
     }
 
     public static <E extends Entity> void registerEntityFactory(EntityFactoryProvider<E> entityFactoryProvider) {

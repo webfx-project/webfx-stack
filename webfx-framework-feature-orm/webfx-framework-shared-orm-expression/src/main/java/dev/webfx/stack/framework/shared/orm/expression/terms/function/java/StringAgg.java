@@ -4,7 +4,7 @@ import dev.webfx.stack.framework.shared.orm.expression.Expression;
 import dev.webfx.stack.framework.shared.orm.expression.lci.DomainReader;
 import dev.webfx.stack.framework.shared.orm.expression.terms.ExpressionArray;
 import dev.webfx.extras.type.PrimType;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Strings;
 import dev.webfx.stack.framework.shared.orm.expression.terms.function.SqlAggregateFunction;
 
 /**

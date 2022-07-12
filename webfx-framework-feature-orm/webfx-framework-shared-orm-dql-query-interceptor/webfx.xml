@@ -11,7 +11,7 @@
     </exported-packages>
 
     <providers>
-        <provider interface="dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter">dev.webfx.stack.framework.shared.interceptors.dqlquery.DqlQueryInterceptorModuleBooter</provider>
+        <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.framework.shared.interceptors.dqlquery.DqlQueryInterceptorModuleBooter</provider>
     </providers>
 
     <dependencies>

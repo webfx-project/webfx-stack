@@ -6,8 +6,8 @@ import dev.webfx.stack.framework.shared.orm.expression.terms.function.Call;
 import dev.webfx.stack.framework.shared.orm.domainmodel.DomainClass;
 import dev.webfx.stack.framework.shared.orm.domainmodel.DomainModel;
 import dev.webfx.stack.framework.shared.orm.entity.lciimpl.EntityDomainReader;
-import dev.webfx.platform.shared.util.Booleans;
-import dev.webfx.platform.shared.util.collection.Collections;
+import dev.webfx.platform.util.Booleans;
+import dev.webfx.platform.util.collection.Collections;
 import java.util.function.Predicate;
 
 import java.util.List;

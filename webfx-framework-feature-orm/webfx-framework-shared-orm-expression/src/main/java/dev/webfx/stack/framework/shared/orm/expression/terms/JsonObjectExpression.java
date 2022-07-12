@@ -7,8 +7,8 @@ import dev.webfx.stack.framework.shared.orm.expression.lci.DomainReader;
 import dev.webfx.stack.platform.json.Json;
 import dev.webfx.stack.platform.json.JsonObject;
 import dev.webfx.stack.platform.json.WritableJsonObject;
-import dev.webfx.platform.shared.util.noreflect.IndexedArray;
-import dev.webfx.platform.shared.util.noreflect.KeyObject;
+import dev.webfx.platform.util.noreflect.IndexedArray;
+import dev.webfx.platform.util.noreflect.KeyObject;
 
 // TODO: remove platform dependency
 

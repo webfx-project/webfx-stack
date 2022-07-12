@@ -16,8 +16,8 @@ module webfx.framework.client.controls {
     requires webfx.framework.client.util;
     requires webfx.framework.client.validation;
     requires webfx.kit.util;
-    requires webfx.platform.client.uischeduler;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.uischeduler;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.stack.framework.client.ui.controls;

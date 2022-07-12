@@ -20,8 +20,8 @@ import dev.webfx.stack.framework.shared.orm.domainmodel.formatter.ValueFormatter
 import dev.webfx.stack.framework.shared.orm.domainmodel.formatter.ValueParser;
 import dev.webfx.stack.framework.shared.orm.entity.Entity;
 import dev.webfx.stack.framework.shared.orm.expression.Expression;
-import dev.webfx.platform.client.services.uischeduler.UiScheduler;
-import dev.webfx.platform.shared.util.Arrays;
+import dev.webfx.platform.uischeduler.UiScheduler;
+import dev.webfx.platform.util.Arrays;
 
 import java.util.ArrayList;
 import java.util.List;

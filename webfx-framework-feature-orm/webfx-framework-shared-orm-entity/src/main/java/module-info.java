@@ -8,8 +8,8 @@ module webfx.framework.shared.orm.entity {
     requires webfx.framework.shared.orm.domainmodel;
     requires webfx.framework.shared.orm.dql;
     requires webfx.framework.shared.orm.expression;
-    requires webfx.platform.shared.log;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.console;
+    requires webfx.platform.util;
     requires webfx.stack.async;
     requires webfx.stack.db.datascope;
     requires webfx.stack.db.query;

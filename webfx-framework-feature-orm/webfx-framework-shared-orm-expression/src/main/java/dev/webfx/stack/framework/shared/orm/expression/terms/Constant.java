@@ -4,7 +4,7 @@ import dev.webfx.extras.type.Type;
 import dev.webfx.extras.type.Types;
 import dev.webfx.stack.framework.shared.orm.expression.CollectOptions;
 import dev.webfx.stack.framework.shared.orm.expression.lci.DomainReader;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Strings;
 
 import java.util.Date;
 import java.util.HashMap;

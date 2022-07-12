@@ -7,7 +7,7 @@ module webfx.framework.client.orm.domainmodel.activity {
     requires webfx.framework.client.activity;
     requires webfx.framework.client.uirouter;
     requires webfx.framework.shared.orm.domainmodel;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.stack.framework.client.activity.impl.combinations.domainpresentation;

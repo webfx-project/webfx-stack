@@ -1,7 +1,7 @@
 package dev.webfx.stack.framework.shared.orm.expression.builder;
 
 import dev.webfx.stack.framework.shared.orm.expression.parser.lci.ParserDomainModelReader;
-import dev.webfx.platform.shared.util.function.Callable;
+import dev.webfx.platform.util.function.Callable;
 
 /**
  * @author Bruno Salmon

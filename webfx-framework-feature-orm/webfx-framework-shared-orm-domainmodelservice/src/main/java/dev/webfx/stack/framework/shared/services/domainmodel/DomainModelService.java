@@ -3,7 +3,7 @@ package dev.webfx.stack.framework.shared.services.domainmodel;
 import dev.webfx.stack.framework.shared.orm.domainmodel.DomainModel;
 import dev.webfx.stack.framework.shared.services.domainmodel.spi.DomainModelProvider;
 import dev.webfx.stack.async.Future;
-import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;
 

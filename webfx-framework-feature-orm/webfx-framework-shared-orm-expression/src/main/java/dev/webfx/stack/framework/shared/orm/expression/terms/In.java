@@ -2,7 +2,7 @@ package dev.webfx.stack.framework.shared.orm.expression.terms;
 
 import dev.webfx.stack.framework.shared.orm.expression.Expression;
 import dev.webfx.stack.framework.shared.orm.expression.lci.DomainReader;
-import dev.webfx.platform.shared.util.Arrays;
+import dev.webfx.platform.util.Arrays;
 
 import java.util.Collection;
 

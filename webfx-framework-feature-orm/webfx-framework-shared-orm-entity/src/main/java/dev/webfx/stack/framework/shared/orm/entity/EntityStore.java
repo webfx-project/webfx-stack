@@ -13,7 +13,7 @@ import dev.webfx.stack.framework.shared.orm.entity.lciimpl.EntityDomainWriter;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.QueryService;
-import dev.webfx.platform.shared.util.Arrays;
+import dev.webfx.platform.util.Arrays;
 import dev.webfx.stack.async.Batch;
 import dev.webfx.stack.async.Future;
 

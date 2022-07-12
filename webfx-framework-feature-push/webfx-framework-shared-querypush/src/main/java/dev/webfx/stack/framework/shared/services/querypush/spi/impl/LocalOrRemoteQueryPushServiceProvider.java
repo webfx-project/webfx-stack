@@ -1,5 +1,6 @@
 package dev.webfx.stack.framework.shared.services.querypush.spi.impl;
 
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.framework.shared.services.querypush.PulseArgument;
 import dev.webfx.stack.framework.shared.services.querypush.QueryPushArgument;
 import dev.webfx.stack.framework.shared.services.querypush.QueryPushResult;
@@ -7,7 +8,6 @@ import dev.webfx.stack.framework.shared.services.querypush.QueryPushService;
 import dev.webfx.stack.framework.shared.services.querypush.spi.QueryPushServiceProvider;
 import dev.webfx.stack.db.datasource.LocalDataSource;
 import dev.webfx.stack.com.buscall.BusCallService;
-import dev.webfx.platform.shared.services.log.Logger;
 import dev.webfx.stack.async.Future;
 
 import java.util.ArrayList;
@@ -99,7 +99,7 @@ public class LocalOrRemoteQueryPushServiceProvider implements QueryPushServicePr
             else if (consumerRegistrationPendingCalls > 0) // Consumer not found but this may be because this result has been received before the registration call returns
                 withNoConsumerReceivedResults.add(qpr); // we will retry on next registration call return (see executeRemoteQueryPush)
             else // Definitely no consumer registered along that queryStreamId
-                Logger.log("QueryPushResult received with unregistered queryStreamId = " + qpr.getQueryStreamId());
+                Console.log("QueryPushResult received with unregistered queryStreamId = " + qpr.getQueryStreamId());
         }
     }
 }

@@ -7,8 +7,8 @@ import dev.webfx.stack.framework.client.services.i18n.Dictionary;
 import dev.webfx.stack.framework.client.services.i18n.I18nPart;
 import dev.webfx.stack.framework.client.services.i18n.spi.HasDictionaryMessageKey;
 import dev.webfx.stack.framework.client.services.i18n.spi.I18nProvider;
-import dev.webfx.platform.client.services.uischeduler.UiScheduler;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.uischeduler.UiScheduler;
+import dev.webfx.platform.util.Strings;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;

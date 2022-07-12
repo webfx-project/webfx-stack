@@ -2,7 +2,7 @@ package dev.webfx.stack.framework.client.orm.reactive.call;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import dev.webfx.platform.shared.services.log.Logger;
+import dev.webfx.platform.console.Console;
 
 import java.util.function.Supplier;
 
@@ -125,6 +125,6 @@ public class SwitchableReactiveCall<A,R> extends ReactiveCall<A, R> {
     @Override
     protected void fireCall() {
         // Ignoring all calls at that level as they are all delegated through binding
-        Logger.log("fireCall() called in SwitchableReactiveCall!!!");
+        Console.log("fireCall() called in SwitchableReactiveCall!!!");
     }
 }

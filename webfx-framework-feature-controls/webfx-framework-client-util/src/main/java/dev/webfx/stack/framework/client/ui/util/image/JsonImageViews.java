@@ -1,7 +1,7 @@
 package dev.webfx.stack.framework.client.ui.util.image;
 
 import javafx.scene.image.ImageView;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Strings;
 import dev.webfx.extras.imagestore.ImageStore;
 import dev.webfx.stack.platform.json.Json;
 import dev.webfx.stack.platform.json.JsonObject;

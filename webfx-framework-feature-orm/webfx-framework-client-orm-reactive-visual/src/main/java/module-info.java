@@ -15,7 +15,7 @@ module webfx.framework.client.orm.reactive.visual {
     requires webfx.framework.shared.orm.domainmodel;
     requires webfx.framework.shared.orm.entity;
     requires webfx.framework.shared.orm.expression;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.util;
     requires webfx.stack.platform.json;
 
     // Exported packages

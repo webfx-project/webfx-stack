@@ -1,7 +1,7 @@
 package dev.webfx.stack.framework.shared.orm.expression.terms;
 
 import dev.webfx.stack.framework.shared.orm.expression.Expression;
-import dev.webfx.platform.shared.util.Objects;
+import dev.webfx.platform.util.Objects;
 
 /**
  * @author Bruno Salmon

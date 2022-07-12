@@ -7,7 +7,7 @@
 
     <providers>
         <provider interface="dev.webfx.stack.framework.shared.services.querypush.spi.QueryPushServiceProvider">dev.webfx.stack.framework.client.jobs.querypush.QueryPushClientServiceProvider</provider>
-        <provider interface="dev.webfx.platform.shared.services.boot.spi.ApplicationJob">dev.webfx.stack.framework.client.jobs.querypush.QueryPushClientJob</provider>
+        <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.framework.client.jobs.querypush.QueryPushClientJob</provider>
     </providers>
 
     <dependencies>

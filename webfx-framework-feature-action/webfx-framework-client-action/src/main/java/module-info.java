@@ -10,7 +10,7 @@ module webfx.framework.client.action {
     requires webfx.framework.client.i18n;
     requires webfx.framework.client.util;
     requires webfx.kit.util;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.stack.framework.client.ui.action;

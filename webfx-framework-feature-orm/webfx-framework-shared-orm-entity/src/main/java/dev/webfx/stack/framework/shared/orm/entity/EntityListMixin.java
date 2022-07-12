@@ -1,6 +1,6 @@
 package dev.webfx.stack.framework.shared.orm.entity;
 
-import dev.webfx.platform.shared.util.collection.ListMixin;
+import dev.webfx.platform.util.collection.ListMixin;
 import dev.webfx.stack.framework.shared.orm.expression.Expression;
 
 /**

@@ -8,7 +8,7 @@ import dev.webfx.stack.framework.shared.orm.expression.parser.lci.ParserDomainMo
 import dev.webfx.stack.framework.shared.orm.expression.parser.ExpressionParser;
 import dev.webfx.stack.framework.shared.orm.expression.terms.ExpressionArray;
 import dev.webfx.extras.type.Type;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Strings;
 
 import java.util.HashMap;
 import java.util.Map;

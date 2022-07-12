@@ -12,9 +12,9 @@ module webfx.framework.client.uirouter {
     requires webfx.framework.shared.router;
     requires webfx.kit.launcher;
     requires webfx.kit.util;
-    requires webfx.platform.client.uischeduler;
-    requires webfx.platform.shared.log;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.console;
+    requires webfx.platform.uischeduler;
+    requires webfx.platform.util;
     requires webfx.stack.async;
     requires webfx.stack.platform.json;
     requires webfx.stack.platform.windowhistory;

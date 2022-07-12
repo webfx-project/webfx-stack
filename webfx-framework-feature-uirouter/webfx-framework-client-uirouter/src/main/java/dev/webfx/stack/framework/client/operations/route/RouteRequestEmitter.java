@@ -2,7 +2,7 @@ package dev.webfx.stack.framework.client.operations.route;
 
 import dev.webfx.stack.framework.client.activity.impl.elementals.uiroute.UiRouteActivityContext;
 import dev.webfx.stack.framework.shared.router.auth.authz.RouteRequest;
-import dev.webfx.platform.shared.util.collection.Collections;
+import dev.webfx.platform.util.collection.Collections;
 
 import java.util.Collection;
 import java.util.ServiceLoader;

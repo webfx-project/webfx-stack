@@ -4,11 +4,11 @@ import dev.webfx.stack.framework.client.orm.reactive.dql.statement.conventions.*
 import dev.webfx.stack.framework.shared.orm.dql.DqlStatement;
 import dev.webfx.stack.framework.shared.orm.dql.DqlStatementBuilder;
 import dev.webfx.kit.util.properties.Properties;
-import dev.webfx.platform.client.services.uischeduler.UiScheduler;
+import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.stack.platform.json.JsonObject;
-import dev.webfx.platform.shared.util.Numbers;
-import dev.webfx.platform.shared.util.Strings;
-import dev.webfx.platform.shared.util.function.Converter;
+import dev.webfx.platform.util.Numbers;
+import dev.webfx.platform.util.Strings;
+import dev.webfx.platform.util.function.Converter;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;

@@ -5,7 +5,7 @@ import dev.webfx.stack.framework.shared.orm.entity.Entity;
 import dev.webfx.stack.framework.shared.orm.entity.EntityId;
 import dev.webfx.stack.framework.shared.orm.entity.EntityStore;
 import dev.webfx.stack.framework.shared.orm.entity.UpdateStore;
-import dev.webfx.platform.shared.services.log.Logger;
+import dev.webfx.platform.console.Console;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -65,7 +65,7 @@ public class DynamicEntity implements Entity {
             foreignEntityId = entity.getId();
             if (entity.getStore() != store && store.getEntity(foreignEntityId) == null) {
                 store.copyEntity(entity);
-                Logger.log("Warning: this foreign entity has been copied into the store otherwise it was not accessible: " + entity);
+                Console.log("Warning: this foreign entity has been copied into the store otherwise it was not accessible: " + entity);
             }
         } else {
             Object foreignClass = getDomainClass().getForeignClass(foreignFieldId);

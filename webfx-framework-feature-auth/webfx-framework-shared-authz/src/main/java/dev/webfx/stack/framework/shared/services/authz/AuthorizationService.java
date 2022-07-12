@@ -2,7 +2,7 @@ package dev.webfx.stack.framework.shared.services.authz;
 
 import dev.webfx.stack.framework.shared.services.authz.spi.AuthorizationServiceProvider;
 import dev.webfx.stack.async.Future;
-import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;
 

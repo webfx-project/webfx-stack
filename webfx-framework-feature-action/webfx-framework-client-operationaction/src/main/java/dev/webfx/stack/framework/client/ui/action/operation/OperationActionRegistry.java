@@ -9,7 +9,7 @@ import dev.webfx.stack.framework.client.ui.action.Action;
 import dev.webfx.stack.framework.client.ui.action.ActionBinder;
 import dev.webfx.stack.framework.shared.operation.HasOperationCode;
 import dev.webfx.stack.framework.shared.services.authz.mixin.AuthorizationUtil;
-import dev.webfx.platform.client.services.uischeduler.UiScheduler;
+import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.stack.async.AsyncFunction;
 import dev.webfx.stack.async.Future;
 

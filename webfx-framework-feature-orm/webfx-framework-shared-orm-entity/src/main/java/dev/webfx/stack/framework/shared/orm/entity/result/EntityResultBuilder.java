@@ -2,7 +2,7 @@ package dev.webfx.stack.framework.shared.orm.entity.result;
 
 import dev.webfx.stack.framework.shared.orm.entity.EntityId;
 import dev.webfx.stack.framework.shared.orm.entity.result.impl.EntityResultImpl;
-import dev.webfx.platform.shared.util.collection.HashList;
+import dev.webfx.platform.util.collection.HashList;
 
 import java.util.ArrayList;
 import java.util.HashMap;

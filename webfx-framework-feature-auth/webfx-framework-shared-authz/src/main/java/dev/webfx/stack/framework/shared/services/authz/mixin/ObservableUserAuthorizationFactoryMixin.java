@@ -2,7 +2,7 @@ package dev.webfx.stack.framework.shared.services.authz.mixin;
 
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
-import dev.webfx.platform.shared.util.function.Factory;
+import dev.webfx.platform.util.function.Factory;
 
 /**
  * @author Bruno Salmon

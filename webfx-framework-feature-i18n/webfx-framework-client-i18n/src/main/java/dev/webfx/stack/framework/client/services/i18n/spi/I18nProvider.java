@@ -9,7 +9,7 @@ import javafx.scene.image.ImageView;
 import dev.webfx.stack.framework.client.operations.i18n.ChangeLanguageRequestEmitter;
 import dev.webfx.stack.framework.client.services.i18n.Dictionary;
 import dev.webfx.stack.framework.client.services.i18n.I18nPart;
-import dev.webfx.platform.shared.util.collection.Collections;
+import dev.webfx.platform.util.collection.Collections;
 
 import java.util.Collection;
 import java.util.ServiceLoader;

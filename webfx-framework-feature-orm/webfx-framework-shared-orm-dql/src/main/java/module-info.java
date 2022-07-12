@@ -6,7 +6,7 @@ module webfx.framework.shared.orm.dql {
     requires java.base;
     requires webfx.extras.type;
     requires webfx.framework.shared.orm.expression;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.util;
     requires webfx.stack.platform.json;
 
     // Exported packages

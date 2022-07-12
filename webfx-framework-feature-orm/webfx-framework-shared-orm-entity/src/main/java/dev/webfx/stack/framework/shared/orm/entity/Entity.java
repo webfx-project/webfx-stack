@@ -5,10 +5,10 @@ import dev.webfx.stack.framework.shared.orm.domainmodel.DomainField;
 import dev.webfx.stack.framework.shared.orm.expression.Expression;
 import dev.webfx.stack.framework.shared.orm.expression.terms.Dot;
 import dev.webfx.stack.framework.shared.orm.expression.terms.ExpressionArray;
-import dev.webfx.platform.shared.util.Booleans;
-import dev.webfx.platform.shared.util.Dates;
-import dev.webfx.platform.shared.util.Numbers;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Booleans;
+import dev.webfx.platform.util.Dates;
+import dev.webfx.platform.util.Numbers;
+import dev.webfx.platform.util.Strings;
 import dev.webfx.stack.async.Future;
 
 import java.time.Instant;

@@ -5,7 +5,7 @@ import dev.webfx.stack.async.AsyncResult;
 import dev.webfx.stack.async.Future;
 import dev.webfx.stack.async.Handler;
 import dev.webfx.stack.async.Promise;
-import dev.webfx.platform.shared.util.function.Factory;
+import dev.webfx.platform.util.function.Factory;
 
 /**
  * @author Bruno Salmon

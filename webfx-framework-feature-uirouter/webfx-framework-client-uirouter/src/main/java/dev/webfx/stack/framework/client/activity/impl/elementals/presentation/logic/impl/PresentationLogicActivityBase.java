@@ -4,7 +4,7 @@ import dev.webfx.stack.framework.client.activity.impl.elementals.presentation.lo
 import dev.webfx.stack.framework.client.activity.impl.elementals.presentation.logic.PresentationLogicActivityContext;
 import dev.webfx.stack.framework.client.activity.impl.elementals.presentation.logic.PresentationLogicActivityContextMixin;
 import dev.webfx.stack.framework.client.activity.impl.elementals.uiroute.impl.UiRouteActivityBase;
-import dev.webfx.platform.shared.util.function.Factory;
+import dev.webfx.platform.util.function.Factory;
 
 /**
  * @author Bruno Salmon

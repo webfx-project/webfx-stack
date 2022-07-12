@@ -3,7 +3,7 @@ package dev.webfx.stack.framework.client.ui.util.layout;
 import dev.webfx.stack.framework.client.ui.util.background.BackgroundFactory;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.kit.util.properties.Properties;
-import dev.webfx.platform.shared.util.Numbers;
+import dev.webfx.platform.util.Numbers;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;

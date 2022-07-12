@@ -1,7 +1,7 @@
 package dev.webfx.stack.framework.client.services.i18n.spi.impl.json;
 
 import dev.webfx.stack.framework.client.services.i18n.I18nPart;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Strings;
 import dev.webfx.stack.framework.client.services.i18n.Dictionary;
 import dev.webfx.stack.platform.json.Json;
 import dev.webfx.stack.platform.json.JsonObject;

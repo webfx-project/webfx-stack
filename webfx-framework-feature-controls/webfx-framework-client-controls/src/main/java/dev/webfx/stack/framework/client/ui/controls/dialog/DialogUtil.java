@@ -14,9 +14,9 @@ import dev.webfx.stack.framework.client.ui.controls.alert.AlertUtil;
 import dev.webfx.stack.framework.client.ui.util.layout.LayoutUtil;
 import dev.webfx.stack.framework.client.ui.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.Properties;
-import dev.webfx.platform.client.services.uischeduler.UiScheduler;
-import dev.webfx.platform.shared.util.Booleans;
-import dev.webfx.platform.shared.util.collection.Collections;
+import dev.webfx.platform.uischeduler.UiScheduler;
+import dev.webfx.platform.util.Booleans;
+import dev.webfx.platform.util.collection.Collections;
 import java.util.function.Consumer;
 
 import java.util.ArrayList;

@@ -7,7 +7,7 @@ import dev.webfx.stack.framework.shared.orm.expression.lci.DomainReader;
 import dev.webfx.stack.framework.shared.orm.expression.terms.ExpressionArray;
 import dev.webfx.stack.framework.shared.orm.expression.terms.Ordered;
 import dev.webfx.stack.framework.shared.orm.expression.terms.UnaryExpression;
-import dev.webfx.platform.shared.util.Arrays;
+import dev.webfx.platform.util.Arrays;
 
 import java.util.List;
 

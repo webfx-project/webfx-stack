@@ -12,11 +12,11 @@ import dev.webfx.stack.framework.shared.services.querypush.QueryPushArgument;
 import dev.webfx.stack.framework.shared.services.querypush.spi.QueryPushServiceProvider;
 import dev.webfx.stack.db.datascope.schema.SchemaScope;
 import dev.webfx.stack.db.datascope.schema.SchemaScopeBuilder;
-import dev.webfx.platform.shared.services.boot.spi.ApplicationModuleBooter;
+import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
 import dev.webfx.stack.db.datasource.LocalDataSourceService;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.async.Future;
-import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 /**
  * @author Bruno Salmon

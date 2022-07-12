@@ -6,7 +6,7 @@ import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableStringValue;
 import dev.webfx.stack.framework.client.operations.i18n.ChangeLanguageRequestEmitter;
 import dev.webfx.stack.framework.client.services.i18n.spi.I18nProvider;
-import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 import java.util.Collection;
 import java.util.ServiceLoader;

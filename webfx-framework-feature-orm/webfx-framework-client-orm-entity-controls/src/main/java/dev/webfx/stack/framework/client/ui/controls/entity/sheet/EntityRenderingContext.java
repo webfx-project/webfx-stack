@@ -6,7 +6,7 @@ import dev.webfx.stack.framework.shared.orm.domainmodel.DomainClass;
 import dev.webfx.stack.framework.shared.orm.entity.EntityStore;
 import dev.webfx.stack.framework.client.ui.controls.button.ButtonFactoryMixin;
 import dev.webfx.extras.cell.renderer.ValueRenderingContext;
-import dev.webfx.platform.shared.util.function.Callable;
+import dev.webfx.platform.util.function.Callable;
 
 /**
  * @author Bruno Salmon

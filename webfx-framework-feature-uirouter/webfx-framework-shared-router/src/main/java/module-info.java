@@ -5,8 +5,8 @@ module webfx.framework.shared.router {
     // Direct dependencies modules
     requires java.base;
     requires webfx.framework.shared.authz;
-    requires webfx.platform.shared.log;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.console;
+    requires webfx.platform.util;
     requires webfx.stack.async;
     requires webfx.stack.platform.json;
 

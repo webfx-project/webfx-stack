@@ -12,7 +12,7 @@ import dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.sql.SqlCompiled;
 import dev.webfx.stack.framework.shared.orm.expression.builder.ReferenceResolver;
 import dev.webfx.stack.db.datascope.aggregate.AggregateScope;
 import dev.webfx.stack.db.query.QueryResult;
-import dev.webfx.platform.shared.util.function.Converter;
+import dev.webfx.platform.util.function.Converter;
 
 /**
  * @author Bruno Salmon

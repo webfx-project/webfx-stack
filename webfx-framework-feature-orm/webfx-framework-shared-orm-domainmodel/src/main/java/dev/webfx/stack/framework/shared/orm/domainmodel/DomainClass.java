@@ -5,7 +5,7 @@ import dev.webfx.stack.framework.shared.orm.expression.parser.ExpressionParser;
 import dev.webfx.stack.framework.shared.orm.expression.terms.ExpressionArray;
 import dev.webfx.extras.label.HasLabel;
 import dev.webfx.extras.label.Label;
-import dev.webfx.platform.shared.util.Booleans;
+import dev.webfx.platform.util.Booleans;
 
 import java.util.Map;
 

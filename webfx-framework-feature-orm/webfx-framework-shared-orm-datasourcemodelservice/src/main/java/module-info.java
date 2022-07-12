@@ -5,7 +5,7 @@ module webfx.framework.shared.orm.datasourcemodelservice {
     // Direct dependencies modules
     requires java.base;
     requires webfx.framework.shared.orm.domainmodel;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.util;
     requires webfx.stack.async;
 
     // Exported packages

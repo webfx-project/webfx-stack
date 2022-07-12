@@ -13,7 +13,7 @@ import javafx.scene.layout.Pane;
 import dev.webfx.stack.framework.client.ui.action.impl.WritableAction;
 import dev.webfx.kit.util.properties.ObservableLists;
 import dev.webfx.kit.util.properties.Properties;
-import dev.webfx.platform.shared.util.function.Converter;
+import dev.webfx.platform.util.function.Converter;
 
 import java.util.Collection;
 

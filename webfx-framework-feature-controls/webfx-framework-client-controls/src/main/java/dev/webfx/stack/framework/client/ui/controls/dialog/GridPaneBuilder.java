@@ -13,8 +13,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Font;
 import dev.webfx.stack.framework.client.services.i18n.I18nControls;
-import dev.webfx.platform.shared.util.collection.Collections;
-import dev.webfx.platform.shared.util.tuples.Pair;
+import dev.webfx.platform.util.collection.Collections;
+import dev.webfx.platform.util.tuples.Pair;
 
 import java.util.ArrayList;
 import java.util.List;

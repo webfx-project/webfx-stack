@@ -2,7 +2,7 @@ package dev.webfx.stack.framework.shared.orm.expression.parser.javacup;
 
 import java_cup.runtime.lr_parser;
 import dev.webfx.stack.framework.shared.orm.expression.builder.terms.*;
-import dev.webfx.platform.shared.util.Numbers;
+import dev.webfx.platform.util.Numbers;
 
 /* ----------------------Preliminary Declarations Section--------------------*/
    

@@ -3,7 +3,7 @@ package dev.webfx.stack.framework.client.ui.uirouter;
 import dev.webfx.stack.platform.windowhistory.spi.BrowsingHistory;
 import dev.webfx.stack.platform.windowhistory.spi.BrowsingHistoryLocation;
 import dev.webfx.stack.framework.shared.router.Router;
-import dev.webfx.platform.shared.services.log.Logger;
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.async.Handler;
 
 /**
@@ -22,7 +22,7 @@ public class HistoryRouter {
         router.exceptionHandler(new Handler<Throwable>() {
             @Override
             public void handle(Throwable throwable) {
-                Logger.log("Path not found", throwable);
+                Console.log("Path not found", throwable);
                 router.exceptionHandler(null); // removing the handler to avoid an infinite recursion if the default path can't be found
                 replaceCurrentHistoryWithInitialDefaultPath();
                 router.exceptionHandler(this); // restoring the handler

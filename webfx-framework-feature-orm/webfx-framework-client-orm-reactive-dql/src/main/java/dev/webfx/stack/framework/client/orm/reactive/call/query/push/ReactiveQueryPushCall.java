@@ -9,7 +9,7 @@ import dev.webfx.stack.framework.shared.services.querypush.QueryPushArgument;
 import dev.webfx.stack.framework.shared.services.querypush.QueryPushResult;
 import dev.webfx.stack.framework.shared.services.querypush.QueryPushService;
 import dev.webfx.stack.framework.shared.services.querypush.diff.QueryResultDiff;
-import dev.webfx.platform.shared.services.log.Logger;
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
 
@@ -137,7 +137,7 @@ public final class ReactiveQueryPushCall extends ReactiveQueryCall {
                 fireCallWhenReady(); // This will trigger an new pass (when active) leading to a new call to the query push service
             } else {
                 resend = false;
-                Logger.log("Ok " + ar.result());
+                Console.log("Ok " + ar.result());
                 if (lostConnection || queryStreamId == null) {
                     lostConnection = false;
                     refreshChildren = true;

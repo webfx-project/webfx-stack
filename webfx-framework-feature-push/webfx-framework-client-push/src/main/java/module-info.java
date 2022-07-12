@@ -6,8 +6,8 @@ module webfx.framework.client.push {
     requires java.base;
     requires javafx.base;
     requires webfx.framework.shared.push;
-    requires webfx.platform.shared.log;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.console;
+    requires webfx.platform.util;
     requires webfx.stack.com.bus;
     requires webfx.stack.com.buscall;
 

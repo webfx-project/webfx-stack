@@ -1,6 +1,6 @@
 package dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.mapping;
 
-import dev.webfx.platform.shared.util.Arrays;
+import dev.webfx.platform.util.Arrays;
 
 /**
  * Mapping between the query row and an entity

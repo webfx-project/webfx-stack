@@ -6,8 +6,8 @@ module webfx.framework.shared.orm.expression {
     requires java.base;
     requires webfx.extras.type;
     requires webfx.lib.javacupruntime;
-    requires webfx.platform.shared.log;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.console;
+    requires webfx.platform.util;
     requires webfx.stack.platform.json;
 
     // Exported packages

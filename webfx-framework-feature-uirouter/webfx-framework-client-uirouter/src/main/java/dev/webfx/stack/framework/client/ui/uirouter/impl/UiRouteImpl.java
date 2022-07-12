@@ -5,8 +5,8 @@ import dev.webfx.stack.framework.shared.router.RoutingContext;
 import dev.webfx.stack.framework.client.ui.uirouter.UiRoute;
 import dev.webfx.stack.framework.client.activity.Activity;
 import dev.webfx.stack.framework.client.activity.ActivityContextFactory;
-import dev.webfx.platform.shared.util.function.Converter;
-import dev.webfx.platform.shared.util.function.Factory;
+import dev.webfx.platform.util.function.Converter;
+import dev.webfx.platform.util.function.Factory;
 
 /**
  * @author Bruno Salmon

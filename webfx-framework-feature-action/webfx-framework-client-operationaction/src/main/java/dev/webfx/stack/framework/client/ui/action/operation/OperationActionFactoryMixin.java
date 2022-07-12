@@ -10,7 +10,7 @@ import dev.webfx.stack.framework.shared.operation.HasOperationExecutor;
 import dev.webfx.stack.framework.shared.operation.OperationUtil;
 import dev.webfx.stack.async.AsyncFunction;
 import dev.webfx.stack.async.Future;
-import dev.webfx.platform.shared.util.function.Factory;
+import dev.webfx.platform.util.function.Factory;
 
 import java.util.function.Function;
 

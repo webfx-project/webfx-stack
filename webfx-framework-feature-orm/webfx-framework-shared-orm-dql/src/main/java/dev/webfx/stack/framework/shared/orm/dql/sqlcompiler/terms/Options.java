@@ -3,7 +3,7 @@ package dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.terms;
 import dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.lci.CompilerDomainModelReader;
 import dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.sql.SqlBuild;
 import dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.sql.SqlClause;
-import dev.webfx.platform.shared.util.Objects;
+import dev.webfx.platform.util.Objects;
 
 /**
  * @author Bruno Salmon

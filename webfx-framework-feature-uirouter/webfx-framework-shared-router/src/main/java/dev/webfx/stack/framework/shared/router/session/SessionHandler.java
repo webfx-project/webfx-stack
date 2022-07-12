@@ -3,7 +3,7 @@ package dev.webfx.stack.framework.shared.router.session;
 import dev.webfx.stack.framework.shared.router.RoutingContext;
 import dev.webfx.stack.framework.shared.router.session.impl.SessionHandlerImpl;
 import dev.webfx.stack.async.Handler;
-import dev.webfx.platform.shared.util.function.Callable;
+import dev.webfx.platform.util.function.Callable;
 import java.util.function.Consumer;
 
 /**

@@ -3,7 +3,7 @@ package dev.webfx.stack.framework.client.orm.reactive.dql.statement;
 import javafx.beans.value.ObservableValue;
 import dev.webfx.stack.framework.shared.orm.dql.DqlStatement;
 import dev.webfx.stack.platform.json.JsonObject;
-import dev.webfx.platform.shared.util.function.Converter;
+import dev.webfx.platform.util.function.Converter;
 
 import java.util.function.Function;
 

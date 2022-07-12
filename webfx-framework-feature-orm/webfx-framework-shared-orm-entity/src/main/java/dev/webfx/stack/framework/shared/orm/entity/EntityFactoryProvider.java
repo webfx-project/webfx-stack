@@ -1,6 +1,6 @@
 package dev.webfx.stack.framework.shared.orm.entity;
 
-import dev.webfx.platform.shared.util.collection.Collections;
+import dev.webfx.platform.util.collection.Collections;
 
 import java.util.Collection;
 import java.util.ServiceLoader;

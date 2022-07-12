@@ -20,11 +20,11 @@ import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.kit.util.properties.Properties;
 import dev.webfx.kit.util.properties.Unregisterable;
 import dev.webfx.kit.util.properties.UnregisterableListener;
-import dev.webfx.platform.client.services.uischeduler.AnimationFramePass;
-import dev.webfx.platform.client.services.uischeduler.UiScheduler;
-import dev.webfx.platform.shared.services.scheduler.Scheduled;
-import dev.webfx.platform.shared.util.Booleans;
-import dev.webfx.platform.shared.util.tuples.Unit;
+import dev.webfx.platform.uischeduler.AnimationFramePass;
+import dev.webfx.platform.uischeduler.UiScheduler;
+import dev.webfx.platform.scheduler.Scheduled;
+import dev.webfx.platform.util.Booleans;
+import dev.webfx.platform.util.tuples.Unit;
 
 import java.util.function.Consumer;
 

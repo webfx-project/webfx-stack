@@ -1,6 +1,6 @@
 package dev.webfx.stack.framework.shared.orm.expression.parser;
 
-import dev.webfx.platform.shared.services.log.Logger;
+import dev.webfx.platform.console.Console;
 import java_cup.runtime.Symbol;
 import dev.webfx.stack.framework.shared.orm.expression.Expression;
 import dev.webfx.stack.framework.shared.orm.expression.builder.BuilderThreadContext;
@@ -59,7 +59,7 @@ public final class ExpressionParser {
             builder.definition = definition;
             return builder.build();
         } catch (Exception e) {
-            Logger.log("Error while parsing: \"" + definition + '"', e);
+            Console.log("Error while parsing: \"" + definition + '"', e);
             return null;
         }
     }

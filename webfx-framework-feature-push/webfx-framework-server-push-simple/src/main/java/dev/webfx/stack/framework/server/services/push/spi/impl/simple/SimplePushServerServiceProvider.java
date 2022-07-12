@@ -1,14 +1,14 @@
 package dev.webfx.stack.framework.server.services.push.spi.impl.simple;
 
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.framework.server.services.push.UnresponsivePushClientListener;
 import dev.webfx.stack.framework.server.services.push.spi.PushServerServiceProvider;
 import dev.webfx.stack.framework.shared.services.push.ClientPushBusAddressesSharedByBothClientAndServer;
 import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.stack.com.bus.BusService;
 import dev.webfx.stack.com.buscall.BusCallService;
-import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.platform.shared.services.scheduler.Scheduled;
-import dev.webfx.platform.shared.services.scheduler.Scheduler;
+import dev.webfx.platform.scheduler.Scheduled;
+import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.stack.async.Future;
 import dev.webfx.stack.async.Promise;
 
@@ -32,7 +32,7 @@ public final class SimplePushServerServiceProvider implements PushServerServiceP
         Promise<T> promise = Promise.promise();
         PushClientInfo pushClientInfo = getOrCreatePushClientInfo(pushClientId);
         String clientBusCallServiceAddress = ClientPushBusAddressesSharedByBothClientAndServer.computeClientBusCallServiceAddress(pushClientId);
-        Logger.log("Pushing " + clientBusCallServiceAddress + " -> " + serviceAddress);
+        Console.log("Pushing " + clientBusCallServiceAddress + " -> " + serviceAddress);
         pushClientInfo.touchCalled();
         BusCallService.<T>call(clientBusCallServiceAddress, serviceAddress, javaArgument, bus).onComplete(ar -> {
             pushClientInfo.touchReceived(ar.cause());

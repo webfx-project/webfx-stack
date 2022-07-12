@@ -1,12 +1,12 @@
 package dev.webfx.stack.framework.shared.router.impl;
 
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.framework.shared.router.Route;
 import dev.webfx.stack.framework.shared.router.RoutingContext;
 import dev.webfx.stack.framework.shared.router.session.Session;
 import dev.webfx.stack.platform.json.Json;
 import dev.webfx.stack.platform.json.JsonObject;
 import dev.webfx.stack.platform.json.WritableJsonObject;
-import dev.webfx.platform.shared.services.log.Logger;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -67,13 +67,13 @@ public abstract class RoutingContextImplBase implements RoutingContext {
                     else
                         route.handleContext(this);
                 } catch (Throwable t) {
-                    Logger.log("Throwable thrown from handler", t);
+                    Console.log("Throwable thrown from handler", t);
                     if (!failed) {
-                        Logger.log("Failing the routing");
+                        Console.log("Failing the routing");
                         fail(t);
                     } else {
                         // Failure in handling failure!
-                        Logger.log("Failure in handling failure");
+                        Console.log("Failure in handling failure");
                         unhandledFailure(-1, t, route.router());
                     }
                 } finally {
@@ -91,7 +91,7 @@ public abstract class RoutingContextImplBase implements RoutingContext {
             if (router.exceptionHandler() != null)
                 router.exceptionHandler().handle(failure);
             else
-                Logger.log("Unexpected exception in route", failure);
+                Console.log("Unexpected exception in route", failure);
         }
         /*if (!response().ended()) {
             try {

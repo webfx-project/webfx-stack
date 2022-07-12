@@ -1,9 +1,9 @@
 package dev.webfx.stack.framework.shared.router.impl;
 
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.framework.shared.router.Route;
 import dev.webfx.stack.framework.shared.router.RoutingContext;
-import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Strings;
 import dev.webfx.stack.async.Handler;
 
 import java.util.ArrayList;
@@ -202,7 +202,7 @@ So using the following code instead (which assumes groups are in the same order 
     @Override
     public synchronized Route failureHandler(Handler<RoutingContext> exceptionHandler) {
         if (this.failureHandler != null)
-            Logger.log("Setting failureHandler for a route more than once!");
+            Console.log("Setting failureHandler for a route more than once!");
         this.failureHandler = exceptionHandler;
         checkAdded();
         return this;

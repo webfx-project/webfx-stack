@@ -12,7 +12,7 @@ import javafx.scene.Node;
 import dev.webfx.stack.framework.client.ui.action.Action;
 import dev.webfx.stack.framework.client.ui.action.ActionGroup;
 import dev.webfx.kit.util.properties.Properties;
-import dev.webfx.platform.shared.util.collection.Collections;
+import dev.webfx.platform.util.collection.Collections;
 
 import java.util.ArrayList;
 import java.util.Collection;

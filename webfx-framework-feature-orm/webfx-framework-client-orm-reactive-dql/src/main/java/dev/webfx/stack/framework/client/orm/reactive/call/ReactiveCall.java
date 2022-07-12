@@ -1,11 +1,11 @@
 package dev.webfx.stack.framework.client.orm.reactive.call;
 
+import dev.webfx.platform.console.Console;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
-import dev.webfx.platform.client.services.uischeduler.UiScheduler;
-import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.platform.shared.services.scheduler.Scheduled;
+import dev.webfx.platform.uischeduler.UiScheduler;
+import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.stack.async.AsyncFunction;
 
 import java.util.Objects;
@@ -305,6 +305,6 @@ public class ReactiveCall<A,R> {
     }
 
     protected void log(String message) {
-        Logger.log(message);
+        Console.log(message);
     }
 }

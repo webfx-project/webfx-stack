@@ -1,12 +1,12 @@
 package dev.webfx.stack.framework.shared.services.domainmodel.spi;
 
-import dev.webfx.platform.shared.services.log.Logger;
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.QueryService;
 import dev.webfx.extras.type.DerivedType;
 import dev.webfx.extras.type.PrimType;
 import dev.webfx.extras.type.Type;
-import dev.webfx.platform.shared.util.Numbers;
+import dev.webfx.platform.util.Numbers;
 import dev.webfx.stack.async.Batch;
 import dev.webfx.stack.async.Future;
 import dev.webfx.stack.framework.shared.orm.domainmodel.DomainModel;
@@ -178,7 +178,7 @@ public final class DomainModelLoader {
             DomainFieldsGroupBuilder groupBuilder = classBuilder.newFieldsGroupBuilder(rs.getValue(row, 0 /*"name"*/), true);
             groupBuilder.fieldsDefinition = rs.getValue(row, 2 /*"fields"*/);
         }
-        Logger.log("Domain model loaded: " + results[2].getRowCount() + " classes, " + results[4].getRowCount() + " fields, " + results[5].getRowCount() + " fields groups and " + results[0].getRowCount() + " labels in " + (System.currentTimeMillis() - t0) + " ms");
+        Console.log("Domain model loaded: " + results[2].getRowCount() + " classes, " + results[4].getRowCount() + " fields, " + results[5].getRowCount() + " fields groups and " + results[0].getRowCount() + " labels in " + (System.currentTimeMillis() - t0) + " ms");
         // Building and returning final domain model
         return dmb.build();
     }

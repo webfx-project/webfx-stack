@@ -1,13 +1,13 @@
 package dev.webfx.stack.framework.client.ui.action.operation;
 
+import dev.webfx.platform.console.Console;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import dev.webfx.stack.framework.client.ui.action.impl.WritableAction;
 import dev.webfx.stack.framework.shared.operation.OperationUtil;
 import dev.webfx.kit.util.properties.Properties;
-import dev.webfx.platform.shared.services.log.Logger;
 import dev.webfx.stack.async.AsyncFunction;
-import dev.webfx.platform.shared.util.function.Factory;
+import dev.webfx.platform.util.function.Factory;
 
 import java.util.function.Function;
 
@@ -26,11 +26,11 @@ public final class OperationAction<Rq, Rs> extends WritableAction {
     public OperationAction(Function<ActionEvent, Rq> operationRequestFactory, AsyncFunction<Rq, Rs> topOperationExecutor, ObservableValue... graphicalDependencies) {
         super(actionEvent -> {
             Rq operationRequest = operationRequestFactory.apply(actionEvent);
-            Logger.log("Executing " + operationRequest);
+            Console.log("Executing " + operationRequest);
             long t0 = System.currentTimeMillis();
             OperationUtil.executeOperation(operationRequest, topOperationExecutor)
-                    .onFailure(cause -> Logger.log("Error while executing " + operationRequest, cause))
-                    .onSuccess(result -> Logger.log("Executed " + operationRequest + " in " + (System.currentTimeMillis() - t0) + "ms"));
+                    .onFailure(cause -> Console.log("Error while executing " + operationRequest, cause))
+                    .onSuccess(result -> Console.log("Executed " + operationRequest + " in " + (System.currentTimeMillis() - t0) + "ms"));
         });
         this.operationRequestFactory = operationRequestFactory;
         OperationActionRegistry registry = getOperationActionRegistry();

@@ -1,5 +1,6 @@
 package dev.webfx.stack.framework.client.orm.reactive.dql.query;
 
+import dev.webfx.platform.console.Console;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ObservableValue;
 import dev.webfx.stack.framework.client.activity.impl.elementals.activeproperty.HasActiveProperty;
@@ -20,10 +21,9 @@ import dev.webfx.stack.framework.shared.orm.expression.terms.Alias;
 import dev.webfx.stack.framework.shared.orm.expression.terms.As;
 import dev.webfx.kit.util.properties.Properties;
 import dev.webfx.stack.db.datascope.aggregate.AggregateScope;
-import dev.webfx.platform.shared.services.log.Logger;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
-import dev.webfx.platform.shared.util.function.Converter;
+import dev.webfx.platform.util.function.Converter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -150,7 +150,7 @@ public class ReactiveDqlQuery<E> implements ReactiveDqlQueryAPI<E, ReactiveDqlQu
             //Logger.log("Setting queryArgument = " + queryArgument);
             reactiveQueryCall.setArgument(queryArgument);
         } else
-            Logger.log("No difference with previous query");
+            Console.log("No difference with previous query");
     }
 
     private String dqlQuery;

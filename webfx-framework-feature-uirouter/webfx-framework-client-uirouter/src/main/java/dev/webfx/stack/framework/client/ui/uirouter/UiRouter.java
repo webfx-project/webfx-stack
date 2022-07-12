@@ -19,20 +19,20 @@ import dev.webfx.stack.framework.shared.router.session.UserSessionHandler;
 import dev.webfx.stack.framework.shared.router.session.impl.MemorySessionStore;
 import dev.webfx.stack.framework.shared.router.session.impl.UserHolder;
 import dev.webfx.stack.framework.shared.router.session.impl.UserSessionHandlerImpl;
-import dev.webfx.platform.client.services.uischeduler.UiScheduler;
+import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.stack.platform.windowhistory.spi.BrowsingHistory;
 import dev.webfx.stack.platform.windowhistory.spi.impl.SubBrowsingHistory;
 import dev.webfx.stack.platform.json.Json;
 import dev.webfx.stack.platform.json.JsonArray;
 import dev.webfx.stack.platform.json.JsonObject;
 import dev.webfx.stack.platform.json.WritableJsonObject;
-import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.platform.shared.util.Numbers;
-import dev.webfx.platform.shared.util.Objects;
+import dev.webfx.platform.console.Console;
+import dev.webfx.platform.util.Numbers;
+import dev.webfx.platform.util.Objects;
 import dev.webfx.stack.async.Handler;
-import dev.webfx.platform.shared.util.collection.Collections;
-import dev.webfx.platform.shared.util.function.Converter;
-import dev.webfx.platform.shared.util.function.Factory;
+import dev.webfx.platform.util.collection.Collections;
+import dev.webfx.platform.util.function.Converter;
+import dev.webfx.platform.util.function.Factory;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -219,7 +219,7 @@ public final class UiRouter extends HistoryRouter {
             sb.append("\n").append(uiRoute.getPath());
             route(uiRoute);
         });
-        Logger.log(sb.append("\n").append("*******************************************************"));
+        Console.log(sb.append("\n").append("*******************************************************"));
         return this;
     }
 
@@ -308,7 +308,7 @@ public final class UiRouter extends HistoryRouter {
             String contextKey = routingContext.currentRoute().getPath();
             C activityContext = (C) activityContextHistory.get(contextKey);
             if (activityContext == null) {
-                Logger.log("Creating activity context for " + contextKey);
+                Console.log("Creating activity context for " + contextKey);
                 activityContextHistory.put(contextKey, activityContext = activityManagerFactory.create().getContextFactory().createContext(hostingContext));
             }
             applyRoutingContextParamsToActivityContext(routingContext.getParams(), activityContext);

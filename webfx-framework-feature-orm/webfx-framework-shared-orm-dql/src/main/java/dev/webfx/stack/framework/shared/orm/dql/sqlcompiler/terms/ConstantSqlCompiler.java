@@ -1,8 +1,8 @@
 package dev.webfx.stack.framework.shared.orm.dql.sqlcompiler.terms;
 
 import dev.webfx.stack.framework.shared.orm.expression.terms.Constant;
-import dev.webfx.platform.shared.util.Dates;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Dates;
+import dev.webfx.platform.util.Strings;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

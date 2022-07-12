@@ -6,8 +6,8 @@ module webfx.framework.server.push.simple {
     requires java.base;
     requires webfx.framework.server.push;
     requires webfx.framework.shared.push;
-    requires webfx.platform.shared.log;
-    requires webfx.platform.shared.scheduler;
+    requires webfx.platform.console;
+    requires webfx.platform.scheduler;
     requires webfx.stack.async;
     requires webfx.stack.com.bus;
     requires webfx.stack.com.buscall;

@@ -1,6 +1,6 @@
 package dev.webfx.stack.framework.client.activity.impl.elementals.presentation.logic.impl;
 
-import dev.webfx.platform.shared.util.function.Factory;
+import dev.webfx.platform.util.function.Factory;
 
 /**
  * @author Bruno Salmon

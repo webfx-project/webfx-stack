@@ -10,9 +10,9 @@ module webfx.framework.client.util {
     requires webfx.extras.imagestore;
     requires webfx.kit.launcher;
     requires webfx.kit.util;
-    requires webfx.platform.client.uischeduler;
-    requires webfx.platform.shared.scheduler;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.scheduler;
+    requires webfx.platform.uischeduler;
+    requires webfx.platform.util;
     requires webfx.stack.platform.json;
 
     // Exported packages

@@ -1,13 +1,13 @@
 package dev.webfx.stack.framework.client.services.push;
 
+import dev.webfx.platform.console.Console;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import dev.webfx.stack.framework.client.services.push.spi.PushClientServiceProvider;
 import dev.webfx.stack.framework.shared.services.push.ClientPushBusAddressesSharedByBothClientAndServer;
 import dev.webfx.stack.com.bus.Registration;
 import dev.webfx.stack.com.buscall.BusCallService;
-import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;
 import java.util.function.Function;
@@ -25,7 +25,7 @@ public final class PushClientService {
         // PushServerService.pingPushClient() because the client bus call service will finally pass the arg to that
         // listener over the local client bus.
         registerPushFunction(ClientPushBusAddressesSharedByBothClientAndServer.PUSH_PING_CLIENT_LISTENER_SERVICE_ADDRESS, arg -> {
-            Logger.log(arg);
+            Console.log(arg);
             return "OK";
         });
         // But to make this work, the client bus call service must listen server calls. This should be done by calling:

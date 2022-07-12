@@ -8,12 +8,12 @@ import dev.webfx.stack.framework.shared.orm.entity.EntityStore;
 import dev.webfx.stack.framework.shared.orm.entity.UpdateStore;
 import dev.webfx.stack.framework.shared.orm.entity.result.*;
 import dev.webfx.stack.db.datascope.DataScope;
-import dev.webfx.platform.shared.services.log.Logger;
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.db.submit.SubmitArgument;
 import dev.webfx.stack.db.submit.SubmitService;
 import dev.webfx.stack.db.submit.SubmitResult;
-import dev.webfx.platform.shared.util.Arrays;
-import dev.webfx.platform.shared.util.Objects;
+import dev.webfx.platform.util.Arrays;
+import dev.webfx.platform.util.Objects;
 import dev.webfx.stack.async.Batch;
 import dev.webfx.stack.async.Future;
 
@@ -99,7 +99,7 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
         try {
             EntityChangesToSubmitBatchGenerator.BatchGenerator updateBatchGenerator = EntityChangesToSubmitBatchGenerator.createSubmitBatchGenerator(getEntityChanges(), dataSourceModel, submitScope, initialSubmits);
             Batch<SubmitArgument> argBatch = updateBatchGenerator.generate();
-            Logger.log("Executing submit batch " + Arrays.toStringWithLineFeeds(argBatch.getArray()));
+            Console.log("Executing submit batch " + Arrays.toStringWithLineFeeds(argBatch.getArray()));
             return SubmitService.executeSubmitBatch(argBatch).compose(resBatch -> {
                 markChangesAsCommitted();
                 updateBatchGenerator.applyGeneratedKeys(resBatch, this);

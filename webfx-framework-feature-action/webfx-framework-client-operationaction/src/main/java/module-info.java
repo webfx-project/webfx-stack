@@ -9,9 +9,9 @@ module webfx.framework.client.operationaction {
     requires webfx.framework.shared.authz;
     requires webfx.framework.shared.operation;
     requires webfx.kit.util;
-    requires webfx.platform.client.uischeduler;
-    requires webfx.platform.shared.log;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.console;
+    requires webfx.platform.uischeduler;
+    requires webfx.platform.util;
     requires webfx.stack.async;
 
     // Exported packages

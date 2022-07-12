@@ -18,7 +18,7 @@ import dev.webfx.stack.framework.shared.orm.expression.terms.ExpressionArray;
 import dev.webfx.stack.framework.shared.orm.expression.terms.Select;
 import dev.webfx.stack.framework.shared.orm.expression.terms.function.AggregateKey;
 import dev.webfx.stack.framework.shared.orm.domainmodel.formatter.ValueFormatter;
-import dev.webfx.platform.shared.util.Arrays;
+import dev.webfx.platform.util.Arrays;
 
 import java.util.HashMap;
 import java.util.List;
