@@ -3,7 +3,7 @@ package dev.webfx.stack.platform.windowlocation.spi.impl.java;
 import dev.webfx.stack.platform.windowhistory.WindowHistory;
 import dev.webfx.stack.platform.windowlocation.spi.WindowLocationProvider;
 import dev.webfx.stack.platform.windowlocation.spi.impl.BrowsingLocationImpl;
-import dev.webfx.stack.com.websocketbus.WebSocketBusOptions;
+import dev.webfx.stack.com.websocket.bus.WebSocketBusOptions;
 import dev.webfx.stack.com.bus.BusService;
 
 /**

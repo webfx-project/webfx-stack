@@ -1,6 +1,6 @@
 package dev.webfx.stack.db.querysubmit;
 
-import dev.webfx.stack.db.submitlistener.SubmitListenerService;
+import dev.webfx.stack.db.submit.listener.SubmitListenerService;
 import dev.webfx.stack.db.datasource.ConnectionDetails;
 import dev.webfx.stack.db.datasource.DBMS;
 import dev.webfx.stack.db.datasource.LocalDataSource;

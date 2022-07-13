@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <providers>
+        <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.com.bus.call.BusCallModuleBooter</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.com.bus.call.BusCallArgument$ProvidedSerialCodec</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.com.bus.call.BusCallResult$ProvidedSerialCodec</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.com.bus.call.SerializableAsyncResult$ProvidedSerialCodec</provider>
+    </providers>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+</project>

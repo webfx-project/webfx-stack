@@ -7,7 +7,7 @@ module webfx.stack.db.query {
     requires webfx.platform.console;
     requires webfx.platform.util;
     requires webfx.stack.async;
-    requires webfx.stack.com.buscall;
+    requires webfx.stack.com.bus.call;
     requires webfx.stack.com.serial;
     requires webfx.stack.db.datascope;
     requires webfx.stack.db.datasource;
@@ -24,7 +24,7 @@ module webfx.stack.db.query {
     uses dev.webfx.stack.db.query.spi.QueryServiceProvider;
 
     // Provided services
-    provides dev.webfx.stack.com.buscall.spi.BusCallEndpoint with dev.webfx.stack.db.query.ExecuteQueryBusCallEndpoint, dev.webfx.stack.db.query.ExecuteQueryBatchBusCallEndpoint;
+    provides dev.webfx.stack.com.bus.call.spi.BusCallEndpoint with dev.webfx.stack.db.query.ExecuteQueryBusCallEndpoint, dev.webfx.stack.db.query.ExecuteQueryBatchBusCallEndpoint;
     provides dev.webfx.stack.com.serial.spi.SerialCodec with dev.webfx.stack.db.query.QueryArgument.ProvidedSerialCodec, dev.webfx.stack.db.query.QueryResult.ProvidedSerialCodec;
 
 }

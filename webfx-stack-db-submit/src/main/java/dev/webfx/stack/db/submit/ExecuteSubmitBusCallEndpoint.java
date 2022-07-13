@@ -1,6 +1,6 @@
 package dev.webfx.stack.db.submit;
 
-import dev.webfx.stack.com.buscall.spi.AsyncFunctionBusCallEndpoint;
+import dev.webfx.stack.com.bus.call.spi.AsyncFunctionBusCallEndpoint;
 
 /**
  * @author Bruno Salmon

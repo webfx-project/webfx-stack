@@ -1,6 +1,6 @@
 package dev.webfx.stack.db.submit.spi.impl;
 
-import dev.webfx.stack.com.buscall.BusCallService;
+import dev.webfx.stack.com.bus.call.BusCallService;
 import dev.webfx.stack.db.submit.SubmitArgument;
 import dev.webfx.stack.db.submit.SubmitResult;
 import dev.webfx.stack.db.submit.SubmitService;
