@@ -147,7 +147,7 @@
 
     <export-snapshot>
 
-        <project name="webfx-stack-platform">
+        <project name="webfx-stack">
 
             <parent name="webfx-stack-parent"/>
 
@@ -155,6 +155,8 @@
                 <module>webfx-platform-boot-vertx</module>
                 <module>webfx-platform-scheduler-vertx</module>
                 <module>webfx-stack-async</module>
+                <module>webfx-stack-authn</module>
+                <module>webfx-stack-authz</module>
                 <module>webfx-stack-com-bus</module>
                 <module>webfx-stack-com-bus-call</module>
                 <module>webfx-stack-com-bus-call-job</module>
@@ -175,6 +177,23 @@
                 <module>webfx-stack-db-submit</module>
                 <module>webfx-stack-db-submit-listener</module>
                 <module>webfx-stack-db-submit-remote</module>
+                <module>webfx-stack-i18n</module>
+                <module>webfx-stack-i18n-json</module>
+                <module>webfx-stack-orm-datasourcemodel-service</module>
+                <module>webfx-stack-orm-domainmodel</module>
+                <module>webfx-stack-orm-domainmodel-activity</module>
+                <module>webfx-stack-orm-domainmodel-service</module>
+                <module>webfx-stack-orm-dql</module>
+                <module>webfx-stack-orm-dql-query-interceptor</module>
+                <module>webfx-stack-orm-dql-querypush-interceptor</module>
+                <module>webfx-stack-orm-dql-submit-interceptor</module>
+                <module>webfx-stack-orm-entity</module>
+                <module>webfx-stack-orm-entity-controls</module>
+                <module>webfx-stack-orm-expression</module>
+                <module>webfx-stack-orm-reactive-call</module>
+                <module>webfx-stack-orm-reactive-dql</module>
+                <module>webfx-stack-orm-reactive-entities</module>
+                <module>webfx-stack-orm-reactive-visual</module>
                 <module>webfx-stack-platform-json</module>
                 <module>webfx-stack-platform-json-gwt</module>
                 <module>webfx-stack-platform-json-java</module>
@@ -193,6 +212,25 @@
                 <module>webfx-stack-platform-windowlocation</module>
                 <module>webfx-stack-platform-windowlocation-gwt</module>
                 <module>webfx-stack-platform-windowlocation-java</module>
+                <module>webfx-stack-push</module>
+                <module>webfx-stack-push-client</module>
+                <module>webfx-stack-push-client-simple</module>
+                <module>webfx-stack-push-server</module>
+                <module>webfx-stack-push-server-simple</module>
+                <module>webfx-stack-querypush</module>
+                <module>webfx-stack-querypush-client</module>
+                <module>webfx-stack-querypush-client-simple</module>
+                <module>webfx-stack-querypush-server</module>
+                <module>webfx-stack-querypush-server-simple</module>
+                <module>webfx-stack-routing-activity</module>
+                <module>webfx-stack-routing-router</module>
+                <module>webfx-stack-routing-uirouter</module>
+                <module>webfx-stack-ui-action</module>
+                <module>webfx-stack-ui-controls</module>
+                <module>webfx-stack-ui-operation</module>
+                <module>webfx-stack-ui-operation-action</module>
+                <module>webfx-stack-ui-util</module>
+                <module>webfx-stack-ui-validation</module>
                 <module>webfx-stack-vertx-common</module>
             </modules>
 
@@ -393,6 +431,68 @@
                 <module>java.logging</module>
                 <module>webfx-platform-util</module>
             </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-authn">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.authn</package>
+                <package>dev.webfx.stack.authn.spi</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-async</module>
+            </used-by-source-modules>
+
+            <used-services>
+                <required-service>dev.webfx.stack.authn.spi.AuthenticationServiceProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-stack-authz">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.authz</package>
+                <package>dev.webfx.stack.authz.mixin</package>
+                <package>dev.webfx.stack.authz.operation</package>
+                <package>dev.webfx.stack.authz.spi</package>
+                <package>dev.webfx.stack.authz.spi.impl</package>
+                <package>dev.webfx.stack.authz.spi.impl.inmemory</package>
+                <package>dev.webfx.stack.authz.spi.impl.inmemory.parser</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-platform-uischeduler</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-async</module>
+                <module>webfx-stack-ui-operation</module>
+            </used-by-source-modules>
+
+            <used-services>
+                <required-service>dev.webfx.stack.authz.spi.AuthorizationServiceProvider</required-service>
+            </used-services>
 
         </project>
 
@@ -1042,6 +1142,587 @@
 
         </project>
 
+        <project name="webfx-stack-i18n">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.i18n</package>
+                <package>dev.webfx.stack.i18n.operations</package>
+                <package>dev.webfx.stack.i18n.spi</package>
+                <package>dev.webfx.stack.i18n.spi.impl</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-kit-javafxcontrols-emul</module>
+                <module>webfx-kit-javafxgraphics-emul</module>
+                <module>webfx-platform-uischeduler</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-async</module>
+                <module>webfx-stack-ui-operation</module>
+            </used-by-source-modules>
+
+            <used-services>
+                <required-service>dev.webfx.stack.i18n.spi.I18nProvider</required-service>
+                <optional-service>dev.webfx.stack.i18n.operations.ChangeLanguageRequestEmitter</optional-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-stack-i18n-json">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <undetected-module>javafx-base</undetected-module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.i18n.spi.impl.json</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-resource</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-async</module>
+                <module>webfx-stack-i18n</module>
+                <module>webfx-stack-platform-json</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-orm-datasourcemodel-service">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.orm.datasourcemodel.service</package>
+                <package>dev.webfx.stack.orm.datasourcemodel.service.spi</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-async</module>
+                <module>webfx-stack-orm-domainmodel</module>
+            </used-by-source-modules>
+
+            <used-services>
+                <required-service>dev.webfx.stack.orm.datasourcemodel.service.spi.DataSourceModelProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-stack-orm-domainmodel">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.orm.domainmodel</package>
+                <package>dev.webfx.stack.orm.domainmodel.builder</package>
+                <package>dev.webfx.stack.orm.domainmodel.formatter</package>
+                <package>dev.webfx.stack.orm.domainmodel.lciimpl</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-extras-label</module>
+                <module>webfx-extras-type</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-orm-dql</module>
+                <module>webfx-stack-orm-expression</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-orm-domainmodel-activity">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <undetected-module>webfx-kit-javafxbase-emul</undetected-module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.orm.domainmodel.activity.domain</package>
+                <package>dev.webfx.stack.orm.domainmodel.activity.domain.impl</package>
+                <package>dev.webfx.stack.orm.domainmodel.activity.domainpresentation</package>
+                <package>dev.webfx.stack.orm.domainmodel.activity.domainpresentation.impl</package>
+                <package>dev.webfx.stack.orm.domainmodel.activity.domainpresentationlogic.impl</package>
+                <package>dev.webfx.stack.orm.domainmodel.activity.viewdomain</package>
+                <package>dev.webfx.stack.orm.domainmodel.activity.viewdomain.impl</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-orm-domainmodel</module>
+                <module>webfx-stack-routing-activity</module>
+                <module>webfx-stack-routing-uirouter</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-orm-domainmodel-service">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.orm.domainmodel.service</package>
+                <package>dev.webfx.stack.orm.domainmodel.service.spi</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-extras-label</module>
+                <module>webfx-extras-type</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-async</module>
+                <module>webfx-stack-db-query</module>
+                <module>webfx-stack-orm-domainmodel</module>
+            </used-by-source-modules>
+
+            <used-services>
+                <required-service>dev.webfx.stack.orm.domainmodel.service.spi.DomainModelProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-stack-orm-dql">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.orm.dql</package>
+                <package>dev.webfx.stack.orm.dql.sqlcompiler</package>
+                <package>dev.webfx.stack.orm.dql.sqlcompiler.lci</package>
+                <package>dev.webfx.stack.orm.dql.sqlcompiler.lci.mock</package>
+                <package>dev.webfx.stack.orm.dql.sqlcompiler.mapping</package>
+                <package>dev.webfx.stack.orm.dql.sqlcompiler.sql</package>
+                <package>dev.webfx.stack.orm.dql.sqlcompiler.sql.dbms</package>
+                <package>dev.webfx.stack.orm.dql.sqlcompiler.terms</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-extras-type</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-orm-expression</module>
+                <module>webfx-stack-platform-json</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-orm-dql-query-interceptor">
+
+            <module-auto-injection-conditions>
+                <if-uses-java-package>dev.webfx.stack.db.query</if-uses-java-package>
+                <if-uses-java-package>dev.webfx.stack.orm.domainmodel</if-uses-java-package>
+            </module-auto-injection-conditions>
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.orm.dql.query.interceptor.DqlQueryInterceptorModuleBooter</provider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.orm.dql.query.interceptor</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-platform-boot</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-async</module>
+                <module>webfx-stack-db-datasource</module>
+                <module>webfx-stack-db-query</module>
+                <module>webfx-stack-orm-datasourcemodel-service</module>
+                <module>webfx-stack-orm-domainmodel</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-orm-dql-querypush-interceptor">
+
+            <module-auto-injection-conditions>
+                <if-uses-java-package>dev.webfx.stack.framework.shared.services.querypush</if-uses-java-package>
+                <if-uses-java-package>dev.webfx.stack.orm.domainmodel</if-uses-java-package>
+            </module-auto-injection-conditions>
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.orm.dql.querypush.interceptor.DqlQueryPushInterceptorModuleBooter</provider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.orm.dql.querypush.interceptor</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-platform-boot</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-async</module>
+                <module>webfx-stack-db-datascope</module>
+                <module>webfx-stack-db-datasource</module>
+                <module>webfx-stack-db-query</module>
+                <module>webfx-stack-orm-datasourcemodel-service</module>
+                <module>webfx-stack-orm-domainmodel</module>
+                <module>webfx-stack-orm-expression</module>
+                <module>webfx-stack-querypush</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-orm-dql-submit-interceptor">
+
+            <module-auto-injection-conditions>
+                <if-uses-java-package>dev.webfx.stack.db.submit</if-uses-java-package>
+                <if-uses-java-package>dev.webfx.stack.orm.domainmodel</if-uses-java-package>
+            </module-auto-injection-conditions>
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.orm.dql.submit.interceptor.DqlSubmitInterceptorModuleBooter</provider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.orm.dql.submit.interceptor</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-boot</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-async</module>
+                <module>webfx-stack-db-datascope</module>
+                <module>webfx-stack-db-datasource</module>
+                <module>webfx-stack-db-submit</module>
+                <module>webfx-stack-orm-datasourcemodel-service</module>
+                <module>webfx-stack-orm-domainmodel</module>
+                <module>webfx-stack-orm-expression</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-orm-entity">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.orm.entity</package>
+                <package>dev.webfx.stack.orm.entity.impl</package>
+                <package>dev.webfx.stack.orm.entity.lciimpl</package>
+                <package>dev.webfx.stack.orm.entity.query_result_to_entities</package>
+                <package>dev.webfx.stack.orm.entity.result</package>
+                <package>dev.webfx.stack.orm.entity.result.impl</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-extras-type</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-async</module>
+                <module>webfx-stack-db-datascope</module>
+                <module>webfx-stack-db-query</module>
+                <module>webfx-stack-db-submit</module>
+                <module>webfx-stack-orm-domainmodel</module>
+                <module>webfx-stack-orm-dql</module>
+                <module>webfx-stack-orm-expression</module>
+            </used-by-source-modules>
+
+            <used-services>
+                <optional-service>dev.webfx.stack.orm.entity.EntityFactoryProvider</optional-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-stack-orm-entity-controls">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <undetected-module>webfx-stack-db-submit</undetected-module>
+                    <undetected-module>webfx-stack-async</undetected-module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.orm.entity.controls.entity.selector</package>
+                <package>dev.webfx.stack.orm.entity.controls.entity.sheet</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-extras-cell</module>
+                <module>webfx-extras-imagestore</module>
+                <module>webfx-extras-label</module>
+                <module>webfx-extras-materialdesign</module>
+                <module>webfx-extras-type</module>
+                <module>webfx-extras-visual</module>
+                <module>webfx-extras-visual-grid</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-kit-javafxcontrols-emul</module>
+                <module>webfx-kit-javafxgraphics-emul</module>
+                <module>webfx-kit-util</module>
+                <module>webfx-platform-scheduler</module>
+                <module>webfx-platform-uischeduler</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-orm-domainmodel</module>
+                <module>webfx-stack-orm-dql</module>
+                <module>webfx-stack-orm-entity</module>
+                <module>webfx-stack-orm-expression</module>
+                <module>webfx-stack-orm-reactive-entities</module>
+                <module>webfx-stack-orm-reactive-visual</module>
+                <module>webfx-stack-platform-json</module>
+                <module>webfx-stack-ui-controls</module>
+                <module>webfx-stack-ui-util</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-orm-expression">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.orm.expression</package>
+                <package>dev.webfx.stack.orm.expression.builder</package>
+                <package>dev.webfx.stack.orm.expression.builder.terms</package>
+                <package>dev.webfx.stack.orm.expression.lci</package>
+                <package>dev.webfx.stack.orm.expression.parser</package>
+                <package>dev.webfx.stack.orm.expression.parser.javacup</package>
+                <package>dev.webfx.stack.orm.expression.parser.jflex</package>
+                <package>dev.webfx.stack.orm.expression.parser.lci</package>
+                <package>dev.webfx.stack.orm.expression.parser.lci.mock</package>
+                <package>dev.webfx.stack.orm.expression.terms</package>
+                <package>dev.webfx.stack.orm.expression.terms.function</package>
+                <package>dev.webfx.stack.orm.expression.terms.function.java</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-extras-type</module>
+                <module>webfx-lib-javacupruntime</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-platform-json</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-orm-reactive-call">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.orm.reactive.call</package>
+                <package>dev.webfx.stack.orm.reactive.call.query</package>
+                <package>dev.webfx.stack.orm.reactive.call.query.push</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-scheduler</module>
+                <module>webfx-platform-uischeduler</module>
+                <module>webfx-stack-async</module>
+                <module>webfx-stack-db-query</module>
+                <module>webfx-stack-push-client</module>
+                <module>webfx-stack-querypush</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-orm-reactive-dql">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.orm.reactive.dql.query</package>
+                <package>dev.webfx.stack.orm.reactive.dql.querypush</package>
+                <package>dev.webfx.stack.orm.reactive.dql.statement</package>
+                <package>dev.webfx.stack.orm.reactive.dql.statement.conventions</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-kit-util</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-uischeduler</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-db-datascope</module>
+                <module>webfx-stack-db-query</module>
+                <module>webfx-stack-orm-domainmodel</module>
+                <module>webfx-stack-orm-dql</module>
+                <module>webfx-stack-orm-entity</module>
+                <module>webfx-stack-orm-expression</module>
+                <module>webfx-stack-orm-reactive-call</module>
+                <module>webfx-stack-platform-json</module>
+                <module>webfx-stack-routing-activity</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-orm-reactive-entities">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <undetected-module>webfx-platform-util</undetected-module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.orm.reactive.entities.dql_to_entities</package>
+                <package>dev.webfx.stack.orm.reactive.entities.entities_to_grid</package>
+                <package>dev.webfx.stack.orm.reactive.entities.entities_to_objects</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-extras-type</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-kit-javafxgraphics-emul</module>
+                <module>webfx-kit-util</module>
+                <module>webfx-stack-db-query</module>
+                <module>webfx-stack-orm-domainmodel</module>
+                <module>webfx-stack-orm-dql</module>
+                <module>webfx-stack-orm-entity</module>
+                <module>webfx-stack-orm-expression</module>
+                <module>webfx-stack-orm-reactive-dql</module>
+                <module>webfx-stack-platform-json</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-orm-reactive-visual">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.orm.reactive.mapping.entities_to_visual</package>
+                <package>dev.webfx.stack.orm.reactive.mapping.entities_to_visual.conventions</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-extras-cell</module>
+                <module>webfx-extras-label</module>
+                <module>webfx-extras-type</module>
+                <module>webfx-extras-visual</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-i18n</module>
+                <module>webfx-stack-orm-domainmodel</module>
+                <module>webfx-stack-orm-entity</module>
+                <module>webfx-stack-orm-expression</module>
+                <module>webfx-stack-orm-reactive-dql</module>
+                <module>webfx-stack-orm-reactive-entities</module>
+                <module>webfx-stack-platform-json</module>
+            </used-by-source-modules>
+
+        </project>
+
         <project name="webfx-stack-platform-json">
 
             <exported-packages>
@@ -1542,6 +2223,601 @@
 
         </project>
 
+        <project name="webfx-stack-push">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.push</package>
+            </source-packages>
+
+            <used-by-source-modules/>
+
+        </project>
+
+        <project name="webfx-stack-push-client">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.orm.push.client</package>
+                <package>dev.webfx.stack.orm.push.client.spi</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-com-bus</module>
+                <module>webfx-stack-com-bus-call</module>
+                <module>webfx-stack-push</module>
+            </used-by-source-modules>
+
+            <used-services>
+                <required-service>dev.webfx.stack.orm.push.client.spi.PushClientServiceProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-stack-push-client-simple">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <provider interface="dev.webfx.stack.orm.push.client.spi.PushClientServiceProvider">dev.webfx.stack.orm.push.client.spi.impl.simple.SimplePushClientServiceProvider</provider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.orm.push.client.spi.impl.simple</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-platform-console</module>
+                <module>webfx-stack-com-bus</module>
+                <module>webfx-stack-com-bus-call</module>
+                <module>webfx-stack-push</module>
+                <module>webfx-stack-push-client</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-push-server">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.push.server</package>
+                <package>dev.webfx.stack.push.server.spi</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-async</module>
+                <module>webfx-stack-com-bus</module>
+                <module>webfx-stack-push</module>
+            </used-by-source-modules>
+
+            <used-services>
+                <required-service>dev.webfx.stack.push.server.spi.PushServerServiceProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-stack-push-server-simple">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <provider interface="dev.webfx.stack.push.server.spi.PushServerServiceProvider">dev.webfx.stack.push.server.spi.impl.simple.SimplePushServerServiceProvider</provider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.push.server.spi.impl.simple</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-scheduler</module>
+                <module>webfx-stack-async</module>
+                <module>webfx-stack-com-bus</module>
+                <module>webfx-stack-com-bus-call</module>
+                <module>webfx-stack-push</module>
+                <module>webfx-stack-push-server</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-querypush">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.querypush.ExecuteQueryPushBusCallEndpoint</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.querypush.QueryPushArgument$ProvidedSerialCodec</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.querypush.QueryPushResult$ProvidedSerialCodec</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.querypush.diff.impl.QueryResultTranslation$ProvidedSerialCodec</provider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.querypush</package>
+                <package>dev.webfx.stack.querypush.diff</package>
+                <package>dev.webfx.stack.querypush.diff.impl</package>
+                <package>dev.webfx.stack.querypush.spi</package>
+                <package>dev.webfx.stack.querypush.spi.impl</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-async</module>
+                <module>webfx-stack-com-bus-call</module>
+                <module>webfx-stack-com-serial</module>
+                <module>webfx-stack-db-datascope</module>
+                <module>webfx-stack-db-datasource</module>
+                <module>webfx-stack-db-query</module>
+                <module>webfx-stack-platform-json</module>
+            </used-by-source-modules>
+
+            <used-services>
+                <required-service>dev.webfx.stack.querypush.spi.QueryPushServiceProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-stack-querypush-client">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.querypush.client</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-stack-com-bus</module>
+                <module>webfx-stack-push-client</module>
+                <module>webfx-stack-querypush</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-querypush-client-simple">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <provider interface="dev.webfx.stack.querypush.spi.QueryPushServiceProvider">dev.webfx.stack.querypush.client.simple.SimpleQueryPushClientServiceProvider</provider>
+                <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.querypush.client.simple.SimpleQueryPushClientJob</provider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.querypush.client.simple</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-platform-boot</module>
+                <module>webfx-stack-com-bus</module>
+                <module>webfx-stack-querypush</module>
+                <module>webfx-stack-querypush-client</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-querypush-server">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <provider interface="dev.webfx.stack.db.submit.listener.SubmitListener">dev.webfx.stack.querypush.server.QueryPushServerService$ProvidedSubmitListener</provider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.querypush.server</package>
+                <package>dev.webfx.stack.querypush.server.spi.impl</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-scheduler</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-async</module>
+                <module>webfx-stack-com-bus</module>
+                <module>webfx-stack-db-datascope</module>
+                <module>webfx-stack-db-query</module>
+                <module>webfx-stack-db-submit</module>
+                <module>webfx-stack-db-submit-listener</module>
+                <module>webfx-stack-push-server</module>
+                <module>webfx-stack-querypush</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-querypush-server-simple">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <provider interface="dev.webfx.stack.querypush.spi.QueryPushServiceProvider">dev.webfx.stack.querypush.server.spi.impl.simple.SimpleInMemoryServerQueryPushServiceProvider</provider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.querypush.server.spi.impl.simple</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-async</module>
+                <module>webfx-stack-db-datascope</module>
+                <module>webfx-stack-db-query</module>
+                <module>webfx-stack-querypush</module>
+                <module>webfx-stack-querypush-server</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-routing-activity">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.routing.activity</package>
+                <package>dev.webfx.stack.routing.activity.impl</package>
+                <package>dev.webfx.stack.routing.activity.impl.composition</package>
+                <package>dev.webfx.stack.routing.activity.impl.composition.impl</package>
+                <package>dev.webfx.stack.routing.activity.impl.elementals.activeproperty</package>
+                <package>dev.webfx.stack.routing.activity.impl.elementals.activeproperty.impl</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-async</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-routing-router">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.routing.router</package>
+                <package>dev.webfx.stack.routing.router.auth</package>
+                <package>dev.webfx.stack.routing.router.auth.authz</package>
+                <package>dev.webfx.stack.routing.router.auth.impl</package>
+                <package>dev.webfx.stack.routing.router.impl</package>
+                <package>dev.webfx.stack.routing.router.session</package>
+                <package>dev.webfx.stack.routing.router.session.impl</package>
+                <package>dev.webfx.stack.routing.router.util</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-async</module>
+                <module>webfx-stack-authz</module>
+                <module>webfx-stack-platform-json</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-routing-uirouter">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.routing.uirouter</package>
+                <package>dev.webfx.stack.routing.uirouter.activity.presentation</package>
+                <package>dev.webfx.stack.routing.uirouter.activity.presentation.impl</package>
+                <package>dev.webfx.stack.routing.uirouter.activity.presentation.logic</package>
+                <package>dev.webfx.stack.routing.uirouter.activity.presentation.logic.impl</package>
+                <package>dev.webfx.stack.routing.uirouter.activity.presentation.view</package>
+                <package>dev.webfx.stack.routing.uirouter.activity.presentation.view.impl</package>
+                <package>dev.webfx.stack.routing.uirouter.activity.uiroute</package>
+                <package>dev.webfx.stack.routing.uirouter.activity.uiroute.impl</package>
+                <package>dev.webfx.stack.routing.uirouter.activity.view</package>
+                <package>dev.webfx.stack.routing.uirouter.activity.view.impl</package>
+                <package>dev.webfx.stack.routing.uirouter.impl</package>
+                <package>dev.webfx.stack.routing.uirouter.operations</package>
+                <package>dev.webfx.stack.routing.uirouter.uisession</package>
+                <package>dev.webfx.stack.routing.uirouter.uisession.impl</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-kit-javafxgraphics-emul</module>
+                <module>webfx-kit-launcher</module>
+                <module>webfx-kit-util</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-uischeduler</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-async</module>
+                <module>webfx-stack-authz</module>
+                <module>webfx-stack-platform-json</module>
+                <module>webfx-stack-platform-windowhistory</module>
+                <module>webfx-stack-routing-activity</module>
+                <module>webfx-stack-routing-router</module>
+                <module>webfx-stack-ui-operation</module>
+            </used-by-source-modules>
+
+            <used-services>
+                <optional-service>dev.webfx.stack.routing.uirouter.UiRoute</optional-service>
+                <optional-service>dev.webfx.stack.routing.uirouter.operations.RouteRequestEmitter</optional-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-stack-ui-action">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.ui.action</package>
+                <package>dev.webfx.stack.ui.action.impl</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-kit-javafxcontrols-emul</module>
+                <module>webfx-kit-javafxgraphics-emul</module>
+                <module>webfx-kit-util</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-i18n</module>
+                <module>webfx-stack-ui-util</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-ui-controls">
+
+            <exported-packages>
+                <source-packages/>
+                <resource-package>images.s16.controls</resource-package>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <undetected-module>webfx-stack-routing-activity</undetected-module>
+                    <undetected-module>webfx-extras-type</undetected-module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.ui.controls</package>
+                <package>dev.webfx.stack.ui.controls.alert</package>
+                <package>dev.webfx.stack.ui.controls.button</package>
+                <package>dev.webfx.stack.ui.controls.dialog</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-extras-imagestore</module>
+                <module>webfx-extras-materialdesign</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-kit-javafxcontrols-emul</module>
+                <module>webfx-kit-javafxgraphics-emul</module>
+                <module>webfx-kit-util</module>
+                <module>webfx-platform-uischeduler</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-i18n</module>
+                <module>webfx-stack-ui-action</module>
+                <module>webfx-stack-ui-util</module>
+                <module>webfx-stack-ui-validation</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-ui-operation">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.ui.operation</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-stack-async</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-ui-operation-action">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.ui.operation.action</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-kit-util</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-uischeduler</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-async</module>
+                <module>webfx-stack-authz</module>
+                <module>webfx-stack-ui-action</module>
+                <module>webfx-stack-ui-operation</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-ui-util">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.ui.util.anim</package>
+                <package>dev.webfx.stack.ui.util.background</package>
+                <package>dev.webfx.stack.ui.util.border</package>
+                <package>dev.webfx.stack.ui.util.image</package>
+                <package>dev.webfx.stack.ui.util.layout</package>
+                <package>dev.webfx.stack.ui.util.paint</package>
+                <package>dev.webfx.stack.ui.util.scene</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-extras-imagestore</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-kit-javafxcontrols-emul</module>
+                <module>webfx-kit-javafxgraphics-emul</module>
+                <module>webfx-kit-launcher</module>
+                <module>webfx-kit-util</module>
+                <module>webfx-platform-scheduler</module>
+                <module>webfx-platform-uischeduler</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-platform-json</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-ui-validation">
+
+            <exported-packages>
+                <source-packages/>
+                <resource-package>dev.webfx.stack.ui.validation.controlsfx.images</resource-package>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.ui.validation.controlsfx.control.decoration</package>
+                <package>dev.webfx.stack.ui.validation.controlsfx.impl</package>
+                <package>dev.webfx.stack.ui.validation.controlsfx.impl.skin</package>
+                <package>dev.webfx.stack.ui.validation.controlsfx.tools</package>
+                <package>dev.webfx.stack.ui.validation.controlsfx.validation</package>
+                <package>dev.webfx.stack.ui.validation.controlsfx.validation.decoration</package>
+                <package>dev.webfx.stack.ui.validation.mvvmfx</package>
+                <package>dev.webfx.stack.ui.validation.mvvmfx.visualization</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-kit-javafxcontrols-emul</module>
+                <module>webfx-kit-javafxgraphics-emul</module>
+            </used-by-source-modules>
+
+        </project>
+
         <project name="webfx-stack-vertx-common">
 
             <exported-packages>
@@ -1578,9 +2854,58 @@
 
         <usages>
 
-            <java-package name="java.util.regex"/>
+            <java-package name="dev.webfx.stack.db.query">
+                <module>webfx-stack-db-query</module>
+                <module>webfx-stack-db-querysubmit-java-jdbc</module>
+                <module>webfx-stack-db-querysubmit-vertx</module>
+                <module>webfx-stack-orm-domainmodel-service</module>
+                <module>webfx-stack-orm-dql-query-interceptor</module>
+                <module>webfx-stack-orm-dql-querypush-interceptor</module>
+                <module>webfx-stack-orm-entity</module>
+                <module>webfx-stack-orm-reactive-call</module>
+                <module>webfx-stack-orm-reactive-dql</module>
+                <module>webfx-stack-orm-reactive-entities</module>
+                <module>webfx-stack-querypush</module>
+                <module>webfx-stack-querypush-server</module>
+                <module>webfx-stack-querypush-server-simple</module>
+            </java-package>
 
-            <java-class name="javafx.scene.control.ScrollPane"/>
+            <java-package name="dev.webfx.stack.db.submit">
+                <module>webfx-stack-db-querysubmit-java-jdbc</module>
+                <module>webfx-stack-db-querysubmit-vertx</module>
+                <module>webfx-stack-db-submit</module>
+                <module>webfx-stack-db-submit-listener</module>
+                <module>webfx-stack-orm-dql-submit-interceptor</module>
+                <module>webfx-stack-orm-entity</module>
+                <module>webfx-stack-querypush-server</module>
+            </java-package>
+
+            <java-package name="dev.webfx.stack.framework.shared.services.querypush"/>
+
+            <java-package name="dev.webfx.stack.orm.domainmodel">
+                <module>webfx-stack-orm-datasourcemodel-service</module>
+                <module>webfx-stack-orm-domainmodel</module>
+                <module>webfx-stack-orm-domainmodel-activity</module>
+                <module>webfx-stack-orm-domainmodel-service</module>
+                <module>webfx-stack-orm-dql-query-interceptor</module>
+                <module>webfx-stack-orm-dql-querypush-interceptor</module>
+                <module>webfx-stack-orm-dql-submit-interceptor</module>
+                <module>webfx-stack-orm-entity</module>
+                <module>webfx-stack-orm-entity-controls</module>
+                <module>webfx-stack-orm-reactive-dql</module>
+                <module>webfx-stack-orm-reactive-entities</module>
+                <module>webfx-stack-orm-reactive-visual</module>
+            </java-package>
+
+            <java-package name="java.util.regex">
+                <module>webfx-stack-routing-router</module>
+            </java-package>
+
+            <java-class name="javafx.scene.control.ScrollPane">
+                <module>webfx-extras-visual-grid</module>
+                <module>webfx-stack-ui-controls</module>
+                <module>webfx-stack-ui-util</module>
+            </java-class>
 
         </usages>
 

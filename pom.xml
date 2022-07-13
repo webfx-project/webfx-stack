@@ -11,7 +11,7 @@
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>webfx-stack-platform</artifactId>
+    <artifactId>webfx-stack</artifactId>
 
     <repositories>
 
@@ -35,6 +35,8 @@
         <module>webfx-platform-boot-vertx</module>
         <module>webfx-platform-scheduler-vertx</module>
         <module>webfx-stack-async</module>
+        <module>webfx-stack-authn</module>
+        <module>webfx-stack-authz</module>
         <module>webfx-stack-com-bus</module>
         <module>webfx-stack-com-bus-call</module>
         <module>webfx-stack-com-bus-call-job</module>
@@ -55,6 +57,23 @@
         <module>webfx-stack-db-submit</module>
         <module>webfx-stack-db-submit-listener</module>
         <module>webfx-stack-db-submit-remote</module>
+        <module>webfx-stack-i18n</module>
+        <module>webfx-stack-i18n-json</module>
+        <module>webfx-stack-orm-datasourcemodel-service</module>
+        <module>webfx-stack-orm-domainmodel</module>
+        <module>webfx-stack-orm-domainmodel-activity</module>
+        <module>webfx-stack-orm-domainmodel-service</module>
+        <module>webfx-stack-orm-dql</module>
+        <module>webfx-stack-orm-dql-query-interceptor</module>
+        <module>webfx-stack-orm-dql-querypush-interceptor</module>
+        <module>webfx-stack-orm-dql-submit-interceptor</module>
+        <module>webfx-stack-orm-entity</module>
+        <module>webfx-stack-orm-entity-controls</module>
+        <module>webfx-stack-orm-expression</module>
+        <module>webfx-stack-orm-reactive-call</module>
+        <module>webfx-stack-orm-reactive-dql</module>
+        <module>webfx-stack-orm-reactive-entities</module>
+        <module>webfx-stack-orm-reactive-visual</module>
         <module>webfx-stack-platform-json</module>
         <module>webfx-stack-platform-json-gwt</module>
         <module>webfx-stack-platform-json-java</module>
@@ -73,6 +92,25 @@
         <module>webfx-stack-platform-windowlocation</module>
         <module>webfx-stack-platform-windowlocation-gwt</module>
         <module>webfx-stack-platform-windowlocation-java</module>
+        <module>webfx-stack-push</module>
+        <module>webfx-stack-push-client</module>
+        <module>webfx-stack-push-client-simple</module>
+        <module>webfx-stack-push-server</module>
+        <module>webfx-stack-push-server-simple</module>
+        <module>webfx-stack-querypush</module>
+        <module>webfx-stack-querypush-client</module>
+        <module>webfx-stack-querypush-client-simple</module>
+        <module>webfx-stack-querypush-server</module>
+        <module>webfx-stack-querypush-server-simple</module>
+        <module>webfx-stack-routing-activity</module>
+        <module>webfx-stack-routing-router</module>
+        <module>webfx-stack-routing-uirouter</module>
+        <module>webfx-stack-ui-action</module>
+        <module>webfx-stack-ui-controls</module>
+        <module>webfx-stack-ui-operation</module>
+        <module>webfx-stack-ui-operation-action</module>
+        <module>webfx-stack-ui-util</module>
+        <module>webfx-stack-ui-validation</module>
         <module>webfx-stack-vertx-common</module>
     </modules>
 
