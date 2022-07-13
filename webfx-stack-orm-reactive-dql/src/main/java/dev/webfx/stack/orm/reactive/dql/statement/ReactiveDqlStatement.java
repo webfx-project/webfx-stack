@@ -1,6 +1,6 @@
 package dev.webfx.stack.orm.reactive.dql.statement;
 
-import dev.webfx.kit.util.properties.Properties;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Numbers;
 import dev.webfx.platform.util.Strings;
@@ -125,7 +125,7 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
       ================================================================================================================*/
 
     public ReactiveDqlStatement<E> always(ObservableValue<DqlStatement> dqlStatementProperty) {
-        Properties.runOnPropertiesChange(this::markDqlStatementsAsChanged, dqlStatementProperty);
+        FXProperties.runOnPropertiesChange(this::markDqlStatementsAsChanged, dqlStatementProperty);
         return addWithoutListening(dqlStatementProperty);
     }
 
@@ -159,7 +159,7 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
 
     @Override
     public <T> ReactiveDqlStatement<E> always(ObservableValue<T> property, Converter<T, DqlStatement> toDqlStatementConverter) {
-        return addWithoutListening(Properties.compute(property, t -> {
+        return addWithoutListening(FXProperties.compute(property, t -> {
             // Calling the converter to get the dql statement
             DqlStatement dqlStatement = toDqlStatementConverter.convert(t);
             // If different from last value, this will trigger a global change check
@@ -176,7 +176,7 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
     }
 
     public ReactiveDqlStatement<E> ifTrue(ObservableValue<Boolean> ifProperty, DqlStatement dqlStatement) {
-        return addWithoutListening(Properties.compute(ifProperty, value -> {
+        return addWithoutListening(FXProperties.compute(ifProperty, value -> {
             markDqlStatementsAsChanged();
             return value ? dqlStatement : null;
         }));
@@ -189,7 +189,7 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
 
     @Override
     public ReactiveDqlStatement<E> ifFalse(ObservableValue<Boolean> ifProperty, DqlStatement dqlStatement) {
-        return addWithoutListening(Properties.compute(ifProperty, value -> {
+        return addWithoutListening(FXProperties.compute(ifProperty, value -> {
             markDqlStatementsAsChanged();
             return value ? null : dqlStatement;
         }));
@@ -301,7 +301,7 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
 
     protected static <E> ReactiveDqlStatement<E> initializeSlave(ReactiveDqlStatement<E> slave, Object pm) {
         if (pm instanceof HasSelectedMasterProperty)
-            slave.ifTrue(Properties.compute(((HasSelectedMasterProperty) pm).selectedMasterProperty(), selectedMaster ->
+            slave.ifTrue(FXProperties.compute(((HasSelectedMasterProperty) pm).selectedMasterProperty(), selectedMaster ->
                     selectedMaster == null || pm instanceof HasSlaveVisibilityCondition && !((HasSlaveVisibilityCondition) pm).isSlaveVisible(selectedMaster)
             ), DqlStatement.EMPTY_STATEMENT);
         return slave;

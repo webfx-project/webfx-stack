@@ -12,7 +12,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import dev.webfx.stack.ui.action.impl.WritableAction;
 import dev.webfx.kit.util.properties.ObservableLists;
-import dev.webfx.kit.util.properties.Properties;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.util.function.Converter;
 
 import java.util.Collection;
@@ -43,7 +43,7 @@ public final class ActionBinder {
 
     private static void bindGraphicProperties(ObjectProperty<Node> dstGraphicProperty, ObservableObjectValue<Node> srcGraphicProperty) {
         // Needs to make a copy of the graphic in case it is used in several places (JavaFX nodes must be unique instances in the scene graph)
-        Properties.runNowAndOnPropertiesChange(p -> dstGraphicProperty.setValue(copyGraphic(srcGraphicProperty.getValue())), srcGraphicProperty);
+        FXProperties.runNowAndOnPropertiesChange(p -> dstGraphicProperty.setValue(copyGraphic(srcGraphicProperty.getValue())), srcGraphicProperty);
     }
 
     private static Node copyGraphic(Node graphic) {

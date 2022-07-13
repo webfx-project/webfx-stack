@@ -18,7 +18,7 @@ import dev.webfx.stack.ui.util.layout.LayoutUtil;
 import dev.webfx.stack.ui.util.scene.SceneUtil;
 import dev.webfx.extras.materialdesign.textfield.MaterialTextFieldPane;
 import dev.webfx.stack.ui.util.border.BorderFactory;
-import dev.webfx.kit.util.properties.Properties;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.AnimationFramePass;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.scheduler.Scheduled;
@@ -72,7 +72,7 @@ public abstract class ButtonSelector<T> {
         this.parentGetter = parentGetter;
         this.parent = parent;
         this.buttonFactory = buttonFactory;
-        Properties.runOnPropertiesChange(this::updateButtonContentOnNewSelectedItem, selectedItemProperty());
+        FXProperties.runOnPropertiesChange(this::updateButtonContentOnNewSelectedItem, selectedItemProperty());
     }
 
     public boolean isAutoOpenOnMouseEntered() {
@@ -245,7 +245,7 @@ public abstract class ButtonSelector<T> {
             startLoading();
         }
         if (show && !isDialogOpen())
-            Properties.onPropertySet(loadedContentProperty, x -> {
+            FXProperties.onPropertySet(loadedContentProperty, x -> {
                 updateDecidedShowMode();
                 show();
             }, true);
@@ -359,7 +359,7 @@ public abstract class ButtonSelector<T> {
                 installSearchBoxForDecidedShowModeIfEnabled();
                 dialogCallback = DialogUtil.showDropUpOrDownDialog(dialogPane, button, parentNow, loadedContentProperty, decidedShowMode == ShowMode.DROP_UP);
                 dialogCallback.addCloseHook(
-                            Properties.runNowAndOnPropertiesChange(this::applyNewDecidedShowMode,
+                            FXProperties.runNowAndOnPropertiesChange(this::applyNewDecidedShowMode,
                                 dialogPane.getScene().heightProperty(),
                                 dialogPane.heightProperty(),
                                 loadedContentProperty

@@ -13,7 +13,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import dev.webfx.stack.ui.util.layout.LayoutUtil;
 import dev.webfx.stack.ui.util.scene.SceneUtil;
-import dev.webfx.kit.util.properties.Properties;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Booleans;
 import dev.webfx.platform.util.collection.Collections;
@@ -73,7 +73,7 @@ public final class DialogUtil {
     private static void setUpModalNodeResizeRelocate(Region modalNode, Pane parent, DialogCallback dialogCallback) {
         SceneUtil.onSceneReady(parent, scene ->
             dialogCallback.addCloseHook(
-                Properties.runNowAndOnPropertiesChange(() -> {
+                FXProperties.runNowAndOnPropertiesChange(() -> {
                         Point2D parentSceneXY = parent.localToScene(0, 0);
                         double width = Math.min(parent.getWidth(), scene.getWidth() - parentSceneXY.getX());
                         double height = Math.min(parent.getHeight(), scene.getHeight() - parentSceneXY.getY());
@@ -181,7 +181,7 @@ public final class DialogUtil {
             };
             dialogNode.getProperties().put("positionUpdater", positionUpdater); // used by updateDropUpOrDownDialogPosition()
             dialogCallback
-                    .addCloseHook(Properties.runNowAndOnPropertiesChange(positionUpdater, reactingProperties)::unregister)
+                    .addCloseHook(FXProperties.runNowAndOnPropertiesChange(positionUpdater, reactingProperties)::unregister)
                     .addCloseHook(() -> dialogNode.relocate(0, 0))
                     .addCloseHook(SceneUtil.runOnceFocusIsOutside(dialogNode, dialogCallback::closeDialog)::unregister);
         });

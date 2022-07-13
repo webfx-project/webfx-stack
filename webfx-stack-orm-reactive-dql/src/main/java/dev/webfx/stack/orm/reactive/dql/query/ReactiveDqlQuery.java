@@ -19,7 +19,7 @@ import dev.webfx.stack.orm.expression.builder.ReferenceResolver;
 import dev.webfx.stack.orm.expression.builder.ThreadLocalReferenceResolver;
 import dev.webfx.stack.orm.expression.terms.Alias;
 import dev.webfx.stack.orm.expression.terms.As;
-import dev.webfx.kit.util.properties.Properties;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.stack.db.datascope.aggregate.AggregateScope;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
@@ -77,7 +77,7 @@ public class ReactiveDqlQuery<E> implements ReactiveDqlQueryAPI<E, ReactiveDqlQu
 
     @Override
     public <T> ReactiveDqlQuery<E> setAggregateScope(ObservableValue<T> property, Converter<T, AggregateScope> toAggregateScopeConverter) {
-        Properties.runNowAndOnPropertiesChange(() -> aggregateScope = toAggregateScopeConverter.convert(property.getValue()) , property);
+        FXProperties.runNowAndOnPropertiesChange(() -> aggregateScope = toAggregateScopeConverter.convert(property.getValue()) , property);
         return this;
     }
 

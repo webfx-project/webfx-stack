@@ -2,7 +2,7 @@ package dev.webfx.stack.ui.controls;
 
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
-import dev.webfx.kit.util.properties.Properties;
+import dev.webfx.kit.util.properties.FXProperties;
 import java.util.function.Consumer;
 
 /**
@@ -15,6 +15,6 @@ public final class Controls {
     }
 
     public static void onSkinReady(Control control, Consumer<Skin<?>> consumer) {
-        Properties.onPropertySet(control.skinProperty(), consumer);
+        FXProperties.onPropertySet(control.skinProperty(), consumer);
     }
 }

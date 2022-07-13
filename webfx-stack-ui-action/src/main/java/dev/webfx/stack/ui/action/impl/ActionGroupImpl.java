@@ -11,7 +11,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import dev.webfx.stack.ui.action.Action;
 import dev.webfx.stack.ui.action.ActionGroup;
-import dev.webfx.kit.util.properties.Properties;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.util.collection.Collections;
 
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ public final class ActionGroupImpl extends ReadOnlyAction implements ActionGroup
         super(textProperty, graphicProperty, disabledProperty, visibleProperty, actionHandler);
         this.actions = actions;
         this.hasSeparators = hasSeparators;
-        Properties.runNowAndOnPropertiesChange(this::updateVisibleActions, Collections.map(actions, Action::visibleProperty));
+        FXProperties.runNowAndOnPropertiesChange(this::updateVisibleActions, Collections.map(actions, Action::visibleProperty));
     }
 
     private void updateVisibleActions() {
@@ -59,7 +59,7 @@ public final class ActionGroupImpl extends ReadOnlyAction implements ActionGroup
         this.visibleActions.setAll(actions);
         ObservableBooleanValue groupVisibleObservableValue = visibleProperty();
         if (groupVisibleObservableValue instanceof Property)
-            Properties.setIfNotBound((Property) groupVisibleObservableValue, !this.visibleActions.isEmpty());
+            FXProperties.setIfNotBound((Property) groupVisibleObservableValue, !this.visibleActions.isEmpty());
     }
 
     @Override

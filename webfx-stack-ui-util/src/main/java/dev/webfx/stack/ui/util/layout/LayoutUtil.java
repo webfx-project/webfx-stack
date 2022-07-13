@@ -2,7 +2,7 @@ package dev.webfx.stack.ui.util.layout;
 
 import dev.webfx.stack.ui.util.background.BackgroundFactory;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
-import dev.webfx.kit.util.properties.Properties;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.util.Numbers;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
@@ -41,7 +41,7 @@ public final class LayoutUtil {
         // Temporary commented as scheduleInAnimationFrame() doesn't work with the FxUiSchedulerProvider TODO Fix that
         // goldPane.setVisible(false);
         // UiScheduler.scheduleInAnimationFrame(() -> goldPane.setVisible(true), 5, AnimationFramePass.SCENE_PULSE_LAYOUT_PASS);
-        headerRowConstraints.prefHeightProperty().bind(Properties.combine(goldPane.heightProperty(), child.heightProperty(),
+        headerRowConstraints.prefHeightProperty().bind(FXProperties.combine(goldPane.heightProperty(), child.heightProperty(),
                 (gpHeight, cHeight) -> {
                     if (percentageHeight != 0)
                         child.setPrefHeight(gpHeight.doubleValue() * percentageHeight);
@@ -49,7 +49,7 @@ public final class LayoutUtil {
                     return (gpHeight.doubleValue() - cHeight.doubleValue()) / 2.61;
                 }));
         if (percentageWidth != 0)
-            child.prefWidthProperty().bind(Properties.compute(goldPane.widthProperty(), gpWidth -> gpWidth.doubleValue() * percentageWidth));
+            child.prefWidthProperty().bind(FXProperties.compute(goldPane.widthProperty(), gpWidth -> gpWidth.doubleValue() * percentageWidth));
         goldPane.add(setMaxSizeToPref(child), 0, 1);
         if (background != null)
             goldPane.setBackground(background);
@@ -251,7 +251,7 @@ public final class LayoutUtil {
         else
             content.prefWidthProperty().bind(
                     // scrollPane.widthProperty().subtract(verticalScrollbarExtraWidth) // doesn't compile with GWT
-                    Properties.compute(scrollPane.widthProperty(), width -> Numbers.toDouble(width.doubleValue() - verticalScrollbarExtraWidth))
+                    FXProperties.compute(scrollPane.widthProperty(), width -> Numbers.toDouble(width.doubleValue() - verticalScrollbarExtraWidth))
             );
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         return scrollPane;

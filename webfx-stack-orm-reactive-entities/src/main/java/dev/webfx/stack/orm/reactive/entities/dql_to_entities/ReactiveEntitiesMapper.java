@@ -5,7 +5,7 @@ import dev.webfx.stack.orm.reactive.dql.querypush.ReactiveDqlQueryPush;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.SqlCompiled;
 import dev.webfx.stack.orm.entity.*;
 import dev.webfx.stack.orm.entity.query_result_to_entities.QueryResultToEntitiesMapper;
-import dev.webfx.kit.util.properties.Properties;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.stack.db.query.QueryResult;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -37,7 +37,7 @@ public final class ReactiveEntitiesMapper<E extends Entity> implements HasEntity
 
     public ReactiveEntitiesMapper(ReactiveDqlQuery<E> reactiveDqlQuery) {
         this.reactiveDqlQuery = reactiveDqlQuery;
-        Properties.runOnPropertiesChange(p -> onNewQueryResult((QueryResult) p.getValue()), reactiveDqlQuery.resultProperty());
+        FXProperties.runOnPropertiesChange(p -> onNewQueryResult((QueryResult) p.getValue()), reactiveDqlQuery.resultProperty());
     }
 
     @Override

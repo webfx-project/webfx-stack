@@ -5,7 +5,7 @@ import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableBooleanValue;
-import dev.webfx.kit.util.properties.Properties;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.util.Objects;
 
 
@@ -15,7 +15,7 @@ import dev.webfx.platform.util.Objects;
 public final class UiSessionImpl implements UiSession {
 
     private final Property<Object> userPrincipalProperty = new SimpleObjectProperty<>();
-    private final ObservableBooleanValue loggedInProperty = BooleanExpression.booleanExpression(Properties.compute(userPrincipalProperty, Objects::nonNull));
+    private final ObservableBooleanValue loggedInProperty = BooleanExpression.booleanExpression(FXProperties.compute(userPrincipalProperty, Objects::nonNull));
 
     private final static UiSession INSTANCE = new UiSessionImpl();
 

@@ -17,7 +17,7 @@ import javafx.stage.Window;
 import dev.webfx.stack.ui.util.anim.Animations;
 import dev.webfx.stack.ui.util.layout.LayoutUtil;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
-import dev.webfx.kit.util.properties.Properties;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.Unregisterable;
 import dev.webfx.kit.util.properties.UnregisterableListener;
 import dev.webfx.platform.uischeduler.AnimationFramePass;
@@ -111,7 +111,7 @@ public final class SceneUtil {
     }
 
     public static void onSceneReady(ObservableValue<Scene> sceneProperty, Consumer<Scene> sceneConsumer) {
-        Properties.onPropertySet(sceneProperty, sceneConsumer);
+        FXProperties.onPropertySet(sceneProperty, sceneConsumer);
     }
 
     public static void onPrimarySceneReady(Consumer<Scene> sceneConsumer) {
@@ -135,7 +135,7 @@ public final class SceneUtil {
     }
 
     public static Unregisterable onVirtualKeyboardShowing(Scene scene, Runnable runnable) {
-        return Properties.runOnPropertiesChange(p -> {
+        return FXProperties.runOnPropertiesChange(p -> {
             if (Booleans.isTrue(p.getValue()))
                 runnable.run();
         }, getSceneInfo(scene).virtualKeyboardShowingProperty);

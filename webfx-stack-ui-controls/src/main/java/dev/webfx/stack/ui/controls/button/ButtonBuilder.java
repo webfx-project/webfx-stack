@@ -15,7 +15,7 @@ import dev.webfx.stack.ui.util.border.BorderBuilder;
 import dev.webfx.stack.ui.util.image.JsonImageViews;
 import dev.webfx.stack.ui.util.paint.PaintBuilder;
 import dev.webfx.stack.ui.util.layout.LayoutUtil;
-import dev.webfx.kit.util.properties.Properties;
+import dev.webfx.kit.util.properties.FXProperties;
 import java.util.function.Function;
 
 /**
@@ -181,7 +181,7 @@ public final class ButtonBuilder {
                 if (pressedBackground == null || pressedBackground == background)
                     button.setBackground(background);
                 else
-                    button.backgroundProperty().bind(Properties.compute(button.pressedProperty(), pressed -> pressed ? pressedBackground : background));
+                    button.backgroundProperty().bind(FXProperties.compute(button.pressedProperty(), pressed -> pressed ? pressedBackground : background));
             }
             if (dropDownArrowDecorated)
                 ButtonFactory.decorateButtonWithDropDownArrow(button);
@@ -196,7 +196,7 @@ public final class ButtonBuilder {
                     button.textFillProperty().unbind();
                     button.setTextFill(textFill);
                 } else
-                    button.textFillProperty().bind(Properties.compute(button.pressedProperty(), pressed -> pressed ? pressedTextFill : textFill));
+                    button.textFillProperty().bind(FXProperties.compute(button.pressedProperty(), pressed -> pressed ? pressedTextFill : textFill));
             }
         }
         return button;

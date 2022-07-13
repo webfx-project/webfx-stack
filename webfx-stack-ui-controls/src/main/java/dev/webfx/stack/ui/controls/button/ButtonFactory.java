@@ -12,7 +12,7 @@ import dev.webfx.stack.ui.action.Action;
 import dev.webfx.stack.ui.controls.Controls;
 import dev.webfx.stack.ui.util.background.BackgroundFactory;
 import dev.webfx.stack.ui.util.border.BorderFactory;
-import dev.webfx.kit.util.properties.Properties;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.extras.imagestore.ImageStore;
 import dev.webfx.stack.ui.validation.controlsfx.control.decoration.GraphicDecoration;
 
@@ -55,7 +55,7 @@ public final class ButtonFactory {
 
     public static Button decorateButtonWithDropDownArrow(Button button) {
         GraphicDecoration dropDownArrowDecoration = new GraphicDecoration(ImageStore.createImageView("images/s16/controls/dropDownArrow.png"), Pos.CENTER_RIGHT, 0, 0, -1, 0);
-        Properties.runNowAndOnPropertiesChange(() -> Platform.runLater(() ->
+        FXProperties.runNowAndOnPropertiesChange(() -> Platform.runLater(() ->
             Controls.onSkinReady(button, () -> dropDownArrowDecoration.applyDecoration(button))
         ), button.graphicProperty());
         button.setMinWidth(0d);

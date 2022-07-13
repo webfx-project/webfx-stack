@@ -5,7 +5,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import dev.webfx.stack.ui.action.impl.WritableAction;
 import dev.webfx.stack.ui.operation.OperationUtil;
-import dev.webfx.kit.util.properties.Properties;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.stack.async.AsyncFunction;
 import dev.webfx.platform.util.function.Factory;
 
@@ -37,7 +37,7 @@ public final class OperationAction<Rq, Rs> extends WritableAction {
         registry.bindOperationActionGraphicalProperties(this);
         // Also, if some graphical dependencies are passed, we update the graphical properties when they change
         if (graphicalDependencies.length > 0)
-            Properties.runNowAndOnPropertiesChange(() -> registry.updateOperationActionGraphicalProperties(this), graphicalDependencies);
+            FXProperties.runNowAndOnPropertiesChange(() -> registry.updateOperationActionGraphicalProperties(this), graphicalDependencies);
     }
 
     public OperationActionRegistry getOperationActionRegistry() {
