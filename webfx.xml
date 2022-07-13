@@ -1392,7 +1392,7 @@
         <project name="webfx-stack-orm-dql-querypush-interceptor">
 
             <module-auto-injection-conditions>
-                <if-uses-java-package>dev.webfx.stack.framework.shared.services.querypush</if-uses-java-package>
+                <if-uses-java-package>dev.webfx.stack.querypush</if-uses-java-package>
                 <if-uses-java-package>dev.webfx.stack.orm.domainmodel</if-uses-java-package>
             </module-auto-injection-conditions>
 
@@ -2880,8 +2880,6 @@
                 <module>webfx-stack-querypush-server</module>
             </java-package>
 
-            <java-package name="dev.webfx.stack.framework.shared.services.querypush"/>
-
             <java-package name="dev.webfx.stack.orm.domainmodel">
                 <module>webfx-stack-orm-datasourcemodel-service</module>
                 <module>webfx-stack-orm-domainmodel</module>
@@ -2895,6 +2893,15 @@
                 <module>webfx-stack-orm-reactive-dql</module>
                 <module>webfx-stack-orm-reactive-entities</module>
                 <module>webfx-stack-orm-reactive-visual</module>
+            </java-package>
+
+            <java-package name="dev.webfx.stack.querypush">
+                <module>webfx-stack-orm-dql-querypush-interceptor</module>
+                <module>webfx-stack-orm-reactive-call</module>
+                <module>webfx-stack-querypush</module>
+                <module>webfx-stack-querypush-client</module>
+                <module>webfx-stack-querypush-server</module>
+                <module>webfx-stack-querypush-server-simple</module>
             </java-package>
 
             <java-package name="java.util.regex">
