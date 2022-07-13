@@ -15,7 +15,7 @@ public final class SerialCodecModuleBooter implements ApplicationModuleBooter {
 
     @Override
     public String getModuleName() {
-        return "webfx-platform-shared-serial";
+        return "webfx-stack-com-serial";
     }
 
     @Override

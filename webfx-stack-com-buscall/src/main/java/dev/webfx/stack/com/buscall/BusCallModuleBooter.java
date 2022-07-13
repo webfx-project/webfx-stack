@@ -16,7 +16,7 @@ public final class BusCallModuleBooter implements ApplicationModuleBooter {
 
     @Override
     public String getModuleName() {
-        return "webfx-platform-shared-buscall";
+        return "webfx-stack-com-buscall";
     }
 
     @Override
