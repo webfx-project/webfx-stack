@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <exported-packages>
+        <source-packages/>
+        <resource-package>images.s16.controls</resource-package>
+    </exported-packages>
+
+    <dependencies>
+        <used-by-source-modules>
+            <undetected-module>webfx-stack-routing-activity</undetected-module>
+            <undetected-module>webfx-extras-type</undetected-module>
+        </used-by-source-modules>
+    </dependencies>
+
+</project>
