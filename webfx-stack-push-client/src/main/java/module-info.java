@@ -8,7 +8,7 @@ module webfx.stack.push.client {
     requires webfx.platform.console;
     requires webfx.platform.util;
     requires webfx.stack.com.bus;
-    requires webfx.stack.com.buscall;
+    requires webfx.stack.com.bus.call;
     requires webfx.stack.push;
 
     // Exported packages

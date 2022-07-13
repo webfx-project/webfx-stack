@@ -7,7 +7,7 @@ module webfx.stack.querypush {
     requires webfx.platform.console;
     requires webfx.platform.util;
     requires webfx.stack.async;
-    requires webfx.stack.com.buscall;
+    requires webfx.stack.com.bus.call;
     requires webfx.stack.com.serial;
     requires webfx.stack.db.datascope;
     requires webfx.stack.db.datasource;
@@ -25,7 +25,7 @@ module webfx.stack.querypush {
     uses dev.webfx.stack.querypush.spi.QueryPushServiceProvider;
 
     // Provided services
-    provides dev.webfx.stack.com.buscall.spi.BusCallEndpoint with dev.webfx.stack.querypush.ExecuteQueryPushBusCallEndpoint;
+    provides dev.webfx.stack.com.bus.call.spi.BusCallEndpoint with dev.webfx.stack.querypush.ExecuteQueryPushBusCallEndpoint;
     provides dev.webfx.stack.com.serial.spi.SerialCodec with dev.webfx.stack.querypush.QueryPushArgument.ProvidedSerialCodec, dev.webfx.stack.querypush.QueryPushResult.ProvidedSerialCodec, dev.webfx.stack.querypush.diff.impl.QueryResultTranslation.ProvidedSerialCodec;
 
 }

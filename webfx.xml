@@ -776,7 +776,7 @@
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-util</module>
                 <module>webfx-stack-com-bus</module>
-                <module>webfx-stack-com-buscall</module>
+                <module>webfx-stack-com-bus-call</module>
                 <module>webfx-stack-push</module>
             </used-by-source-modules>
 
@@ -807,7 +807,7 @@
             <used-by-source-modules>
                 <module>webfx-platform-console</module>
                 <module>webfx-stack-com-bus</module>
-                <module>webfx-stack-com-buscall</module>
+                <module>webfx-stack-com-bus-call</module>
                 <module>webfx-stack-push</module>
                 <module>webfx-stack-push-client</module>
             </used-by-source-modules>
@@ -867,7 +867,7 @@
                 <module>webfx-platform-scheduler</module>
                 <module>webfx-stack-async</module>
                 <module>webfx-stack-com-bus</module>
-                <module>webfx-stack-com-buscall</module>
+                <module>webfx-stack-com-bus-call</module>
                 <module>webfx-stack-push</module>
                 <module>webfx-stack-push-server</module>
             </used-by-source-modules>
@@ -881,7 +881,7 @@
             </exported-packages>
 
             <providers>
-                <provider interface="dev.webfx.stack.com.buscall.spi.BusCallEndpoint">dev.webfx.stack.querypush.ExecuteQueryPushBusCallEndpoint</provider>
+                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.querypush.ExecuteQueryPushBusCallEndpoint</provider>
                 <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.querypush.QueryPushArgument$ProvidedSerialCodec</provider>
                 <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.querypush.QueryPushResult$ProvidedSerialCodec</provider>
                 <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.querypush.diff.impl.QueryResultTranslation$ProvidedSerialCodec</provider>
@@ -904,7 +904,7 @@
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-util</module>
                 <module>webfx-stack-async</module>
-                <module>webfx-stack-com-buscall</module>
+                <module>webfx-stack-com-bus-call</module>
                 <module>webfx-stack-com-serial</module>
                 <module>webfx-stack-db-datascope</module>
                 <module>webfx-stack-db-datasource</module>
@@ -976,7 +976,7 @@
             </exported-packages>
 
             <providers>
-                <provider interface="dev.webfx.stack.db.submitlistener.SubmitListener">dev.webfx.stack.querypush.server.QueryPushServerService$ProvidedSubmitListener</provider>
+                <provider interface="dev.webfx.stack.db.submit.listener.SubmitListener">dev.webfx.stack.querypush.server.QueryPushServerService$ProvidedSubmitListener</provider>
             </providers>
 
             <dependencies>
@@ -998,7 +998,7 @@
                 <module>webfx-stack-db-datascope</module>
                 <module>webfx-stack-db-query</module>
                 <module>webfx-stack-db-submit</module>
-                <module>webfx-stack-db-submitlistener</module>
+                <module>webfx-stack-db-submit-listener</module>
                 <module>webfx-stack-push-server</module>
                 <module>webfx-stack-querypush</module>
             </used-by-source-modules>
@@ -1354,7 +1354,7 @@
                 <module>webfx-stack-db-querysubmit-java-jdbc</module>
                 <module>webfx-stack-db-querysubmit-vertx</module>
                 <module>webfx-stack-db-submit</module>
-                <module>webfx-stack-db-submitlistener</module>
+                <module>webfx-stack-db-submit-listener</module>
                 <module>webfx-stack-orm-dql-submit-interceptor</module>
                 <module>webfx-stack-orm-entity</module>
                 <module>webfx-stack-querypush-server</module>

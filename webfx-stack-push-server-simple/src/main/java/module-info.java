@@ -8,7 +8,7 @@ module webfx.stack.push.server.simple {
     requires webfx.platform.scheduler;
     requires webfx.stack.async;
     requires webfx.stack.com.bus;
-    requires webfx.stack.com.buscall;
+    requires webfx.stack.com.bus.call;
     requires webfx.stack.push;
     requires webfx.stack.push.server;
 

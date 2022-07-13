@@ -6,7 +6,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import dev.webfx.stack.orm.push.client.spi.PushClientServiceProvider;
 import dev.webfx.stack.push.ClientPushBusAddressesSharedByBothClientAndServer;
 import dev.webfx.stack.com.bus.Registration;
-import dev.webfx.stack.com.buscall.BusCallService;
+import dev.webfx.stack.com.bus.call.BusCallService;
 import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;

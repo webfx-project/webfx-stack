@@ -5,7 +5,7 @@ module webfx.stack.push.client.simple {
     // Direct dependencies modules
     requires webfx.platform.console;
     requires webfx.stack.com.bus;
-    requires webfx.stack.com.buscall;
+    requires webfx.stack.com.bus.call;
     requires webfx.stack.push;
     requires webfx.stack.push.client;
 

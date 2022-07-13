@@ -6,7 +6,7 @@ import dev.webfx.stack.push.server.spi.PushServerServiceProvider;
 import dev.webfx.stack.push.ClientPushBusAddressesSharedByBothClientAndServer;
 import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.stack.com.bus.BusService;
-import dev.webfx.stack.com.buscall.BusCallService;
+import dev.webfx.stack.com.bus.call.BusCallService;
 import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.stack.async.Future;

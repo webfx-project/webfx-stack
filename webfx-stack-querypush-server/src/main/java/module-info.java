@@ -12,7 +12,7 @@ module webfx.stack.querypush.server {
     requires webfx.stack.db.datascope;
     requires webfx.stack.db.query;
     requires webfx.stack.db.submit;
-    requires webfx.stack.db.submitlistener;
+    requires webfx.stack.db.submit.listener;
     requires webfx.stack.push.server;
     requires webfx.stack.querypush;
 
@@ -21,6 +21,6 @@ module webfx.stack.querypush.server {
     exports dev.webfx.stack.querypush.server.spi.impl;
 
     // Provided services
-    provides dev.webfx.stack.db.submitlistener.SubmitListener with dev.webfx.stack.querypush.server.QueryPushServerService.ProvidedSubmitListener;
+    provides dev.webfx.stack.db.submit.listener.SubmitListener with dev.webfx.stack.querypush.server.QueryPushServerService.ProvidedSubmitListener;
 
 }
