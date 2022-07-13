@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <module-auto-injection-conditions>
+        <if-uses-java-package>dev.webfx.stack.framework.shared.services.querypush</if-uses-java-package>
+        <if-uses-java-package>dev.webfx.stack.orm.domainmodel</if-uses-java-package>
+    </module-auto-injection-conditions>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <providers>
+        <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.orm.dql.querypush.interceptor.DqlQueryPushInterceptorModuleBooter</provider>
+    </providers>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+</project>
