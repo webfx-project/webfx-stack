@@ -1,15 +1,19 @@
 package dev.webfx.stack.orm.entity.controls.entity.sheet;
 
-import javafx.application.Platform;
-import javafx.scene.Node;
-import javafx.scene.layout.Pane;
+import dev.webfx.stack.async.Batch;
+import dev.webfx.stack.async.Future;
+import dev.webfx.stack.async.Promise;
+import dev.webfx.stack.db.submit.SubmitResult;
+import dev.webfx.stack.orm.entity.Entity;
+import dev.webfx.stack.orm.entity.UpdateStore;
+import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.ui.controls.MaterialFactoryMixin;
 import dev.webfx.stack.ui.controls.button.ButtonFactoryMixin;
 import dev.webfx.stack.ui.controls.dialog.DialogContent;
 import dev.webfx.stack.ui.controls.dialog.DialogUtil;
-import dev.webfx.stack.orm.expression.Expression;
-import dev.webfx.stack.orm.entity.Entity;
-import dev.webfx.stack.orm.entity.UpdateStore;
+import javafx.application.Platform;
+import javafx.scene.Node;
+import javafx.scene.layout.Pane;
 
 abstract class EntityUpdateDialog<E extends Entity> implements MaterialFactoryMixin, ButtonFactoryMixin {
 
@@ -19,6 +23,13 @@ abstract class EntityUpdateDialog<E extends Entity> implements MaterialFactoryMi
     Entity updateEntity;
     private DialogContent dialogContent;
     private UpdateStore updateStore;
+    private Promise<Batch<SubmitResult>> userSubmitPromise;
+
+    public Future<Batch<SubmitResult>> createUserSubmitFuture() {
+        if (userSubmitPromise == null)
+            userSubmitPromise = Promise.promise();
+        return userSubmitPromise.future();
+    }
 
     public E getEntity() {
         return entity;
@@ -67,9 +78,12 @@ abstract class EntityUpdateDialog<E extends Entity> implements MaterialFactoryMi
                         if (!updateStore.hasChanges())
                             dialogCallback.closeDialog();
                         else {
-                            updateStore.submitChanges()
+                            Future<Batch<SubmitResult>> submitFuture = updateStore.submitChanges();
+                            submitFuture
                                     .onFailure(dialogCallback::showException)
                                     .onSuccess(result -> dialogCallback.closeDialog());
+                            if (userSubmitPromise != null)
+                                userSubmitPromise.handle(submitFuture);
                         }
                     });
                     updateOkButton();
