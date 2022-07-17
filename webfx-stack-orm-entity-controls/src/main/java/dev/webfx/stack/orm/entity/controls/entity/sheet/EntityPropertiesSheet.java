@@ -189,8 +189,11 @@ public final class EntityPropertiesSheet<E extends Entity> extends EntityUpdateD
         syncUiFromModel();
     }
 
-    public static <E extends Entity> void editEntity(E entity, String expressionColumns, Pane parent) {
-        if (entity != null)
-            new EntityPropertiesSheet<>(entity, expressionColumns).showAsDialog(parent);
+    public static <E extends Entity> EntityPropertiesSheet<E> editEntity(E entity, String expressionColumns, Pane parent) {
+        if (entity == null)
+            return null;
+        EntityPropertiesSheet<E> sheet = new EntityPropertiesSheet<>(entity, expressionColumns);
+        sheet.showAsDialog(parent);
+        return sheet;
     }
 }
