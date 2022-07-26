@@ -149,7 +149,7 @@
 
     <export-snapshot>
 
-        <project name="webfx-stack">
+        <project name="webfx-stack-private">
 
             <parent name="webfx-stack-parent"/>
 
@@ -1542,6 +1542,8 @@
                 <module>webfx-platform-scheduler</module>
                 <module>webfx-platform-uischeduler</module>
                 <module>webfx-platform-util</module>
+                <module>webfx-stack-async</module>
+                <module>webfx-stack-db-submit</module>
                 <module>webfx-stack-orm-domainmodel</module>
                 <module>webfx-stack-orm-dql</module>
                 <module>webfx-stack-orm-entity</module>
@@ -2881,6 +2883,7 @@
                 <module>webfx-stack-db-submit-listener</module>
                 <module>webfx-stack-orm-dql-submit-interceptor</module>
                 <module>webfx-stack-orm-entity</module>
+                <module>webfx-stack-orm-entity-controls</module>
                 <module>webfx-stack-querypush-server</module>
             </java-package>
 
