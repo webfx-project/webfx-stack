@@ -21,7 +21,7 @@
             <webfx-library name="webfx-stack-parent"/>
             <webfx-library name="webfx-lib-javacupruntime"/>
             <!-- A few high level stack modules are using webfx-extras -->
-            <webfx-library name="webfx-extras"/>
+            <webfx-library name="webfx-extras-private"/>
         </group>
 
         <library name="com-zaxxer-hikari">
@@ -246,7 +246,7 @@
                     <webfx-library name="webfx-stack-parent"/>
                     <webfx-library name="webfx-lib-javacupruntime"/>
                     <!-- A few high level stack modules are using webfx-extras -->
-                    <webfx-library name="webfx-extras"/>
+                    <webfx-library name="webfx-extras-private"/>
                 </group>
 
                 <library name="com-zaxxer-hikari">
