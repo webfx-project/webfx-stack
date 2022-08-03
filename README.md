@@ -14,9 +14,14 @@ WebFX in general, and the WebFX Stack in particular, like other modern web techn
 
 For example, as opposed to other Java ORM frameworks which are primary designed to run on the server (some may run on the client - but definitely not in the browser - and yet require a direct database access), the ORM we provide is primary designed to run on the client (including in the browser). It builds and maintains the entities in the client memory, so they can be directly accessed when running the client application logic, or building the UI.
 
-Our authorization framework is also designed for a client-side usage, and integrates beautifully with JavaFX (all your UI actions will be automatically displayed/hidden or enabled/disabled through JavaFX bindings).
+Our authorization framework is also designed for a client-side usage, and integrates beautifully with JavaFX (all your UI actions will be automatically displayed/hidden or enabled/disabled through JavaFX bindings, depending on the authorizations granted to the authenticated user).
 
 ## The main components
+
+<p align="center">
+  <img src="https://docs.webfx.dev/webfx-stack/webfx-stack.svg" />
+</p>
+
 
 ### UI
 
