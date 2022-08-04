@@ -35,26 +35,26 @@ The WebFX Stack is a collection of pieces of framework designed to work together
 
 ### Server
 
-* **QueryPush**: server-side peer of QueryPush
-* **Push**: server-side peer of Push
-* **DB**: server-side peer of DB
+* **QueryPush (server)**: server-side peer of QueryPush
+* **Push (server)**: server-side peer of Push
+* **DB (server)**: server-side peer of DB
 * **Vert.x**: server-side implementation of the WebFX Platform & Stack modules for Vert.x
 
 An additional implementation for Spring Boot might be considered in the future. 
 
 ## Why a new framework?
 
-Because the WebFX Stack has these 3 special unique qualities:
+Because the WebFX Stack possesses these 3 special qualities:
 
 * Mainly client-side
 * Cross-platform (GWT compatible in particular)
 * Designed to work with JavaFX
 
-These 3 combined qualities are not shared by any other existing Java frameworks, and they are the qualities you would naturally expect when developing WebFX applications.
+And those 3 combined qualities are not possessed by any other existing Java frameworks. And they are the qualities you would naturally expect when developing WebFX applications.
 
-The whole WebFX ecosystem, and the WebFX Stack in particular, like other modern mobile & web technologies, emphasis the client-side paradigm where most of the application code resides on the client rather than on the server, to provide a better user experience (faster navigation, faster rendering, offline mode, etc...).
+Why mainly client-side? The whole WebFX ecosystem, and the WebFX Stack in particular, like other modern mobile & web technologies, emphasis the client-side paradigm where most of the application code resides on the client rather than on the server, to provide a better user experience (faster navigation, faster rendering, offline mode, etc...).
 
-For example, as opposed to other Java ORMs which are primarily designed to run on the server (some may run on the client - but definitely not in the browser), and require most of the time a direct database access, the ORM we provide is primarily designed to run on the client (including in the browser) and doesn't require a direct database access (DB queries are sent asynchronously through the event bus). It builds the domain objects, or entities, in the client memory, so they can be directly accessed when running the client application logic, or building the UI. It can even react to push notifications and automatically update these entities.
+For example, as opposed to other Java ORMs which are primarily designed to run on the server (some may run on the client - but definitely not in the browser - and require most of the time a direct database access), the ORM we provide is primarily designed to run on the client (including in the browser) and doesn't require a direct database access (DB queries are sent asynchronously through the event bus). It builds the domain objects, or entities, in the client memory, so they can be directly accessed when running the client application logic, or building the UI. It can even react to push notifications and automatically update these entities, and notify the UI of these changes.
 
 Our authorization framework is also designed for a client-side usage, and integrates beautifully with JavaFX (all your UI actions will be automatically displayed/hidden or enabled/disabled through JavaFX bindings, depending on the authorizations granted to the authenticated user).
 
