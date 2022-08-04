@@ -9,18 +9,18 @@ The WebFX Stack is a collection of pieces of framework designed to work together
 
 ### UI
 
-* **Action**: Simple Action API with text, graphic, disabled & visible bindings
+* **Validation**: Form & dialog validation framework
 * **Routing**: UI router for Single Page Application navigation
 * **I18n**: Internationalisation with JavaFX binding
-* **Validation**: Form & dialog validation framework
+* **Action**: Simple Action API with text, graphic, disabled & visible bindings
 
 ### Non-UI
-* **ORM**: client-side ORM with powerful reactive filters (using JavaFX binding)
-* **QueryPush**: Push notification implementation for database queries
-* **Push**: Push notification API
-* **DB**: Async database access API (query & submit)
-* **Authn**: Simple interface for Authentication
 * **Authz**: Advanced authorization framework with JavaFX bindings
+* **Authn**: Simple interface for Authentication
+* **ORM**: client-side ORM with powerful reactive filters (using JavaFX binding)
+* **QueryPush**: Push notification for database queries
+* **Push**: General purpose push notification API
+* **DB**: Async database access API (query & submit)
 
 ### Platform
 * **WindowLocation**: API for accessing the window location
@@ -38,7 +38,7 @@ The WebFX Stack is a collection of pieces of framework designed to work together
 * **QueryPush**: server-side peer of QueryPush
 * **Push**: server-side peer of Push
 * **DB**: server-side peer of DB
-* **Vert.x**: Vert.x implementation of the WebFX Stack server-side modules
+* **Vert.x**: server-side implementation of the WebFX Platform & Stack modules for Vert.x
 
 An additional implementation for Spring Boot might be considered in the future. 
 
@@ -57,3 +57,7 @@ The whole WebFX ecosystem, and the WebFX Stack in particular, like other modern 
 For example, as opposed to other Java ORMs which are primarily designed to run on the server (some may run on the client - but definitely not in the browser), and require most of the time a direct database access, the ORM we provide is primarily designed to run on the client (including in the browser) and doesn't require a direct database access (DB queries are sent asynchronously through the event bus). It builds the domain objects, or entities, in the client memory, so they can be directly accessed when running the client application logic, or building the UI. It can even react to push notifications and automatically update these entities.
 
 Our authorization framework is also designed for a client-side usage, and integrates beautifully with JavaFX (all your UI actions will be automatically displayed/hidden or enabled/disabled through JavaFX bindings, depending on the authorizations granted to the authenticated user).
+
+## Status
+
+All the modules described above already exist, they have been developed during the prototyping phase of the [Modality project](https://github.com/modalityproject/modality). They are now in the process of being open-sourced (code review & cleaning, javadoc, documentation, etc...). Each time a module will be ready to be open-sourced, it will be published in this repository.
