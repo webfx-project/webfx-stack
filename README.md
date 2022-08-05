@@ -1,46 +1,36 @@
 # The WebFX Stack
 
-The WebFX Stack is a collection of pieces of framework designed to work together as follows:
+The WebFX Stack is a collection of framework pieces for WebFX designed to work together as follows:
 
 <p align="center">
   <img src="https://docs.webfx.dev/webfx-stack/webfx-stack.svg" />
 </p>
 
+| Framework piece        | Location | Description                                                                                     |
+|------------------------|----------|-------------------------------------------------------------------------------------------------|
+| **Validation**         | UI       | Form & dialog validation framework                                                              |
+| **Routing**            | UI       | UI router for Single Page Application navigation                                                |
+| **I18n**               | UI       | Internationalisation with JavaFX binding                                                        |
+| **Action**             | UI       | Simple Action API with text, graphic, disabled & visible bindings                               |
+| **Authz**              | Non-UI   | Advanced authorization framework with JavaFX bindings                                           |
+| **Authn**              | Non-UI   | Simple interface for Authentication                                                             |
+| **ORM**                | Non-UI   | Client-side ORM with powerful reactive filters (using JavaFX binding)                           |
+| **QueryPush**          | Non-UI   | Push notification for database queries                                                          |
+| **Push**               | Non-UI   | General purpose push notification API                                                           |
+| **DB**                 | Non-UI   | Async database access API (query & submit)                                                      |
+| **WindowLocation**     | Platform | Cross-platform API for accessing the window location                                            |
+| **WindowHistory**      | Platform | Cross-platform API for accessing the window history                                             |
+| **WebAssembly**        | Platform | Cross-platform API for working with WebAssembly                                                 |
+| **WebWorker**          | Platform | Cross-platform API for working with web workers                                                 |
+| **Async**              | Shared   | Future & Promise API for async operations                                                       |
+| **Com**                | Shared   | Async communication via a websocket event bus                                                   |
+| **Json**               | Shared   | Cross-platform Json API                                                                         |
+| **QueryPush (server)** | Server   | server-side peer of QueryPush                                                                   |
+| **Push (server)**      | Server   | server-side peer of Push                                                                        |
+| **DB (server)**        | Server   | server-side peer of DB                                                                          |
+| **Vert.x** *           | Server   | server-side implementation of the WebFX Platform & Stack modules for [Vert.x](https://vertx.io) |
 
-### UI
-
-* **Validation**: Form & dialog validation framework
-* **Routing**: UI router for Single Page Application navigation
-* **I18n**: Internationalisation with JavaFX binding
-* **Action**: Simple Action API with text, graphic, disabled & visible bindings
-
-### Non-UI
-* **Authz**: Advanced authorization framework with JavaFX bindings
-* **Authn**: Simple interface for Authentication
-* **ORM**: client-side ORM with powerful reactive filters (using JavaFX binding)
-* **QueryPush**: Push notification for database queries
-* **Push**: General purpose push notification API
-* **DB**: Async database access API (query & submit)
-
-### Platform
-* **WindowLocation**: Cross-platform API for accessing the window location
-* **WindowHistory**: Cross-platform API for accessing the window history
-* **WebAssembly**: Cross-platform API for working with WebAssembly
-* **WebWorker**: Cross-platform API for working with web workers
-
-### Shared (common to client & server)
-* **Async**: Future & Promise API for async operations
-* **Com**: Async communication via a websocket event bus
-* **Json**: Cross-platform Json API
-
-### Server
-
-* **QueryPush (server)**: server-side peer of QueryPush
-* **Push (server)**: server-side peer of Push
-* **DB (server)**: server-side peer of DB
-* **Vert.x**: server-side implementation of the WebFX Platform & Stack modules for Vert.x
-
-An additional implementation for Spring Boot might be considered in the future. 
+*\* An additional implementation for Spring Boot might be considered in the future*. 
 
 ## Why a new framework?
 
