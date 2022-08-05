@@ -23,10 +23,10 @@ The WebFX Stack is a collection of pieces of framework designed to work together
 * **DB**: Async database access API (query & submit)
 
 ### Platform
-* **WindowLocation**: API for accessing the window location
-* **WindowHistory**: API for accessing the window history
-* **WebAssembly**: API for working with WebAssembly
-* **WebWorker**: API for working with web workers
+* **WindowLocation**: Cross-platform API for accessing the window location
+* **WindowHistory**: Cross-platform API for accessing the window history
+* **WebAssembly**: Cross-platform API for working with WebAssembly
+* **WebWorker**: Cross-platform API for working with web workers
 
 ### Shared (common to client & server)
 * **Async**: Future & Promise API for async operations
@@ -61,3 +61,7 @@ Our authorization framework is also designed for a client-side usage, and integr
 ## Status
 
 All the modules described above already exist, they have been developed during the prototyping phase of the [Modality project](https://github.com/modalityproject/modality). They are now in the process of being open-sourced (code review & cleaning, javadoc, documentation, etc...). Each time a module will be ready to be open-sourced, it will be published in this repository.
+
+## License
+
+The WebFX Stack is a free, open-source software licensed under the [Apache License 2.0](LICENSE)
