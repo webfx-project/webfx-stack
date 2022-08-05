@@ -81,9 +81,11 @@ abstract class EntityUpdateDialog<E extends Entity> implements MaterialFactoryMi
                             Future<Batch<SubmitResult>> submitFuture = updateStore.submitChanges();
                             submitFuture
                                     .onFailure(dialogCallback::showException)
-                                    .onSuccess(result -> dialogCallback.closeDialog());
-                            if (userSubmitPromise != null)
-                                userSubmitPromise.handle(submitFuture);
+                                    .onSuccess(result -> dialogCallback.closeDialog())
+                                    .onComplete(result -> {
+                                        if (userSubmitPromise != null)
+                                            userSubmitPromise.handle(submitFuture);
+                                    });
                         }
                     });
                     updateOkButton();
