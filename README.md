@@ -2,35 +2,33 @@
 
 The WebFX Stack is a collection of framework pieces for WebFX, designed to work together as follows:
 
-<p align="center">
+<div align="center">
   <img src="https://docs.webfx.dev/webfx-stack/webfx-stack.svg" />
-</p>
 
-| Framework piece        | Location | Description                                                                            |
-|------------------------|----------|----------------------------------------------------------------------------------------|
-| **Validation**         | UI       | Form & dialog validation framework                                                     |
-| **Routing**            | UI       | UI router for Single Page Application navigation                                       |
-| **I18n**               | UI       | Internationalisation with JavaFX binding                                               |
-| **Action**             | UI       | Simple Action API with text, graphic, disabled & visible bindings                      |
-| **Authz**              | Non-UI   | Advanced authorization framework with JavaFX bindings                                  |
-| **Authn**              | Non-UI   | Simple interface for Authentication                                                    |
-| **ORM**                | Non-UI   | Client-side ORM with powerful reactive filters (using JavaFX binding)                  |
-| **QueryPush**          | Non-UI   | Push notification for database queries                                                 |
-| **Push**               | Non-UI   | General purpose push notification API                                                  |
-| **DB**                 | Non-UI   | Async database access API (query & submit)                                             |
-| **WindowLocation**     | Platform | Cross-platform API for accessing the window location                                   |
-| **WindowHistory**      | Platform | Cross-platform API for accessing the window history                                    |
-| **WebAssembly**        | Platform | Cross-platform API for working with WebAssembly                                        |
-| **WebWorker**          | Platform | Cross-platform API for working with web workers                                        |
-| **Async**              | Shared   | Future & Promise API for async operations                                              |
-| **Com**                | Shared   | Async communication via a websocket event bus                                          |
-| **Json**               | Shared   | Cross-platform Json API                                                                |
-| **QueryPush (server)** | Server   | server-side peer of QueryPush                                                          |
-| **Push (server)**      | Server   | server-side peer of Push                                                               |
-| **DB (server)**        | Server   | server-side peer of DB                                                                 |
-| **Vert.x** *           | Server   | [Vert.x](https://vertx.io) implementation of the WebFX Platform & Stack server modules |
+<p></p>
+
+| Framework piece        | Location | Description                                                                          |
+|------------------------|----------|--------------------------------------------------------------------------------------|
+| **Routing**            | UI       | UI router for Single Page Application navigation                                     |
+| **I18n**               | UI       | Internationalisation with JavaFX binding                                             |
+| **Action**             | UI       | Simple Action API with text, graphic, disabled & visible bindings                    |
+| **Validation**         | UI       | Form & dialog validation framework                                                   |
+| **Authn**              | Non-UI   | Simple interface for Authentication                                                  |
+| **Authz**              | Non-UI   | Advanced authorization framework with JavaFX bindings                                |
+| **ORM**                | Non-UI   | Client-side ORM with powerful reactive filters (using JavaFX binding)                |
+| **QueryPush**          | Non-UI   | Push notification for database queries                                               |
+| **Push**               | Non-UI   | General purpose push notification API                                                |
+| **DB**                 | Non-UI   | Async database access API (query & submit)                                           |
+| **Async**              | Shared   | Future & Promise API for async operations                                            |
+| **Com**                | Shared   | Async communication via a websocket event bus                                        |
+| **QueryPush (server)** | Server   | server-side peer of QueryPush                                                        |
+| **Push (server)**      | Server   | server-side peer of Push                                                             |
+| **DB (server)**        | Server   | server-side peer of DB                                                               |
+| **Vert.x** *           | Server   | Implementation of the WebFX Stack server-side modules for [Vert.x](https://vertx.io) |
 
 *\* An additional implementation for Spring Boot might be considered in the future*. 
+
+</div>
 
 ## Why a new framework?
 
