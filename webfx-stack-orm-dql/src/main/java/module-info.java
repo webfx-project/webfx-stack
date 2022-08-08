@@ -5,9 +5,9 @@ module webfx.stack.orm.dql {
     // Direct dependencies modules
     requires java.base;
     requires webfx.extras.type;
+    requires webfx.platform.json;
     requires webfx.platform.util;
     requires webfx.stack.orm.expression;
-    requires webfx.stack.platform.json;
 
     // Exported packages
     exports dev.webfx.stack.orm.dql;

@@ -5,6 +5,7 @@ module webfx.stack.querypush {
     // Direct dependencies modules
     requires java.base;
     requires webfx.platform.console;
+    requires webfx.platform.json;
     requires webfx.platform.util;
     requires webfx.stack.async;
     requires webfx.stack.com.bus.call;
@@ -12,7 +13,6 @@ module webfx.stack.querypush {
     requires webfx.stack.db.datascope;
     requires webfx.stack.db.datasource;
     requires webfx.stack.db.query;
-    requires webfx.stack.platform.json;
 
     // Exported packages
     exports dev.webfx.stack.querypush;

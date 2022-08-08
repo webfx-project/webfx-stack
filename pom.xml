@@ -33,7 +33,25 @@
 
     <modules>
         <module>webfx-platform-boot-vertx</module>
+        <module>webfx-platform-json</module>
+        <module>webfx-platform-json-gwt</module>
+        <module>webfx-platform-json-java</module>
+        <module>webfx-platform-json-teavm</module>
+        <module>webfx-platform-json-vertx</module>
         <module>webfx-platform-scheduler-vertx</module>
+        <module>webfx-platform-webassembly</module>
+        <module>webfx-platform-webassembly-teavm</module>
+        <module>webfx-platform-webworker</module>
+        <module>webfx-platform-webworker-gwt</module>
+        <module>webfx-platform-webworker-java</module>
+        <module>webfx-platform-webworker-teavm</module>
+        <module>webfx-platform-windowhistory</module>
+        <module>webfx-platform-windowhistory-gwt</module>
+        <module>webfx-platform-windowhistory-java</module>
+        <module>webfx-platform-windowhistory-web</module>
+        <module>webfx-platform-windowlocation</module>
+        <module>webfx-platform-windowlocation-gwt</module>
+        <module>webfx-platform-windowlocation-java</module>
         <module>webfx-stack-async</module>
         <module>webfx-stack-authn</module>
         <module>webfx-stack-authz</module>
@@ -74,24 +92,6 @@
         <module>webfx-stack-orm-reactive-dql</module>
         <module>webfx-stack-orm-reactive-entities</module>
         <module>webfx-stack-orm-reactive-visual</module>
-        <module>webfx-stack-platform-json</module>
-        <module>webfx-stack-platform-json-gwt</module>
-        <module>webfx-stack-platform-json-java</module>
-        <module>webfx-stack-platform-json-teavm</module>
-        <module>webfx-stack-platform-json-vertx</module>
-        <module>webfx-stack-platform-webassembly</module>
-        <module>webfx-stack-platform-webassembly-teavm</module>
-        <module>webfx-stack-platform-webworker</module>
-        <module>webfx-stack-platform-webworker-gwt</module>
-        <module>webfx-stack-platform-webworker-java</module>
-        <module>webfx-stack-platform-webworker-teavm</module>
-        <module>webfx-stack-platform-windowhistory</module>
-        <module>webfx-stack-platform-windowhistory-gwt</module>
-        <module>webfx-stack-platform-windowhistory-java</module>
-        <module>webfx-stack-platform-windowhistory-web</module>
-        <module>webfx-stack-platform-windowlocation</module>
-        <module>webfx-stack-platform-windowlocation-gwt</module>
-        <module>webfx-stack-platform-windowlocation-java</module>
         <module>webfx-stack-push</module>
         <module>webfx-stack-push-client</module>
         <module>webfx-stack-push-client-simple</module>

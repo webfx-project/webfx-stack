@@ -9,12 +9,12 @@ module webfx.stack.routing.uirouter {
     requires webfx.kit.launcher;
     requires webfx.kit.util;
     requires webfx.platform.console;
+    requires webfx.platform.json;
     requires webfx.platform.uischeduler;
     requires webfx.platform.util;
+    requires webfx.platform.windowhistory;
     requires webfx.stack.async;
     requires webfx.stack.authz;
-    requires webfx.stack.platform.json;
-    requires webfx.stack.platform.windowhistory;
     requires webfx.stack.routing.activity;
     requires webfx.stack.routing.router;
     requires webfx.stack.ui.operation;

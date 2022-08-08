@@ -6,8 +6,8 @@ module webfx.stack.com.websocket.java {
     requires Java.WebSocket;
     requires java.base;
     requires webfx.platform.console;
+    requires webfx.platform.json;
     requires webfx.stack.com.websocket;
-    requires webfx.stack.platform.json;
 
     // Exported packages
     exports dev.webfx.stack.com.websocket.spi.impl.java;

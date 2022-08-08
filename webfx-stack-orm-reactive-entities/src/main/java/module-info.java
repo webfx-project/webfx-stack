@@ -8,6 +8,7 @@ module webfx.stack.orm.reactive.entities {
     requires javafx.graphics;
     requires webfx.extras.type;
     requires webfx.kit.util;
+    requires webfx.platform.json;
     requires webfx.platform.util;
     requires webfx.stack.db.query;
     requires webfx.stack.orm.domainmodel;
@@ -15,7 +16,6 @@ module webfx.stack.orm.reactive.entities {
     requires webfx.stack.orm.entity;
     requires webfx.stack.orm.expression;
     requires webfx.stack.orm.reactive.dql;
-    requires webfx.stack.platform.json;
 
     // Exported packages
     exports dev.webfx.stack.orm.reactive.entities.dql_to_entities;

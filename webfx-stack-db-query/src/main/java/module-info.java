@@ -5,13 +5,13 @@ module webfx.stack.db.query {
     // Direct dependencies modules
     requires java.base;
     requires webfx.platform.console;
+    requires webfx.platform.json;
     requires webfx.platform.util;
     requires webfx.stack.async;
     requires webfx.stack.com.bus.call;
     requires webfx.stack.com.serial;
     requires webfx.stack.db.datascope;
     requires webfx.stack.db.datasource;
-    requires webfx.stack.platform.json;
 
     // Exported packages
     exports dev.webfx.stack.db.query;

@@ -6,9 +6,9 @@ module webfx.stack.com.serial {
     requires java.base;
     requires webfx.platform.boot;
     requires webfx.platform.console;
+    requires webfx.platform.json;
     requires webfx.platform.util;
     requires webfx.stack.async;
-    requires webfx.stack.platform.json;
 
     // Exported packages
     exports dev.webfx.stack.com.serial;

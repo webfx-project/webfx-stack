@@ -15,6 +15,7 @@ module webfx.stack.orm.entity.controls {
     requires webfx.extras.visual;
     requires webfx.extras.visual.grid;
     requires webfx.kit.util;
+    requires webfx.platform.json;
     requires webfx.platform.scheduler;
     requires webfx.platform.uischeduler;
     requires webfx.platform.util;
@@ -26,7 +27,6 @@ module webfx.stack.orm.entity.controls {
     requires webfx.stack.orm.expression;
     requires webfx.stack.orm.reactive.entities;
     requires webfx.stack.orm.reactive.visual;
-    requires webfx.stack.platform.json;
     requires webfx.stack.ui.controls;
     requires webfx.stack.ui.util;
 

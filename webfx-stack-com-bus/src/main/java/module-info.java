@@ -5,10 +5,10 @@ module webfx.stack.com.bus {
     // Direct dependencies modules
     requires java.base;
     requires webfx.platform.console;
+    requires webfx.platform.json;
     requires webfx.platform.scheduler;
     requires webfx.platform.util;
     requires webfx.stack.async;
-    requires webfx.stack.platform.json;
 
     // Exported packages
     exports dev.webfx.stack.com.bus;

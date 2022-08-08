@@ -10,10 +10,10 @@ module webfx.stack.ui.util {
     requires webfx.extras.imagestore;
     requires webfx.kit.launcher;
     requires webfx.kit.util;
+    requires webfx.platform.json;
     requires webfx.platform.scheduler;
     requires webfx.platform.uischeduler;
     requires webfx.platform.util;
-    requires webfx.stack.platform.json;
 
     // Exported packages
     exports dev.webfx.stack.ui.util.anim;
