@@ -1,10 +1,10 @@
 package dev.webfx.stack.com.bus.call;
 
-import dev.webfx.stack.platform.json.JsonObject;
-import dev.webfx.stack.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.WritableJsonObject;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 import dev.webfx.stack.com.serial.SerialCodecManager;
-import dev.webfx.stack.async.AsyncResult;
+import dev.webfx.platform.async.AsyncResult;
 
 /**
  * @author Bruno Salmon

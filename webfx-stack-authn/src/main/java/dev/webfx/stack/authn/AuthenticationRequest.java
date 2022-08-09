@@ -1,6 +1,6 @@
 package dev.webfx.stack.authn;
 
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Future;
 
 /**
  * @author Bruno Salmon

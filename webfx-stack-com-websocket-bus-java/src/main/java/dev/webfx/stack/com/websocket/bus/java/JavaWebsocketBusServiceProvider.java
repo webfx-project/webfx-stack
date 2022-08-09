@@ -4,8 +4,8 @@ import dev.webfx.stack.com.bus.BusOptions;
 import dev.webfx.stack.com.bus.BusService;
 import dev.webfx.stack.com.websocket.bus.WebSocketBusOptions;
 import dev.webfx.stack.com.websocket.bus.WebsocketBusServiceProvider;
-import dev.webfx.stack.platform.windowlocation.spi.HostLocation;
-import dev.webfx.stack.platform.windowlocation.spi.impl.java.JavaWindowLocationProvider;
+import dev.webfx.platform.windowlocation.spi.HostLocation;
+import dev.webfx.platform.windowlocation.spi.impl.java.JavaWindowLocationProvider;
 
 /**
  * @author Bruno Salmon

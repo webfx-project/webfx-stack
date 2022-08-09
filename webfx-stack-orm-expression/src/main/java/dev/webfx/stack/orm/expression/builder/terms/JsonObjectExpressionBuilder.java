@@ -2,8 +2,8 @@ package dev.webfx.stack.orm.expression.builder.terms;
 
 import dev.webfx.stack.orm.expression.terms.JsonObjectExpression;
 import dev.webfx.platform.util.noreflect.IndexedArray;
-import dev.webfx.stack.platform.json.Json;
-import dev.webfx.stack.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.Json;
+import dev.webfx.platform.json.WritableJsonObject;
 
 /**
  * @author Bruno Salmon

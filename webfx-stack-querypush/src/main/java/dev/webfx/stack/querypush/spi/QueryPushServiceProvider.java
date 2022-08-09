@@ -2,7 +2,7 @@ package dev.webfx.stack.querypush.spi;
 
 import dev.webfx.stack.querypush.PulseArgument;
 import dev.webfx.stack.querypush.QueryPushArgument;
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Future;
 
 /**
  * @author Bruno Salmon

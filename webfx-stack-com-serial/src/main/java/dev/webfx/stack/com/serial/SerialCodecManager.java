@@ -1,10 +1,11 @@
 package dev.webfx.stack.com.serial;
 
+import dev.webfx.platform.json.*;
 import dev.webfx.platform.util.Dates;
 import dev.webfx.platform.util.Numbers;
 import dev.webfx.stack.com.serial.spi.SerialCodec;
 import dev.webfx.stack.com.serial.spi.impl.ExceptionSerialCodec;
-import dev.webfx.stack.platform.json.*;
+import dev.webfx.platform.json.*;
 
 import java.lang.reflect.Array;
 import java.time.Instant;

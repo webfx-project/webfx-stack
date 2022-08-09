@@ -3,8 +3,8 @@ package dev.webfx.stack.ui.util.image;
 import javafx.scene.image.ImageView;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.extras.imagestore.ImageStore;
-import dev.webfx.stack.platform.json.Json;
-import dev.webfx.stack.platform.json.JsonObject;
+import dev.webfx.platform.json.Json;
+import dev.webfx.platform.json.JsonObject;
 
 /**
  * @author Bruno Salmon

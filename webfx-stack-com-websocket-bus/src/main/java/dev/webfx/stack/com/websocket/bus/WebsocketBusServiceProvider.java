@@ -4,7 +4,7 @@ import dev.webfx.stack.com.bus.BusFactory;
 import dev.webfx.stack.com.bus.BusOptions;
 import dev.webfx.stack.com.bus.spi.impl.BusServiceProviderBase;
 import dev.webfx.platform.resource.Resource;
-import dev.webfx.stack.platform.json.Json;
+import dev.webfx.platform.json.Json;
 
 /**
  * @author Bruno Salmon

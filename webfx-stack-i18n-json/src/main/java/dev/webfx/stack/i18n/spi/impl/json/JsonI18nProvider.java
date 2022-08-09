@@ -2,7 +2,7 @@ package dev.webfx.stack.i18n.spi.impl.json;
 
 
 import dev.webfx.stack.i18n.spi.impl.I18nProviderImpl;
-import dev.webfx.stack.platform.json.JsonObject;
+import dev.webfx.platform.json.JsonObject;
 
 /**
  * @author Bruno Salmon

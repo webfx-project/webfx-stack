@@ -4,7 +4,7 @@ import dev.webfx.platform.console.Console;
 import dev.webfx.stack.routing.router.Route;
 import dev.webfx.stack.routing.router.RoutingContext;
 import dev.webfx.platform.util.Strings;
-import dev.webfx.stack.async.Handler;
+import dev.webfx.platform.async.Handler;
 
 import java.util.ArrayList;
 import java.util.List;

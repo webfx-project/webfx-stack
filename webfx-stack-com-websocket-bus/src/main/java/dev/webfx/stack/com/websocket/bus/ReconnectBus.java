@@ -22,7 +22,7 @@ import dev.webfx.stack.com.bus.BusHook;
 import dev.webfx.stack.com.bus.BusOptions;
 import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.stack.com.websocket.WebSocket;
-import dev.webfx.stack.platform.json.JsonObject;
+import dev.webfx.platform.json.JsonObject;
 import dev.webfx.platform.util.collection.Collections;
 
 import java.util.ArrayList;

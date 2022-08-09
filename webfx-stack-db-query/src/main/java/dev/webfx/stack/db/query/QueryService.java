@@ -1,8 +1,8 @@
 package dev.webfx.stack.db.query;
 
 import dev.webfx.stack.db.query.spi.QueryServiceProvider;
-import dev.webfx.stack.async.Batch;
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Batch;
+import dev.webfx.platform.async.Future;
 import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;

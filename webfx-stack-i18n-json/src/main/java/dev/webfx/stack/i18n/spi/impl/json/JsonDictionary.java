@@ -3,8 +3,8 @@ package dev.webfx.stack.i18n.spi.impl.json;
 import dev.webfx.stack.i18n.I18nPart;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.stack.i18n.Dictionary;
-import dev.webfx.stack.platform.json.Json;
-import dev.webfx.stack.platform.json.JsonObject;
+import dev.webfx.platform.json.Json;
+import dev.webfx.platform.json.JsonObject;
 
 /**
  * @author Bruno Salmon

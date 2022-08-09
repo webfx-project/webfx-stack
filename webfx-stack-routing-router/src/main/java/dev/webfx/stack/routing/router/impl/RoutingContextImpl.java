@@ -1,6 +1,6 @@
 package dev.webfx.stack.routing.router.impl;
 
-import dev.webfx.stack.platform.json.JsonObject;
+import dev.webfx.platform.json.JsonObject;
 
 import java.util.Collection;
 

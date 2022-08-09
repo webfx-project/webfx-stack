@@ -1,7 +1,7 @@
 package dev.webfx.stack.push.server.spi;
 
 import dev.webfx.stack.push.server.UnresponsivePushClientListener;
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Future;
 import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.stack.push.ClientPushBusAddressesSharedByBothClientAndServer;
 

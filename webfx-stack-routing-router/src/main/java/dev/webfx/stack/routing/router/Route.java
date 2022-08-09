@@ -1,6 +1,6 @@
 package dev.webfx.stack.routing.router;
 
-import dev.webfx.stack.async.Handler;
+import dev.webfx.platform.async.Handler;
 
 /**
  * @author Bruno Salmon

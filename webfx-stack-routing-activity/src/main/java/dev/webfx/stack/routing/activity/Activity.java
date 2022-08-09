@@ -1,7 +1,7 @@
 package dev.webfx.stack.routing.activity;
 
-import dev.webfx.stack.async.AsyncUtil;
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.AsyncUtil;
+import dev.webfx.platform.async.Future;
 
 /**
  * @author Bruno Salmon

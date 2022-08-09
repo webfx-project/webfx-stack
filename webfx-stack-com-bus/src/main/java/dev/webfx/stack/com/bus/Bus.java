@@ -18,8 +18,8 @@
 
 package dev.webfx.stack.com.bus;
 
-import dev.webfx.stack.async.Handler;
-import dev.webfx.stack.async.AsyncResult;
+import dev.webfx.platform.async.Handler;
+import dev.webfx.platform.async.AsyncResult;
 
 /**
  * A distributed lightweight event bus which can encompass multiple machines. The event bus

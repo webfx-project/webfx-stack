@@ -19,9 +19,9 @@ package dev.webfx.stack.com.bus.spi.impl;
 
 import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.stack.com.bus.Message;
-import dev.webfx.stack.platform.json.JsonObject;
-import dev.webfx.stack.async.AsyncResult;
-import dev.webfx.stack.async.Handler;
+import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.async.AsyncResult;
+import dev.webfx.platform.async.Handler;
 
 /**
  * @author Bruno Salmon

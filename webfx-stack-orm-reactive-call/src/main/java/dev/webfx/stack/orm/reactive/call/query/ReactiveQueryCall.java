@@ -4,7 +4,7 @@ import dev.webfx.stack.orm.reactive.call.ReactiveCall;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.QueryService;
-import dev.webfx.stack.async.AsyncFunction;
+import dev.webfx.platform.async.AsyncFunction;
 
 /**
  * @author Bruno Salmon

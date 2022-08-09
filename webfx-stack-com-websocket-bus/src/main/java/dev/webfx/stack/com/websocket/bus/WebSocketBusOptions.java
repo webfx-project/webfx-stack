@@ -2,7 +2,7 @@ package dev.webfx.stack.com.websocket.bus;
 
 import dev.webfx.platform.util.Objects;
 import dev.webfx.stack.com.bus.BusOptions;
-import dev.webfx.stack.platform.json.JsonObject;
+import dev.webfx.platform.json.JsonObject;
 
 /**
  * @author Bruno Salmon

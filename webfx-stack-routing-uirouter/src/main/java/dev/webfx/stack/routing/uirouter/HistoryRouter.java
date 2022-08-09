@@ -1,10 +1,10 @@
 package dev.webfx.stack.routing.uirouter;
 
-import dev.webfx.stack.platform.windowhistory.spi.BrowsingHistory;
-import dev.webfx.stack.platform.windowhistory.spi.BrowsingHistoryLocation;
+import dev.webfx.platform.windowhistory.spi.BrowsingHistory;
+import dev.webfx.platform.windowhistory.spi.BrowsingHistoryLocation;
 import dev.webfx.stack.routing.router.Router;
 import dev.webfx.platform.console.Console;
-import dev.webfx.stack.async.Handler;
+import dev.webfx.platform.async.Handler;
 
 /**
  * @author Bruno Salmon

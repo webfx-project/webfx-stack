@@ -6,7 +6,7 @@ import dev.webfx.stack.querypush.QueryPushArgument;
 import dev.webfx.stack.db.datascope.DataScope;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.platform.util.Objects;
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Future;
 import dev.webfx.platform.util.collection.Collections;
 
 import java.util.HashMap;

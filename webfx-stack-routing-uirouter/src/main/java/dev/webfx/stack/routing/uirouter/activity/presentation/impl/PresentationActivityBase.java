@@ -11,9 +11,9 @@ import dev.webfx.stack.routing.uirouter.activity.presentation.logic.Presentation
 import dev.webfx.stack.routing.uirouter.activity.presentation.view.PresentationViewActivityContext;
 import dev.webfx.stack.routing.uirouter.activity.presentation.view.impl.PresentationViewActivityBase;
 import dev.webfx.platform.uischeduler.UiScheduler;
-import dev.webfx.stack.async.AsyncUtil;
-import dev.webfx.stack.async.Future;
-import dev.webfx.stack.async.Promise;
+import dev.webfx.platform.async.AsyncUtil;
+import dev.webfx.platform.async.Future;
+import dev.webfx.platform.async.Promise;
 import dev.webfx.platform.util.function.Callable;
 import dev.webfx.platform.util.function.Factory;
 

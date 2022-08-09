@@ -1,7 +1,7 @@
 package dev.webfx.stack.querypush.spi.impl;
 
 import dev.webfx.platform.console.Console;
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Future;
 import dev.webfx.stack.com.bus.call.BusCallService;
 import dev.webfx.stack.db.datasource.LocalDataSource;
 import dev.webfx.stack.querypush.PulseArgument;

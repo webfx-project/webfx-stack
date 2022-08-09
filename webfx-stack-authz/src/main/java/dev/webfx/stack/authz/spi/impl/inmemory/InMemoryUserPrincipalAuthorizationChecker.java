@@ -1,10 +1,10 @@
 package dev.webfx.stack.authz.spi.impl.inmemory;
 
 import dev.webfx.stack.authz.spi.impl.UserPrincipalAuthorizationChecker;
-import dev.webfx.stack.async.AsyncResult;
-import dev.webfx.stack.async.Future;
-import dev.webfx.stack.async.FutureBroadcaster;
-import dev.webfx.stack.async.Handler;
+import dev.webfx.platform.async.AsyncResult;
+import dev.webfx.platform.async.Future;
+import dev.webfx.platform.async.FutureBroadcaster;
+import dev.webfx.platform.async.Handler;
 
 /**
  * @author Bruno Salmon

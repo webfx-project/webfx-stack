@@ -1,9 +1,9 @@
 package dev.webfx.stack.authz;
 
-import dev.webfx.stack.async.AsyncFunction;
-import dev.webfx.stack.async.AsyncUtil;
-import dev.webfx.stack.async.Future;
-import dev.webfx.stack.async.Promise;
+import dev.webfx.platform.async.AsyncFunction;
+import dev.webfx.platform.async.AsyncUtil;
+import dev.webfx.platform.async.Future;
+import dev.webfx.platform.async.Promise;
 
 import java.util.function.Consumer;
 import java.util.function.Function;

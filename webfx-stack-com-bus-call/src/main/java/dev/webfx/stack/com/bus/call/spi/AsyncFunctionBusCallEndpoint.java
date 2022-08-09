@@ -1,6 +1,6 @@
 package dev.webfx.stack.com.bus.call.spi;
 
-import dev.webfx.stack.async.AsyncFunction;
+import dev.webfx.platform.async.AsyncFunction;
 
 /**
  * @author Bruno Salmon

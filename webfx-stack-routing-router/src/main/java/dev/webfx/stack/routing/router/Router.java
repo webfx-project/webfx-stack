@@ -1,8 +1,8 @@
 package dev.webfx.stack.routing.router;
 
-import dev.webfx.stack.platform.json.JsonObject;
+import dev.webfx.platform.json.JsonObject;
 import dev.webfx.stack.routing.router.impl.RouterImpl;
-import dev.webfx.stack.async.Handler;
+import dev.webfx.platform.async.Handler;
 
 /**
  * @author Bruno Salmon

@@ -1,7 +1,7 @@
 package dev.webfx.stack.i18n.spi.impl;
 
 import dev.webfx.stack.i18n.Dictionary;
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Future;
 
 import java.util.Set;
 

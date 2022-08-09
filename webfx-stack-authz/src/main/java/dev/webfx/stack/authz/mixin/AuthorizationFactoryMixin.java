@@ -3,7 +3,7 @@ package dev.webfx.stack.authz.mixin;
 import dev.webfx.stack.authz.AuthorizationRequest;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Future;
 import dev.webfx.platform.util.function.Factory;
 import java.util.function.Function;
 

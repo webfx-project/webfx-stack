@@ -5,7 +5,7 @@ import dev.webfx.stack.orm.reactive.entities.entities_to_grid.EntityColumnFactor
 import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.domainmodel.formatter.ValueFormatter;
-import dev.webfx.stack.platform.json.JsonObject;
+import dev.webfx.platform.json.JsonObject;
 
 /**
  * @author Bruno Salmon

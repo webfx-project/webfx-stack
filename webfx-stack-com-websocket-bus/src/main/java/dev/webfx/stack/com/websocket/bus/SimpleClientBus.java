@@ -21,12 +21,12 @@ import dev.webfx.platform.console.Console;
 import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.stack.com.bus.BusHook;
 import dev.webfx.platform.scheduler.Scheduler;
-import dev.webfx.stack.async.Future;
-import dev.webfx.stack.async.Handler;
+import dev.webfx.platform.async.Future;
+import dev.webfx.platform.async.Handler;
 import dev.webfx.stack.com.bus.Message;
 import dev.webfx.stack.com.bus.Registration;
-import dev.webfx.stack.platform.json.Json;
-import dev.webfx.stack.async.AsyncResult;
+import dev.webfx.platform.json.Json;
+import dev.webfx.platform.async.AsyncResult;
 
 import java.util.*;
 

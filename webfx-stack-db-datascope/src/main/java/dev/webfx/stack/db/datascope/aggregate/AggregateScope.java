@@ -2,9 +2,9 @@ package dev.webfx.stack.db.datascope.aggregate;
 
 import dev.webfx.stack.db.datascope.KeyDataScope;
 import dev.webfx.stack.db.datascope.ScopeUtil;
-import dev.webfx.stack.platform.json.JsonArray;
-import dev.webfx.stack.platform.json.JsonObject;
-import dev.webfx.stack.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.JsonArray;
+import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.WritableJsonObject;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 

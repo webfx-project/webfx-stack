@@ -1,7 +1,7 @@
 package dev.webfx.stack.i18n.operations;
 
 import dev.webfx.stack.ui.operation.HasOperationExecutor;
-import dev.webfx.stack.async.AsyncFunction;
+import dev.webfx.platform.async.AsyncFunction;
 
 /**
  * @author Bruno Salmon

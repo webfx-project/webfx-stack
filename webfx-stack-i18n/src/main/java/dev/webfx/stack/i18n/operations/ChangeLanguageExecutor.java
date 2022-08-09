@@ -1,7 +1,7 @@
 package dev.webfx.stack.i18n.operations;
 
 import dev.webfx.stack.i18n.I18n;
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Future;
 
 /**
  * @author Bruno Salmon

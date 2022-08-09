@@ -1,8 +1,8 @@
 package dev.webfx.stack.routing.uirouter.operations;
 
 import dev.webfx.stack.ui.operation.HasOperationCode;
-import dev.webfx.stack.platform.windowhistory.spi.BrowsingHistory;
-import dev.webfx.stack.async.AsyncFunction;
+import dev.webfx.platform.windowhistory.spi.BrowsingHistory;
+import dev.webfx.platform.async.AsyncFunction;
 
 /**
  * @author Bruno Salmon

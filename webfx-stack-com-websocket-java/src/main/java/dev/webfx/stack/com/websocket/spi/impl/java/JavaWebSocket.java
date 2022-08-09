@@ -22,8 +22,8 @@ import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.handshake.ServerHandshake;
 import dev.webfx.stack.com.websocket.WebSocket;
 import dev.webfx.stack.com.websocket.WebSocketListener;
-import dev.webfx.stack.platform.json.Json;
-import dev.webfx.stack.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.Json;
+import dev.webfx.platform.json.WritableJsonObject;
 import dev.webfx.platform.console.Console;
 
 import java.net.URI;

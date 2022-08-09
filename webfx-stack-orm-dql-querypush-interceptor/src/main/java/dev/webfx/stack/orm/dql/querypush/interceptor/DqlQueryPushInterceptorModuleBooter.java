@@ -15,7 +15,7 @@ import dev.webfx.stack.db.datascope.schema.SchemaScopeBuilder;
 import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
 import dev.webfx.stack.db.datasource.LocalDataSourceService;
 import dev.webfx.stack.db.query.QueryArgument;
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Future;
 import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 /**

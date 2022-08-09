@@ -18,7 +18,7 @@
 package dev.webfx.stack.com.websocket.spi;
 
 import dev.webfx.stack.com.websocket.WebSocket;
-import dev.webfx.stack.platform.json.JsonObject;
+import dev.webfx.platform.json.JsonObject;
 
 /*
  * @author Bruno Salmon

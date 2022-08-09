@@ -1,11 +1,11 @@
 package dev.webfx.stack.com.bus.spi.impl.vertx;
 
-import dev.webfx.stack.async.AsyncResult;
-import dev.webfx.stack.async.Future;
-import dev.webfx.stack.async.Handler;
+import dev.webfx.platform.async.AsyncResult;
+import dev.webfx.platform.async.Future;
+import dev.webfx.platform.async.Handler;
 import dev.webfx.stack.com.bus.*;
-import dev.webfx.stack.platform.json.Json;
-import dev.webfx.stack.platform.json.spi.impl.listmap.MapBasedJsonObject;
+import dev.webfx.platform.json.Json;
+import dev.webfx.platform.json.spi.impl.listmap.MapBasedJsonObject;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageConsumer;

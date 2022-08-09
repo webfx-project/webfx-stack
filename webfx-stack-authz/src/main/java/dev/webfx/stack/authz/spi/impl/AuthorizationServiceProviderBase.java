@@ -1,7 +1,7 @@
 package dev.webfx.stack.authz.spi.impl;
 
 import dev.webfx.stack.authz.spi.AuthorizationServiceProvider;
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Future;
 
 import java.util.HashMap;
 import java.util.Map;

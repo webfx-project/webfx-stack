@@ -14,7 +14,7 @@ import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.QueryService;
 import dev.webfx.platform.scheduler.Scheduler;
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Future;
 import dev.webfx.platform.util.collection.Collections;
 
 import java.util.ArrayList;

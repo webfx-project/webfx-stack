@@ -2,7 +2,7 @@ package dev.webfx.stack.push.server;
 
 import dev.webfx.stack.push.server.spi.PushServerServiceProvider;
 import dev.webfx.stack.com.bus.Bus;
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Future;
 import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;

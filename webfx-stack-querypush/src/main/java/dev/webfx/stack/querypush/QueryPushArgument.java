@@ -2,8 +2,8 @@ package dev.webfx.stack.querypush;
 
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
-import dev.webfx.stack.platform.json.JsonObject;
-import dev.webfx.stack.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.WritableJsonObject;
 import dev.webfx.stack.db.query.QueryArgument;
 import java.util.function.Consumer;
 

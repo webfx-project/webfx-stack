@@ -13,7 +13,7 @@ import dev.webfx.stack.orm.expression.terms.Dot;
 import dev.webfx.stack.orm.expression.terms.function.Call;
 import dev.webfx.stack.orm.domainmodel.formatter.ValueFormatter;
 import dev.webfx.stack.orm.domainmodel.formatter.FormatterRegistry;
-import dev.webfx.stack.platform.json.JsonObject;
+import dev.webfx.platform.json.JsonObject;
 
 import java.util.function.Function;
 

@@ -9,10 +9,10 @@ import dev.webfx.stack.routing.uirouter.UiRouter;
 import dev.webfx.stack.routing.activity.ActivityContext;
 import dev.webfx.stack.routing.activity.ActivityContextFactory;
 import dev.webfx.stack.routing.activity.impl.ActivityContextBase;
-import dev.webfx.stack.platform.windowhistory.WindowHistory;
-import dev.webfx.stack.platform.windowhistory.spi.BrowsingHistory;
-import dev.webfx.stack.platform.json.Json;
-import dev.webfx.stack.platform.json.JsonObject;
+import dev.webfx.platform.windowhistory.WindowHistory;
+import dev.webfx.platform.windowhistory.spi.BrowsingHistory;
+import dev.webfx.platform.json.Json;
+import dev.webfx.platform.json.JsonObject;
 
 /**
  * @author Bruno Salmon

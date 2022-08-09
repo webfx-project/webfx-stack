@@ -8,7 +8,7 @@ import dev.webfx.stack.db.submit.listener.SubmitListener;
 import dev.webfx.stack.db.datascope.DataScope;
 import dev.webfx.stack.com.bus.BusService;
 import dev.webfx.stack.db.submit.SubmitArgument;
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Future;
 
 import java.util.Arrays;
 

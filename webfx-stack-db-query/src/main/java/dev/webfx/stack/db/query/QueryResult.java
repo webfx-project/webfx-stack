@@ -3,11 +3,11 @@ package dev.webfx.stack.db.query;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 import dev.webfx.stack.db.query.compression.repeat.RepeatedValuesCompressor;
 import dev.webfx.platform.util.Numbers;
-import dev.webfx.stack.platform.json.Json;
-import dev.webfx.stack.platform.json.JsonArray;
-import dev.webfx.stack.platform.json.JsonObject;
-import dev.webfx.stack.platform.json.WritableJsonArray;
-import dev.webfx.stack.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.Json;
+import dev.webfx.platform.json.JsonArray;
+import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.WritableJsonArray;
+import dev.webfx.platform.json.WritableJsonObject;
 
 import java.util.Arrays;
 

@@ -9,8 +9,8 @@ import dev.webfx.stack.com.bus.BusService;
 import dev.webfx.stack.com.bus.call.BusCallService;
 import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.scheduler.Scheduler;
-import dev.webfx.stack.async.Future;
-import dev.webfx.stack.async.Promise;
+import dev.webfx.platform.async.Future;
+import dev.webfx.platform.async.Promise;
 
 import java.util.ArrayList;
 import java.util.HashMap;

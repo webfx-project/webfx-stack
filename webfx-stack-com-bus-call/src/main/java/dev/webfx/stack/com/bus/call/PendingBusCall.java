@@ -1,8 +1,8 @@
 package dev.webfx.stack.com.bus.call;
 
-import dev.webfx.stack.async.AsyncResult;
-import dev.webfx.stack.async.Future;
-import dev.webfx.stack.async.Promise;
+import dev.webfx.platform.async.AsyncResult;
+import dev.webfx.platform.async.Future;
+import dev.webfx.platform.async.Promise;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 

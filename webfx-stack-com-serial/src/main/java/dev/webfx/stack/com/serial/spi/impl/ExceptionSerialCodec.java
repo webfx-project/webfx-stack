@@ -1,8 +1,8 @@
 package dev.webfx.stack.com.serial.spi.impl;
 
 import dev.webfx.platform.console.Console;
-import dev.webfx.stack.platform.json.JsonObject;
-import dev.webfx.stack.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.WritableJsonObject;
 
 /**
  * @author Bruno Salmon

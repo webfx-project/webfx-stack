@@ -1,6 +1,6 @@
 package dev.webfx.stack.authz.spi;
 
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Future;
 
 /**
  * @author Bruno Salmon

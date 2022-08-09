@@ -6,7 +6,7 @@ import javafx.event.ActionEvent;
 import dev.webfx.stack.ui.action.impl.WritableAction;
 import dev.webfx.stack.ui.operation.OperationUtil;
 import dev.webfx.kit.util.properties.FXProperties;
-import dev.webfx.stack.async.AsyncFunction;
+import dev.webfx.platform.async.AsyncFunction;
 import dev.webfx.platform.util.function.Factory;
 
 import java.util.function.Function;

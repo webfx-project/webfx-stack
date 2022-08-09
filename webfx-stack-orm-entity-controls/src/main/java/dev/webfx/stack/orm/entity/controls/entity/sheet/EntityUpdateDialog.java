@@ -1,8 +1,8 @@
 package dev.webfx.stack.orm.entity.controls.entity.sheet;
 
-import dev.webfx.stack.async.Batch;
-import dev.webfx.stack.async.Future;
-import dev.webfx.stack.async.Promise;
+import dev.webfx.platform.async.Batch;
+import dev.webfx.platform.async.Future;
+import dev.webfx.platform.async.Promise;
 import dev.webfx.stack.db.submit.SubmitResult;
 import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.entity.UpdateStore;

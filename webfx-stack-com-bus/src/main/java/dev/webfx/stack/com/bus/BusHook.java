@@ -17,8 +17,8 @@
  */
 package dev.webfx.stack.com.bus;
 
-import dev.webfx.stack.async.Handler;
-import dev.webfx.stack.async.AsyncResult;
+import dev.webfx.platform.async.Handler;
+import dev.webfx.platform.async.AsyncResult;
 
 /**
  * A hook that you can use to receive various events on the Bus.

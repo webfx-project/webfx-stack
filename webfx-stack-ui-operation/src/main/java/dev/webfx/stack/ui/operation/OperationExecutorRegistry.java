@@ -1,6 +1,6 @@
 package dev.webfx.stack.ui.operation;
 
-import dev.webfx.stack.async.AsyncFunction;
+import dev.webfx.platform.async.AsyncFunction;
 
 import java.util.HashMap;
 import java.util.Map;

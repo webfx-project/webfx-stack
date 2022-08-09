@@ -3,9 +3,9 @@ package dev.webfx.stack.com.websocket.bus.web;
 import dev.webfx.stack.com.bus.BusOptions;
 import dev.webfx.stack.com.websocket.bus.WebSocketBusOptions;
 import dev.webfx.stack.com.websocket.bus.WebsocketBusServiceProvider;
-import dev.webfx.stack.platform.json.Json;
+import dev.webfx.platform.json.Json;
 import dev.webfx.platform.resource.Resource;
-import dev.webfx.stack.platform.windowlocation.WindowLocation;
+import dev.webfx.platform.windowlocation.WindowLocation;
 
 /**
  * @author Bruno Salmon

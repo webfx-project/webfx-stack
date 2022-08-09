@@ -5,7 +5,7 @@ import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.spi.QueryServiceProvider;
 import dev.webfx.platform.util.Arrays;
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Future;
 import dev.webfx.platform.console.Console;
 
 /**

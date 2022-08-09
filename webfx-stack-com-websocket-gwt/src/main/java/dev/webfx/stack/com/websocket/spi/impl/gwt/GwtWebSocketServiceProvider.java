@@ -1,6 +1,6 @@
 package dev.webfx.stack.com.websocket.spi.impl.gwt;
 
-import dev.webfx.stack.platform.json.JsonObject;
+import dev.webfx.platform.json.JsonObject;
 import dev.webfx.stack.com.websocket.spi.WebSocketServiceProvider;
 
 /**

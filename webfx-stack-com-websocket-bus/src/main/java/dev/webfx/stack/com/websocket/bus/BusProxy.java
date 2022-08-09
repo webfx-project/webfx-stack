@@ -20,8 +20,8 @@ package dev.webfx.stack.com.websocket.bus;
 
 import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.stack.com.bus.BusHook;
-import dev.webfx.stack.async.AsyncResult;
-import dev.webfx.stack.async.Handler;
+import dev.webfx.platform.async.AsyncResult;
+import dev.webfx.platform.async.Handler;
 import dev.webfx.stack.com.bus.Message;
 import dev.webfx.stack.com.bus.Registration;
 

@@ -17,8 +17,8 @@
  */
 package dev.webfx.stack.com.bus;
 
-import dev.webfx.stack.async.Handler;
-import dev.webfx.stack.async.AsyncResult;
+import dev.webfx.platform.async.Handler;
+import dev.webfx.platform.async.AsyncResult;
 
 /**
  * Represents a message on the event bus.

@@ -1,7 +1,7 @@
 package dev.webfx.stack.querypush;
 
 import dev.webfx.stack.querypush.spi.QueryPushServiceProvider;
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Future;
 import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;

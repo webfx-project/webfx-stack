@@ -1,8 +1,8 @@
 package dev.webfx.stack.db.query.spi;
 
 import dev.webfx.stack.db.query.QueryResult;
-import dev.webfx.stack.async.Batch;
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Batch;
+import dev.webfx.platform.async.Future;
 import dev.webfx.stack.db.query.QueryArgument;
 
 /**

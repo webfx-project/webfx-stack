@@ -4,9 +4,9 @@ import dev.webfx.extras.type.Type;
 import dev.webfx.stack.orm.expression.CollectOptions;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.lci.DomainReader;
-import dev.webfx.stack.platform.json.Json;
-import dev.webfx.stack.platform.json.JsonObject;
-import dev.webfx.stack.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.Json;
+import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.WritableJsonObject;
 import dev.webfx.platform.util.noreflect.IndexedArray;
 import dev.webfx.platform.util.noreflect.KeyObject;
 

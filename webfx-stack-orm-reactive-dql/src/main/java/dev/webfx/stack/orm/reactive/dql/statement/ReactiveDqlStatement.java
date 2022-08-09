@@ -8,7 +8,7 @@ import dev.webfx.platform.util.function.Converter;
 import dev.webfx.stack.orm.dql.DqlStatement;
 import dev.webfx.stack.orm.dql.DqlStatementBuilder;
 import dev.webfx.stack.orm.reactive.dql.statement.conventions.*;
-import dev.webfx.stack.platform.json.JsonObject;
+import dev.webfx.platform.json.JsonObject;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;

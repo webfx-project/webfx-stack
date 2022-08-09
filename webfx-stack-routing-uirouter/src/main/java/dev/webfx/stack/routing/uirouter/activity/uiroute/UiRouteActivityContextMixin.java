@@ -5,8 +5,8 @@ import dev.webfx.stack.routing.router.session.Session;
 import dev.webfx.stack.routing.uirouter.UiRouter;
 import dev.webfx.stack.routing.uirouter.uisession.UiSession;
 import dev.webfx.stack.routing.uirouter.uisession.UiSessionMixin;
-import dev.webfx.stack.platform.windowhistory.spi.BrowsingHistory;
-import dev.webfx.stack.platform.json.JsonObject;
+import dev.webfx.platform.windowhistory.spi.BrowsingHistory;
+import dev.webfx.platform.json.JsonObject;
 
 /**
  * @author Bruno Salmon

@@ -6,7 +6,7 @@ import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.scheduler.Scheduled;
-import dev.webfx.stack.async.AsyncFunction;
+import dev.webfx.platform.async.AsyncFunction;
 
 import java.util.Objects;
 import java.util.function.Supplier;

@@ -2,7 +2,7 @@ package dev.webfx.stack.orm.domainmodel.service;
 
 import dev.webfx.stack.orm.domainmodel.DomainModel;
 import dev.webfx.stack.orm.domainmodel.service.spi.DomainModelProvider;
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Future;
 import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;

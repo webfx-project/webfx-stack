@@ -5,7 +5,7 @@ package dev.webfx.stack.com.serial.spi.impl;
  */
 
 import dev.webfx.stack.com.serial.SerialCodecManager;
-import dev.webfx.stack.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.WritableJsonObject;
 import dev.webfx.stack.com.serial.spi.SerialCodec;
 
 public abstract class SerialCodecBase<T> implements SerialCodec<T> {

@@ -1,7 +1,7 @@
 package dev.webfx.stack.routing.router;
 
 import dev.webfx.stack.routing.router.session.Session;
-import dev.webfx.stack.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.WritableJsonObject;
 
 /**
  * @author Bruno Salmon

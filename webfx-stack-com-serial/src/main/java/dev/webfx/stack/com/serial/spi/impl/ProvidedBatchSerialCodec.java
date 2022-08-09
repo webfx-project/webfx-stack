@@ -1,10 +1,10 @@
 package dev.webfx.stack.com.serial.spi.impl;
 
-import dev.webfx.stack.platform.json.JsonArray;
-import dev.webfx.stack.platform.json.JsonObject;
-import dev.webfx.stack.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.JsonArray;
+import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.WritableJsonObject;
 import dev.webfx.stack.com.serial.SerialCodecManager;
-import dev.webfx.stack.async.Batch;
+import dev.webfx.platform.async.Batch;
 
 /**
  * @author Bruno Salmon

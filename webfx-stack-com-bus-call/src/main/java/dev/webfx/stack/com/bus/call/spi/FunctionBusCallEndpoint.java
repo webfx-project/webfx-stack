@@ -1,6 +1,6 @@
 package dev.webfx.stack.com.bus.call.spi;
 
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Future;
 
 import java.util.function.Function;
 

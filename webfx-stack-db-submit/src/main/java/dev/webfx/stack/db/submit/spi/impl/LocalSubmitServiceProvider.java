@@ -5,8 +5,8 @@ import dev.webfx.stack.db.submit.LocalSubmitServiceRegistry;
 import dev.webfx.stack.db.submit.SubmitArgument;
 import dev.webfx.stack.db.submit.SubmitResult;
 import dev.webfx.stack.db.submit.spi.SubmitServiceProvider;
-import dev.webfx.stack.async.Batch;
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Batch;
+import dev.webfx.platform.async.Future;
 
 /**
  * @author Bruno Salmon

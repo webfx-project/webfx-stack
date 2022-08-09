@@ -1,7 +1,7 @@
 package dev.webfx.stack.orm.dql;
 
-import dev.webfx.stack.platform.json.Json;
-import dev.webfx.stack.platform.json.JsonObject;
+import dev.webfx.platform.json.Json;
+import dev.webfx.platform.json.JsonObject;
 
 import java.util.Arrays;
 

@@ -5,9 +5,9 @@ import dev.webfx.stack.routing.uirouter.activity.view.ViewActivity;
 import dev.webfx.stack.routing.uirouter.activity.view.ViewActivityContext;
 import dev.webfx.stack.routing.uirouter.activity.view.ViewActivityContextMixin;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
-import dev.webfx.stack.async.AsyncUtil;
-import dev.webfx.stack.async.Future;
-import dev.webfx.stack.async.Promise;
+import dev.webfx.platform.async.AsyncUtil;
+import dev.webfx.platform.async.Future;
+import dev.webfx.platform.async.Promise;
 import javafx.scene.Node;
 
 /**

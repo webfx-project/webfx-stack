@@ -2,10 +2,10 @@ package dev.webfx.stack.i18n.spi.impl.json;
 
 import dev.webfx.stack.i18n.Dictionary;
 import dev.webfx.stack.i18n.spi.impl.DictionaryLoader;
-import dev.webfx.stack.async.Promise;
+import dev.webfx.platform.async.Promise;
 import dev.webfx.platform.resource.Resource;
 import dev.webfx.platform.util.Strings;
-import dev.webfx.stack.async.Future;
+import dev.webfx.platform.async.Future;
 
 import java.util.Set;
 
