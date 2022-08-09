@@ -4,7 +4,7 @@ module webfx.stack.ui.operation {
 
     // Direct dependencies modules
     requires java.base;
-    requires webfx.stack.async;
+    requires webfx.platform.async;
 
     // Exported packages
     exports dev.webfx.stack.ui.operation;

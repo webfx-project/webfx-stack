@@ -5,10 +5,6 @@
         <source-packages/>
     </exported-packages>
 
-    <providers>
-        <provider interface="dev.webfx.stack.com.bus.spi.BusServiceProvider">dev.webfx.stack.com.websocket.bus.WebsocketBusServiceProvider</provider>
-    </providers>
-
     <dependencies>
         <used-by-source-modules/>
     </dependencies>

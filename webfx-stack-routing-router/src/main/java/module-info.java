@@ -4,10 +4,10 @@ module webfx.stack.routing.router {
 
     // Direct dependencies modules
     requires java.base;
+    requires webfx.platform.async;
     requires webfx.platform.console;
     requires webfx.platform.json;
     requires webfx.platform.util;
-    requires webfx.stack.async;
     requires webfx.stack.authz;
 
     // Exported packages

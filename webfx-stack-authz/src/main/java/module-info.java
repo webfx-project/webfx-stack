@@ -5,9 +5,9 @@ module webfx.stack.authz {
     // Direct dependencies modules
     requires java.base;
     requires javafx.base;
+    requires webfx.platform.async;
     requires webfx.platform.uischeduler;
     requires webfx.platform.util;
-    requires webfx.stack.async;
     requires webfx.stack.ui.operation;
 
     // Exported packages

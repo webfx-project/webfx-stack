@@ -32,27 +32,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>webfx-platform-boot-vertx</module>
-        <module>webfx-platform-json</module>
-        <module>webfx-platform-json-gwt</module>
-        <module>webfx-platform-json-java</module>
-        <module>webfx-platform-json-teavm</module>
-        <module>webfx-platform-json-vertx</module>
-        <module>webfx-platform-scheduler-vertx</module>
-        <module>webfx-platform-webassembly</module>
-        <module>webfx-platform-webassembly-teavm</module>
-        <module>webfx-platform-webworker</module>
-        <module>webfx-platform-webworker-gwt</module>
-        <module>webfx-platform-webworker-java</module>
-        <module>webfx-platform-webworker-teavm</module>
-        <module>webfx-platform-windowhistory</module>
-        <module>webfx-platform-windowhistory-gwt</module>
-        <module>webfx-platform-windowhistory-java</module>
-        <module>webfx-platform-windowhistory-web</module>
-        <module>webfx-platform-windowlocation</module>
-        <module>webfx-platform-windowlocation-gwt</module>
-        <module>webfx-platform-windowlocation-java</module>
-        <module>webfx-stack-async</module>
         <module>webfx-stack-authn</module>
         <module>webfx-stack-authz</module>
         <module>webfx-stack-com-bus</module>
@@ -63,6 +42,7 @@
         <module>webfx-stack-com-serial</module>
         <module>webfx-stack-com-websocket</module>
         <module>webfx-stack-com-websocket-bus</module>
+        <module>webfx-stack-com-websocket-bus-java</module>
         <module>webfx-stack-com-websocket-bus-web</module>
         <module>webfx-stack-com-websocket-gwt</module>
         <module>webfx-stack-com-websocket-java</module>
@@ -111,7 +91,6 @@
         <module>webfx-stack-ui-operation-action</module>
         <module>webfx-stack-ui-util</module>
         <module>webfx-stack-ui-validation</module>
-        <module>webfx-stack-vertx-common</module>
     </modules>
 
 </project>

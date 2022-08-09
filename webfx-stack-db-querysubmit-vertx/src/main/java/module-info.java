@@ -9,14 +9,14 @@ module webfx.stack.db.querysubmit.vertx {
     requires io.vertx.core;
     requires java.base;
     requires java.sql;
+    requires webfx.platform.async;
     requires webfx.platform.console;
     requires webfx.platform.util;
-    requires webfx.stack.async;
+    requires webfx.platform.vertx.common;
     requires webfx.stack.db.datasource;
     requires webfx.stack.db.query;
     requires webfx.stack.db.submit;
     requires webfx.stack.db.submit.listener;
-    requires webfx.stack.vertx.common;
 
     // Exported packages
     exports dev.webfx.stack.db.query.spi.impl.vertx;

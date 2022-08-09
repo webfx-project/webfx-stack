@@ -4,9 +4,9 @@ module webfx.stack.push.server.simple {
 
     // Direct dependencies modules
     requires java.base;
+    requires webfx.platform.async;
     requires webfx.platform.console;
     requires webfx.platform.scheduler;
-    requires webfx.stack.async;
     requires webfx.stack.com.bus;
     requires webfx.stack.com.bus.call;
     requires webfx.stack.push;

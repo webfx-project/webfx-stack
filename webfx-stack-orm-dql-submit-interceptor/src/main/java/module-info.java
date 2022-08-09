@@ -4,9 +4,9 @@ module webfx.stack.orm.dql.submit.interceptor {
 
     // Direct dependencies modules
     requires java.base;
+    requires webfx.platform.async;
     requires webfx.platform.boot;
     requires webfx.platform.util;
-    requires webfx.stack.async;
     requires webfx.stack.db.datascope;
     requires webfx.stack.db.datasource;
     requires webfx.stack.db.submit;

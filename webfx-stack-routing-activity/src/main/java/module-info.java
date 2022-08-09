@@ -5,8 +5,8 @@ module webfx.stack.routing.activity {
     // Direct dependencies modules
     requires java.base;
     requires javafx.base;
+    requires webfx.platform.async;
     requires webfx.platform.util;
-    requires webfx.stack.async;
 
     // Exported packages
     exports dev.webfx.stack.routing.activity;

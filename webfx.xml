@@ -154,27 +154,6 @@
             <parent name="webfx-stack-parent"/>
 
             <modules>
-                <module>webfx-platform-boot-vertx</module>
-                <module>webfx-platform-json</module>
-                <module>webfx-platform-json-gwt</module>
-                <module>webfx-platform-json-java</module>
-                <module>webfx-platform-json-teavm</module>
-                <module>webfx-platform-json-vertx</module>
-                <module>webfx-platform-scheduler-vertx</module>
-                <module>webfx-platform-webassembly</module>
-                <module>webfx-platform-webassembly-teavm</module>
-                <module>webfx-platform-webworker</module>
-                <module>webfx-platform-webworker-gwt</module>
-                <module>webfx-platform-webworker-java</module>
-                <module>webfx-platform-webworker-teavm</module>
-                <module>webfx-platform-windowhistory</module>
-                <module>webfx-platform-windowhistory-gwt</module>
-                <module>webfx-platform-windowhistory-java</module>
-                <module>webfx-platform-windowhistory-web</module>
-                <module>webfx-platform-windowlocation</module>
-                <module>webfx-platform-windowlocation-gwt</module>
-                <module>webfx-platform-windowlocation-java</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-authn</module>
                 <module>webfx-stack-authz</module>
                 <module>webfx-stack-com-bus</module>
@@ -185,6 +164,7 @@
                 <module>webfx-stack-com-serial</module>
                 <module>webfx-stack-com-websocket</module>
                 <module>webfx-stack-com-websocket-bus</module>
+                <module>webfx-stack-com-websocket-bus-java</module>
                 <module>webfx-stack-com-websocket-bus-web</module>
                 <module>webfx-stack-com-websocket-gwt</module>
                 <module>webfx-stack-com-websocket-java</module>
@@ -233,7 +213,6 @@
                 <module>webfx-stack-ui-operation-action</module>
                 <module>webfx-stack-ui-util</module>
                 <module>webfx-stack-ui-validation</module>
-                <module>webfx-stack-vertx-common</module>
             </modules>
 
             <required-libraries>
@@ -358,586 +337,6 @@
 
         </project>
 
-        <project name="webfx-platform-boot-vertx">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <providers>
-                <provider interface="dev.webfx.platform.boot.spi.ApplicationBooterProvider">dev.webfx.platform.boot.spi.impl.vertx.VertxApplicationBooterVerticle</provider>
-            </providers>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.platform.boot.spi.impl.vertx</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>io-vertx-core</module>
-                <module>io-vertx-eventbusbridge-common</module>
-                <module>io-vertx-web</module>
-                <module>java-nio-emul</module>
-                <module>java.base</module>
-                <module>webfx-platform-boot</module>
-                <module>webfx-platform-shutdown</module>
-                <module>webfx-stack-vertx-common</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-platform-json">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.platform.json</package>
-                <package>dev.webfx.stack.platform.json.parser</package>
-                <package>dev.webfx.stack.platform.json.parser.javacup</package>
-                <package>dev.webfx.stack.platform.json.parser.jflex</package>
-                <package>dev.webfx.stack.platform.json.spi</package>
-                <package>dev.webfx.stack.platform.json.spi.impl.listmap</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java.base</module>
-                <module>webfx-lib-javacupruntime</module>
-                <module>webfx-platform-util</module>
-            </used-by-source-modules>
-
-            <used-services>
-                <required-service>dev.webfx.stack.platform.json.spi.JsonProvider</required-service>
-            </used-services>
-
-        </project>
-
-        <project name="webfx-platform-json-gwt">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <providers>
-                <provider interface="dev.webfx.stack.platform.json.spi.JsonProvider">dev.webfx.stack.platform.json.spi.impl.gwt.GwtJsonObject</provider>
-            </providers>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.platform.json.spi.impl.gwt</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>gwt-user</module>
-                <module>webfx-platform-json</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-platform-json-java">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <providers>
-                <provider interface="dev.webfx.stack.platform.json.spi.JsonProvider">dev.webfx.stack.platform.json.spi.impl.java.JavaJsonProvider</provider>
-            </providers>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.platform.json.spi.impl.java</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>webfx-platform-json</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-platform-json-teavm">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <providers>
-                <provider interface="dev.webfx.stack.platform.json.spi.JsonProvider">dev.webfx.stack.platform.json.spi.impl.teavm.TeaVmJsonObject</provider>
-            </providers>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.platform.json.spi.impl.teavm</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>teavm-jso</module>
-                <module>teavm-jso-apis</module>
-                <module>webfx-platform-json</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-platform-json-vertx">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <providers>
-                <provider interface="dev.webfx.stack.platform.json.spi.JsonProvider">dev.webfx.stack.platform.json.spi.impl.vertx.VertxJsonObject</provider>
-            </providers>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.platform.json.spi.impl.vertx</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>io-vertx-core</module>
-                <module>java.base</module>
-                <module>webfx-platform-json</module>
-                <module>webfx-platform-util</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-platform-scheduler-vertx">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <providers>
-                <provider interface="dev.webfx.platform.scheduler.spi.SchedulerProvider">dev.webfx.platform.scheduler.spi.impl.vertx.VertxSchedulerProvider</provider>
-            </providers>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.platform.scheduler.spi.impl.vertx</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>io-vertx-core</module>
-                <module>webfx-platform-scheduler</module>
-                <module>webfx-stack-vertx-common</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-platform-webassembly">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.platform.webassembly</package>
-                <package>dev.webfx.stack.platform.webassembly.spi</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java.base</module>
-                <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
-            </used-by-source-modules>
-
-            <used-services>
-                <required-service>dev.webfx.stack.platform.webassembly.spi.WebAssemblyProvider</required-service>
-            </used-services>
-
-        </project>
-
-        <project name="webfx-platform-webassembly-teavm">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <providers>
-                <provider interface="dev.webfx.stack.platform.webassembly.spi.WebAssemblyProvider">dev.webfx.stack.platform.webassembly.spi.impl.teavm.TeaVmWebAssemblyProvider</provider>
-            </providers>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.platform.webassembly.spi.impl.teavm</package>
-                <package>dev.webfx.stack.platform.webassembly.spi.impl.teavm.wasm</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java-nio-emul</module>
-                <module>teavm-interop</module>
-                <module>teavm-jso</module>
-                <module>teavm-jso-apis</module>
-                <module>webfx-platform-json</module>
-                <module>webfx-platform-webassembly</module>
-                <module>webfx-stack-async</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-platform-webworker">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.platform.webworker</package>
-                <package>dev.webfx.stack.platform.webworker.pool</package>
-                <package>dev.webfx.stack.platform.webworker.spi</package>
-                <package>dev.webfx.stack.platform.webworker.spi.base</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java.base</module>
-                <module>webfx-platform-util</module>
-            </used-by-source-modules>
-
-            <used-services>
-                <required-service>dev.webfx.stack.platform.webworker.spi.WorkerServiceProvider</required-service>
-            </used-services>
-
-        </project>
-
-        <project name="webfx-platform-webworker-gwt">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <providers>
-                <provider interface="dev.webfx.stack.platform.webworker.spi.WorkerServiceProvider">dev.webfx.stack.platform.webworker.spi.impl.gwt.GwtWorkerServiceProvider</provider>
-            </providers>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.platform.webworker.spi.impl.gwt</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>elemental2-dom</module>
-                <module>java.base</module>
-                <module>webfx-platform-webworker</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-platform-webworker-java">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <providers>
-                <provider interface="dev.webfx.stack.platform.webworker.spi.WorkerServiceProvider">dev.webfx.stack.platform.webworker.spi.impl.java.JavaWorkerServiceProvider</provider>
-            </providers>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.platform.webworker.spi.impl.java</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java.base</module>
-                <module>webfx-platform-console</module>
-                <module>webfx-platform-json</module>
-                <module>webfx-platform-uischeduler</module>
-                <module>webfx-platform-webworker</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-platform-webworker-teavm">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.platform.webworker.spi.impl.teavm</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java.base</module>
-                <module>teavm-interop</module>
-                <module>teavm-jso</module>
-                <module>teavm-jso-apis</module>
-                <module>webfx-platform-webworker</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-platform-windowhistory">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.platform.windowhistory</package>
-                <package>dev.webfx.stack.platform.windowhistory.spi</package>
-                <package>dev.webfx.stack.platform.windowhistory.spi.impl</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java.base</module>
-                <module>webfx-platform-json</module>
-                <module>webfx-platform-util</module>
-                <module>webfx-platform-windowlocation</module>
-                <module>webfx-stack-async</module>
-            </used-by-source-modules>
-
-            <used-services>
-                <required-service>dev.webfx.stack.platform.windowhistory.spi.WindowHistoryProvider</required-service>
-            </used-services>
-
-        </project>
-
-        <project name="webfx-platform-windowhistory-gwt">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <providers>
-                <provider interface="dev.webfx.stack.platform.windowhistory.spi.impl.web.JsWindowHistory">dev.webfx.stack.platform.windowhistory.spi.impl.gwt.GwtJsWindowHistory</provider>
-            </providers>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.platform.windowhistory.spi.impl.gwt</package>
-                <package>dev.webfx.stack.platform.windowhistory.spi.impl.gwt.jsinterop</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>gwt-user</module>
-                <module>java.base</module>
-                <module>jsinterop-annotations</module>
-                <module>webfx-platform-json</module>
-                <module>webfx-platform-json-gwt</module>
-                <module>webfx-platform-windowhistory-web</module>
-                <module>webfx-stack-async</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-platform-windowhistory-java">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <providers>
-                <provider interface="dev.webfx.stack.platform.windowhistory.spi.WindowHistoryProvider">dev.webfx.stack.platform.windowhistory.spi.impl.java.JavaWindowHistoryProvider</provider>
-            </providers>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.platform.windowhistory.spi.impl.java</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>webfx-platform-windowhistory</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-platform-windowhistory-web">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <providers>
-                <provider interface="dev.webfx.stack.platform.windowhistory.spi.WindowHistoryProvider">dev.webfx.stack.platform.windowhistory.spi.impl.web.WebWindowHistoryProvider</provider>
-            </providers>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.platform.windowhistory.spi.impl.web</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java.base</module>
-                <module>webfx-platform-console</module>
-                <module>webfx-platform-json</module>
-                <module>webfx-platform-uischeduler</module>
-                <module>webfx-platform-util</module>
-                <module>webfx-platform-windowhistory</module>
-                <module>webfx-platform-windowlocation</module>
-                <module>webfx-stack-async</module>
-            </used-by-source-modules>
-
-            <used-services>
-                <required-service>dev.webfx.stack.platform.windowhistory.spi.impl.web.JsWindowHistory</required-service>
-            </used-services>
-
-        </project>
-
-        <project name="webfx-platform-windowlocation">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.platform.windowlocation</package>
-                <package>dev.webfx.stack.platform.windowlocation.spi</package>
-                <package>dev.webfx.stack.platform.windowlocation.spi.impl</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java.base</module>
-                <module>webfx-platform-json</module>
-                <module>webfx-platform-util</module>
-            </used-by-source-modules>
-
-            <used-services>
-                <required-service>dev.webfx.stack.platform.windowlocation.spi.WindowLocationProvider</required-service>
-            </used-services>
-
-        </project>
-
-        <project name="webfx-platform-windowlocation-gwt">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <providers>
-                <provider interface="dev.webfx.stack.platform.windowlocation.spi.WindowLocationProvider">dev.webfx.stack.platform.windowlocation.spi.impl.gwt.GwtWindowLocationProvider</provider>
-            </providers>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.platform.windowlocation.spi.impl.gwt</package>
-                <package>dev.webfx.stack.platform.windowlocation.spi.impl.gwt.jsinterop</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>gwt-user</module>
-                <module>jsinterop-annotations</module>
-                <module>webfx-platform-util</module>
-                <module>webfx-platform-windowlocation</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-platform-windowlocation-java">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <providers>
-                <provider interface="dev.webfx.stack.platform.windowlocation.spi.WindowLocationProvider">dev.webfx.stack.platform.windowlocation.spi.impl.java.JavaWindowLocationProvider</provider>
-            </providers>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.platform.windowlocation.spi.impl.java</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>webfx-platform-windowhistory</module>
-                <module>webfx-platform-windowlocation</module>
-                <module>webfx-stack-com-bus</module>
-                <module>webfx-stack-com-websocket-bus</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-stack-async">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.async</package>
-                <package>dev.webfx.stack.async.impl</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java.base</module>
-                <module>java.logging</module>
-                <module>webfx-platform-util</module>
-            </used-by-source-modules>
-
-        </project>
-
         <project name="webfx-stack-authn">
 
             <exported-packages>
@@ -955,8 +354,8 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
             </used-by-source-modules>
 
             <used-services>
@@ -988,9 +387,9 @@
             <used-by-source-modules>
                 <module>java.base</module>
                 <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-uischeduler</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-ui-operation</module>
             </used-by-source-modules>
 
@@ -1018,11 +417,11 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-json</module>
                 <module>webfx-platform-scheduler</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
             </used-by-source-modules>
 
             <used-services>
@@ -1056,11 +455,11 @@
             <used-by-source-modules>
                 <module>java.base</module>
                 <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-boot</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-json</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-com-bus</module>
                 <module>webfx-stack-com-serial</module>
             </used-by-source-modules>
@@ -1142,10 +541,10 @@
 
             <used-by-source-modules>
                 <module>io-vertx-core</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-json</module>
-                <module>webfx-stack-async</module>
+                <module>webfx-platform-vertx-common</module>
                 <module>webfx-stack-com-bus</module>
-                <module>webfx-stack-vertx-common</module>
             </used-by-source-modules>
 
         </project>
@@ -1173,11 +572,11 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-boot</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-json</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
             </used-by-source-modules>
 
             <used-services>
@@ -1219,10 +618,6 @@
                 <source-packages/>
             </exported-packages>
 
-            <providers>
-                <provider interface="dev.webfx.stack.com.bus.spi.BusServiceProvider">dev.webfx.stack.com.websocket.bus.WebsocketBusServiceProvider</provider>
-            </providers>
-
             <dependencies>
                 <used-by-source-modules/>
             </dependencies>
@@ -1233,14 +628,41 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-json</module>
                 <module>webfx-platform-resource</module>
                 <module>webfx-platform-scheduler</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-com-bus</module>
                 <module>webfx-stack-com-websocket</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-com-websocket-bus-java">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <provider interface="dev.webfx.stack.com.bus.spi.BusServiceProvider">dev.webfx.stack.com.websocket.bus.java.JavaWebsocketBusServiceProvider</provider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.com.websocket.bus.java</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-platform-windowlocation</module>
+                <module>webfx-platform-windowlocation-java</module>
+                <module>webfx-stack-com-bus</module>
+                <module>webfx-stack-com-websocket-bus</module>
             </used-by-source-modules>
 
         </project>
@@ -1424,10 +846,10 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-json</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-com-bus-call</module>
                 <module>webfx-stack-com-serial</module>
                 <module>webfx-stack-db-datascope</module>
@@ -1491,8 +913,8 @@
                 <module>com-zaxxer-hikari</module>
                 <module>java.base</module>
                 <module>java.sql</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-db-datasource</module>
                 <module>webfx-stack-db-query</module>
                 <module>webfx-stack-db-submit</module>
@@ -1531,14 +953,14 @@
                 <module>io-vertx-client-sql-pg</module>
                 <module>io-vertx-core</module>
                 <module>java.base</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
+                <module>webfx-platform-vertx-common</module>
                 <module>webfx-stack-db-datasource</module>
                 <module>webfx-stack-db-query</module>
                 <module>webfx-stack-db-submit</module>
                 <module>webfx-stack-db-submit-listener</module>
-                <module>webfx-stack-vertx-common</module>
             </used-by-source-modules>
 
         </project>
@@ -1575,9 +997,9 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-json</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-com-bus-call</module>
                 <module>webfx-stack-com-serial</module>
                 <module>webfx-stack-db-datascope</module>
@@ -1668,9 +1090,9 @@
                 <module>webfx-kit-javafxbase-emul</module>
                 <module>webfx-kit-javafxcontrols-emul</module>
                 <module>webfx-kit-javafxgraphics-emul</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-uischeduler</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-ui-operation</module>
             </used-by-source-modules>
 
@@ -1699,10 +1121,10 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-json</module>
                 <module>webfx-platform-resource</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-i18n</module>
             </used-by-source-modules>
 
@@ -1725,8 +1147,8 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-orm-domainmodel</module>
             </used-by-source-modules>
 
@@ -1814,9 +1236,9 @@
                 <module>java.base</module>
                 <module>webfx-extras-label</module>
                 <module>webfx-extras-type</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-db-query</module>
                 <module>webfx-stack-orm-domainmodel</module>
             </used-by-source-modules>
@@ -1882,9 +1304,9 @@
             </source-packages>
 
             <used-by-source-modules>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-boot</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-db-datasource</module>
                 <module>webfx-stack-db-query</module>
                 <module>webfx-stack-orm-datasourcemodel-service</module>
@@ -1917,9 +1339,9 @@
             </source-packages>
 
             <used-by-source-modules>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-boot</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-db-datascope</module>
                 <module>webfx-stack-db-datasource</module>
                 <module>webfx-stack-db-query</module>
@@ -1956,9 +1378,9 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-boot</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-db-datascope</module>
                 <module>webfx-stack-db-datasource</module>
                 <module>webfx-stack-db-submit</module>
@@ -1991,9 +1413,9 @@
             <used-by-source-modules>
                 <module>java.base</module>
                 <module>webfx-extras-type</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-db-datascope</module>
                 <module>webfx-stack-db-query</module>
                 <module>webfx-stack-db-submit</module>
@@ -2017,7 +1439,7 @@
             <dependencies>
                 <used-by-source-modules>
                     <undetected-module>webfx-stack-db-submit</undetected-module>
-                    <undetected-module>webfx-stack-async</undetected-module>
+                    <undetected-module>webfx-platform-async</undetected-module>
                 </used-by-source-modules>
             </dependencies>
 
@@ -2039,11 +1461,11 @@
                 <module>webfx-kit-javafxcontrols-emul</module>
                 <module>webfx-kit-javafxgraphics-emul</module>
                 <module>webfx-kit-util</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-json</module>
                 <module>webfx-platform-scheduler</module>
                 <module>webfx-platform-uischeduler</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-db-submit</module>
                 <module>webfx-stack-orm-domainmodel</module>
                 <module>webfx-stack-orm-dql</module>
@@ -2112,10 +1534,10 @@
             <used-by-source-modules>
                 <module>java.base</module>
                 <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-scheduler</module>
                 <module>webfx-platform-uischeduler</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-db-query</module>
                 <module>webfx-stack-push-client</module>
                 <module>webfx-stack-querypush</module>
@@ -2323,8 +1745,8 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-com-bus</module>
                 <module>webfx-stack-push</module>
             </used-by-source-modules>
@@ -2355,9 +1777,9 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-scheduler</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-com-bus</module>
                 <module>webfx-stack-com-bus-call</module>
                 <module>webfx-stack-push</module>
@@ -2393,10 +1815,10 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-json</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-com-bus-call</module>
                 <module>webfx-stack-com-serial</module>
                 <module>webfx-stack-db-datascope</module>
@@ -2482,10 +1904,10 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-scheduler</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-com-bus</module>
                 <module>webfx-stack-db-datascope</module>
                 <module>webfx-stack-db-query</module>
@@ -2517,8 +1939,8 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-db-datascope</module>
                 <module>webfx-stack-db-query</module>
                 <module>webfx-stack-querypush</module>
@@ -2549,8 +1971,8 @@
             <used-by-source-modules>
                 <module>java.base</module>
                 <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
             </used-by-source-modules>
 
         </project>
@@ -2578,10 +2000,10 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-json</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-authz</module>
             </used-by-source-modules>
 
@@ -2621,12 +2043,12 @@
                 <module>webfx-kit-javafxgraphics-emul</module>
                 <module>webfx-kit-launcher</module>
                 <module>webfx-kit-util</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-json</module>
                 <module>webfx-platform-uischeduler</module>
                 <module>webfx-platform-util</module>
                 <module>webfx-platform-windowhistory</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-authz</module>
                 <module>webfx-stack-routing-activity</module>
                 <module>webfx-stack-routing-router</module>
@@ -2723,7 +2145,7 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
-                <module>webfx-stack-async</module>
+                <module>webfx-platform-async</module>
             </used-by-source-modules>
 
         </project>
@@ -2746,10 +2168,10 @@
                 <module>java.base</module>
                 <module>webfx-kit-javafxbase-emul</module>
                 <module>webfx-kit-util</module>
+                <module>webfx-platform-async</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-uischeduler</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-async</module>
                 <module>webfx-stack-authz</module>
                 <module>webfx-stack-ui-action</module>
                 <module>webfx-stack-ui-operation</module>
@@ -2820,40 +2242,6 @@
                 <module>webfx-kit-javafxbase-emul</module>
                 <module>webfx-kit-javafxcontrols-emul</module>
                 <module>webfx-kit-javafxgraphics-emul</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-stack-vertx-common">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-                <plugin-module>org.slf4j.jul</plugin-module>
-            </dependencies>
-
-            <required-libraries>
-                <library name="org.slf4j.jul">
-                    <artifactId>slf4j-jdk14</artifactId>
-                    <groupId>org.slf4j</groupId>
-                    <version>1.7.36</version>
-        
-                    <exported-packages>
-                        <package>org.slf4j.impl</package>
-                    </exported-packages>
-
-                </library>
-            </required-libraries>
-
-            <source-packages>
-                <package>dev.webfx.stack.vertx.common</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>io-vertx-core</module>
             </used-by-source-modules>
 
         </project>

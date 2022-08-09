@@ -7,9 +7,9 @@ module webfx.stack.i18n {
     requires javafx.base;
     requires javafx.controls;
     requires javafx.graphics;
+    requires webfx.platform.async;
     requires webfx.platform.uischeduler;
     requires webfx.platform.util;
-    requires webfx.stack.async;
     requires webfx.stack.ui.operation;
 
     // Exported packages

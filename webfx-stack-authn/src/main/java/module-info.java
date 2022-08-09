@@ -4,8 +4,8 @@ module webfx.stack.authn {
 
     // Direct dependencies modules
     requires java.base;
+    requires webfx.platform.async;
     requires webfx.platform.util;
-    requires webfx.stack.async;
 
     // Exported packages
     exports dev.webfx.stack.authn;

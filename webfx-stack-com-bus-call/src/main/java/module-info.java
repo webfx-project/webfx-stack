@@ -5,11 +5,11 @@ module webfx.stack.com.bus.call {
     // Direct dependencies modules
     requires java.base;
     requires javafx.base;
+    requires webfx.platform.async;
     requires webfx.platform.boot;
     requires webfx.platform.console;
     requires webfx.platform.json;
     requires webfx.platform.util;
-    requires webfx.stack.async;
     requires webfx.stack.com.bus;
     requires webfx.stack.com.serial;
 

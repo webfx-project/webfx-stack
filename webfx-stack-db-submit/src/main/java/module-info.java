@@ -4,9 +4,9 @@ module webfx.stack.db.submit {
 
     // Direct dependencies modules
     requires java.base;
+    requires webfx.platform.async;
     requires webfx.platform.json;
     requires webfx.platform.util;
-    requires webfx.stack.async;
     requires webfx.stack.com.bus.call;
     requires webfx.stack.com.serial;
     requires webfx.stack.db.datascope;
