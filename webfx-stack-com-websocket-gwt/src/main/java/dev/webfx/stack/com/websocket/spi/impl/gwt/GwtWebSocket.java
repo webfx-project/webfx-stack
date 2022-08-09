@@ -33,7 +33,7 @@ final class GwtWebSocket extends JavaScriptObject implements WebSocket {
         this.onopen =    listener.@WebSocketListener::onOpen().bind(listener);
         this.onmessage = function(event) { listener.@WebSocketListener::onMessage(Ljava/lang/String;)(event.data)};
         this.onerror =   function(event) { listener.@WebSocketListener::onError(Ljava/lang/String;)(event.data)};
-        this.onclose =   listener.@WebSocketListener::onClose(Ldev/webfx/stack/platform/json/JsonObject;).bind(listener);
+        this.onclose =   listener.@WebSocketListener::onClose(Ldev/webfx/platform/json/JsonObject;).bind(listener);
     }-*/;
 
     @Override
