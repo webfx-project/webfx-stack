@@ -19,7 +19,6 @@ The WebFX Stack is a collection of framework pieces for WebFX, designed to work 
 | **QueryPush**          | Non-UI   | Push notification for database queries                                               |
 | **Push**               | Non-UI   | General purpose push notification API                                                |
 | **DB**                 | Non-UI   | Async database access API (query & submit)                                           |
-| **Async**              | Shared   | Future & Promise API for async operations                                            |
 | **Com**                | Shared   | Async communication via a websocket event bus                                        |
 | **QueryPush (server)** | Server   | server-side peer of QueryPush                                                        |
 | **Push (server)**      | Server   | server-side peer of Push                                                             |
