@@ -149,7 +149,7 @@
 
     <export-snapshot>
 
-        <project name="webfx-stack">
+        <project name="webfx-stack-private">
 
             <parent name="webfx-stack-parent"/>
 
@@ -2056,8 +2056,8 @@
             </used-by-source-modules>
 
             <used-services>
-                <optional-service>dev.webfx.stack.routing.uirouter.operations.RouteRequestEmitter</optional-service>
                 <optional-service>dev.webfx.stack.routing.uirouter.UiRoute</optional-service>
+                <optional-service>dev.webfx.stack.routing.uirouter.operations.RouteRequestEmitter</optional-service>
             </used-services>
 
         </project>
