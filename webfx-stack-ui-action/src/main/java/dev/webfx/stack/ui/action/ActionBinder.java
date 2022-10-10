@@ -22,23 +22,26 @@ import java.util.Collection;
  */
 public final class ActionBinder {
 
-    public static void bindButtonToAction(Button button, Action action) {
+    public static Button bindButtonToAction(Button button, Action action) {
         bindLabeledToAction(button, action);
         button.setOnAction(action);
+        return button;
     }
 
-    public static void bindMenuItemToAction(MenuItem menuItem, Action action) {
+    public static MenuItem bindMenuItemToAction(MenuItem menuItem, Action action) {
         menuItem.textProperty().bind(action.textProperty());
         bindGraphicProperties(menuItem.graphicProperty(), action.graphicProperty());
         menuItem.disableProperty().bind(action.disabledProperty());
         menuItem.visibleProperty().bind(action.visibleProperty());
         menuItem.setOnAction(action);
+        return menuItem;
     }
 
-    private static void bindLabeledToAction(Labeled labeled, Action action) {
+    private static Labeled bindLabeledToAction(Labeled labeled, Action action) {
         labeled.textProperty().bind(action.textProperty());
         bindGraphicProperties(labeled.graphicProperty(), action.graphicProperty());
         bindNodeToAction(labeled, action, false);
+        return labeled;
     }
 
     private static void bindGraphicProperties(ObjectProperty<Node> dstGraphicProperty, ObservableObjectValue<Node> srcGraphicProperty) {
@@ -60,16 +63,15 @@ public final class ActionBinder {
     }
 
     public static Node getAndBindActionIcon(Action action) {
-        Node icon = action.getGraphic();
-        bindNodeToAction(icon, action, true);
-        return icon;
+        return bindNodeToAction(action.getGraphic(), action, true);
     }
 
-    private static void bindNodeToAction(Node node, Action action, boolean setOnMouseClicked) {
+    private static Node bindNodeToAction(Node node, Action action, boolean setOnMouseClicked) {
         node.disableProperty().bind(action.disabledProperty());
         node.visibleProperty().bind(action.visibleProperty());
         if (setOnMouseClicked)
             node.setOnMouseClicked(e -> action.handle(new ActionEvent(e.getSource(), e.getTarget())));
+        return node;
     }
 
     public static void bindWritableActionToAction(WritableAction writableAction, Action action) {
@@ -89,7 +91,8 @@ public final class ActionBinder {
         return parent;
     }
 
-    public static void bindChildrenToActionGroup(ObservableList<Node> children, ActionGroup actionGroup, Converter<Action, Node> nodeFactory) {
+    public static ObservableList<Node> bindChildrenToActionGroup(ObservableList<Node> children, ActionGroup actionGroup, Converter<Action, Node> nodeFactory) {
         ObservableLists.bindConverted(children, actionGroup.getVisibleActions(), nodeFactory);
+        return children;
     }
 }
