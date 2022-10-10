@@ -10,6 +10,7 @@ import dev.webfx.platform.async.AsyncFunction;
 public class RoutePushRequest extends RouteRequestBase<RoutePushRequest> {
 
     private JsonObject state;
+    private boolean replace; // flag asking a replace the current url instead of pushing a new entry in the browser history
 
     public RoutePushRequest(String routePath, BrowsingHistory browsingHistory) {
         this(routePath, browsingHistory, null);
@@ -27,6 +28,14 @@ public class RoutePushRequest extends RouteRequestBase<RoutePushRequest> {
     public RoutePushRequest setState(JsonObject state) {
         this.state = state;
         return this;
+    }
+
+    public boolean isReplace() {
+        return replace;
+    }
+
+    public void setReplace(boolean replace) {
+        this.replace = replace;
     }
 
     @Override

@@ -10,13 +10,16 @@ import dev.webfx.platform.async.Future;
 final class RoutePushExecutor {
 
     static Future<Void> executePushRouteRequest(RoutePushRequest rq) {
-        return execute(rq.getRoutePath(), rq.getHistory(), rq.getState());
+        return execute(rq.getRoutePath(), rq.getHistory(), rq.getState(), rq.isReplace());
     }
 
-    private static Future<Void> execute(String routePath, BrowsingHistory history, JsonObject state) {
+    private static Future<Void> execute(String routePath, BrowsingHistory history, JsonObject state, boolean replace) {
         if (routePath == null)
             return Future.failedFuture("Route request received with routePath = null!");
-        history.push(routePath, state);
+        if (replace)
+            history.replace(routePath, state);
+        else
+            history.push(routePath, state);
         return Future.succeededFuture();
     }
 }
