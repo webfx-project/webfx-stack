@@ -1,15 +1,14 @@
 package dev.webfx.stack.i18n.spi;
 
-import dev.webfx.stack.i18n.Dictionary;
-import dev.webfx.stack.i18n.I18nPart;
-import dev.webfx.stack.i18n.operations.ChangeLanguageRequestEmitter;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.Property;
-import javafx.beans.value.ObservableObjectValue;
-import javafx.beans.value.ObservableStringValue;
-import javafx.scene.Node;
-import javafx.scene.image.ImageView;
 import dev.webfx.platform.util.collection.Collections;
+import dev.webfx.stack.i18n.Dictionary;
+import dev.webfx.stack.i18n.TokenKey;
+import dev.webfx.stack.i18n.operations.ChangeLanguageRequestEmitter;
+import dev.webfx.stack.ui.fxraiser.FXRaiser;
+import dev.webfx.stack.ui.fxraiser.FXValueRaiser;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ObservableObjectValue;
+import javafx.beans.value.ObservableValue;
 
 import java.util.Collection;
 import java.util.ServiceLoader;
@@ -39,50 +38,47 @@ public interface I18nProvider {
     Object getDefaultLanguage();
     Dictionary getDefaultDictionary();
 
-    default String getI18nText(Object i18nKey) {
-        return getI18nPartValue(i18nKey, I18nPart.TEXT);
+    /// NEW API
+
+    default <TK extends Enum<?> & TokenKey> Object getDictionaryTokenValue(Object i18nKey, TK tokenKey) {
+        return getDictionaryTokenValue(i18nKey, tokenKey, null);
     }
 
-    default ObservableStringValue i18nTextProperty(Object i18nKey) {
-        return i18nPartProperty(i18nKey, I18nPart.TEXT);
+    default <TK extends Enum<?> & TokenKey> Object getDictionaryTokenValue(Object i18nKey, TK tokenKey, Dictionary dictionary) {
+        if (dictionary == null)
+            dictionary = getDictionary();
+        return dictionary.getMessageTokenValue(i18nKeyToDictionaryMessageKey(i18nKey), tokenKey);
     }
 
-    default String getI18nGraphicUrl(Object i18nKey) {
-        return getI18nPartValue(i18nKey, I18nPart.GRAPHIC);
+    // Temporary (should be protected)
+    default Object i18nKeyToDictionaryMessageKey(Object i18nKey) {
+        if (i18nKey instanceof HasDictionaryMessageKey)
+            return ((HasDictionaryMessageKey) i18nKey).getDictionaryMessageKey();
+        return i18nKey;
     }
 
-    default ObservableStringValue i18nGraphicUrlProperty(Object i18nKey) {
-        return i18nPartProperty(i18nKey, I18nPart.GRAPHIC);
+    default <TK extends Enum<?> & TokenKey> Object getUserTokenValue(Object i18nKey, TK tokenKey, Object... args) {
+        return getUserTokenValue(i18nKey, tokenKey, getDictionary(), args);
     }
 
-    default String getI18nPrompt(Object i18nKey) {
-        return getI18nPartValue(i18nKey, I18nPart.PROMPT);
+    default <TK extends Enum<?> & TokenKey> Object getUserTokenValue(Object i18nKey, TK tokenKey, Dictionary dictionary, Object... args) {
+        Object dictionaryValue = getDictionaryTokenValue(i18nKey, tokenKey, dictionary);
+        return FXRaiser.raiseToObject(dictionaryValue, tokenKey.expectedClass(), getI18nFxValueRaiser(), args);
     }
 
-    default ObservableStringValue i18nPromptProperty(Object i18nKey) {
-        return i18nPartProperty(i18nKey, I18nPart.PROMPT);
+    <TK extends Enum<?> & TokenKey> ObservableValue<?> dictionaryTokenProperty(Object i18nKey, TK tokenKey, Object... args);
+
+    default <TK extends Enum<?> & TokenKey> ObservableValue<?> userTokenProperty(Object i18nKey, TK tokenKey, Object... args) {
+        return FXRaiser.raiseToProperty(dictionaryTokenProperty(i18nKey, tokenKey, args), tokenKey.expectedClass(), getI18nFxValueRaiser(), args);
     }
 
-    ObservableStringValue i18nPartProperty(Object i18nKey, I18nPart part);
+    default FXValueRaiser getI18nFxValueRaiser() {
+        return null;
+    }
 
-    String getI18nPartValue(Object i18nKey, I18nPart part);
+    void refreshMessageTokenProperties(Object i18nKey);
 
     void scheduleMessageLoading(Object i18nKey, boolean inDefaultLanguage);
 
-    void refreshMessageTranslations(Object i18nKey);
-
-    default I18nProvider bindI18nTextProperty(Property<String> textProperty, Object i18nKey) {
-        textProperty.bind(i18nTextProperty(i18nKey));
-        return this;
-    }
-
-    default I18nProvider bindPromptProperty(Property<String> promptProperty, Object i18nKey) {
-        promptProperty.bind(i18nPromptProperty(i18nKey));
-        return this;
-    }
-
-    default Node createI18nGraphic(String graphicUrl) {
-        return graphicUrl == null || "".equals(graphicUrl) ? null : new ImageView(graphicUrl);
-    }
 
 }

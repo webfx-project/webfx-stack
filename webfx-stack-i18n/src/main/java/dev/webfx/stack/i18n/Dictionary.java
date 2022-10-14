@@ -5,6 +5,6 @@ package dev.webfx.stack.i18n;
  */
 public interface Dictionary {
 
-    String getI18nPartValue(Object i18nKey, I18nPart part);
+    <TK extends Enum<?> & TokenKey> Object getMessageTokenValue(Object messageKey, TK tokenKey);
 
 }

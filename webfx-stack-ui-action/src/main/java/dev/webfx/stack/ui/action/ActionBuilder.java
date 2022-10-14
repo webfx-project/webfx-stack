@@ -11,7 +11,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import dev.webfx.stack.i18n.I18n;
-import dev.webfx.stack.i18n.I18nControls;
 import dev.webfx.stack.ui.util.image.JsonImageViews;
 
 /**
@@ -236,7 +235,7 @@ public class ActionBuilder {
             if (graphic != null || i18nKey == null)
                 graphicProperty = new SimpleObjectProperty<>(graphic);
             else
-                graphicProperty = I18nControls.i18nGraphicProperty(i18nKey);
+                graphicProperty = I18n.i18nGraphicProperty(i18nKey);
         }
     }
 

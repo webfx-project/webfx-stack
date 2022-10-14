@@ -2,7 +2,6 @@ package dev.webfx.stack.i18n.spi.impl.json;
 
 
 import dev.webfx.stack.i18n.spi.impl.I18nProviderImpl;
-import dev.webfx.platform.json.JsonObject;
 
 /**
  * @author Bruno Salmon
@@ -21,10 +20,4 @@ public class JsonI18nProvider extends I18nProviderImpl {
         super(new ResourceJsonDictionaryLoader(resourcePathWithLangPattern), defaultLanguage, initialLanguage);
     }
 
-    @Override
-    protected String findTokenValueInKey(Object i18nKey, String token) {
-        if (i18nKey instanceof JsonObject)
-            return ((JsonObject) i18nKey).getString(token);
-        return super.findTokenValueInKey(i18nKey, token);
-    }
 }

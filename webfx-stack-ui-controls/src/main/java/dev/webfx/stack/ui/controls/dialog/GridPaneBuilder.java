@@ -1,5 +1,6 @@
 package dev.webfx.stack.ui.controls.dialog;
 
+import dev.webfx.stack.i18n.I18n;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -12,7 +13,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Font;
-import dev.webfx.stack.i18n.I18nControls;
 import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.platform.util.tuples.Pair;
 
@@ -113,7 +113,7 @@ public final class GridPaneBuilder implements DialogBuilder {
     }
 
     public GridPaneBuilder addButton(String buttonKey, Button button) {
-        I18nControls.bindI18nProperties(button, buttonKey).setFont(font);
+        I18n.bindI18nProperties(button, buttonKey).setFont(font);
         GridPane.setHalignment(button, HPos.RIGHT);
         gridPane.add(button, 0, rowCount++, colCount, 1);
         return this;
@@ -138,7 +138,7 @@ public final class GridPaneBuilder implements DialogBuilder {
     private HBox createButtonBar(String button1Key, Button button1, String button2Key, Button button2) {
         if ("Ok".equals(button1Key) && !watchedUserProperties.isEmpty())
             button1.disableProperty().bind(noChangesProperty);
-        return createButtonBar(I18nControls.bindI18nProperties(button1, button1Key), I18nControls.bindI18nProperties(button2, button2Key));
+        return createButtonBar(I18n.bindI18nProperties(button1, button1Key), I18n.bindI18nProperties(button2, button2Key));
     }
 
     private HBox createButtonBar(Button... buttons) {
@@ -161,7 +161,7 @@ public final class GridPaneBuilder implements DialogBuilder {
     }
 
     private <T extends Labeled> T setUpLabeled(T labeled, Object i18nKey) {
-        I18nControls.bindI18nProperties(labeled, i18nKey).setFont(font);
+        I18n.bindI18nProperties(labeled, i18nKey).setFont(font);
         //label.textFillProperty().bind(Theme.dialogTextFillProperty());
         GridPane.setHalignment(labeled, HPos.RIGHT);
         if (labeled instanceof CheckBox)

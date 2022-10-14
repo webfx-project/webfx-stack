@@ -1,25 +1,46 @@
 package dev.webfx.stack.i18n.spi.impl;
 
-import dev.webfx.stack.i18n.Dictionary;
-import dev.webfx.stack.i18n.I18nPart;
-import javafx.beans.property.*;
-import javafx.beans.value.ObservableObjectValue;
-import javafx.beans.value.ObservableStringValue;
-import dev.webfx.stack.i18n.spi.HasDictionaryMessageKey;
-import dev.webfx.stack.i18n.spi.I18nProvider;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Strings;
+import dev.webfx.stack.i18n.DefaultTokenKey;
+import dev.webfx.stack.i18n.Dictionary;
+import dev.webfx.stack.i18n.TokenKey;
+import dev.webfx.stack.i18n.spi.I18nProvider;
+import dev.webfx.stack.ui.fxraiser.FXValueRaiser;
+import dev.webfx.stack.ui.fxraiser.impl.ValueConverterRegistry;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableObjectValue;
+import javafx.beans.value.ObservableValue;
 
 import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
+import java.lang.ref.SoftReference;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static dev.webfx.platform.util.Objects.isAssignableFrom;
 
 /**
  * @author Bruno Salmon
  */
 public class I18nProviderImpl implements I18nProvider {
 
-    private final Map<Object/*i18nKey*/, Map<I18nPart, Reference<StringProperty>>> translations = new HashMap<>();
+    private static class TokenSnapshot {
+        private final Dictionary dictionary;
+        private final Object i18nKey;
+        private final TokenKey tokenKey;
+        private final Object tokenValue;
+
+        public TokenSnapshot(Dictionary dictionary, Object i18nKey, TokenKey tokenKey, Object tokenValue) {
+            this.dictionary = dictionary;
+            this.i18nKey = i18nKey;
+            this.tokenKey = tokenKey;
+            this.tokenValue = tokenValue;
+        }
+    }
+
+    private final Map<Object/*i18nKey*/, Map<TokenKey, Reference<Property<TokenSnapshot>>>> liveDictionaryTokenProperties = new HashMap<>();
     private final Object defaultLanguage; // The language to find message parts (such as graphic) when missing in the current language
     private boolean dictionaryLoadRequired;
     private final DictionaryLoader dictionaryLoader;
@@ -36,7 +57,6 @@ public class I18nProviderImpl implements I18nProvider {
                 throw new IllegalArgumentException("No default/initial language set for I18n initialization");
         }
         this.defaultLanguage = defaultLanguage;
-        languageProperty.addListener((observable, oldValue, newValue) -> onLanguageChanged());
         if (initialLanguage == null)
             initialLanguage = guessInitialLanguage();
         if (initialLanguage == null)
@@ -52,17 +72,22 @@ public class I18nProviderImpl implements I18nProvider {
         return null;
     }
 
-    private final ObjectProperty<Object> languageProperty = new SimpleObjectProperty<>();
+    private final ObjectProperty<Object> languageProperty = new SimpleObjectProperty<>() {
+        @Override
+        protected void invalidated() {
+            onLanguageChanged();
+        }
+    };
 
     @Override
     public ObjectProperty<Object> languageProperty() {
         return languageProperty;
     }
 
-    private final ObjectProperty<dev.webfx.stack.i18n.Dictionary> dictionaryProperty = new SimpleObjectProperty<>();
+    private final ObjectProperty<Dictionary> dictionaryProperty = new SimpleObjectProperty<>();
 
     @Override
-    public ObservableObjectValue<dev.webfx.stack.i18n.Dictionary> dictionaryProperty() {
+    public ObservableObjectValue<Dictionary> dictionaryProperty() {
         return dictionaryProperty;
     }
 
@@ -71,111 +96,29 @@ public class I18nProviderImpl implements I18nProvider {
         return defaultLanguage;
     }
 
-    private final Property<dev.webfx.stack.i18n.Dictionary> defaultDictionaryProperty = new SimpleObjectProperty<>();
+    private final Property<Dictionary> defaultDictionaryProperty = new SimpleObjectProperty<>();
 
     @Override
-    public dev.webfx.stack.i18n.Dictionary getDefaultDictionary() {
+    public Dictionary getDefaultDictionary() {
         return defaultDictionaryProperty.getValue();
     }
 
+    /// NEW API
+
     @Override
-    public ObservableStringValue i18nPartProperty(Object i18nKey, I18nPart part) {
-        StringProperty i18nPartProperty = getI18nPartProperty(i18nKey, part);
-        if (i18nPartProperty == null)
-            getMessageMap(i18nKey, true).put(part, new WeakReference<>(i18nPartProperty = createI18nPartProperty(i18nKey, part)));
-        return i18nPartProperty;
+    public <TK extends Enum<?> & TokenKey> Object getDictionaryTokenValue(Object i18nKey, TK tokenKey, Dictionary dictionary) {
+        if (dictionary == null)
+            dictionary = getDictionary();
+        return getDictionaryTokenValueImpl(i18nKey, tokenKey, dictionary, false, false, false);
     }
 
-    private Map<I18nPart, Reference<StringProperty>> getMessageMap(Object i18nKey, boolean createIfNotExists) {
-        Map<I18nPart, Reference<StringProperty>> messageMap = translations.get(i18nKey);
-        if (messageMap == null && createIfNotExists)
-            synchronized (translations) {
-                translations.put(i18nKey, messageMap = new HashMap<>());
-            }
-        return messageMap;
-    }
-
-    private StringProperty getI18nPartProperty(Object i18nKey, I18nPart part) {
-        Map<I18nPart, Reference<StringProperty>> messageMap = getMessageMap(i18nKey, false);
-        if (messageMap == null)
-            return null;
-        Reference<StringProperty> ref = messageMap.get(part);
-        return ref == null ? null : ref.get();
-    }
-
-    private StringProperty createI18nPartProperty(Object i18nKey, I18nPart part) {
-        return refreshI18nPart(new SimpleStringProperty(), i18nKey, part);
-    }
-
-    public String getI18nPartValue(Object i18nKey, I18nPart part) {
-        return getI18nPartValue(i18nKey, part, false);
-    }
-
-    private String getI18nPartValue(Object i18nKey, I18nPart part, boolean skipPrefixOrSuffix) {
-        dev.webfx.stack.i18n.Dictionary dictionary = getDictionary();
-        String partTranslation = getI18nPartValue(i18nKey, part, dictionary, skipPrefixOrSuffix);
-        if (partTranslation == null) {
-            dev.webfx.stack.i18n.Dictionary defaultDictionary = getDefaultDictionary();
-            if (dictionary != defaultDictionary && defaultDictionary != null)
-                partTranslation = getI18nPartValue(i18nKey, part, defaultDictionary, skipPrefixOrSuffix);
-            if (partTranslation == null) {
-                scheduleMessageLoading(i18nKey, true);
-                if (part == I18nPart.TEXT)
-                    partTranslation = whatToReturnWhenI18nTextIsNotFound(i18nKey, part);
-            }
-        }
-        return partTranslation;
-    }
-
-    private String interpretDictionaryValue(Object i18nKey, I18nPart part, String value) {
-        while (value != null && value.startsWith("[") && value.endsWith("]")) {
-            String token = value.substring(1, value.length() - 1);
-            String tokenValue = interpretToken(i18nKey, part, token);
-            /*if (token.equals(tokenValue))
-                break;*/
-            value = tokenValue;
-        }
-        int i1 = 0;
-        while (value != null && value.contains("[")) {
-            i1 = value.indexOf('[', i1);
-            if (i1 < 0)
-                break;
-            int i2 = value.indexOf(']', i1 + 1);
-            if (i2 < 0)
-                break;
-            String token = value.substring(i1 + 1, i2);
-            String tokenValue = interpretToken(i18nKey, part, token);
-            /*if (token.equals(tokenValue))
-                break;*/
-            value = value.substring(0, i1) + tokenValue + value.substring(i2 + 1);
-        }
-        return value;
-    }
-
-    protected String interpretToken(Object i18nKey, I18nPart part, String token) {
-        String tokenValue = findTokenValueInKey(i18nKey, token);
-        return tokenValue != null ? tokenValue : getI18nPartValue(new I18nSubKey(token, i18nKey), part);
-    }
-
-    protected String findTokenValueInKey(Object i18nKey, String token) {
-        if (i18nKey instanceof Map)
-            return Strings.toString(((Map) i18nKey).get(token));
-        if (i18nKey instanceof I18nSubKey)
-            return findTokenValueInKey(((I18nSubKey) i18nKey).getParentI18nKey(), token);
-        return null;
-    }
-
-    private String getI18nPartValue(Object i18nKey, I18nPart part, Dictionary dictionary, boolean skipPrefixOrSuffix) {
-        String partTranslation = null;
+    protected <TK extends Enum<?> & TokenKey> Object getDictionaryTokenValueImpl(Object i18nKey, TK tokenKey, Dictionary dictionary, boolean skipDefaultDictionary, boolean skipMessageKeyInterpretation, boolean skipMessageLoading) {
+        Object tokenValue = null;
         if (dictionary != null && i18nKey != null) {
-            boolean interpreted = false;
-            Object dictionaryMessageKey = i18nKeyToDictionaryMessageKey(i18nKey);
-            partTranslation = dictionary.getI18nPartValue(dictionaryMessageKey, part);
-            if (skipPrefixOrSuffix && partTranslation != null) {
-                //partTranslation = interpretDictionaryValue(i18nKey, part, partTranslation);
-                interpreted = false;
-            } else if (partTranslation == null && !skipPrefixOrSuffix) {
-                String sKey = Strings.asString(dictionaryMessageKey);
+            Object messageKey = i18nKeyToDictionaryMessageKey(i18nKey);
+            tokenValue = dictionary.getMessageTokenValue(messageKey, tokenKey);
+            if (tokenValue == null && !skipMessageKeyInterpretation && messageKey instanceof String) {
+                String sKey = (String) messageKey;
                 int length = Strings.length(sKey);
                 if (length > 1) {
                     int index = 0;
@@ -185,14 +128,14 @@ public class I18nProviderImpl implements I18nProvider {
                         String prefix = sKey.substring(0, index);
                         switch (prefix) {
                             case "<<":
-                                partTranslation = getI18nPartValue(new I18nSubKey(sKey.substring(prefix.length(), length), i18nKey), part, dictionary, true);
-                                if (partTranslation != null && part == I18nPart.TEXT)
-                                    partTranslation = getI18nPartValue(prefix, part, true) + partTranslation;
-                                interpreted = true;
+                                // Reading the token value of the remaining key (after <<)
+                                tokenValue = getDictionaryTokenValueImpl(new I18nSubKey(sKey.substring(prefix.length(), length), i18nKey), tokenKey, dictionary, skipDefaultDictionary, false, skipMessageLoading);
+                                if (tokenValue != null && isAssignableFrom(tokenKey.expectedClass(), String.class))
+                                    tokenValue = "" + getDictionaryTokenValueImpl(prefix, tokenKey, dictionary, skipDefaultDictionary, true, skipMessageLoading) + tokenValue;
                         }
                     }
                 }
-                if (partTranslation == null && length > 1) {
+                if (tokenValue == null && length > 1) {
                     int index = length;
                     while (index > 0 && !Character.isLetterOrDigit(sKey.charAt(index - 1)))
                         index--;
@@ -203,101 +146,146 @@ public class I18nProviderImpl implements I18nProvider {
                             case "?":
                             case ">>":
                             case "...":
-                                partTranslation = getI18nPartValue(new I18nSubKey(sKey.substring(0, length - suffix.length()), i18nKey), part, dictionary, true);
-                                if (partTranslation != null && part == I18nPart.TEXT)
-                                    partTranslation = partTranslation + getI18nPartValue(suffix, part, true);
-                                interpreted = true;
+                                // Reading the token value of the remaining key (before the suffix)
+                                tokenValue = getDictionaryTokenValueImpl(new I18nSubKey(sKey.substring(0, length - suffix.length()), i18nKey), tokenKey, dictionary, skipDefaultDictionary, true, skipMessageLoading);
+                                if (tokenValue != null && isAssignableFrom(tokenKey.expectedClass(), String.class))
+                                    tokenValue = "" + tokenValue + getDictionaryTokenValueImpl(suffix, tokenKey, dictionary, skipDefaultDictionary, true, skipMessageLoading);
                         }
                     }
                 }
             }
-            if (!interpreted)
-                partTranslation = interpretDictionaryValue(i18nKey, part, partTranslation);
-        }
-        return partTranslation;
-    }
-
-    private Object i18nKeyToDictionaryMessageKey(Object i18nKey) {
-        if (i18nKey instanceof HasDictionaryMessageKey)
-            return ((HasDictionaryMessageKey) i18nKey).getDictionaryMessageKey();
-        return i18nKey;
-    }
-
-    private String whatToReturnWhenI18nTextIsNotFound(Object i18nKey, I18nPart part) {
-        String value = Strings.toString(i18nKeyToDictionaryMessageKey(i18nKey));
-        return interpretDictionaryValue(i18nKey, part, value);
-    }
-
-    private void onLanguageChanged() {
-        dictionaryLoadRequired = true;
-        refreshAllTranslations();
-    }
-
-    private synchronized void refreshAllTranslations() {
-        synchronized (translations) {
-            // We iterate through the translation map to update all parts (text, graphic, etc...) of all messages (i18nKey)
-            for (Iterator<Map.Entry<Object, Map<I18nPart, Reference<StringProperty>>>> it = translations.entrySet().iterator(); it.hasNext(); ) {
-                Map.Entry<Object, Map<I18nPart, Reference<StringProperty>>> messageMapEntry = it.next();
-                refreshMessageTranslations(messageMapEntry.getKey(), messageMapEntry.getValue());
-                // Although a message map is never empty at initialization, it can become empty if all i18nKey,translationPart
-                // have been removed (as explained above). If this happens, this means that the client software actually
-                // doesn't use this message at all (either never from the beginning or not anymore).
-                if (messageMapEntry.getValue().isEmpty()) // Means the client software doesn't use this i18nKey message
-                    it.remove(); // So we can drop this entry
+            if (tokenValue instanceof String) {
+                String sToken = (String) tokenValue;
+                int i1 = sToken.indexOf('[');
+                if (i1 >= 0) {
+                    int i2 = i1 == 0 && sToken.endsWith("]") ? sToken.length() - 1 : sToken.indexOf(']', i1 + 1);
+                    if (i2 > 0)
+                        tokenValue = getDictionaryTokenValueImpl(new I18nSubKey(sToken.substring(i1 + 1, i2), i18nKey), tokenKey, dictionary, false, false, skipMessageLoading);
+                }
+            }
+            if (tokenValue == null && !skipDefaultDictionary) {
+                Dictionary defaultDictionary = getDefaultDictionary();
+                if (dictionary != defaultDictionary && defaultDictionary != null)
+                    tokenValue = getDictionaryTokenValueImpl(i18nKey, tokenKey, defaultDictionary, true, skipMessageKeyInterpretation, skipMessageLoading); //getI18nPartValue(tokenSnapshot.i18nKey, part, defaultDictionary, skipPrefixOrSuffix);
+                if (tokenValue == null) {
+                    if (!skipMessageLoading)
+                        scheduleMessageLoading(i18nKey, true);
+                    if (tokenKey == DefaultTokenKey.TEXT)
+                        tokenValue = messageKey; //;whatToReturnWhenI18nTextIsNotFound(tokenSnapshot.i18nKey, tokenSnapshot.tokenKey);
+                }
             }
         }
-    }
-
-    public void refreshMessageTranslations(Object i18nKey) {
-        refreshMessageTranslations(i18nKey, translations.get(i18nKey));
-    }
-
-    private void refreshMessageTranslations(Object i18nKey, Map<I18nPart, Reference<StringProperty>> messageMap) {
-        if (messageMap != null)
-            for (Iterator<Map.Entry<I18nPart, Reference<StringProperty>>> it = messageMap.entrySet().iterator(); it.hasNext(); ) {
-                Map.Entry<I18nPart, Reference<StringProperty>> translationPartEntry = it.next();
-                // Getting the i18nPartProperty through the reference
-                Reference<StringProperty> value = translationPartEntry.getValue();
-                StringProperty i18nPartProperty = value == null ? null : value.get();
-                // Although a i18nPartProperty is never null at initialization, it can be dropped by the GC since
-                // it is contained in a WeakReference. If this happens, this means that the client software actually
-                // doesn't use it (either never from the beginning or just not anymore after an activity is closed
-                // for example), so we can just remove that entry to release some memory.
-                if (i18nPartProperty == null) // Means the client software doesn't use this i18nKey,translationPart pair
-                    it.remove(); // So we can drop this entry
-                else // Otherwise, the client software still uses it so we need to update it
-                    refreshI18nPart(i18nPartProperty, i18nKey, translationPartEntry.getKey());
-            }
-    }
-
-    private StringProperty refreshI18nPart(StringProperty i18nPartProperty, Object i18nKey, I18nPart part) {
-        if (dictionaryLoadRequired && dictionaryLoader != null)
-            scheduleMessageLoading(i18nKey, false);
-        else
-            i18nPartProperty.setValue(getI18nPartValue(i18nKey, part));
-        return i18nPartProperty;
+        return tokenValue;
     }
 
     @Override
-    public void scheduleMessageLoading(Object i18nKey, boolean inDefaultLanguage) {
-        Set<Object> unloadedKeys = getUnloadedKeys(inDefaultLanguage);
-        if (unloadedKeys != null)
-            unloadedKeys.add(i18nKey);
+    public <TK extends Enum<?> & TokenKey> ObservableValue<?> dictionaryTokenProperty(Object i18nKey, TK tokenKey, Object... args) {
+        Property<TokenSnapshot> dictionaryTokenProperty = getLiveDictionaryTokenProperty(i18nKey, tokenKey);
+        if (dictionaryTokenProperty == null)
+            getLiveMessageMap(i18nKey, true).put(tokenKey, new SoftReference<>(dictionaryTokenProperty = createLiveDictionaryTokenProperty(i18nKey, tokenKey)));
+        return dictionaryTokenProperty;
+    }
+
+    private <TK extends Enum<?> & TokenKey> Property<TokenSnapshot> getLiveDictionaryTokenProperty(Object i18nKey, TK tokenKey) {
+        Map<TokenKey, Reference<Property<TokenSnapshot>>> messageMap = getLiveMessageMap(i18nKey, false);
+        if (messageMap == null)
+            return null;
+        Reference<Property<TokenSnapshot>> ref = messageMap.get(tokenKey);
+        return ref == null ? null : ref.get();
+    }
+
+    private Map<TokenKey, Reference<Property<TokenSnapshot>>> getLiveMessageMap(Object i18nKey, boolean createIfNotExists) {
+        Map<TokenKey, Reference<Property<TokenSnapshot>>> messageMap = liveDictionaryTokenProperties.get(i18nKey);
+        if (messageMap == null && createIfNotExists)
+            synchronized (liveDictionaryTokenProperties) {
+                liveDictionaryTokenProperties.put(i18nKey, messageMap = new HashMap<>());
+            }
+        return messageMap;
+    }
+
+    private <TK extends Enum<?> & TokenKey> Property<TokenSnapshot> createLiveDictionaryTokenProperty(Object i18nKey, TK tokenKey) {
+        return refreshDictionaryTokenSnapshot(new SimpleObjectProperty<>(new TokenSnapshot(null, i18nKey, tokenKey, null)));
+    }
+
+    private Property<TokenSnapshot> refreshDictionaryTokenSnapshot(Property<TokenSnapshot> dictionaryTokenProperty) {
+        TokenSnapshot tokenSnapshot = dictionaryTokenProperty.getValue();
+        Object i18nKey = tokenSnapshot.i18nKey;
+        if (dictionaryLoadRequired && dictionaryLoader != null)
+            scheduleMessageLoading(i18nKey, false);
         else {
-            setUnloadedKeys(unloadedKeys = new HashSet<>(), inDefaultLanguage);
-            unloadedKeys.add(i18nKey);
+            Dictionary dictionary = getDictionary();
+            TokenKey tokenKey = tokenSnapshot.tokenKey;
+            Object freshTokenValue = getDictionaryTokenValueImpl(i18nKey, (Enum<?> & TokenKey) tokenKey, dictionary, false, false, true);
+            if (!Objects.equals(tokenSnapshot.tokenValue, freshTokenValue) || tokenSnapshot.dictionary != dictionary)
+                dictionaryTokenProperty.setValue(new TokenSnapshot(dictionary, i18nKey, tokenKey, freshTokenValue));
+        }
+        return dictionaryTokenProperty;
+    }
+
+    public void refreshMessageTokenProperties(Object i18nKey) {
+        refreshMessageTokenSnapshots(liveDictionaryTokenProperties.get(i18nKey));
+    }
+
+    {
+        ValueConverterRegistry.registerValueConverter(new FXValueRaiser() {
+            @Override
+            public <T> T raiseValue(Object value, Class<T> raisedClass, Object... args) {
+                if (value instanceof TokenSnapshot) {
+                    TokenSnapshot tokenSnapshot = (TokenSnapshot) value;
+                    value = tokenSnapshot.tokenValue;
+                    if (value == null)
+                        return null; // TODO: find a way to tell the ValueConverterRegistry that null is the actual final value
+                    if (isAssignableFrom(raisedClass, value.getClass()))
+                        return (T) value;
+                }
+                return null;
+            }
+        });
+    }
+    /*
+    private final FXValueRaiser i18nFxRaiser = new FXValueRaiser() {
+        @Override
+        public <T> T raiseValue(Object value, Class<T> raisedClass, Object... args) {
+            value = DefaultFXValueRaiser.getValueOrPropertyValue(value);
+            if (value instanceof TokenSnapshot) {
+                TokenSnapshot tokenSnapshot = (TokenSnapshot) value;
+                value = tokenSnapshot.tokenValue;
+            }
+            return FXRaiser.raiseToObject(value, raisedClass, args);
+        }
+    };
+
+    @Override
+    public FXValueRaiser getI18nFxValueRaiser() {
+        return i18nFxRaiser;
+    }
+    */
+
+    @Override
+    public void scheduleMessageLoading(Object i18nKey, boolean inDefaultLanguage) {
+        Set<Object> unloadedI18nKeys = getUnloadedKeys(inDefaultLanguage);
+        if (unloadedI18nKeys != null)
+            unloadedI18nKeys.add(i18nKey);
+        else {
+            setUnloadedKeys(unloadedI18nKeys = new HashSet<>(), inDefaultLanguage);
+            unloadedI18nKeys.add(i18nKey);
             UiScheduler.scheduleDeferred(() -> {
                 Object language = inDefaultLanguage ? getDefaultLanguage() : getLanguage();
-                Set<Object> loadingKeys = getUnloadedKeys(inDefaultLanguage);
-                dictionaryLoader.loadDictionary(language, loadingKeys)
-                        .onSuccess(result -> {
+                Set<Object> loadingI18nKeys = getUnloadedKeys(inDefaultLanguage);
+                Set<Object> loadingMessageKeys = loadingI18nKeys.stream()
+                        .map(this::i18nKeyToDictionaryMessageKey).collect(Collectors.toSet());
+                System.out.println("Loading " + getLanguage() + " dictionary for messages " + loadingMessageKeys);
+                dictionaryLoader.loadDictionary(language, loadingMessageKeys)
+                        .onSuccess(dictionary -> {
                             if (!inDefaultLanguage)
-                                dictionaryProperty.setValue(result);
+                                dictionaryProperty.setValue(dictionary);
                             if (language.equals(getDefaultLanguage()))
-                                defaultDictionaryProperty.setValue(result);
+                                defaultDictionaryProperty.setValue(dictionary);
                             dictionaryLoadRequired = false;
-                            for (Object key : loadingKeys)
-                                refreshMessageTranslations(key);
+                            long t0 = System.currentTimeMillis();
+                            for (Object key : loadingI18nKeys)
+                                refreshMessageTokenProperties(key);
+                            System.out.println("Refreshed " + loadingI18nKeys.size() + " messages in " + (System.currentTimeMillis() - t0) + "ms");
                         });
                 setUnloadedKeys(null, inDefaultLanguage);
             });
@@ -314,4 +302,48 @@ public class I18nProviderImpl implements I18nProvider {
         else
             this.unloadedKeys = unloadedKeys;
     }
+
+    private void refreshMessageTokenSnapshots(Map<TokenKey, Reference<Property<TokenSnapshot>>> messageMap) {
+        if (messageMap != null)
+            for (Iterator<Map.Entry<TokenKey, Reference<Property<TokenSnapshot>>>> it = messageMap.entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry<TokenKey, Reference<Property<TokenSnapshot>>> mapEntry = it.next();
+                // Getting the tokenProperty through the reference
+                Reference<Property<TokenSnapshot>> reference = mapEntry.getValue();
+                Property<TokenSnapshot> tokenProperty = reference == null ? null : reference.get();
+                // Although a tokenProperty is never null at initialization, it can be dropped by the GC since
+                // it is contained in a WeakReference. If this happens, this means that the client software actually
+                // doesn't use it (either never from the beginning or just not anymore after an activity is closed
+                // for example), so we can just remove that entry to release some memory.
+                if (tokenProperty == null) // Means the client software doesn't use this token
+                    it.remove(); // So we can drop this entry
+                else // Otherwise, the client software still uses it, and we need to update it
+                    refreshDictionaryTokenSnapshot(tokenProperty);
+            }
+    }
+
+    private void onLanguageChanged() {
+        dictionaryLoadRequired = true;
+        refreshAllLiveTokenSnapshots();
+    }
+
+    private synchronized void refreshAllLiveTokenSnapshots() {
+        synchronized (liveDictionaryTokenProperties) {
+            // We iterate through the translation map to update all parts (text, graphic, etc...) of all messages (i18nKey)
+            for (Iterator<Map.Entry<Object, Map<TokenKey, Reference<Property<TokenSnapshot>>>>> it = liveDictionaryTokenProperties.entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry<Object, Map<TokenKey, Reference<Property<TokenSnapshot>>>> messageMapEntry = it.next();
+                refreshMessageTokenSnapshots(messageMapEntry.getValue());
+                // Although a message map is never empty at initialization, it can become empty if all i18nKey,translationPart
+                // have been removed (as explained above). If this happens, this means that the client software actually
+                // doesn't use this message at all (either never from the beginning or not anymore).
+                if (messageMapEntry.getValue().isEmpty()) // Means the client software doesn't use this i18nKey message
+                    it.remove(); // So we can drop this entry
+            }
+        }
+    }
+
+    /*private String whatToReturnWhenI18nTextIsNotFound(Object i18nKey, I18nPart part) {
+        String value = Strings.toString(i18nKeyToDictionaryMessageKey(i18nKey));
+        return interpretDictionaryValue(i18nKey, part, value);
+    }*/
+
 }

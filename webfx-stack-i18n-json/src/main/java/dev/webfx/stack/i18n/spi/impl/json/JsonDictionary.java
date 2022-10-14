@@ -1,10 +1,11 @@
 package dev.webfx.stack.i18n.spi.impl.json;
 
-import dev.webfx.stack.i18n.I18nPart;
-import dev.webfx.platform.util.Strings;
-import dev.webfx.stack.i18n.Dictionary;
 import dev.webfx.platform.json.Json;
 import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.util.Strings;
+import dev.webfx.stack.i18n.DefaultTokenKey;
+import dev.webfx.stack.i18n.Dictionary;
+import dev.webfx.stack.i18n.TokenKey;
 
 /**
  * @author Bruno Salmon
@@ -22,11 +23,11 @@ final class JsonDictionary implements Dictionary {
     }
 
     @Override
-    public String getI18nPartValue(Object i18nKey, I18nPart part) {
-        String jsonKey = Strings.toString(i18nKey);
+    public <TK extends Enum<?> & TokenKey> Object getMessageTokenValue(Object messageKey, TK tokenKey) {
+        String jsonKey = Strings.toString(messageKey);
         Object o = json.get(jsonKey);
         if (o instanceof JsonObject)
-            return ((JsonObject) o).getString(part.name().toLowerCase());
-        return part == I18nPart.TEXT ? Strings.toString(o) : null;
+            return ((JsonObject) o).get(tokenKey.name().toLowerCase());
+        return tokenKey == DefaultTokenKey.TEXT ? Strings.toString(o) : null;
     }
 }

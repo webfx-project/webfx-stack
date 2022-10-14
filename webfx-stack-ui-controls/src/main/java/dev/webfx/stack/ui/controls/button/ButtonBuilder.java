@@ -1,5 +1,6 @@
 package dev.webfx.stack.ui.controls.button;
 
+import dev.webfx.stack.i18n.I18n;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -7,7 +8,6 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Border;
 import javafx.scene.paint.Paint;
-import dev.webfx.stack.i18n.I18nControls;
 import dev.webfx.stack.ui.action.Action;
 import dev.webfx.stack.ui.action.ActionBinder;
 import dev.webfx.stack.ui.util.background.BackgroundBuilder;
@@ -155,7 +155,7 @@ public final class ButtonBuilder {
                 ActionBinder.bindButtonToAction(button, action);
             else {
                 if (i18nKey != null)
-                    I18nControls.bindI18nProperties(button, i18nKey);
+                    I18n.bindI18nProperties(button, i18nKey);
                 if (icon == null && iconUrlOrJson != null)
                     icon = JsonImageViews.createImageView(iconUrlOrJson);
                 if (icon != null)
