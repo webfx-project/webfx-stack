@@ -1,4 +1,4 @@
-package dev.webfx.stack.i18n.spi.impl.json;
+package dev.webfx.stack.ui.fxraiser.json;
 
 import dev.webfx.platform.json.JsonObject;
 import javafx.scene.paint.Color;

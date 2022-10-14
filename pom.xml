@@ -88,6 +88,7 @@
         <module>webfx-stack-ui-action</module>
         <module>webfx-stack-ui-controls</module>
         <module>webfx-stack-ui-fxraiser</module>
+        <module>webfx-stack-ui-fxraiser-json</module>
         <module>webfx-stack-ui-operation</module>
         <module>webfx-stack-ui-operation-action</module>
         <module>webfx-stack-ui-util</module>
