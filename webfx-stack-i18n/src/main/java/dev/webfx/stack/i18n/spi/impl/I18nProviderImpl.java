@@ -40,6 +40,23 @@ public class I18nProviderImpl implements I18nProvider {
         }
     }
 
+    static {
+        ValueConverterRegistry.registerValueConverter(new FXValueRaiser() {
+            @Override
+            public <T> T raiseValue(Object value, Class<T> raisedClass, Object... args) {
+                if (value instanceof TokenSnapshot) {
+                    TokenSnapshot tokenSnapshot = (TokenSnapshot) value;
+                    value = tokenSnapshot.tokenValue;
+                    if (value == null)
+                        return null; // TODO: find a way to tell the ValueConverterRegistry that null is the actual final value
+                    if (isAssignableFrom(raisedClass, value.getClass()))
+                        return (T) value;
+                }
+                return null;
+            }
+        });
+    }
+
     private final Map<Object/*i18nKey*/, Map<TokenKey, Reference<Property<TokenSnapshot>>>> liveDictionaryTokenProperties = new HashMap<>();
     private final Object defaultLanguage; // The language to find message parts (such as graphic) when missing in the current language
     private boolean dictionaryLoadRequired;
@@ -226,41 +243,6 @@ public class I18nProviderImpl implements I18nProvider {
         refreshMessageTokenSnapshots(liveDictionaryTokenProperties.get(i18nKey));
     }
 
-    {
-        ValueConverterRegistry.registerValueConverter(new FXValueRaiser() {
-            @Override
-            public <T> T raiseValue(Object value, Class<T> raisedClass, Object... args) {
-                if (value instanceof TokenSnapshot) {
-                    TokenSnapshot tokenSnapshot = (TokenSnapshot) value;
-                    value = tokenSnapshot.tokenValue;
-                    if (value == null)
-                        return null; // TODO: find a way to tell the ValueConverterRegistry that null is the actual final value
-                    if (isAssignableFrom(raisedClass, value.getClass()))
-                        return (T) value;
-                }
-                return null;
-            }
-        });
-    }
-    /*
-    private final FXValueRaiser i18nFxRaiser = new FXValueRaiser() {
-        @Override
-        public <T> T raiseValue(Object value, Class<T> raisedClass, Object... args) {
-            value = DefaultFXValueRaiser.getValueOrPropertyValue(value);
-            if (value instanceof TokenSnapshot) {
-                TokenSnapshot tokenSnapshot = (TokenSnapshot) value;
-                value = tokenSnapshot.tokenValue;
-            }
-            return FXRaiser.raiseToObject(value, raisedClass, args);
-        }
-    };
-
-    @Override
-    public FXValueRaiser getI18nFxValueRaiser() {
-        return i18nFxRaiser;
-    }
-    */
-
     @Override
     public void scheduleMessageLoading(Object i18nKey, boolean inDefaultLanguage) {
         Set<Object> unloadedI18nKeys = getUnloadedKeys(inDefaultLanguage);
@@ -274,7 +256,6 @@ public class I18nProviderImpl implements I18nProvider {
                 Set<Object> loadingI18nKeys = getUnloadedKeys(inDefaultLanguage);
                 Set<Object> loadingMessageKeys = loadingI18nKeys.stream()
                         .map(this::i18nKeyToDictionaryMessageKey).collect(Collectors.toSet());
-                System.out.println("Loading " + getLanguage() + " dictionary for messages " + loadingMessageKeys);
                 dictionaryLoader.loadDictionary(language, loadingMessageKeys)
                         .onSuccess(dictionary -> {
                             if (!inDefaultLanguage)
@@ -282,10 +263,8 @@ public class I18nProviderImpl implements I18nProvider {
                             if (language.equals(getDefaultLanguage()))
                                 defaultDictionaryProperty.setValue(dictionary);
                             dictionaryLoadRequired = false;
-                            long t0 = System.currentTimeMillis();
                             for (Object key : loadingI18nKeys)
                                 refreshMessageTokenProperties(key);
-                            System.out.println("Refreshed " + loadingI18nKeys.size() + " messages in " + (System.currentTimeMillis() - t0) + "ms");
                         });
                 setUnloadedKeys(null, inDefaultLanguage);
             });
