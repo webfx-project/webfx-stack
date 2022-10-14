@@ -209,6 +209,7 @@
                 <module>webfx-stack-routing-uirouter</module>
                 <module>webfx-stack-ui-action</module>
                 <module>webfx-stack-ui-controls</module>
+                <module>webfx-stack-ui-fxraiser</module>
                 <module>webfx-stack-ui-operation</module>
                 <module>webfx-stack-ui-operation-action</module>
                 <module>webfx-stack-ui-util</module>
@@ -1093,6 +1094,7 @@
                 <module>webfx-platform-async</module>
                 <module>webfx-platform-uischeduler</module>
                 <module>webfx-platform-util</module>
+                <module>webfx-stack-ui-fxraiser</module>
                 <module>webfx-stack-ui-operation</module>
             </used-by-source-modules>
 
@@ -2125,6 +2127,33 @@
                 <module>webfx-stack-ui-action</module>
                 <module>webfx-stack-ui-util</module>
                 <module>webfx-stack-ui-validation</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-ui-fxraiser">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.ui.fxraiser</package>
+                <package>dev.webfx.stack.ui.fxraiser.impl</package>
+                <package>dev.webfx.stack.ui.fxraiser.impl.converters</package>
+                <package>dev.webfx.stack.ui.fxraiser.impl.formatters</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-kit-javafxgraphics-emul</module>
+                <module>webfx-kit-util</module>
+                <module>webfx-platform-util</module>
             </used-by-source-modules>
 
         </project>
