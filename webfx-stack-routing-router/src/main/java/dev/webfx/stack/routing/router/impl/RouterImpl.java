@@ -1,11 +1,10 @@
 package dev.webfx.stack.routing.router.impl;
 
+import dev.webfx.platform.async.Handler;
 import dev.webfx.platform.console.Console;
-import dev.webfx.platform.json.JsonObject;
 import dev.webfx.stack.routing.router.Route;
 import dev.webfx.stack.routing.router.Router;
 import dev.webfx.stack.routing.router.RoutingContext;
-import dev.webfx.platform.async.Handler;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -51,7 +50,7 @@ public final class RouterImpl implements Router {
     }
 
     @Override
-    public void accept(String path, JsonObject state) {
+    public void accept(String path, Object state) {
         Console.log("Routing " + path);
         new RoutingContextImpl(null, this, path, routes, state).next();
     }

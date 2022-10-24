@@ -1,8 +1,7 @@
 package dev.webfx.stack.routing.router;
 
-import dev.webfx.platform.json.JsonObject;
-import dev.webfx.stack.routing.router.impl.RouterImpl;
 import dev.webfx.platform.async.Handler;
+import dev.webfx.stack.routing.router.impl.RouterImpl;
 
 /**
  * @author Bruno Salmon
@@ -21,7 +20,7 @@ public interface Router {
 
     Router routeWithRegex(String path, Handler<RoutingContext> handler);
 
-    void accept(String path, JsonObject state);
+    void accept(String path, Object state);
 
     Router mountSubRouter(String mountPoint, Router subRouter);
 

@@ -1,7 +1,5 @@
 package dev.webfx.stack.routing.router.impl;
 
-import dev.webfx.platform.json.JsonObject;
-
 import java.util.Collection;
 
 /**
@@ -13,7 +11,7 @@ final class RoutingContextImpl extends RoutingContextImplBase {
     private Throwable failure;
     private int statusCode = -1;
 
-    RoutingContextImpl(String mountPoint, RouterImpl router, String path, Collection<RouteImpl> routes, JsonObject state) {
+    RoutingContextImpl(String mountPoint, RouterImpl router, String path, Collection<RouteImpl> routes, Object state) {
         super(mountPoint, path, routes, state);
         this.router = router;
     }

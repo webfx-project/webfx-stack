@@ -1,12 +1,11 @@
 package dev.webfx.stack.routing.router.impl;
 
 import dev.webfx.platform.console.Console;
+import dev.webfx.platform.json.Json;
+import dev.webfx.platform.json.WritableJsonObject;
 import dev.webfx.stack.routing.router.Route;
 import dev.webfx.stack.routing.router.RoutingContext;
 import dev.webfx.stack.routing.router.session.Session;
-import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.WritableJsonObject;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -25,7 +24,7 @@ public abstract class RoutingContextImplBase implements RoutingContext {
     private Session session;
     private Object userPrincipal;
 
-    RoutingContextImplBase(String mountPoint, String path, Collection<RouteImpl> routes, JsonObject state) {
+    RoutingContextImplBase(String mountPoint, String path, Collection<RouteImpl> routes, Object state) {
         this.mountPoint = mountPoint;
         this.path = path;
         this.routes = routes;
