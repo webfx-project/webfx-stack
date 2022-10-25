@@ -12,9 +12,6 @@ import java.util.ServiceLoader;
  */
 public final class QueryService {
 
-    public static final String QUERY_SERVICE_ADDRESS = "service/query";
-    public static final String QUERY_BATCH_SERVICE_ADDRESS = "service/query/batch";
-
     public static QueryServiceProvider getProvider() {
         return SingleServiceProvider.getProvider(QueryServiceProvider.class, () -> ServiceLoader.load(QueryServiceProvider.class));
     }

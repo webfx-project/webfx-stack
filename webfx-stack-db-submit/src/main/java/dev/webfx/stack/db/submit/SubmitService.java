@@ -12,9 +12,6 @@ import java.util.ServiceLoader;
  */
 public final class SubmitService {
 
-    public static final String SUBMIT_SERVICE_ADDRESS = "service/submit";
-    public static final String SUBMIT_BATCH_SERVICE_ADDRESS = "service/submit/batch";
-
     public static SubmitServiceProvider getProvider() {
         return SingleServiceProvider.getProvider(SubmitServiceProvider.class, () -> ServiceLoader.load(SubmitServiceProvider.class));
     }

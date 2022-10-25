@@ -1,2 +1,2 @@
-dev.webfx.stack.db.submit.ExecuteSubmitBusCallEndpoint
-dev.webfx.stack.db.submit.ExecuteSubmitBatchBusCallEndpoint
+dev.webfx.stack.db.submit.buscall.ExecuteSubmitMethodEndpoint
+dev.webfx.stack.db.submit.buscall.ExecuteSubmitBatchMethodEndpoint

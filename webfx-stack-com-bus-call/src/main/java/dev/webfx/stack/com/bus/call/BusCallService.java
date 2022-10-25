@@ -230,7 +230,7 @@ public final class BusCallService {
         );
     }
 
-    public static Registration registerBusCallEndpoint(BusCallEndpoint endpoint) {
+    public static Registration registerBusCallEndpoint(BusCallEndpoint<?, ?> endpoint) {
         return registerBusCallEndpoint(endpoint.getAddress(), endpoint.toAsyncFunction());
     }
 }

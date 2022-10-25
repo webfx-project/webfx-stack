@@ -822,8 +822,8 @@
             </exported-packages>
 
             <providers>
-                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.query.ExecuteQueryBusCallEndpoint</provider>
-                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.query.ExecuteQueryBatchBusCallEndpoint</provider>
+                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.query.buscall.ExecuteQueryMethodEndpoint</provider>
+                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.query.buscall.ExecuteQueryBatchMethodEndpoint</provider>
                 <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.query.QueryArgument$ProvidedSerialCodec</provider>
                 <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.query.QueryResult$ProvidedSerialCodec</provider>
             </providers>
@@ -840,6 +840,7 @@
 
             <source-packages>
                 <package>dev.webfx.stack.db.query</package>
+                <package>dev.webfx.stack.db.query.buscall</package>
                 <package>dev.webfx.stack.db.query.compression</package>
                 <package>dev.webfx.stack.db.query.compression.repeat</package>
                 <package>dev.webfx.stack.db.query.spi</package>
@@ -974,8 +975,8 @@
             </exported-packages>
 
             <providers>
-                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.submit.ExecuteSubmitBusCallEndpoint</provider>
-                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.submit.ExecuteSubmitBatchBusCallEndpoint</provider>
+                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.submit.buscall.ExecuteSubmitMethodEndpoint</provider>
+                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.submit.buscall.ExecuteSubmitBatchMethodEndpoint</provider>
                 <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.submit.SubmitArgument$ProvidedSerialCodec</provider>
                 <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.submit.SubmitResult$ProvidedSerialCodec</provider>
                 <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.submit.GeneratedKeyBatchIndex$ProvidedSerialCodec</provider>
@@ -993,6 +994,7 @@
 
             <source-packages>
                 <package>dev.webfx.stack.db.submit</package>
+                <package>dev.webfx.stack.db.submit.buscall</package>
                 <package>dev.webfx.stack.db.submit.spi</package>
                 <package>dev.webfx.stack.db.submit.spi.impl</package>
             </source-packages>
@@ -1798,7 +1800,7 @@
             </exported-packages>
 
             <providers>
-                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.querypush.ExecuteQueryPushBusCallEndpoint</provider>
+                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.querypush.buscall.ExecuteQueryPushMethodEndpoint</provider>
                 <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.querypush.QueryPushArgument$ProvidedSerialCodec</provider>
                 <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.querypush.QueryPushResult$ProvidedSerialCodec</provider>
                 <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.querypush.diff.impl.QueryResultTranslation$ProvidedSerialCodec</provider>
@@ -1810,6 +1812,7 @@
 
             <source-packages>
                 <package>dev.webfx.stack.querypush</package>
+                <package>dev.webfx.stack.querypush.buscall</package>
                 <package>dev.webfx.stack.querypush.diff</package>
                 <package>dev.webfx.stack.querypush.diff.impl</package>
                 <package>dev.webfx.stack.querypush.spi</package>

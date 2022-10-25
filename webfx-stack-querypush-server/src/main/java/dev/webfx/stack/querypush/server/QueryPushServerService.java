@@ -12,7 +12,7 @@ import dev.webfx.platform.async.Future;
 
 import java.util.Arrays;
 
-import static dev.webfx.stack.querypush.QueryPushService.QUERY_PUSH_RESULT_LISTENER_CLIENT_SERVICE_ADDRESS;
+import static dev.webfx.stack.querypush.buscall.QueryPushListenerBusAddress.QUERY_PUSH_RESULT_CLIENT_LISTENER_ADDRESS;
 
 /**
  * @author Bruno Salmon
@@ -22,7 +22,7 @@ public final class QueryPushServerService {
     // Server side push of a query result to a specific client
     public static <T> Future<T> pushQueryResultToClient(QueryPushResult queryPushResult, Object pushClientId) {
         return PushServerService.callClientService(
-                QUERY_PUSH_RESULT_LISTENER_CLIENT_SERVICE_ADDRESS,
+                QUERY_PUSH_RESULT_CLIENT_LISTENER_ADDRESS,
                 queryPushResult,
                 BusService.bus(),
                 pushClientId

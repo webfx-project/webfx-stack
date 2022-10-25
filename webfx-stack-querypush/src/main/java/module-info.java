@@ -16,6 +16,7 @@ module webfx.stack.querypush {
 
     // Exported packages
     exports dev.webfx.stack.querypush;
+    exports dev.webfx.stack.querypush.buscall;
     exports dev.webfx.stack.querypush.diff;
     exports dev.webfx.stack.querypush.diff.impl;
     exports dev.webfx.stack.querypush.spi;
@@ -25,7 +26,7 @@ module webfx.stack.querypush {
     uses dev.webfx.stack.querypush.spi.QueryPushServiceProvider;
 
     // Provided services
-    provides dev.webfx.stack.com.bus.call.spi.BusCallEndpoint with dev.webfx.stack.querypush.ExecuteQueryPushBusCallEndpoint;
+    provides dev.webfx.stack.com.bus.call.spi.BusCallEndpoint with dev.webfx.stack.querypush.buscall.ExecuteQueryPushMethodEndpoint;
     provides dev.webfx.stack.com.serial.spi.SerialCodec with dev.webfx.stack.querypush.QueryPushArgument.ProvidedSerialCodec, dev.webfx.stack.querypush.QueryPushResult.ProvidedSerialCodec, dev.webfx.stack.querypush.diff.impl.QueryResultTranslation.ProvidedSerialCodec;
 
 }

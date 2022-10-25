@@ -246,7 +246,7 @@ public class SimpleBus implements Bus {
     }
 
     private void handle(String address, Handler<AsyncResult<Message>> handler, Message message) {
-        //Logger.log("handle(), address = " + address + ", handler = " + handler + ", message = " + message);
+        //Console.log("handle(), address = " + address + ", handler = " + handler + ", message = " + message);
         try {
             handler.handle(Future.succeededFuture(message));
         } catch (Throwable e) {
@@ -265,7 +265,7 @@ public class SimpleBus implements Bus {
     }
 
     private void scheduleHandleAsync(String address, Handler<AsyncResult<Message>> handler, Message message) {
-        Console.log("scheduleHandle(), address = " + address + ", handler = " + handler + ", message = " + message);
+        //Console.log("scheduleHandle(), address = " + address + ", handler = " + handler + ", message = " + message);
         if (message.isLocal())
             handle(address, handler, message);
         else

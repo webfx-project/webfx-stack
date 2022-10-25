@@ -1,2 +1,2 @@
-dev.webfx.stack.db.query.ExecuteQueryBusCallEndpoint
-dev.webfx.stack.db.query.ExecuteQueryBatchBusCallEndpoint
+dev.webfx.stack.db.query.buscall.ExecuteQueryMethodEndpoint
+dev.webfx.stack.db.query.buscall.ExecuteQueryBatchMethodEndpoint

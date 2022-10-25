@@ -16,7 +16,7 @@ public final class SubmitListenerModuleBooter implements ApplicationModuleBooter
 
     @Override
     public String getModuleName() {
-        return "webfx-stack-db-submite.listener";
+        return "webfx-stack-db-submit-listener";
     }
 
     @Override

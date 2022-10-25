@@ -6,7 +6,7 @@ import dev.webfx.stack.querypush.QueryPushResult;
 
 import java.util.function.Consumer;
 
-import static dev.webfx.stack.querypush.QueryPushService.QUERY_PUSH_RESULT_LISTENER_CLIENT_SERVICE_ADDRESS;
+import static dev.webfx.stack.querypush.buscall.QueryPushListenerBusAddress.QUERY_PUSH_RESULT_CLIENT_LISTENER_ADDRESS;
 
 /**
  * @author Bruno Salmon
@@ -15,7 +15,7 @@ public final class QueryPushClientService {
 
     // Client side (registering a consumer that will receive the query push results)
     public static Registration registerQueryPushClientConsumer(Consumer<QueryPushResult> javaFunction) {
-        return PushClientService.registerPushFunction(QUERY_PUSH_RESULT_LISTENER_CLIENT_SERVICE_ADDRESS, (QueryPushResult qpr) -> {
+        return PushClientService.registerPushFunction(QUERY_PUSH_RESULT_CLIENT_LISTENER_ADDRESS, (QueryPushResult qpr) -> {
             javaFunction.accept(qpr);
             return null;
         });

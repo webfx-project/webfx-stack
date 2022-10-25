@@ -15,6 +15,7 @@ module webfx.stack.db.query {
 
     // Exported packages
     exports dev.webfx.stack.db.query;
+    exports dev.webfx.stack.db.query.buscall;
     exports dev.webfx.stack.db.query.compression;
     exports dev.webfx.stack.db.query.compression.repeat;
     exports dev.webfx.stack.db.query.spi;
@@ -24,7 +25,7 @@ module webfx.stack.db.query {
     uses dev.webfx.stack.db.query.spi.QueryServiceProvider;
 
     // Provided services
-    provides dev.webfx.stack.com.bus.call.spi.BusCallEndpoint with dev.webfx.stack.db.query.ExecuteQueryBusCallEndpoint, dev.webfx.stack.db.query.ExecuteQueryBatchBusCallEndpoint;
+    provides dev.webfx.stack.com.bus.call.spi.BusCallEndpoint with dev.webfx.stack.db.query.buscall.ExecuteQueryMethodEndpoint, dev.webfx.stack.db.query.buscall.ExecuteQueryBatchMethodEndpoint;
     provides dev.webfx.stack.com.serial.spi.SerialCodec with dev.webfx.stack.db.query.QueryArgument.ProvidedSerialCodec, dev.webfx.stack.db.query.QueryResult.ProvidedSerialCodec;
 
 }

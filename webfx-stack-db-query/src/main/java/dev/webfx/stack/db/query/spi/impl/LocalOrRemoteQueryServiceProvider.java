@@ -3,7 +3,7 @@ package dev.webfx.stack.db.query.spi.impl;
 import dev.webfx.stack.com.bus.call.BusCallService;
 import dev.webfx.platform.async.Future;
 import dev.webfx.stack.db.query.QueryArgument;
-import dev.webfx.stack.db.query.QueryService;
+import dev.webfx.stack.db.query.buscall.QueryServiceBusAddress;
 
 /**
  * @author Bruno Salmon
@@ -14,6 +14,6 @@ import dev.webfx.stack.db.query.QueryService;
 public class LocalOrRemoteQueryServiceProvider extends LocalQueryServiceProvider {
 
     protected <T> Future<T> executeRemoteQuery(QueryArgument argument) {
-        return BusCallService.call(QueryService.QUERY_SERVICE_ADDRESS, argument);
+        return BusCallService.call(QueryServiceBusAddress.EXECUTE_QUERY_METHOD_ADDRESS, argument);
     }
 }

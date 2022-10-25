@@ -7,7 +7,7 @@ import dev.webfx.stack.db.datasource.LocalDataSource;
 import dev.webfx.stack.querypush.PulseArgument;
 import dev.webfx.stack.querypush.QueryPushArgument;
 import dev.webfx.stack.querypush.QueryPushResult;
-import dev.webfx.stack.querypush.QueryPushService;
+import dev.webfx.stack.querypush.buscall.QueryPushServiceBusAddress;
 import dev.webfx.stack.querypush.spi.QueryPushServiceProvider;
 
 import java.util.ArrayList;
@@ -61,7 +61,7 @@ public class LocalOrRemoteQueryPushServiceProvider implements QueryPushServicePr
             consumerRegistrationPendingCalls++;
         else if (queryStreamId != null && queryPushResultConsumer != null)
             queryPushResultConsumers.put(queryStreamId, queryPushResultConsumer);
-        Future<T> call = BusCallService.call(QueryPushService.QUERY_PUSH_SERVICE_ADDRESS, argument);
+        Future<T> call = BusCallService.call(QueryPushServiceBusAddress.EXECUTE_QUERY_PUSH_METHOD_ADDRESS, argument);
         if (isConsumerRegistrationPendingCall)
             call = call.map(newQueryStreamId -> {
                 synchronized (queryPushResultConsumers) {
