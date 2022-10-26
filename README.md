@@ -3,7 +3,10 @@
 The WebFX Stack is a collection of framework pieces for WebFX, designed to work together as follows:
 
 <div align="center">
-  <img src="https://docs.webfx.dev/webfx-stack/webfx-stack.svg" />
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://docs.webfx.dev/webfx-readmes/webfx-stack-dark.svg">
+      <img src="https://docs.webfx.dev/webfx-readmes/webfx-stack-light.svg" />
+    </picture>
 
 <p></p>
 
