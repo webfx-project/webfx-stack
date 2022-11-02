@@ -15,7 +15,7 @@ module webfx.stack.routing.uirouter {
     requires webfx.platform.util;
     requires webfx.platform.windowhistory;
     requires webfx.stack.authz;
-    requires webfx.stack.routing.activity;
+    requires transitive webfx.stack.routing.activity;
     requires webfx.stack.routing.router;
     requires webfx.stack.ui.operation;
 

@@ -2027,7 +2027,9 @@
             </exported-packages>
 
             <dependencies>
-                <used-by-source-modules/>
+                <used-by-source-modules>
+                    <module transitive="true">webfx-stack-routing-activity</module>
+                </used-by-source-modules>
             </dependencies>
 
             <source-packages>
@@ -2110,7 +2112,6 @@
 
             <dependencies>
                 <used-by-source-modules>
-                    <undetected-module>webfx-stack-routing-activity</undetected-module>
                     <undetected-module>webfx-extras-type</undetected-module>
                 </used-by-source-modules>
             </dependencies>

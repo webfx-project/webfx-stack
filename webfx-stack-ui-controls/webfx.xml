@@ -8,7 +8,6 @@
 
     <dependencies>
         <used-by-source-modules>
-            <undetected-module>webfx-stack-routing-activity</undetected-module>
             <undetected-module>webfx-extras-type</undetected-module>
         </used-by-source-modules>
     </dependencies>
