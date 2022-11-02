@@ -13,7 +13,7 @@ module webfx.stack.routing.uirouter {
     requires webfx.platform.json;
     requires webfx.platform.uischeduler;
     requires transitive webfx.platform.util;
-    requires webfx.platform.windowhistory;
+    requires transitive webfx.platform.windowhistory;
     requires webfx.stack.authz;
     requires transitive webfx.stack.routing.activity;
     requires webfx.stack.routing.router;
