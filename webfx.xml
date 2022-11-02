@@ -346,7 +346,9 @@
             </exported-packages>
 
             <dependencies>
-                <used-by-source-modules/>
+                <used-by-source-modules>
+                    <module transitive="true">webfx-platform-async</module>
+                </used-by-source-modules>
             </dependencies>
 
             <source-packages>
@@ -983,7 +985,9 @@
             </providers>
 
             <dependencies>
-                <used-by-source-modules/>
+                <used-by-source-modules>
+                    <module transitive="true">webfx-platform-async</module>
+                </used-by-source-modules>
             </dependencies>
 
             <reflect>
@@ -1403,7 +1407,9 @@
             </exported-packages>
 
             <dependencies>
-                <used-by-source-modules/>
+                <used-by-source-modules>
+                    <module transitive="true">webfx-platform-async</module>
+                </used-by-source-modules>
             </dependencies>
 
             <source-packages>
@@ -1444,7 +1450,6 @@
             <dependencies>
                 <used-by-source-modules>
                     <undetected-module>webfx-stack-db-submit</undetected-module>
-                    <undetected-module>webfx-platform-async</undetected-module>
                 </used-by-source-modules>
             </dependencies>
 

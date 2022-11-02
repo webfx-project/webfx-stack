@@ -5,7 +5,7 @@ module webfx.stack.orm.entity {
     // Direct dependencies modules
     requires java.base;
     requires webfx.extras.type;
-    requires webfx.platform.async;
+    requires transitive webfx.platform.async;
     requires webfx.platform.console;
     requires webfx.platform.util;
     requires webfx.stack.db.datascope;

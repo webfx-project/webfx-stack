@@ -274,7 +274,7 @@ public final class UiRouter extends HistoryRouter {
             // The returned value is not null only if we switched back to an already existing activity that has been paused before
             if (activityManager == null) { // otherwise, this is the first time we switch to this activity which is therefore not yet created
                 activityManager = activityManagerFactory.create(); // So we create the activity manager (and its associated activity)
-                activityManager.create(activityContext); // and we transit the activity into the create state and pass the context
+                activityManager.create(activityContext); // and we transit the activity into the created state and pass the context
             }
             // Now that the new requested activity is displayed, we pause the previous activity
             if (previousActivityManager != null) // if there was a previous activity
@@ -294,7 +294,7 @@ public final class UiRouter extends HistoryRouter {
                 // Calling the parent router on the mount point will cause the parent activity to be displayed (if not already done)
                 mountParentRouter.router.accept(routingContext.mountPoint() + "/", routingContext.getParams());
             }
-            // When the activity is a mount parent activity, we makes the trick so the child activity is displayed within the parent activity
+            // When the activity is a mount parent activity, we make the trick so the child activity is displayed within the parent activity
             if (mountChildSubRouter != null) // Indicates it is a mount parent activity
                 // The trick is to bind the mount node of the parent activity to the child activity node
                 if (activityContext instanceof HasMountNodeProperty && mountChildSubRouter.hostingContext instanceof HasNodeProperty)
