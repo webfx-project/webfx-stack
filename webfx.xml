@@ -1083,7 +1083,9 @@
             </exported-packages>
 
             <dependencies>
-                <used-by-source-modules/>
+                <used-by-source-modules>
+                    <module transitive="true">webfx-platform-util</module>
+                </used-by-source-modules>
             </dependencies>
 
             <source-packages>
@@ -1599,9 +1601,7 @@
             </exported-packages>
 
             <dependencies>
-                <used-by-source-modules>
-                    <undetected-module>webfx-platform-util</undetected-module>
-                </used-by-source-modules>
+                <used-by-source-modules/>
             </dependencies>
 
             <source-packages>
@@ -2029,6 +2029,7 @@
             <dependencies>
                 <used-by-source-modules>
                     <module transitive="true">webfx-stack-routing-activity</module>
+                    <module transitive="true">webfx-platform-util</module>
                 </used-by-source-modules>
             </dependencies>
 

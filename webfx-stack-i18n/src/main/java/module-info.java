@@ -9,7 +9,7 @@ module webfx.stack.i18n {
     requires javafx.graphics;
     requires webfx.platform.async;
     requires webfx.platform.uischeduler;
-    requires webfx.platform.util;
+    requires transitive webfx.platform.util;
     requires webfx.stack.ui.fxraiser;
     requires webfx.stack.ui.operation;
 

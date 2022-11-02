@@ -9,7 +9,6 @@ module webfx.stack.orm.reactive.entities {
     requires webfx.extras.type;
     requires webfx.kit.util;
     requires webfx.platform.json;
-    requires webfx.platform.util;
     requires webfx.stack.db.query;
     requires webfx.stack.orm.domainmodel;
     requires webfx.stack.orm.dql;
