@@ -11,7 +11,7 @@ module webfx.stack.ui.operation.action {
     requires webfx.platform.uischeduler;
     requires webfx.platform.util;
     requires webfx.stack.authz;
-    requires webfx.stack.ui.action;
+    requires transitive webfx.stack.ui.action;
     requires webfx.stack.ui.operation;
 
     // Exported packages

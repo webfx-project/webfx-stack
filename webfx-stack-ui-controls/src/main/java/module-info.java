@@ -14,7 +14,7 @@ module webfx.stack.ui.controls {
     requires webfx.platform.uischeduler;
     requires webfx.platform.util;
     requires webfx.stack.i18n;
-    requires webfx.stack.ui.action;
+    requires transitive webfx.stack.ui.action;
     requires webfx.stack.ui.util;
     requires webfx.stack.ui.validation;
 

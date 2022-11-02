@@ -2030,6 +2030,7 @@
                 <used-by-source-modules>
                     <module transitive="true">webfx-stack-routing-activity</module>
                     <module transitive="true">webfx-platform-util</module>
+                    <module transitive="true">webfx-platform-windowhistory</module>
                 </used-by-source-modules>
             </dependencies>
 
@@ -2113,6 +2114,7 @@
 
             <dependencies>
                 <used-by-source-modules>
+                    <module transitive="true">webfx-stack-ui-action</module>
                     <undetected-module>webfx-extras-type</undetected-module>
                 </used-by-source-modules>
             </dependencies>
@@ -2230,7 +2232,9 @@
             </exported-packages>
 
             <dependencies>
-                <used-by-source-modules/>
+                <used-by-source-modules>
+                    <module transitive="true">webfx-stack-ui-action</module>
+                </used-by-source-modules>
             </dependencies>
 
             <source-packages>
