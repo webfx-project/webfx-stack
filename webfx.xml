@@ -2124,7 +2124,6 @@
             <dependencies>
                 <used-by-source-modules>
                     <module transitive="true">webfx-stack-ui-action</module>
-                    <undetected-module>webfx-extras-type</undetected-module>
                 </used-by-source-modules>
             </dependencies>
 

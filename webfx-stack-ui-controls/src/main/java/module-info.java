@@ -9,7 +9,6 @@ module webfx.stack.ui.controls {
     requires javafx.graphics;
     requires webfx.extras.imagestore;
     requires webfx.extras.materialdesign;
-    requires webfx.extras.type;
     requires webfx.kit.util;
     requires webfx.platform.uischeduler;
     requires webfx.platform.util;
