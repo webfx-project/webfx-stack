@@ -1411,6 +1411,12 @@
             <dependencies>
                 <used-by-source-modules>
                     <module transitive="true">webfx-platform-async</module>
+                    <module transitive="true">webfx-stack-db-datascope</module>
+                    <module transitive="true">webfx-stack-db-query</module>
+                    <module transitive="true">webfx-stack-db-submit</module>
+                    <module transitive="true">webfx-stack-orm-domainmodel</module>
+                    <module transitive="true">webfx-stack-orm-dql</module>
+                    <module transitive="true">webfx-stack-orm-expression</module>
                 </used-by-source-modules>
             </dependencies>
 
@@ -1451,7 +1457,7 @@
 
             <dependencies>
                 <used-by-source-modules>
-                    <undetected-module>webfx-stack-db-submit</undetected-module>
+                    <module transitive="true">webfx-stack-ui-controls</module>
                 </used-by-source-modules>
             </dependencies>
 
@@ -1634,7 +1640,9 @@
             </exported-packages>
 
             <dependencies>
-                <used-by-source-modules/>
+                <used-by-source-modules>
+                    <module transitive="true">webfx-stack-orm-entity</module>
+                </used-by-source-modules>
             </dependencies>
 
             <source-packages>

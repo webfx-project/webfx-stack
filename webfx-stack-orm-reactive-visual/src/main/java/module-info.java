@@ -13,7 +13,7 @@ module webfx.stack.orm.reactive.visual {
     requires webfx.platform.util;
     requires webfx.stack.i18n;
     requires webfx.stack.orm.domainmodel;
-    requires webfx.stack.orm.entity;
+    requires transitive webfx.stack.orm.entity;
     requires webfx.stack.orm.expression;
     requires webfx.stack.orm.reactive.dql;
     requires webfx.stack.orm.reactive.entities;

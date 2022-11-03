@@ -8,12 +8,12 @@ module webfx.stack.orm.entity {
     requires transitive webfx.platform.async;
     requires webfx.platform.console;
     requires webfx.platform.util;
-    requires webfx.stack.db.datascope;
-    requires webfx.stack.db.query;
-    requires webfx.stack.db.submit;
-    requires webfx.stack.orm.domainmodel;
-    requires webfx.stack.orm.dql;
-    requires webfx.stack.orm.expression;
+    requires transitive webfx.stack.db.datascope;
+    requires transitive webfx.stack.db.query;
+    requires transitive webfx.stack.db.submit;
+    requires transitive webfx.stack.orm.domainmodel;
+    requires transitive webfx.stack.orm.dql;
+    requires transitive webfx.stack.orm.expression;
 
     // Exported packages
     exports dev.webfx.stack.orm.entity;

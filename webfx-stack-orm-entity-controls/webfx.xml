@@ -7,7 +7,7 @@
 
     <dependencies>
         <used-by-source-modules>
-            <undetected-module>webfx-stack-db-submit</undetected-module>
+            <module transitive="true">webfx-stack-ui-controls</module>
         </used-by-source-modules>
     </dependencies>
 
