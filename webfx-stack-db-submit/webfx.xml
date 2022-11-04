@@ -5,16 +5,9 @@
         <source-packages/>
     </exported-packages>
 
-    <providers>
-        <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.submit.buscall.ExecuteSubmitMethodEndpoint</provider>
-        <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.submit.buscall.ExecuteSubmitBatchMethodEndpoint</provider>
-        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.submit.SubmitArgument$ProvidedSerialCodec</provider>
-        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.submit.SubmitResult$ProvidedSerialCodec</provider>
-        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.submit.GeneratedKeyBatchIndex$ProvidedSerialCodec</provider>
-    </providers>
-
     <dependencies>
         <used-by-source-modules>
+            <module transitive="true">webfx-stack-db-datascope</module>
             <module transitive="true">webfx-platform-async</module>
         </used-by-source-modules>
     </dependencies>

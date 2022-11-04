@@ -176,6 +176,7 @@
                 <module>webfx-stack-db-querysubmit-java-jdbc</module>
                 <module>webfx-stack-db-querysubmit-vertx</module>
                 <module>webfx-stack-db-submit</module>
+                <module>webfx-stack-db-submit-buscall</module>
                 <module>webfx-stack-db-submit-listener</module>
                 <module>webfx-stack-db-submit-remote</module>
                 <module>webfx-stack-i18n</module>
@@ -953,6 +954,7 @@
                 <module>webfx-stack-db-query</module>
                 <module>webfx-stack-db-query-remote</module>
                 <module>webfx-stack-db-submit</module>
+                <module>webfx-stack-db-submit-remote</module>
             </used-by-source-modules>
 
         </project>
@@ -1006,16 +1008,9 @@
                 <source-packages/>
             </exported-packages>
 
-            <providers>
-                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.submit.buscall.ExecuteSubmitMethodEndpoint</provider>
-                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.submit.buscall.ExecuteSubmitBatchMethodEndpoint</provider>
-                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.submit.SubmitArgument$ProvidedSerialCodec</provider>
-                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.submit.SubmitResult$ProvidedSerialCodec</provider>
-                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.submit.GeneratedKeyBatchIndex$ProvidedSerialCodec</provider>
-            </providers>
-
             <dependencies>
                 <used-by-source-modules>
+                    <module transitive="true">webfx-stack-db-datascope</module>
                     <module transitive="true">webfx-platform-async</module>
                 </used-by-source-modules>
             </dependencies>
@@ -1028,7 +1023,6 @@
 
             <source-packages>
                 <package>dev.webfx.stack.db.submit</package>
-                <package>dev.webfx.stack.db.submit.buscall</package>
                 <package>dev.webfx.stack.db.submit.spi</package>
                 <package>dev.webfx.stack.db.submit.spi.impl</package>
             </source-packages>
@@ -1036,10 +1030,7 @@
             <used-by-source-modules>
                 <module>java.base</module>
                 <module>webfx-platform-async</module>
-                <module>webfx-platform-json</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-com-bus-call</module>
-                <module>webfx-stack-com-serial</module>
                 <module>webfx-stack-db-datascope</module>
                 <module>webfx-stack-db-datasource</module>
             </used-by-source-modules>
@@ -1047,6 +1038,40 @@
             <used-services>
                 <required-service>dev.webfx.stack.db.submit.spi.SubmitServiceProvider</required-service>
             </used-services>
+
+        </project>
+
+        <project name="webfx-stack-db-submit-buscall">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.submit.buscall.ExecuteSubmitMethodEndpoint</provider>
+                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.submit.buscall.ExecuteSubmitBatchMethodEndpoint</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.submit.buscall.serial.SubmitArgumentSerialCodec</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.submit.buscall.serial.SubmitResultSerialCodec</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.submit.buscall.serial.GeneratedKeyBatchIndexSerialCodec</provider>
+            </providers>
+
+            <source-packages>
+                <package>dev.webfx.stack.db.submit.buscall</package>
+                <package>dev.webfx.stack.db.submit.buscall.serial</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-json</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-com-bus-call</module>
+                <module>webfx-stack-com-serial</module>
+                <module>webfx-stack-db-submit</module>
+            </used-by-source-modules>
 
         </project>
 
@@ -1101,7 +1126,10 @@
             </source-packages>
 
             <used-by-source-modules>
+                <module>webfx-platform-async</module>
+                <module>webfx-stack-com-bus-call</module>
                 <module>webfx-stack-db-submit</module>
+                <module>webfx-stack-db-submit-buscall</module>
             </used-by-source-modules>
 
         </project>
@@ -2385,7 +2413,9 @@
                 <module>webfx-stack-db-querysubmit-java-jdbc</module>
                 <module>webfx-stack-db-querysubmit-vertx</module>
                 <module>webfx-stack-db-submit</module>
+                <module>webfx-stack-db-submit-buscall</module>
                 <module>webfx-stack-db-submit-listener</module>
+                <module>webfx-stack-db-submit-remote</module>
                 <module>webfx-stack-orm-dql-submit-interceptor</module>
                 <module>webfx-stack-orm-entity</module>
                 <module>webfx-stack-orm-entity-controls</module>

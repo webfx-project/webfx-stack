@@ -54,6 +54,7 @@
         <module>webfx-stack-db-querysubmit-java-jdbc</module>
         <module>webfx-stack-db-querysubmit-vertx</module>
         <module>webfx-stack-db-submit</module>
+        <module>webfx-stack-db-submit-buscall</module>
         <module>webfx-stack-db-submit-listener</module>
         <module>webfx-stack-db-submit-remote</module>
         <module>webfx-stack-i18n</module>

@@ -1,4 +1,4 @@
-package dev.webfx.stack.db.submit.spi.impl;
+package dev.webfx.stack.db.submit.spi.impl.remote;
 
 import dev.webfx.stack.com.bus.call.BusCallService;
 import dev.webfx.stack.db.submit.SubmitArgument;
@@ -6,6 +6,7 @@ import dev.webfx.stack.db.submit.SubmitResult;
 import dev.webfx.platform.async.Batch;
 import dev.webfx.platform.async.Future;
 import dev.webfx.stack.db.submit.buscall.SubmitMethodAddress;
+import dev.webfx.stack.db.submit.spi.impl.LocalSubmitServiceProvider;
 
 /**
  * @author Bruno Salmon
