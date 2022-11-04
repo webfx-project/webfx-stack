@@ -1,6 +1,6 @@
 package dev.webfx.stack.querypush.client.simple;
 
-import dev.webfx.stack.querypush.spi.impl.LocalOrRemoteQueryPushServiceProvider;
+import dev.webfx.stack.querypush.spi.impl.remote.LocalOrRemoteQueryPushServiceProvider;
 
 /**
  * @author Bruno Salmon

@@ -7,6 +7,7 @@ module webfx.stack.querypush.client {
     requires webfx.stack.com.bus;
     requires webfx.stack.push.client;
     requires webfx.stack.querypush;
+    requires webfx.stack.querypush.buscall;
 
     // Exported packages
     exports dev.webfx.stack.querypush.client;

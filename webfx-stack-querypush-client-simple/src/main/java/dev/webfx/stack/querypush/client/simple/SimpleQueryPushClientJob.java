@@ -3,7 +3,7 @@ package dev.webfx.stack.querypush.client.simple;
 import dev.webfx.stack.querypush.client.QueryPushClientService;
 import dev.webfx.platform.boot.spi.ApplicationJob;
 import dev.webfx.stack.com.bus.Registration;
-import dev.webfx.stack.querypush.spi.impl.LocalOrRemoteQueryPushServiceProvider;
+import dev.webfx.stack.querypush.spi.impl.remote.LocalOrRemoteQueryPushServiceProvider;
 
 /**
  * @author Bruno Salmon

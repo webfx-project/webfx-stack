@@ -7,6 +7,7 @@ module webfx.stack.querypush.client.simple {
     requires webfx.stack.com.bus;
     requires webfx.stack.querypush;
     requires webfx.stack.querypush.client;
+    requires webfx.stack.querypush.remote;
 
     // Exported packages
     exports dev.webfx.stack.querypush.client.simple;

@@ -1,4 +1,4 @@
-package dev.webfx.stack.querypush.spi.impl;
+package dev.webfx.stack.querypush.spi.impl.remote;
 
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.async.Future;
@@ -9,6 +9,7 @@ import dev.webfx.stack.querypush.QueryPushArgument;
 import dev.webfx.stack.querypush.QueryPushResult;
 import dev.webfx.stack.querypush.buscall.QueryPushServiceBusAddress;
 import dev.webfx.stack.querypush.spi.QueryPushServiceProvider;
+import dev.webfx.stack.querypush.spi.impl.LocalQueryPushServiceProviderRegistry;
 
 import java.util.ArrayList;
 import java.util.HashMap;

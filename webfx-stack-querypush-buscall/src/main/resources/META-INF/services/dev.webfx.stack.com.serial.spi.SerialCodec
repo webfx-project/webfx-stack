@@ -1,0 +1,3 @@
+dev.webfx.stack.querypush.buscall.serial.QueryPushArgumentSerialCodec
+dev.webfx.stack.querypush.buscall.serial.QueryPushResultSerialCodec
+dev.webfx.stack.querypush.buscall.serial.QueryResultTranslationSerialCodec
