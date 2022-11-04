@@ -10,6 +10,7 @@ module webfx.stack.db.querysubmit.java.jdbc {
     requires webfx.platform.util;
     requires webfx.stack.db.datasource;
     requires webfx.stack.db.query;
+    requires webfx.stack.db.query.remote;
     requires webfx.stack.db.submit;
 
     // Exported packages

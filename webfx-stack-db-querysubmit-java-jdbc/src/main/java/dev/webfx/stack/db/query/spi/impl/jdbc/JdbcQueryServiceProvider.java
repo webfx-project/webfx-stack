@@ -3,7 +3,7 @@ package dev.webfx.stack.db.query.spi.impl.jdbc;
 import dev.webfx.stack.db.querysubmit.jdbc.JdbcLocalConnectedQuerySubmitServiceProvider;
 import dev.webfx.stack.db.datasource.LocalDataSource;
 import dev.webfx.stack.db.query.spi.QueryServiceProvider;
-import dev.webfx.stack.db.query.spi.impl.LocalOrRemoteQueryServiceProvider;
+import dev.webfx.stack.db.query.spi.impl.remote.LocalOrRemoteQueryServiceProvider;
 
 /**
  * @author Bruno Salmon

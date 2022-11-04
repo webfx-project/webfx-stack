@@ -49,6 +49,7 @@
         <module>webfx-stack-db-datascope</module>
         <module>webfx-stack-db-datasource</module>
         <module>webfx-stack-db-query</module>
+        <module>webfx-stack-db-query-buscall</module>
         <module>webfx-stack-db-query-remote</module>
         <module>webfx-stack-db-querysubmit-java-jdbc</module>
         <module>webfx-stack-db-querysubmit-vertx</module>

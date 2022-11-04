@@ -1,9 +1,10 @@
-package dev.webfx.stack.db.query.spi.impl;
+package dev.webfx.stack.db.query.spi.impl.remote;
 
 import dev.webfx.stack.com.bus.call.BusCallService;
 import dev.webfx.platform.async.Future;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.buscall.QueryServiceBusAddress;
+import dev.webfx.stack.db.query.spi.impl.LocalQueryServiceProvider;
 
 /**
  * @author Bruno Salmon

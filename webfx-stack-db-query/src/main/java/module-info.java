@@ -6,26 +6,16 @@ module webfx.stack.db.query {
     requires java.base;
     requires webfx.platform.async;
     requires webfx.platform.console;
-    requires webfx.platform.json;
     requires webfx.platform.util;
-    requires webfx.stack.com.bus.call;
-    requires webfx.stack.com.serial;
-    requires webfx.stack.db.datascope;
+    requires transitive webfx.stack.db.datascope;
     requires webfx.stack.db.datasource;
 
     // Exported packages
     exports dev.webfx.stack.db.query;
-    exports dev.webfx.stack.db.query.buscall;
-    exports dev.webfx.stack.db.query.compression;
-    exports dev.webfx.stack.db.query.compression.repeat;
     exports dev.webfx.stack.db.query.spi;
     exports dev.webfx.stack.db.query.spi.impl;
 
     // Used services
     uses dev.webfx.stack.db.query.spi.QueryServiceProvider;
-
-    // Provided services
-    provides dev.webfx.stack.com.bus.call.spi.BusCallEndpoint with dev.webfx.stack.db.query.buscall.ExecuteQueryMethodEndpoint, dev.webfx.stack.db.query.buscall.ExecuteQueryBatchMethodEndpoint;
-    provides dev.webfx.stack.com.serial.spi.SerialCodec with dev.webfx.stack.db.query.QueryArgument.ProvidedSerialCodec, dev.webfx.stack.db.query.QueryResult.ProvidedSerialCodec;
 
 }

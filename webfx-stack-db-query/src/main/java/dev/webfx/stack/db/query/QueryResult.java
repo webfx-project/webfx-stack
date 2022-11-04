@@ -1,13 +1,6 @@
 package dev.webfx.stack.db.query;
 
-import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
-import dev.webfx.stack.db.query.compression.repeat.RepeatedValuesCompressor;
 import dev.webfx.platform.util.Numbers;
-import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.JsonArray;
-import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.WritableJsonArray;
-import dev.webfx.platform.json.WritableJsonObject;
 
 import java.util.Arrays;
 
@@ -31,7 +24,7 @@ public final class QueryResult {
      * First column, then 2nd column, etc... So inlineIndex = rowIndex + columnIndex * rowCount.
      * (better than 1st row, 2nd row, etc.. for compression algorithm)
      */
-    private Object[] values;
+    private final Object[] values;
 
     /**
      * Column names of the result set. This information is actually optional and useful only for debugging or when
@@ -77,6 +70,10 @@ public final class QueryResult {
 
     public String[] getColumnNames() {
         return columnNames;
+    }
+
+    public Object[] getValues() {
+        return values;
     }
 
     public <T> T getValue(int rowIndex, int columnIndex) {
@@ -158,74 +155,4 @@ public final class QueryResult {
         return result;
     }
 
-    /****************************************************
-     *                   Serial ProvidedSerialCodec                   *
-     * *************************************************/
-
-    public static boolean COMPRESSION = true; // Not final as this flag is turned off by the kbs2-model-import module to make the domain model snapshot
-
-    public static final class ProvidedSerialCodec extends SerialCodecBase<QueryResult> {
-
-        private final static String CODEC_ID = "QueryResult";
-        private final static String COLUMN_NAMES_KEY = "columnNames";
-        private final static String COLUMN_COUNT_KEY = "columnCount";
-        private final static String VALUES_KEY = "values";
-        private final static String COMPRESSED_VALUES_KEY = "cvalues";
-        private final static String VERSION_KEY = "version";
-
-        public ProvidedSerialCodec() {
-            super(QueryResult.class, CODEC_ID);
-        }
-
-        @Override
-        public void encodeToJson(QueryResult rs, WritableJsonObject json) {
-            try {
-                int columnCount = rs.getColumnCount();
-                // Column names serialization
-                WritableJsonArray namesArray = json.createJsonArray();
-                String[] columnNames = rs.getColumnNames();
-                if (columnNames != null) {
-                    for (String name : columnNames)
-                        namesArray.push(name);
-                    json.set(COLUMN_NAMES_KEY, namesArray);
-                    columnCount = namesArray.size();
-                }
-                json.set(COLUMN_COUNT_KEY, columnCount);
-                // values packing and serialization
-                if (COMPRESSION)
-                    json.set(COMPRESSED_VALUES_KEY, Json.fromJavaArray(RepeatedValuesCompressor.SINGLETON.compress(rs.values)));
-                else
-                    json.set(VALUES_KEY, Json.fromJavaArray(rs.values));
-                SerialCodecBase.encodeKey(VERSION_KEY, rs.getVersionNumber(), json);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public QueryResult decodeFromJson(JsonObject json) {
-            //Logger.log("Decoding json result set: " + json);
-            Integer columnCount = json.getInteger(COLUMN_COUNT_KEY);
-            // Column names deserialization
-            String[] names = null;
-            JsonArray namesArray = json.getArray(COLUMN_NAMES_KEY);
-            if (namesArray != null) {
-                columnCount = namesArray.size();
-                names = new String[columnCount];
-                for (int i = 0; i < columnCount; i++)
-                    names[i] = namesArray.getString(i);
-            }
-            // Values deserialization
-            Object[] inlineValues;
-            JsonArray valuesArray = json.getArray(VALUES_KEY);
-            if (valuesArray != null)
-                inlineValues = Json.toJavaArray(valuesArray);
-            else
-                inlineValues = RepeatedValuesCompressor.SINGLETON.uncompress(Json.toJavaArray(json.getArray(COMPRESSED_VALUES_KEY)));
-            // returning the query result with its version number (if provided)
-            QueryResult rs = new QueryResult(columnCount, inlineValues, names);
-            rs.setVersionNumber(json.getInteger(VERSION_KEY, 0));
-            return rs;
-        }
-    }
 }

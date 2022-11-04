@@ -171,6 +171,7 @@
                 <module>webfx-stack-db-datascope</module>
                 <module>webfx-stack-db-datasource</module>
                 <module>webfx-stack-db-query</module>
+                <module>webfx-stack-db-query-buscall</module>
                 <module>webfx-stack-db-query-remote</module>
                 <module>webfx-stack-db-querysubmit-java-jdbc</module>
                 <module>webfx-stack-db-querysubmit-vertx</module>
@@ -823,15 +824,10 @@
                 <source-packages/>
             </exported-packages>
 
-            <providers>
-                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.query.buscall.ExecuteQueryMethodEndpoint</provider>
-                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.query.buscall.ExecuteQueryBatchMethodEndpoint</provider>
-                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.query.QueryArgument$ProvidedSerialCodec</provider>
-                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.query.QueryResult$ProvidedSerialCodec</provider>
-            </providers>
-
             <dependencies>
-                <used-by-source-modules/>
+                <used-by-source-modules>
+                    <module transitive="true">webfx-stack-db-datascope</module>
+                </used-by-source-modules>
             </dependencies>
 
             <reflect>
@@ -842,9 +838,6 @@
 
             <source-packages>
                 <package>dev.webfx.stack.db.query</package>
-                <package>dev.webfx.stack.db.query.buscall</package>
-                <package>dev.webfx.stack.db.query.compression</package>
-                <package>dev.webfx.stack.db.query.compression.repeat</package>
                 <package>dev.webfx.stack.db.query.spi</package>
                 <package>dev.webfx.stack.db.query.spi.impl</package>
             </source-packages>
@@ -853,10 +846,7 @@
                 <module>java.base</module>
                 <module>webfx-platform-async</module>
                 <module>webfx-platform-console</module>
-                <module>webfx-platform-json</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-com-bus-call</module>
-                <module>webfx-stack-com-serial</module>
                 <module>webfx-stack-db-datascope</module>
                 <module>webfx-stack-db-datasource</module>
             </used-by-source-modules>
@@ -864,6 +854,42 @@
             <used-services>
                 <required-service>dev.webfx.stack.db.query.spi.QueryServiceProvider</required-service>
             </used-services>
+
+        </project>
+
+        <project name="webfx-stack-db-query-buscall">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.query.buscall.ExecuteQueryMethodEndpoint</provider>
+                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.query.buscall.ExecuteQueryBatchMethodEndpoint</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.query.buscall.serial.QueryArgumentSerialCodec</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.query.buscall.serial.QueryResultSerialCodec</provider>
+            </providers>
+
+            <source-packages>
+                <package>dev.webfx.stack.db.query.buscall</package>
+                <package>dev.webfx.stack.db.query.buscall.serial</package>
+                <package>dev.webfx.stack.db.query.buscall.serial.compression</package>
+                <package>dev.webfx.stack.db.query.buscall.serial.compression.repeat</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-json</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-com-bus-call</module>
+                <module>webfx-stack-com-serial</module>
+                <module>webfx-stack-db-query</module>
+            </used-by-source-modules>
 
         </project>
 
@@ -886,7 +912,10 @@
             </source-packages>
 
             <used-by-source-modules>
+                <module>webfx-platform-async</module>
+                <module>webfx-stack-com-bus-call</module>
                 <module>webfx-stack-db-query</module>
+                <module>webfx-stack-db-query-buscall</module>
             </used-by-source-modules>
 
         </project>
@@ -922,6 +951,7 @@
                 <module>webfx-platform-util</module>
                 <module>webfx-stack-db-datasource</module>
                 <module>webfx-stack-db-query</module>
+                <module>webfx-stack-db-query-remote</module>
                 <module>webfx-stack-db-submit</module>
             </used-by-source-modules>
 
@@ -2335,6 +2365,8 @@
 
             <java-package name="dev.webfx.stack.db.query">
                 <module>webfx-stack-db-query</module>
+                <module>webfx-stack-db-query-buscall</module>
+                <module>webfx-stack-db-query-remote</module>
                 <module>webfx-stack-db-querysubmit-java-jdbc</module>
                 <module>webfx-stack-db-querysubmit-vertx</module>
                 <module>webfx-stack-orm-domainmodel-service</module>

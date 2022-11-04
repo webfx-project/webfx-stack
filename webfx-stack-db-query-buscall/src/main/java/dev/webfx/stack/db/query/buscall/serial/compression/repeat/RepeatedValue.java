@@ -1,4 +1,4 @@
-package dev.webfx.stack.db.query.compression.repeat;
+package dev.webfx.stack.db.query.buscall.serial.compression.repeat;
 
 /**
  * @author Bruno Salmon
