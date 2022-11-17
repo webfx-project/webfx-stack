@@ -30,7 +30,7 @@ import dev.webfx.platform.async.AsyncResult;
  * Handlers are registered against an address. There can be multiple handlers registered against
  * each address, and a particular handler can be registered against multiple addresses. The event
  * bus will route an incoming message to all handlers which are registered against that address.<p>
- * For point to point messaging, messages can be sent to an address using one of the {@link #send}
+ * For point to point messaging, messages can be sent to an address using one of the {@link #request}
  * methods. The messages will be delivered to a single handler, if one is registered on that
  * address. If more than one handler is registered on the same address, the bus will choose one and
  * deliver the message to that. The bus will aim to fairly distribute messages in a round-robin way,
@@ -84,10 +84,41 @@ public interface Bus {
      *
      * @param address      The address to send it to
      * @param body          The message
+     */
+    default Bus send(String address, Object body, Object state) {
+        return send(false, address, body, state);
+    }
+
+    /**
+     * Send a local message
+     *
+     * @param address      The address to send it to
+     * @param body          The message
+     */
+    default Bus sendLocal(String address, Object body, Object state) {
+        return send(true, address, body, state);
+    }
+
+    /**
+     * Send a message, either locally or remotely
+     *
+     * @param local        Indicates if the message is sent locally or remotely
+     * @param address      The address to send it to
+     * @param body          The message
+     */
+    default Bus send(boolean local, String address, Object body, Object state) {
+        return request(local, address, body, state, null);
+    }
+
+    /**
+     * Send a message
+     *
+     * @param address      The address to send it to
+     * @param body          The message
      * @param replyHandler Reply handler will be called when any reply from the recipient is received
      */
-    default <T> Bus send(String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
-        return send(false, address, body, state, replyHandler);
+    default <T> Bus request(String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
+        return request(false, address, body, state, replyHandler);
     }
 
     /**
@@ -97,8 +128,8 @@ public interface Bus {
      * @param body          The message
      * @param replyHandler Reply handler will be called when any reply from the recipient is received
      */
-    default <T> Bus sendLocal(String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
-        return send(true, address, body, state, replyHandler);
+    default <T> Bus requestLocal(String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
+        return request(true, address, body, state, replyHandler);
     }
 
     /**
@@ -109,7 +140,7 @@ public interface Bus {
      * @param body          The message
      * @param replyHandler Reply handler will be called when any reply from the recipient is received
      */
-    <T> Bus send(boolean local, String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler);
+    <T> Bus request(boolean local, String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler);
 
     /**
      * Registers a handler against the specified address

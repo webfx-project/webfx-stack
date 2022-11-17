@@ -92,7 +92,7 @@ public final class BusCallService {
         Object jsonObject = SerialCodecManager.encodeToJson(javaObject);
         // Sending that json object over the json event bus
         //System.out.println("Sending state = " + state + ", address = " + address + ", local = " + local);
-        BusService.bus().send(local, address, jsonObject, state, jsonReplyMessageHandler);
+        BusService.bus().request(local, address, jsonObject, state, jsonReplyMessageHandler);
     }
 
     /**

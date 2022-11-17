@@ -80,18 +80,18 @@ public abstract class BusProxy implements Bus {
     }
 
     @Override
-    public <T> Bus send(String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
-        return delegate.send(address, body, state, replyHandler);
+    public <T> Bus request(String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
+        return delegate.request(address, body, state, replyHandler);
     }
 
     @Override
-    public <T> Bus sendLocal(String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
-        return delegate.sendLocal(address, body, state, replyHandler);
+    public <T> Bus requestLocal(String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
+        return delegate.requestLocal(address, body, state, replyHandler);
     }
 
     @Override
-    public <T> Bus send(boolean local, String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
-        return delegate.send(local, address, body, state, replyHandler);
+    public <T> Bus request(boolean local, String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
+        return delegate.request(local, address, body, state, replyHandler);
     }
 
     @Override

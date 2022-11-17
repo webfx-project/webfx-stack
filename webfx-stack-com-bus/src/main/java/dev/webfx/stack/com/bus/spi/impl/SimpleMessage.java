@@ -87,7 +87,7 @@ final class SimpleMessage<U> implements Message<U> {
 
     private <T> void sendReply(Object msg, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
         if (bus != null && replyAddress != null)
-            bus.send(local, replyAddress, msg, state, replyHandler); // Send back reply
+            bus.request(local, replyAddress, msg, state, replyHandler); // Send back reply
     }
 
     @Override

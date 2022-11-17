@@ -142,7 +142,7 @@ public class SimpleBus implements Bus {
     }
 
     @Override
-    public <T> Bus send(boolean local, String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
+    public <T> Bus request(boolean local, String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
         return sendOrPublishImpl(local, true, address, body, state, replyHandler);
     }
 

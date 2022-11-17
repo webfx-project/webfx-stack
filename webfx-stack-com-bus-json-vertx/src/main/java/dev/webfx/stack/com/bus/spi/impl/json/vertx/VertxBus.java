@@ -96,7 +96,13 @@ final class VertxBus implements Bus, JsonBusConstants {
     }
 
     @Override
-    public <T> Bus send(boolean local, String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
+    public Bus send(boolean local, String address, Object body, Object state) {
+        eventBus.send(address, webfxToVertxBody(body), createStateDeliveryOptions(state, local));
+        return this;
+    }
+
+    @Override
+    public <T> Bus request(boolean local, String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
         eventBus.<T>request(address, webfxToVertxBody(body), createStateDeliveryOptions(state, local), ar -> replyHandler.handle(vertxToWebfxMessageAsyncResult(ar, local)));
         return this;
     }
