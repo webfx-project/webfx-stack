@@ -18,6 +18,7 @@
 package dev.webfx.stack.com.bus.spi.impl;
 
 import dev.webfx.stack.com.bus.Bus;
+import dev.webfx.stack.com.bus.DeliveryOptions;
 import dev.webfx.stack.com.bus.Message;
 import dev.webfx.platform.json.JsonObject;
 import dev.webfx.platform.async.AsyncResult;
@@ -27,22 +28,20 @@ import dev.webfx.platform.async.Handler;
  * @author Bruno Salmon
  */
 final class SimpleMessage<U> implements Message<U> {
-    private final boolean local;
     private final boolean send;
     private final Bus bus;
     private final String address;
     private final String replyAddress;
     private final U body;
-    private final Object state;
+    private final DeliveryOptions options;
 
-    public SimpleMessage(boolean local, boolean send, Bus bus, String address, String replyAddress, U body, Object state) {
-        this.local = local;
+    public SimpleMessage(boolean send, Bus bus, String address, String replyAddress, U body, DeliveryOptions options) {
         this.send = send;
         this.bus = bus;
         this.address = address;
         this.replyAddress = replyAddress;
         this.body = body;
-        this.state = state;
+        this.options = options;
     }
 
     @Override
@@ -51,8 +50,8 @@ final class SimpleMessage<U> implements Message<U> {
     }
 
     @Override
-    public Object state() {
-        return state;
+    public DeliveryOptions options() {
+        return options;
     }
 
     @Override
@@ -65,19 +64,15 @@ final class SimpleMessage<U> implements Message<U> {
         // sendReply(new ReplyException(ReplyFailure.RECIPIENT_FAILURE, failureCode, message), null);
     }
 
+
     @Override
-    public boolean isLocal() {
-        return local;
+    public void reply(Object body, DeliveryOptions options) {
+        sendReply(body, options,  null);
     }
 
     @Override
-    public void reply(Object body, Object state) {
-        sendReply(body, state,  null);
-    }
-
-    @Override
-    public <T> void reply(Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
-        sendReply(body, state, replyHandler);
+    public <T> void reply(Object body, DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler) {
+        sendReply(body, options, replyHandler);
     }
 
     @Override
@@ -85,9 +80,9 @@ final class SimpleMessage<U> implements Message<U> {
         return replyAddress;
     }
 
-    private <T> void sendReply(Object msg, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
+    private <T> void sendReply(Object msg, DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler) {
         if (bus != null && replyAddress != null)
-            bus.request(local, replyAddress, msg, state, replyHandler); // Send back reply
+            bus.request(replyAddress, msg, options, replyHandler); // Send back reply
     }
 
     @Override

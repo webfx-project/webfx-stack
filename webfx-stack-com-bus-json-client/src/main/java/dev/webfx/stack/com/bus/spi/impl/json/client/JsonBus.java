@@ -20,6 +20,7 @@ package dev.webfx.stack.com.bus.spi.impl.json.client;
 import dev.webfx.platform.json.Json;
 import dev.webfx.platform.json.JsonObject;
 import dev.webfx.platform.json.WritableJsonObject;
+import dev.webfx.stack.com.bus.DeliveryOptions;
 import dev.webfx.stack.com.bus.Message;
 import dev.webfx.stack.com.bus.spi.impl.NetworkBus;
 import dev.webfx.stack.com.bus.spi.impl.json.JsonBusConstants;
@@ -42,7 +43,7 @@ public abstract class JsonBus extends NetworkBus implements JsonBusConstants {
         WritableJsonObject jsonRawMessage = parseJsonRawMessage(rawMessage);
         JsonObject headers = jsonRawMessage.getObject(HEADERS);
         Object state = headers == null ? null : StateAccessor.decodeState(headers.getString(HEADERS_STATE));
-        return parseIncomingNetworkRawMessage(jsonRawMessage.getString(ADDRESS), jsonRawMessage.getString(REPLY_ADDRESS), jsonRawMessage.get(BODY), state);
+        return parseIncomingNetworkRawMessage(jsonRawMessage.getString(ADDRESS), jsonRawMessage.getString(REPLY_ADDRESS), jsonRawMessage.get(BODY), new DeliveryOptions().setState(state));
     }
 
     protected WritableJsonObject parseJsonRawMessage(String rawMessage) {
@@ -50,7 +51,7 @@ public abstract class JsonBus extends NetworkBus implements JsonBusConstants {
     }
 
     @Override
-    protected String createOutgoingNetworkRawMessage(boolean send, String address, Object body, Object state, String replyAddress) {
+    protected String createOutgoingNetworkRawMessage(boolean send, String address, Object body, DeliveryOptions options, String replyAddress) {
         // We first create its Json raw representation.
         WritableJsonObject jsonRawMessage = Json.createObject()
                 .set(TYPE, send ? SEND : PUBLISH)
@@ -59,20 +60,21 @@ public abstract class JsonBus extends NetworkBus implements JsonBusConstants {
         // We add the reply address if set
         if (replyAddress != null)
             jsonRawMessage.set(REPLY_ADDRESS, replyAddress);
-        return jsonToNetworkRawMessage(jsonRawMessage, state);
+        return jsonToNetworkRawMessage(jsonRawMessage, options);
     }
 
     protected String jsonToNetworkRawMessage(WritableJsonObject jsonRawMessage) {
-        return jsonToNetworkRawMessage(jsonRawMessage, null);
+        return jsonToNetworkRawMessage(jsonRawMessage, new DeliveryOptions());
     }
 
-    protected String jsonToNetworkRawMessage(WritableJsonObject jsonRawMessage, Object state) {
+    protected String jsonToNetworkRawMessage(WritableJsonObject jsonRawMessage, DeliveryOptions options) {
         // If there is a state to transmit, we encode it and put it in the message headers
-        setJsonRawMessageState(jsonRawMessage, state);
+        setJsonRawMessageState(jsonRawMessage, options);
         return jsonRawMessage.toJsonString();
     }
 
-    protected void setJsonRawMessageState(WritableJsonObject jsonRawMessage, Object state) {
+    protected void setJsonRawMessageState(WritableJsonObject jsonRawMessage, DeliveryOptions options) {
+        Object state = options.getState();
         if (state != null)
             jsonRawMessage.set(HEADERS, Json.createObject()
                     .set(HEADERS_STATE, StateAccessor.encodeState(state)));
@@ -105,14 +107,7 @@ public abstract class JsonBus extends NetworkBus implements JsonBusConstants {
     }
 
     protected void sendPingState() {
-        sendOutgoingNetworkRawMessage(createPingStateNetworkRawMessage());
-    }
-
-    protected String createPingStateNetworkRawMessage() {
-        return jsonToNetworkRawMessage(Json.createObject()
-                .set(TYPE, SEND)
-                .set(ADDRESS, PING_STATE_ADDRESS)
-                .set(REPLY_ADDRESS, registerReplyHandlerIfSet(event -> System.out.println("Server acknowledged ping state"))));
+        sendOrPublishOverNetwork(true, PING_STATE_ADDRESS, null, new DeliveryOptions(), event -> System.out.println("Server acknowledged ping state"));
     }
 
 }

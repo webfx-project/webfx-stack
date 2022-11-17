@@ -3,6 +3,7 @@ package dev.webfx.stack.com.bus.spi.impl;
 import dev.webfx.platform.async.AsyncResult;
 import dev.webfx.platform.async.Handler;
 import dev.webfx.platform.console.Console;
+import dev.webfx.stack.com.bus.DeliveryOptions;
 import dev.webfx.stack.com.bus.Message;
 
 import java.util.HashMap;
@@ -13,8 +14,11 @@ import java.util.Map;
  */
 public abstract class NetworkBus extends SimpleBus {
 
+    protected static final boolean LOG_RAW_MESSAGES = false;
+
     // TODO: remove that public visibility
     public final Map<String, Integer> handlerCount = new HashMap<>();
+
 
     public NetworkBus() {
     }
@@ -34,33 +38,34 @@ public abstract class NetworkBus extends SimpleBus {
     protected abstract void sendOutgoingNetworkRawMessage(String rawMessage);
 
     protected void onIncomingNetworkRawMessage(String rawMessage) {
-        Console.log("Received incoming network raw message: " + rawMessage);
+        if (LOG_RAW_MESSAGES)
+            Console.log("Received incoming network raw message: " + rawMessage);
         Message<?> parsedMessage = parseIncomingNetworkRawMessage(rawMessage);
         onMessage(parsedMessage);
     }
 
-    protected Message<?> parseIncomingNetworkRawMessage(String address, String replyAddress, Object body, Object state) {
-        return createMessage(false, false, address, replyAddress, body, state);
+    protected Message<?> parseIncomingNetworkRawMessage(String address, String replyAddress, Object body, DeliveryOptions options) {
+        return createMessage(false, address, replyAddress, body, options);
     }
 
     @Override
-    protected <T> void doSendOrPublishImpl(boolean local, boolean send, String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
+    protected <T> void doSendOrPublishImpl(boolean send, String address, Object body, DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler) {
         // If it's a local message, we can use the default implementation
-        if (local)
-            super.doSendOrPublishImpl(true, send, address, body, state, replyHandler);
+        if (options.isLocalOnly())
+            super.doSendOrPublishImpl(send, address, body, options, replyHandler);
         else
-            sendOrPublishOverNetwork(send, address, body, state, replyHandler);
+            sendOrPublishOverNetwork(send, address, body, options, replyHandler);
     }
 
-    protected <T> void sendOrPublishOverNetwork(boolean send, String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
+    protected <T> void sendOrPublishOverNetwork(boolean send, String address, Object body, DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler) {
         // Registering the reply handler (if set)
         String replyAddress = registerReplyHandlerIfSet(replyHandler);
         // Creating the network raw message
-        String rawMessage = createOutgoingNetworkRawMessage(send, address, body, state, replyAddress);
+        String rawMessage = createOutgoingNetworkRawMessage(send, address, body, options, replyAddress);
         sendOutgoingNetworkRawMessage(rawMessage);
     }
 
-    protected abstract String createOutgoingNetworkRawMessage(boolean send, String address, Object body, Object state, String replyAddress);
+    protected abstract String createOutgoingNetworkRawMessage(boolean send, String address, Object body, DeliveryOptions options, String replyAddress);
 
     @Override
     protected boolean doRegister(boolean local, String address, Handler<? extends Message> handler) {

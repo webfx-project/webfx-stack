@@ -54,93 +54,59 @@ public interface Bus {
      * Publish a message
      *
      * @param address The address to publish it to
-     * @param body     The message
+     * @param body    The message body
      */
-    default Bus publish(String address, Object body, Object state) {
-        return publish(false, address, body, state);
+    default Bus publish(String address, Object body) {
+        return publish(address, body, new DeliveryOptions());
     }
 
     /**
-     * Publish a local message
+     * Publish a message with delivery options
      *
      * @param address The address to publish it to
-     * @param body     The message
+     * @param body    The message body
+     * @param options The delivery options
      */
-    default Bus publishLocal(String address, Object body, Object state) {
-        return publish(true, address, body, state);
-    }
-
-    /**
-     * Publish a message, either locally or remotely
-     *
-     * @param local   Indicates if the message is published locally or remotely
-     * @param address The address to publish it to
-     * @param body     The message
-     */
-    Bus publish(boolean local, String address, Object body, Object state);
+    Bus publish(String address, Object body, DeliveryOptions options);
 
     /**
      * Send a message
      *
      * @param address      The address to send it to
-     * @param body          The message
+     * @param body         The message body
      */
-    default Bus send(String address, Object body, Object state) {
-        return send(false, address, body, state);
+    default Bus send(String address, Object body) {
+        return send(address, body, new DeliveryOptions());
     }
 
     /**
-     * Send a local message
+     * Send a message with delivery options
      *
-     * @param address      The address to send it to
-     * @param body          The message
+     * @param address The address to publish it to
+     * @param body    The message body
+     * @param options The delivery options
      */
-    default Bus sendLocal(String address, Object body, Object state) {
-        return send(true, address, body, state);
-    }
+    Bus send(String address, Object body, DeliveryOptions options);
 
     /**
-     * Send a message, either locally or remotely
-     *
-     * @param local        Indicates if the message is sent locally or remotely
-     * @param address      The address to send it to
-     * @param body          The message
-     */
-    default Bus send(boolean local, String address, Object body, Object state) {
-        return request(local, address, body, state, null);
-    }
-
-    /**
-     * Send a message
+     * Send a message and wait for a reply
      *
      * @param address      The address to send it to
-     * @param body          The message
+     * @param body         The message body
      * @param replyHandler Reply handler will be called when any reply from the recipient is received
      */
-    default <T> Bus request(String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
-        return request(false, address, body, state, replyHandler);
+    default <T> Bus request(String address, Object body, Handler<AsyncResult<Message<T>>> replyHandler) {
+        return request(address, body, new DeliveryOptions(), replyHandler);
     }
 
     /**
-     * Send a local message
+     * Send a message and wait for a reply
      *
      * @param address      The address to send it to
-     * @param body          The message
+     * @param body         The message body
      * @param replyHandler Reply handler will be called when any reply from the recipient is received
      */
-    default <T> Bus requestLocal(String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
-        return request(true, address, body, state, replyHandler);
-    }
-
-    /**
-     * Send a message, either locally or remotely
-     *
-     * @param local        Indicates if the message is sent locally or remotely
-     * @param address      The address to send it to
-     * @param body          The message
-     * @param replyHandler Reply handler will be called when any reply from the recipient is received
-     */
-    <T> Bus request(boolean local, String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler);
+    <T> Bus request(String address, Object body, DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler);
 
     /**
      * Registers a handler against the specified address

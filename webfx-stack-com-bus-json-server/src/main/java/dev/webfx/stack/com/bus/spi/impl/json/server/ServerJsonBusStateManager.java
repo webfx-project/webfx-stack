@@ -5,6 +5,7 @@ import dev.webfx.platform.console.Console;
 import dev.webfx.platform.json.Json;
 import dev.webfx.platform.json.WritableJsonObject;
 import dev.webfx.stack.com.bus.Bus;
+import dev.webfx.stack.com.bus.DeliveryOptions;
 import dev.webfx.stack.com.bus.spi.impl.json.JsonBusConstants;
 import dev.webfx.stack.session.Session;
 import dev.webfx.stack.session.state.StateAccessor;
@@ -21,7 +22,7 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
 
     public static void initialiseStateManagement(Bus serverJsonBus) {
         // We register at PING_STATE_ADDRESS a handler that just replies with an empty body (but the states mechanism will automatically apply - which is the main purpose of that call)
-        serverJsonBus.register(JsonBusConstants.PING_STATE_ADDRESS, event -> event.reply(null, null));
+        serverJsonBus.register(JsonBusConstants.PING_STATE_ADDRESS, event -> event.reply(null, new DeliveryOptions()));
     }
 
     public static Future<Boolean> manageStateOnIncomingOrOutgoingRawJsonMessage(WritableJsonObject rawJsonMessage, Session serverSession, boolean fromClientToServer) {
@@ -33,19 +34,19 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
             if (LOG_RAW_MESSAGES)
                 Console.log("Incoming message : " + rawJsonMessage.toJsonString());
             Future<Boolean> sessionStorageFuture = ServerSideStateSessionSyncer.syncServerSessionFromIncomingClientState(serverSession, state, serverSession.isEmpty());
-            String stateFirst = LOG_STATES ? "" + state : null;
+            String incomingStateCapture = LOG_STATES ? "" + state : null;
             state = ServerSideStateSessionSyncer.syncIncomingClientStateFromServerSession(state, serverSession);
             if (LOG_STATES)
-                Console.log(">> incoming sate: " + stateFirst + " >> " + state);
+                Console.log(">> incoming sate: " + incomingStateCapture + " >> " + state);
             setJsonRawMessageState(rawJsonMessage, headers, state);
             return sessionStorageFuture;
         }
 
         // Outgoing message from server to client
-        String stateFirst = LOG_STATES ? "" + state : null;
+        String outgoingStateCapture = LOG_STATES ? "" + state : null;
         state = ServerSideStateSessionSyncer.syncOutgoingServerStateFromServerSessionAndViceVersa(state, serverSession);
         if (LOG_STATES)
-            Console.log("<< outgoing sate: " + state + " << " + stateFirst);
+            Console.log("<< outgoing sate: " + state + " << " + outgoingStateCapture);
         setJsonRawMessageState(rawJsonMessage, headers, state);
         if (LOG_RAW_MESSAGES)
             Console.log("Outgoing message : " + rawJsonMessage.toJsonString());

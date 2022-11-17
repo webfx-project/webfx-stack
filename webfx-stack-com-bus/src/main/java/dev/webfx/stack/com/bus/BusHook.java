@@ -73,7 +73,7 @@ public interface BusHook {
      * @param replyHandler Reply handler will be called when any reply from the recipient is received
      * @return true To allow the send/publish to occur, false otherwise
      */
-    default <T> boolean handleSendOrPub(boolean send, String address, Object msg, Object sessionId, Handler<AsyncResult<Message<T>>> replyHandler) {
+    default <T> boolean handleSendOrPub(boolean send, String address, Object msg, DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler) {
         return true;
     }
 

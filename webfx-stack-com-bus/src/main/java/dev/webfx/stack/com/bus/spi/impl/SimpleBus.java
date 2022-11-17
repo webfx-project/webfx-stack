@@ -18,10 +18,7 @@
 package dev.webfx.stack.com.bus.spi.impl;
 
 import dev.webfx.platform.console.Console;
-import dev.webfx.stack.com.bus.Bus;
-import dev.webfx.stack.com.bus.BusHook;
-import dev.webfx.stack.com.bus.Message;
-import dev.webfx.stack.com.bus.Registration;
+import dev.webfx.stack.com.bus.*;
 import dev.webfx.platform.json.Json;
 import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.platform.async.AsyncResult;
@@ -78,17 +75,17 @@ public class SimpleBus implements Bus {
 
     // Can be called by a more complex implementation to indicate the bus is open
     protected void publishOnOpenEvent() {
-        publishLocal(ON_OPEN, null, null);
+        publish(ON_OPEN, null, DeliveryOptions.LOCAL_ONLY);
     }
 
     // Can be called by a more complex implementation to indicate the bus is closed
     protected void publishOnCloseEvent(Object reason) {
-        publishLocal(ON_CLOSE, reason, null);
+        publish(ON_CLOSE, reason, DeliveryOptions.LOCAL_ONLY);
     }
 
     // Can be called by a more complex implementation to indicate the bus is on error
     protected void publishOnError(Object error) {
-        publishLocal(ON_ERROR, error, null);
+        publish(ON_ERROR, error, DeliveryOptions.LOCAL_ONLY);
     }
 
     // Reacting to an open event
@@ -136,30 +133,36 @@ public class SimpleBus implements Bus {
 
     // Publishing/sending message API
 
+
     @Override
-    public Bus publish(boolean local, String address, Object body, Object state) {
-        return sendOrPublishImpl(local, false, address, body, state, null);
+    public Bus publish(String address, Object body, DeliveryOptions options) {
+        return sendOrPublishImpl(false, address, body, options, null);
     }
 
     @Override
-    public <T> Bus request(boolean local, String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
-        return sendOrPublishImpl(local, true, address, body, state, replyHandler);
+    public Bus send(String address, Object body, DeliveryOptions options) {
+        return request(address, body, options, null);
     }
 
-    <T> Bus sendOrPublishImpl(boolean local, boolean send, String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
-        if (local || hook == null || hook.handleSendOrPub(send, address, body, state, replyHandler))
-            doSendOrPublishImpl(local, send, address, body, state, replyHandler);
+    @Override
+    public <T> Bus request(String address, Object body, DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler) {
+        return sendOrPublishImpl(true, address, body, options, replyHandler);
+    }
+
+    <T> Bus sendOrPublishImpl(boolean send, String address, Object body, DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler) {
+        if (options.isLocalOnly() || hook == null || hook.handleSendOrPub(send, address, body, options, replyHandler))
+            doSendOrPublishImpl(send, address, body, options, replyHandler);
         return this;
     }
 
     @SuppressWarnings("unchecked")
-    protected <T> void doSendOrPublishImpl(boolean local, boolean send, String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
+    protected <T> void doSendOrPublishImpl(boolean send, String address, Object body, DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler) {
         checkNotNull("address", address);
         // Registering the reply handler (if set)
         String replyAddress = registerReplyHandlerIfSet(replyHandler);
         // This implementation doesn't know how to send messages over the network, so the only thing that it can do is
         // to try delivering the message on the same bus instance (should work for local messages)
-        boolean delivered = onMessage(local, send, address, replyAddress, body, state);
+        boolean delivered = onMessage(send, address, replyAddress, body, options);
         // If the delivery failed, we unregister the reply handler (if set) as it will never be called!
         if (!delivered && replyAddress != null)
             unregisterReplyHandler(replyAddress);
@@ -181,14 +184,14 @@ public class SimpleBus implements Bus {
     // Message API. All incoming messages, either local, or from the network, should be passed to a onMessage() method,
     // that will try to deliver the message to a handler registered on this bus.
 
-    protected boolean onMessage(boolean local, boolean send, String address, String replyAddress, Object body, Object state) {
+    protected boolean onMessage(boolean send, String address, String replyAddress, Object body, DeliveryOptions options) {
         // Embedding all the parameters into a single message object, and passing it to onMessage(Message).
-        Message message = createMessage(local, send, address, replyAddress, body, state);
+        Message message = createMessage(send, address, replyAddress, body, options);
         return onMessage(message);
     }
 
-    protected Message createMessage(boolean local, boolean send, String address, String replyAddress, Object body, Object state) {
-        return new SimpleMessage<>(local, send, this, address, replyAddress, body, state);
+    protected Message createMessage(boolean send, String address, String replyAddress, Object body, DeliveryOptions options) {
+        return new SimpleMessage<>(send, this, address, replyAddress, body, options);
     }
 
     protected boolean onMessage(Message message) {
@@ -290,7 +293,7 @@ public class SimpleBus implements Bus {
             handler.handle(Future.succeededFuture(message));
         } catch (Throwable e) {
             Console.log("Failed to handle on address: " + address, e);
-            publishLocal(ON_ERROR, Json.createObject().set("address", address).set("message", message).set("cause", e), message.state());
+            publish(ON_ERROR, Json.createObject().set("address", address).set("message", message).set("cause", e), DeliveryOptions.LOCAL_ONLY);
         }
     }
 
@@ -305,7 +308,7 @@ public class SimpleBus implements Bus {
 
     private void scheduleHandleAsync(String address, Handler<AsyncResult<Message>> handler, Message message) {
         //Console.log("scheduleHandle(), address = " + address + ", handler = " + handler + ", message = " + message);
-        if (message.isLocal())
+        if (message.options().isLocalOnly())
             handle(address, handler, message);
         else
             Scheduler.scheduleDeferred(() -> handle(address, handler, message));

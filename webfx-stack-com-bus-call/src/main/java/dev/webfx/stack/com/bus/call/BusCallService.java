@@ -22,18 +22,18 @@ public final class BusCallService {
     private final static String DEFAULT_BUS_CALL_SERVICE_ADDRESS = "busCallService";
 
     public static <T> Future<T> call(String address, Object javaArgument) {
-        return call(address, javaArgument, null);
+        return call(address, javaArgument, new DeliveryOptions());
     }
 
-    public static <T> Future<T> call(String address, Object javaArgument, Object state) {
-        return call(address, javaArgument, state, null); // bus = null means using the default platform bus
+    public static <T> Future<T> call(String address, Object javaArgument, DeliveryOptions options) {
+        return call(address, javaArgument, options, null); // bus = null means using the default platform bus
     }
 
-    public static <T> Future<T> call(String address, Object javaArgument, Object state, Bus bus) {
-        return call(DEFAULT_BUS_CALL_SERVICE_ADDRESS, address, javaArgument, state, bus);
+    public static <T> Future<T> call(String address, Object javaArgument, DeliveryOptions options, Bus bus) {
+        return call(DEFAULT_BUS_CALL_SERVICE_ADDRESS, address, javaArgument, options, bus);
     }
 
-    public static <T> Future<T> call(String remoteBusCallServiceAddress, String serviceAddress, Object javaArgument, Object state, Bus bus) {
+    public static <T> Future<T> call(String remoteBusCallServiceAddress, String serviceAddress, Object javaArgument, DeliveryOptions options, Bus bus) {
         try (ThreadLocalBusContext context = ThreadLocalBusContext.open(bus)) {
             // Creating a PendingBusCall that will be immediately returned to the caller
             PendingBusCall<T> pendingBusCall = new PendingBusCall<>();
@@ -41,7 +41,7 @@ public final class BusCallService {
             BusCallService.sendJavaObjectAndWaitJavaReply( // helper method that does the job to send the (wrapped) java argument
                     remoteBusCallServiceAddress, // the address of the remote BusCallService counterpart where entry calls are listened
                     new BusCallArgument(serviceAddress, javaArgument), // the java argument is wrapped into a BusCallArgument (as expected by the counterpart BusCallService)
-                    state,
+                    options,
                     pendingBusCall::onBusCallResult // it just forwards the target result to the caller using the future
             );
             // We return the future immediately while we are waiting for the call result
@@ -60,9 +60,9 @@ public final class BusCallService {
                 busCallServiceAddress, // the address that receives the BusCallArgument objects
                     (busCallArgument, callerMessage) -> // great, a BusCallArgument has been received
                         // Forwarding the target argument to the target address (kind of local call) and waiting for the result
-                        sendJavaObjectAndWaitJsonReply(true, busCallArgument.getTargetAddress(), busCallArgument.getJsonEncodedTargetArgument(), callerMessage.state(), ar ->
+                        sendJavaObjectAndWaitJsonReply(busCallArgument.getTargetAddress(), busCallArgument.getJsonEncodedTargetArgument(), callerMessage.options().setLocalOnly(true), ar ->
                             // Wrapping the result into a BusCallResult and sending it back to the initial BusCallService counterpart
-                            sendJavaReply(new BusCallResult(busCallArgument.getCallNumber(), ar.succeeded() ? ar.result().body() : ar.cause()), null, callerMessage)
+                            sendJavaReply(new BusCallResult(busCallArgument.getCallNumber(), ar.succeeded() ? ar.result().body() : ar.cause()), new DeliveryOptions(), callerMessage)
                         )
         );
     }
@@ -78,32 +78,31 @@ public final class BusCallService {
      *
      * @param <J> The java class expected by the java reply handler
      */
-    private static <J> void sendJavaObjectAndWaitJavaReply(String address, Object javaObject, Object state, Handler<AsyncResult<J>> javaReplyHandler) {
+    private static <J> void sendJavaObjectAndWaitJavaReply(String address, Object javaObject, DeliveryOptions options, Handler<AsyncResult<J>> javaReplyHandler) {
         // Delegating the job to sendJavaObjectAndWaitJsonReply() with the following json reply handler:
-        sendJavaObjectAndWaitJsonReply(false, address, javaObject, state, javaAsyncHandlerToJsonAsyncMessageHandler(javaReplyHandler));
+        sendJavaObjectAndWaitJsonReply(address, javaObject, options, javaAsyncHandlerToJsonAsyncMessageHandler(javaReplyHandler));
     }
 
     /**
      * Method to send a java object over the event bus. The java object is first serialized into json format assuming
      * there is a json codec registered for that java class. The reply handler will be called back on reply reception.
      */
-    private static <T> void sendJavaObjectAndWaitJsonReply(boolean local, String address, Object javaObject, Object state, Handler<AsyncResult<Message<T>>> jsonReplyMessageHandler) {
+    private static <T> void sendJavaObjectAndWaitJsonReply(String address, Object javaObject, DeliveryOptions options, Handler<AsyncResult<Message<T>>> jsonReplyMessageHandler) {
         // Serializing the java object into json format (a json object most of the time but may also be a simple string or number)
         Object jsonObject = SerialCodecManager.encodeToJson(javaObject);
         // Sending that json object over the json event bus
-        //System.out.println("Sending state = " + state + ", address = " + address + ", local = " + local);
-        BusService.bus().request(local, address, jsonObject, state, jsonReplyMessageHandler);
+        BusService.bus().request(address, jsonObject, options, jsonReplyMessageHandler);
     }
 
     /**
      * Method to send a java reply over the event bus. Basically the same as the previous method but using the
      * Message.reply() method instead and no reply is expected.
      */
-    private static <T> void sendJavaReply(Object javaReply, Object state, Message<T> callerMessage) {
+    private static <T> void sendJavaReply(Object javaReply, DeliveryOptions options, Message<T> callerMessage) {
         // Serializing the java reply into json format (a json object most of the time but may also be a simple string or number)
         Object jsonReply = SerialCodecManager.encodeToJson(javaReply);
         // Sending that json reply to the caller over the json event bus
-        callerMessage.reply(jsonReply, state);
+        callerMessage.reply(jsonReply, options);
     }
 
     /**
@@ -209,7 +208,7 @@ public final class BusCallService {
                         sendJavaReply(
                                 // And making sure that it is serializable using SerializableAsyncResult (but assuming that javaAsyncResult.result() is serializable)
                                 SerializableAsyncResult.getSerializableAsyncResult(javaAsyncResult),
-                                null,
+                                new DeliveryOptions(),
                                 callerMessage
                         )
                 );
@@ -225,7 +224,7 @@ public final class BusCallService {
      */
     public static <A, R> Registration registerBusCallEndpoint(String address, Function<A, R> javaFunction) {
         return BusCallService.<A, R>registerJavaHandlerForLocalCalls(address,
-                (javaArgument , callerMessage) -> sendJavaReply(javaFunction.apply(javaArgument), null, callerMessage)
+                (javaArgument , callerMessage) -> sendJavaReply(javaFunction.apply(javaArgument), new DeliveryOptions(), callerMessage)
         );
     }
 

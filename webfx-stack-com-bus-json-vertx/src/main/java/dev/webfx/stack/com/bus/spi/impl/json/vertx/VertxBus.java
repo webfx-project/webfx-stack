@@ -67,8 +67,9 @@ final class VertxBus implements Bus, JsonBusConstants {
         return StateAccessor.decodeState(message.headers().get(HEADERS_STATE));
     }
 
-    private static DeliveryOptions createStateDeliveryOptions(Object state, boolean local) {
-        DeliveryOptions deliveryOptions = new DeliveryOptions().setLocalOnly(local);
+    private static DeliveryOptions webfxToVertxDeliveryOptions(dev.webfx.stack.com.bus.DeliveryOptions webfxOptions) {
+        DeliveryOptions deliveryOptions = new DeliveryOptions().setLocalOnly(webfxOptions.isLocalOnly());
+        Object state = webfxOptions.getState();
         if (state != null)
             deliveryOptions.addHeader(HEADERS_STATE, StateAccessor.encodeState(state));
         return deliveryOptions;
@@ -90,20 +91,20 @@ final class VertxBus implements Bus, JsonBusConstants {
     }
 
     @Override
-    public Bus publish(boolean local, String address, Object body, Object state) {
-        eventBus.publish(address, webfxToVertxBody(body), createStateDeliveryOptions(state, local));
+    public Bus publish(String address, Object body, dev.webfx.stack.com.bus.DeliveryOptions options) {
+        eventBus.publish(address, webfxToVertxBody(body), webfxToVertxDeliveryOptions(options));
         return this;
     }
 
     @Override
-    public Bus send(boolean local, String address, Object body, Object state) {
-        eventBus.send(address, webfxToVertxBody(body), createStateDeliveryOptions(state, local));
+    public Bus send(String address, Object body, dev.webfx.stack.com.bus.DeliveryOptions options) {
+        eventBus.send(address, webfxToVertxBody(body), webfxToVertxDeliveryOptions(options));
         return this;
     }
 
     @Override
-    public <T> Bus request(boolean local, String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
-        eventBus.<T>request(address, webfxToVertxBody(body), createStateDeliveryOptions(state, local), ar -> replyHandler.handle(vertxToWebfxMessageAsyncResult(ar, local)));
+    public <T> Bus request(String address, Object body, dev.webfx.stack.com.bus.DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler) {
+        eventBus.<T>request(address, webfxToVertxBody(body), webfxToVertxDeliveryOptions(options), ar -> replyHandler.handle(vertxToWebfxMessageAsyncResult(ar, options.isLocalOnly())));
         return this;
     }
 
@@ -114,7 +115,7 @@ final class VertxBus implements Bus, JsonBusConstants {
     }
 
     public <T> Registration register(boolean local, String address, Handler<Message<T>> handler) {
-        MessageConsumer<T> consumer = eventBus.consumer(address);
+        MessageConsumer<T> consumer = local ? eventBus.localConsumer(address) : eventBus.consumer(address);
         consumer.handler(message -> handler.handle(vertxToWebfxMessage(message, local)));
         return consumer::unregister;
     }
@@ -145,17 +146,10 @@ final class VertxBus implements Bus, JsonBusConstants {
     private static <T> Message<T> vertxToWebfxMessage(io.vertx.core.eventbus.Message<T> vertxMessage, boolean local) {
         return new Message<>() {
 
-            private Object state;
+            private dev.webfx.stack.com.bus.DeliveryOptions options;
             @Override
             public T body() {
                 return (T) vertxToWebfxBody(vertxMessage.body());
-            }
-
-            @Override
-            public Object state() {
-                if (state == null)
-                    state = getMessageState(vertxMessage);
-                return state;
             }
 
             @Override
@@ -164,18 +158,20 @@ final class VertxBus implements Bus, JsonBusConstants {
             }
 
             @Override
-            public boolean isLocal() {
-                return local;
+            public void reply(Object body, dev.webfx.stack.com.bus.DeliveryOptions options) {
+                vertxMessage.reply(webfxToVertxBody(body), webfxToVertxDeliveryOptions(options));
             }
 
             @Override
-            public void reply(Object body, Object state) {
-                vertxMessage.reply(webfxToVertxBody(body), createStateDeliveryOptions(state, local));
+            public <T1> void reply(Object body, dev.webfx.stack.com.bus.DeliveryOptions options, Handler<AsyncResult<Message<T1>>> replyHandler) {
+                vertxMessage.<T1>replyAndRequest(webfxToVertxBody(body), webfxToVertxDeliveryOptions(options), ar -> replyHandler.handle(vertxToWebfxMessageAsyncResult(ar, false)));
             }
 
             @Override
-            public <T1> void reply(Object body, Object state, Handler<AsyncResult<Message<T1>>> replyHandler) {
-                vertxMessage.<T1>replyAndRequest(webfxToVertxBody(body), createStateDeliveryOptions(state, local), ar -> replyHandler.handle(vertxToWebfxMessageAsyncResult(ar, false)));
+            public dev.webfx.stack.com.bus.DeliveryOptions options() {
+                if (options == null)
+                    options = new dev.webfx.stack.com.bus.DeliveryOptions().setLocalOnly(local).setState(getMessageState(vertxMessage));
+                return options;
             }
 
             @Override

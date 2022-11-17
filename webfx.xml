@@ -832,6 +832,7 @@
 
             <used-by-source-modules>
                 <module>webfx-platform-async</module>
+                <module>webfx-platform-console</module>
                 <module>webfx-platform-json</module>
                 <module>webfx-stack-com-bus</module>
                 <module>webfx-stack-com-bus-json</module>

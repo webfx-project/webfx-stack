@@ -18,12 +18,9 @@
 package dev.webfx.stack.com.bus.spi.impl;
 
 
-import dev.webfx.stack.com.bus.Bus;
-import dev.webfx.stack.com.bus.BusHook;
+import dev.webfx.stack.com.bus.*;
 import dev.webfx.platform.async.AsyncResult;
 import dev.webfx.platform.async.Handler;
-import dev.webfx.stack.com.bus.Message;
-import dev.webfx.stack.com.bus.Registration;
 
 /*
  * @author 田传武 (aka Larry Tin) - author of Goodow realtime-channel project
@@ -50,18 +47,23 @@ public abstract class BusProxy implements Bus {
     }
 
     @Override
-    public Bus publish(String address, Object body, Object state) {
-        return delegate.publish(address, body, state);
+    public Bus publish(String address, Object body, DeliveryOptions options) {
+        return delegate.publish(address, body, options);
     }
 
     @Override
-    public Bus publishLocal(String address, Object body, Object state) {
-        return delegate.publishLocal(address, body, state);
+    public Bus send(String address, Object body, DeliveryOptions options) {
+        return delegate.send(address, body, options);
     }
 
     @Override
-    public Bus publish(boolean local, String address, Object body, Object state) {
-        return delegate.publish(local, address, body, state);
+    public <T> Bus request(String address, Object body, DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler) {
+        return delegate.request(address, body, options, replyHandler);
+    }
+
+    @Override
+    public boolean isOpen() {
+        return delegate.isOpen();
     }
 
     @Override
@@ -77,21 +79,6 @@ public abstract class BusProxy implements Bus {
     @Override
     public <T> Registration register(boolean local, String address, Handler<Message<T>> handler) {
         return delegate.register(local, address, handler);
-    }
-
-    @Override
-    public <T> Bus request(String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
-        return delegate.request(address, body, state, replyHandler);
-    }
-
-    @Override
-    public <T> Bus requestLocal(String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
-        return delegate.requestLocal(address, body, state, replyHandler);
-    }
-
-    @Override
-    public <T> Bus request(boolean local, String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
-        return delegate.request(local, address, body, state, replyHandler);
     }
 
     @Override

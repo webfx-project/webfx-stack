@@ -1,5 +1,6 @@
 package dev.webfx.stack.push.server;
 
+import dev.webfx.stack.com.bus.DeliveryOptions;
 import dev.webfx.stack.push.server.spi.PushServerServiceProvider;
 import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.platform.async.Future;
@@ -16,12 +17,12 @@ public final class PushServerService {
         return SingleServiceProvider.getProvider(PushServerServiceProvider.class, () -> ServiceLoader.load(PushServerServiceProvider.class));
     }
 
-    public static <T> Future<T> push(String clientServiceAddress, Object javaArgument, Object state, Object clientRunId) {
-        return push(clientServiceAddress, javaArgument, state, null, clientRunId);
+    public static <T> Future<T> push(String clientServiceAddress, Object javaArgument, DeliveryOptions options, Object clientRunId) {
+        return push(clientServiceAddress, javaArgument, options, null, clientRunId);
     }
 
-    public static <T> Future<T> push(String clientServiceAddress, Object javaArgument, Object state, Bus bus, Object clientRunId) {
-        return getProvider().push(clientServiceAddress, javaArgument, state, bus, clientRunId);
+    public static <T> Future<T> push(String clientServiceAddress, Object javaArgument, DeliveryOptions options, Bus bus, Object clientRunId) {
+        return getProvider().push(clientServiceAddress, javaArgument, options, bus, clientRunId);
     }
 
     public static Future<Void> pushState(Object state, Object clientRunId) {
@@ -29,7 +30,7 @@ public final class PushServerService {
     }
 
     public static Future<Void> pushState(Object state, Bus bus, Object clientRunId) {
-        return getProvider().pushPing(state, bus, clientRunId);
+        return getProvider().pushPing(new DeliveryOptions().setState(state), bus, clientRunId);
     }
 
     public static void addUnresponsivePushClientListener(UnresponsivePushClientListener listener) {

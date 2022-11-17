@@ -1,6 +1,7 @@
 package dev.webfx.stack.push.server.spi.impl.simple;
 
 import dev.webfx.platform.console.Console;
+import dev.webfx.stack.com.bus.DeliveryOptions;
 import dev.webfx.stack.push.server.UnresponsivePushClientListener;
 import dev.webfx.stack.push.server.spi.PushServerServiceProvider;
 import dev.webfx.stack.push.ClientPushBusAddressesSharedByBothClientAndServer;
@@ -22,19 +23,22 @@ import java.util.Map;
  */
 public final class SimplePushServerServiceProvider implements PushServerServiceProvider {
 
-    private final static long PING_PUSH_PERIOD_MS = 20_000; // Should be lower than client WebSocketBusOptions.pingInterval (which is set to 30_000 at the time of writing this code)
+    private final static long PING_PUSH_PERIOD_MS = 20_000; // Should be lower than client WebSocketBusOptions.pingInterval (which is set to 30_000 at the time of this writing)
+
+    private final static boolean LOG_PUSH = true;
 
     private final Map<Object /*clientRunId*/, PushClientInfo> pushClientInfos = new HashMap<>();
     private final List<UnresponsivePushClientListener> unresponsivePushClientListeners = new ArrayList<>();
 
     @Override
-    public <T> Future<T> push(String clientServiceAddress, Object javaArgument, Object state, Bus bus, Object clientRunId) {
+    public <T> Future<T> push(String clientServiceAddress, Object javaArgument, DeliveryOptions options, Bus bus, Object clientRunId) {
         Promise<T> promise = Promise.promise();
         PushClientInfo pushClientInfo = getOrCreatePushClientInfo(clientRunId);
         String clientBusCallServiceAddress = ClientPushBusAddressesSharedByBothClientAndServer.computeClientBusCallServiceAddress(clientRunId);
-        Console.log("Pushing " + clientBusCallServiceAddress + " -> " + clientServiceAddress);
+        if (LOG_PUSH)
+            Console.log("Pushing " + clientBusCallServiceAddress + " -> " + clientServiceAddress);
         pushClientInfo.touchCalled();
-        BusCallService.<T>call(clientBusCallServiceAddress, clientServiceAddress, javaArgument, state, bus).onComplete(ar -> {
+        BusCallService.<T>call(clientBusCallServiceAddress, clientServiceAddress, javaArgument, options, bus).onComplete(ar -> {
             pushClientInfo.touchReceived(ar.cause());
             if (ar.failed())
                 pushFailed(clientRunId);
@@ -100,7 +104,7 @@ public final class SimplePushServerServiceProvider implements PushServerServiceP
 
         void rescheduleNextPing() {
             cancelNextPing();
-            pingScheduled = Scheduler.scheduleDelay(PING_PUSH_PERIOD_MS, () -> pushPing(null, BusService.bus(), clientRunId));
+            pingScheduled = Scheduler.scheduleDelay(PING_PUSH_PERIOD_MS, () -> pushPing(new DeliveryOptions(), BusService.bus(), clientRunId));
         }
 
         void cancelNextPing() {

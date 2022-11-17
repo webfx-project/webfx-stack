@@ -18,10 +18,11 @@
 package dev.webfx.stack.com.bus.spi.impl;
 
 
-import dev.webfx.stack.com.bus.BusHook;
-import dev.webfx.stack.com.bus.Message;
 import dev.webfx.platform.async.AsyncResult;
 import dev.webfx.platform.async.Handler;
+import dev.webfx.stack.com.bus.BusHook;
+import dev.webfx.stack.com.bus.DeliveryOptions;
+import dev.webfx.stack.com.bus.Message;
 
 /*
  * @author 田传武 (aka Larry Tin) - author of Goodow realtime-channel project
@@ -59,8 +60,8 @@ public abstract class BusHookProxy implements BusHook {
     }
 
     @Override
-    public <T> boolean handleSendOrPub(boolean send, String address, Object msg, Object sessionId, Handler<AsyncResult<Message<T>>> replyHandler) {
-        return delegate() == null || delegate().handleSendOrPub(send, address, msg, sessionId, replyHandler);
+    public <T> boolean handleSendOrPub(boolean send, String address, Object msg, DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler) {
+        return delegate() == null || delegate().handleSendOrPub(send, address, msg, options, replyHandler);
     }
 
     @Override

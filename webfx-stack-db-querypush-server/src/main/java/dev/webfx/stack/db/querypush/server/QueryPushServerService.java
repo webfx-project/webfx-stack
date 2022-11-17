@@ -1,5 +1,6 @@
 package dev.webfx.stack.db.querypush.server;
 
+import dev.webfx.stack.com.bus.DeliveryOptions;
 import dev.webfx.stack.db.querypush.PulseArgument;
 import dev.webfx.stack.db.querypush.QueryPushResult;
 import dev.webfx.stack.db.querypush.QueryPushService;
@@ -24,7 +25,7 @@ public final class QueryPushServerService {
         return PushServerService.push(
                 QUERY_PUSH_RESULT_CLIENT_LISTENER_ADDRESS,
                 queryPushResult,
-                null,
+                new DeliveryOptions(),
                 BusService.bus(),
                 pushClientId
         );
