@@ -12,6 +12,7 @@ module webfx.stack.com.bus.call {
     requires webfx.platform.util;
     requires webfx.stack.com.bus;
     requires webfx.stack.com.serial;
+    requires webfx.stack.session.state;
 
     // Exported packages
     exports dev.webfx.stack.com.bus.call;

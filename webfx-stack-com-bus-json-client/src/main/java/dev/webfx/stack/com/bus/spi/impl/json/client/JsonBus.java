@@ -1,0 +1,118 @@
+/*
+ * Note: this code is a fork of Goodow realtime-channel project https://github.com/goodow/realtime-channel
+ */
+
+/*
+ * Copyright 2013 Goodow.com
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+package dev.webfx.stack.com.bus.spi.impl.json.client;
+
+import dev.webfx.platform.json.Json;
+import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.WritableJsonObject;
+import dev.webfx.stack.com.bus.Message;
+import dev.webfx.stack.com.bus.spi.impl.NetworkBus;
+import dev.webfx.stack.com.bus.spi.impl.json.JsonBusConstants;
+import dev.webfx.stack.session.state.StateAccessor;
+
+/**
+ * @author Bruno Salmon
+ */
+public abstract class JsonBus extends NetworkBus implements JsonBusConstants {
+
+    public JsonBus() {
+    }
+
+    public JsonBus(boolean alreadyOpen) {
+        super(alreadyOpen);
+    }
+
+    @Override
+    protected Message<?> parseIncomingNetworkRawMessage(String rawMessage) {
+        WritableJsonObject jsonRawMessage = parseJsonRawMessage(rawMessage);
+        JsonObject headers = jsonRawMessage.getObject(HEADERS);
+        Object state = headers == null ? null : StateAccessor.decodeState(headers.getString(HEADERS_STATE));
+        return parseIncomingNetworkRawMessage(jsonRawMessage.getString(ADDRESS), jsonRawMessage.getString(REPLY_ADDRESS), jsonRawMessage.get(BODY), state);
+    }
+
+    protected WritableJsonObject parseJsonRawMessage(String rawMessage) {
+        return Json.parseObject(rawMessage);
+    }
+
+    @Override
+    protected String createOutgoingNetworkRawMessage(boolean send, String address, Object body, Object state, String replyAddress) {
+        // We first create its Json raw representation.
+        WritableJsonObject jsonRawMessage = Json.createObject()
+                .set(TYPE, send ? SEND : PUBLISH)
+                .set(ADDRESS, address)
+                .set(BODY, body);
+        // We add the reply address if set
+        if (replyAddress != null)
+            jsonRawMessage.set(REPLY_ADDRESS, replyAddress);
+        return jsonToNetworkRawMessage(jsonRawMessage, state);
+    }
+
+    protected String jsonToNetworkRawMessage(WritableJsonObject jsonRawMessage) {
+        return jsonToNetworkRawMessage(jsonRawMessage, null);
+    }
+
+    protected String jsonToNetworkRawMessage(WritableJsonObject jsonRawMessage, Object state) {
+        // If there is a state to transmit, we encode it and put it in the message headers
+        setJsonRawMessageState(jsonRawMessage, state);
+        return jsonRawMessage.toJsonString();
+    }
+
+    protected void setJsonRawMessageState(WritableJsonObject jsonRawMessage, Object state) {
+        if (state != null)
+            jsonRawMessage.set(HEADERS, Json.createObject()
+                    .set(HEADERS_STATE, StateAccessor.encodeState(state)));
+    }
+
+    @Override
+    protected String createRegisterNetworkRawMessage(String address) {
+        return jsonToNetworkRawMessage(Json.createObject()
+                .set(TYPE, REGISTER)
+                .set(ADDRESS, address)
+        );
+    }
+
+    @Override
+   protected String createUnregisterNetworkRawMessage(String address) {
+        return jsonToNetworkRawMessage(Json.createObject()
+                .set(TYPE, UNREGISTER)
+                .set(ADDRESS, address)
+        );
+    }
+
+    protected void sendPing() {
+        sendOutgoingNetworkRawMessage(createPingNetworkRawMessage());
+    }
+
+    protected String createPingNetworkRawMessage() {
+        return jsonToNetworkRawMessage(Json.createObject()
+                .set(TYPE, PING)
+        );
+    }
+
+    protected void sendPingState() {
+        sendOutgoingNetworkRawMessage(createPingStateNetworkRawMessage());
+    }
+
+    protected String createPingStateNetworkRawMessage() {
+        return jsonToNetworkRawMessage(Json.createObject()
+                .set(TYPE, SEND)
+                .set(ADDRESS, PING_STATE_ADDRESS)
+                .set(REPLY_ADDRESS, registerReplyHandlerIfSet(event -> System.out.println("Server acknowledged ping state"))));
+    }
+
+}

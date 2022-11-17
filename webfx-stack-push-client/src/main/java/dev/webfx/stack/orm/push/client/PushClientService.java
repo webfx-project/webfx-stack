@@ -1,13 +1,12 @@
 package dev.webfx.stack.orm.push.client;
 
 import dev.webfx.platform.console.Console;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import dev.webfx.stack.orm.push.client.spi.PushClientServiceProvider;
-import dev.webfx.stack.push.ClientPushBusAddressesSharedByBothClientAndServer;
+import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 import dev.webfx.stack.com.bus.Registration;
 import dev.webfx.stack.com.bus.call.BusCallService;
-import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
+import dev.webfx.stack.orm.push.client.spi.PushClientServiceProvider;
+import dev.webfx.stack.push.ClientPushBusAddressesSharedByBothClientAndServer;
+import dev.webfx.stack.session.state.client.ClientSideStateSession;
 
 import java.util.ServiceLoader;
 import java.util.function.Function;
@@ -16,8 +15,6 @@ import java.util.function.Function;
  * @author Bruno Salmon
  */
 public final class PushClientService {
-
-    private final static ObjectProperty<Object> pushClientIdProperty = new SimpleObjectProperty<>();
 
     static {
         // Registering the client push ping listener. This registration is private (ie just done locally on the client
@@ -28,25 +25,26 @@ public final class PushClientService {
             Console.log(arg);
             return "OK";
         });
-        // But to make this work, the client bus call service must listen server calls. This should be done by calling:
-        // PushClientService.listenServerPushCalls() as soon as the push client id has been generated.
-    }
+        // But to make this work, the client bus call service must listen server calls. This takes place as soon as the
+        // client id is set:
+        getProvider().listenServerPushCalls(ClientSideStateSession.getInstance().getRunId());
+        /*ClientInstanceIdHolder.clientInstanceIdProperty().addListener(new ChangeListener<Object>() {
+            private Registration registration;
 
-    public static Object getPushClientId() {
-        return pushClientIdProperty.get();
-    }
-
-    public static ObjectProperty<Object> pushClientIdProperty() {
-        return pushClientIdProperty;
+            @Override
+            public void changed(ObservableValue<?> observable, Object oldValue, Object clientId) {
+                if (registration != null && BusService.bus().isOpen())
+                    registration.unregister();
+                if (clientId != null)
+                    registration = getProvider().listenServerPushCalls(clientId);
+                else
+                    registration = null;
+            }
+        });*/
     }
 
     public static PushClientServiceProvider getProvider() {
         return SingleServiceProvider.getProvider(PushClientServiceProvider.class, () -> ServiceLoader.load(PushClientServiceProvider.class));
-    }
-
-    public static Registration listenServerPushCalls(Object pushClientId) {
-        pushClientIdProperty.setValue(pushClientId);
-        return getProvider().listenServerPushCalls(pushClientId);
     }
 
     public static <A, R> Registration registerPushFunction(String address, Function<A, R> javaFunction) {

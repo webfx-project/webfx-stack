@@ -31,10 +31,18 @@ import dev.webfx.platform.async.Handler;
 import java.util.*;
 
 /*
- * @author 田传武 (aka Larry Tin) - author of Goodow realtime-channel project
- * @author Bruno Salmon - fork, refactor & update for the webfx project
+ * Simple bus implementation that can be used as a basis for more complex implementations. This simple implementation
+ * doesn't know how to send messages over the network. So it works only as a single local bus instance that sends local
+ * message only (to itself), or as a local node in a distributed environment that can handle received messages that
+ * are passed to it. To make this bus able to send messages over the network itself (through the send() and publish()
+ * methods), it must be extended. In particular, the doSendOrPublishImpl() method must be overridden to implement the
+ * network delivery of non-local messages.
  *
- * <a href="https://github.com/goodow/realtime-channel/blob/master/src/main/java/com/goodow/realtime/channel/impl/SimpleBus.java">Original Goodow class</a>
+ * Also, this implementation doesn't do any message encoding/decoding. So when receiving a raw message from the network,
+ * the calling code is responsible for decoding that raw message first, and then passing the extracted address, body and
+ * reply address to the onMessage() method.
+ *
+ * @author Bruno Salmon
  */
 @SuppressWarnings("rawtypes")
 public class SimpleBus implements Bus {
@@ -43,10 +51,13 @@ public class SimpleBus implements Bus {
     private static final String ON_CLOSE = "bus/onClose";
     private static final String ON_ERROR = "bus/onError";
 
-    private final Map<String, List<Handler<Message>>> localHandlerMap = new HashMap<>();
-    private final Map<String, List<Handler<Message>>> remoteHandlerMap = new HashMap<>();
-    protected final Map<String, Handler<AsyncResult<Message>>> replyHandlers = new HashMap<>();
-    private final IdGenerator idGenerator = new IdGenerator();
+    // List of handlers registered for local messages (sent or published locally on this bus instance)
+    private final Map<String/*registered address*/, List<Handler<Message>>> localHandlerMap = new HashMap<>();
+    // List of handlers registered for remote messages (received from another remote instance bus instance)
+    private final Map<String/*registered address*/, List<Handler<Message>>> remoteHandlerMap = new HashMap<>();
+    // List of reply handlers (will be automatically cleared once called)
+    protected final Map<String/*reply address*/, Handler<AsyncResult<Message>>> replyHandlers = new HashMap<>();
+    private final IdGenerator replyAddressGenerator = new IdGenerator();
     protected BusHook hook;
     private boolean open;
 
@@ -55,73 +66,32 @@ public class SimpleBus implements Bus {
     }
 
     public SimpleBus(boolean alreadyOpen) {
-        registerBusStateLocalHandlers();
+        // This simple bus is meant to be open all the time, so it doesn't publish open, close or error events by itself,
+        // but more complex implementations can extend this class and publish such events.
+        // Here, we are registering local handlers to intercept such events to just call onOpen(), onClose() and onError() methods.
+        registerLocal(ON_OPEN,  msg -> onOpen());
+        registerLocal(ON_CLOSE, msg -> onClose(msg.body())); // the message body should be the reason
+        registerLocal(ON_ERROR, msg -> onError(msg.body())); // the message body should be the reason
         if (alreadyOpen)
             onOpen();
     }
 
-    private void registerBusStateLocalHandlers() {
-        subscribeLocal(ON_OPEN, msg -> onOpen());
-        subscribeLocal(ON_CLOSE, msg -> onClose(msg.body()));
-        subscribeLocal(ON_ERROR, msg -> onError(msg.body()));
+    // Can be called by a more complex implementation to indicate the bus is open
+    protected void publishOnOpenEvent() {
+        publishLocal(ON_OPEN, null, null);
     }
 
-    protected void publishOnOpen() {
-        publishLocal(ON_OPEN, null);
+    // Can be called by a more complex implementation to indicate the bus is closed
+    protected void publishOnCloseEvent(Object reason) {
+        publishLocal(ON_CLOSE, reason, null);
     }
 
-    protected void publishOnClose(Object reason) {
-        publishLocal(ON_CLOSE, reason);
-    }
-
+    // Can be called by a more complex implementation to indicate the bus is on error
     protected void publishOnError(Object error) {
-        publishLocal(ON_ERROR, error);
+        publishLocal(ON_ERROR, error, null);
     }
 
-    @Override
-    public void close() {
-        if (hook == null || hook.handlePreClose())
-            doClose();
-    }
-
-    @Override
-    public boolean isOpen() {
-        return open;
-    }
-
-    public String getSessionId() {
-        return "@";
-    }
-
-    public Map<String, List<Handler<Message>>> getHandlerMap(boolean local) {
-        return local ? localHandlerMap : remoteHandlerMap;
-    }
-
-    @Override
-    public Bus publish(boolean local, String address, Object msg) {
-        return internalHandleSendOrPub(local, false, address, msg, null);
-    }
-
-    @Override
-    public <T> Registration subscribe(boolean local, String address, Handler<Message<T>> handler) {
-        return subscribeImpl(local, address, handler);
-    }
-
-    @Override
-    public <T> Bus send(boolean local, String address, Object msg, Handler<AsyncResult<Message<T>>> replyHandler) {
-        return internalHandleSendOrPub(local, true, address, msg, replyHandler);
-    }
-
-    @Override
-    public Bus setHook(BusHook hook) {
-        this.hook = hook;
-        return this;
-    }
-
-    protected void doClose() {
-        publishLocal(ON_CLOSE, null);
-    }
-
+    // Reacting to an open event
     protected void onOpen() {
         open = true;
         Console.log("Bus open");
@@ -129,11 +99,12 @@ public class SimpleBus implements Bus {
             hook.handleOpened();
     }
 
-    protected void onMessage(String address, String replyAddress, Object body) {
-        SimpleMessage message = new SimpleMessage<>(false, false, this, address, replyAddress, body);
-        internalHandleReceiveMessage(message);
+    @Override
+    public boolean isOpen() {
+        return open;
     }
 
+    // Reacting to a close event
     protected void onClose(Object reason) {
         Console.log("Bus closed, reason = " + reason);
         open = false;
@@ -142,10 +113,128 @@ public class SimpleBus implements Bus {
             hook.handlePostClose();
     }
 
+    // Reacting to an error event
     protected void onError(Object reason) {
+        Console.log("Bus error, reason = " + reason);
     }
 
-    protected boolean doSubscribe(boolean local, String address, Handler<? extends Message> handler) {
+    @Override
+    public Bus setHook(BusHook hook) {
+        this.hook = hook;
+        return this;
+    }
+
+    @Override
+    public void close() {
+        if (hook == null || hook.handlePreClose())
+            doClose();
+    }
+
+    protected void doClose() {
+        publishOnCloseEvent(null);
+    }
+
+    // Publishing/sending message API
+
+    @Override
+    public Bus publish(boolean local, String address, Object body, Object state) {
+        return sendOrPublishImpl(local, false, address, body, state, null);
+    }
+
+    @Override
+    public <T> Bus send(boolean local, String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
+        return sendOrPublishImpl(local, true, address, body, state, replyHandler);
+    }
+
+    <T> Bus sendOrPublishImpl(boolean local, boolean send, String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
+        if (local || hook == null || hook.handleSendOrPub(send, address, body, state, replyHandler))
+            doSendOrPublishImpl(local, send, address, body, state, replyHandler);
+        return this;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T> void doSendOrPublishImpl(boolean local, boolean send, String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
+        checkNotNull("address", address);
+        // Registering the reply handler (if set)
+        String replyAddress = registerReplyHandlerIfSet(replyHandler);
+        // This implementation doesn't know how to send messages over the network, so the only thing that it can do is
+        // to try delivering the message on the same bus instance (should work for local messages)
+        boolean delivered = onMessage(local, send, address, replyAddress, body, state);
+        // If the delivery failed, we unregister the reply handler (if set) as it will never be called!
+        if (!delivered && replyAddress != null)
+            unregisterReplyHandler(replyAddress);
+    }
+
+    protected <T> String registerReplyHandlerIfSet(Handler<AsyncResult<Message<T>>> replyHandler) {
+        String replyAddress = null;
+        if (replyHandler != null) {
+            replyAddress = generateNewReplyAddress();
+            replyHandlers.put(replyAddress, (Handler) replyHandler);
+        }
+        return replyAddress;
+    }
+
+    protected void unregisterReplyHandler(String replyAddress) {
+        replyHandlers.remove(replyAddress);
+    }
+
+    // Message API. All incoming messages, either local, or from the network, should be passed to a onMessage() method,
+    // that will try to deliver the message to a handler registered on this bus.
+
+    protected boolean onMessage(boolean local, boolean send, String address, String replyAddress, Object body, Object state) {
+        // Embedding all the parameters into a single message object, and passing it to onMessage(Message).
+        Message message = createMessage(local, send, address, replyAddress, body, state);
+        return onMessage(message);
+    }
+
+    protected Message createMessage(boolean local, boolean send, String address, String replyAddress, Object body, Object state) {
+        return new SimpleMessage<>(local, send, this, address, replyAddress, body, state);
+    }
+
+    protected boolean onMessage(Message message) {
+        // The hook may not allow the message delivery
+        if (hook != null && !hook.handleReceiveMessage(message))
+            return false;
+        return doReceiveMessage(message);
+    }
+
+    private boolean doReceiveMessage(Message message) {
+        String address = message.address();
+        List<Handler<Message>> handlers = getHandlerMap(true).get(address);
+        if (handlers == null)
+            handlers = getHandlerMap(false).get(address);
+        if (handlers != null) {
+            // We make a copy since the handler might get unregistered from within the handler itself,
+            // which would screw up our iteration
+            List<Handler<Message>> copy = new ArrayList<>(handlers);
+            // Drain any messages that came in while the channel was not open.
+            for (Handler<Message> handler : copy)
+                scheduleHandle(address, handler, message);
+            return true;
+        }
+        // Might be a reply message
+        Handler<AsyncResult<Message>> handler = replyHandlers.get(address);
+        if (handler != null) {
+            replyHandlers.remove(address);
+            scheduleHandleAsync(address, handler, message);
+            return true;
+        }
+        Console.log("Unknown message address: " + address);
+        return false;
+    }
+
+    // Handler registration API
+
+    protected Map<String, List<Handler<Message>>> getHandlerMap(boolean local) {
+        return local ? localHandlerMap : remoteHandlerMap;
+    }
+
+    @Override
+    public <T> Registration register(boolean local, String address, Handler<Message<T>> handler) {
+        return registerImpl(local, address, handler);
+    }
+
+    protected boolean doRegister(boolean local, String address, Handler<? extends Message> handler) {
         checkNotNull("address", address);
         checkNotNull("handler", handler);
         Map<String, List<Handler<Message>>> handlerMap = getHandlerMap(local);
@@ -158,20 +247,7 @@ public class SimpleBus implements Bus {
         return true;
     }
 
-    @SuppressWarnings("unchecked")
-    protected <T> void doSendOrPub(boolean local, boolean send, String address, Object msg, Handler<AsyncResult<Message<T>>> replyHandler) {
-        checkNotNull("address", address);
-        String replyAddress = null;
-        if (replyHandler != null) {
-            replyAddress = makeUUID();
-            replyHandlers.put(replyAddress, (Handler) replyHandler);
-        }
-        SimpleMessage message = new SimpleMessage(local, send, this, address, replyAddress, msg);
-        if (!internalHandleReceiveMessage(message) && replyAddress != null)
-            replyHandlers.remove(replyAddress);
-    }
-
-    protected <T> boolean doUnsubscribe(boolean local, String address, Handler<Message<T>> handler) {
+    protected <T> boolean doUnregister(boolean local, String address, Handler<Message<T>> handler) {
         checkNotNull("address", address);
         checkNotNull("handler", handler);
         Map<String, List<Handler<Message>>> handlerMap = getHandlerMap(local);
@@ -204,45 +280,8 @@ public class SimpleBus implements Bus {
         return true;
     }
 
-    boolean internalHandleReceiveMessage(Message message) {
-        if (message.isLocal() || hook == null || hook.handleReceiveMessage(message)) {
-            doReceiveMessage(message);
-            return true;
-        }
-        return false;
-    }
-
-    <T> Bus internalHandleSendOrPub(boolean local, boolean send, String address, Object msg, Handler<AsyncResult<Message<T>>> replyHandler) {
-        if (local || hook == null || hook.handleSendOrPub(send, address, msg, replyHandler))
-            doSendOrPub(local, send, address, msg, replyHandler);
-        return this;
-    }
-
-    protected String makeUUID() {
-        return idGenerator.next(36);
-    }
-
-    private void doReceiveMessage(Message message) {
-        String address = message.address();
-        List<Handler<Message>> handlers = getHandlerMap(true).get(address);
-        if (handlers == null)
-            handlers = getHandlerMap(false).get(address);
-        if (handlers != null) {
-            // We make a copy since the handler might get unregistered from within the handler itself,
-            // which would screw up our iteration
-            List<Handler<Message>> copy = new ArrayList<>(handlers);
-            // Drain any messages that came in while the channel was not open.
-            for (Handler<Message> handler : copy)
-                scheduleHandle(address, handler, message);
-        } else {
-            // Might be a reply message
-            Handler<AsyncResult<Message>> handler = replyHandlers.get(address);
-            if (handler != null) {
-                replyHandlers.remove(address);
-                scheduleHandleAsync(address, handler, message);
-            } else
-                Console.log("Unknown message address: " + address);
-        }
+    protected String generateNewReplyAddress() {
+        return replyAddressGenerator.next(36);
     }
 
     private void handle(String address, Handler<AsyncResult<Message>> handler, Message message) {
@@ -251,7 +290,7 @@ public class SimpleBus implements Bus {
             handler.handle(Future.succeededFuture(message));
         } catch (Throwable e) {
             Console.log("Failed to handle on address: " + address, e);
-            publishLocal(ON_ERROR, Json.createObject().set("address", address).set("message", message).set("cause", e));
+            publishLocal(ON_ERROR, Json.createObject().set("address", address).set("message", message).set("cause", e), message.state());
         }
     }
 
@@ -272,9 +311,10 @@ public class SimpleBus implements Bus {
             Scheduler.scheduleDeferred(() -> handle(address, handler, message));
     }
 
-    private <T> Registration subscribeImpl(boolean local, String address, Handler<Message<T>> handler) {
-        doSubscribe(local, address, handler);
-        return () -> doUnsubscribe(local, address, handler);
+    private <T> Registration registerImpl(boolean local, String address, Handler<Message<T>> handler) {
+        if (hook == null || hook.handlePreRegister(address, handler))
+            doRegister(local, address, handler);
+        return () -> doUnregister(local, address, handler);
     }
 
     protected static void checkNotNull(String paramName, Object param) {

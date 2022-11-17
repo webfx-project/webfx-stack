@@ -55,14 +55,14 @@ public interface Message<T> {
      * called when it has received a reply. If the message wasn't sent specifying a receipt handler
      * this method does nothing.
      */
-    void reply(Object msg);
+    void reply(Object body, Object state);
 
     /**
-     * The same as {@code reply(Object msg)} but you can specify handler for the reply - i.e. to
+     * The same as {@code reply(Object body)} but you can specify handler for the reply - i.e. to
      * receive the reply to the reply.
      */
     @SuppressWarnings("hiding")
-    <T> void reply(Object msg, Handler<AsyncResult<Message<T>>> replyHandler);
+    <T> void reply(Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler);
 
     /**
      * The reply address (if any)
@@ -73,4 +73,6 @@ public interface Message<T> {
      * The address the message was sent to
      */
     String address();
+
+    Object state();
 }

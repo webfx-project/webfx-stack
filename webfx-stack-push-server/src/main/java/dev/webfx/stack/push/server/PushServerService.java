@@ -16,12 +16,20 @@ public final class PushServerService {
         return SingleServiceProvider.getProvider(PushServerServiceProvider.class, () -> ServiceLoader.load(PushServerServiceProvider.class));
     }
 
-    public static <T> Future<T> callClientService(String serviceAddress, Object javaArgument, Bus bus, Object pushClientId) {
-        return getProvider().callClientService(serviceAddress, javaArgument, bus, pushClientId);
+    public static <T> Future<T> push(String clientServiceAddress, Object javaArgument, Object state, Object clientRunId) {
+        return push(clientServiceAddress, javaArgument, state, null, clientRunId);
     }
 
-    public static Future pingPushClient(Bus bus, Object pushClientId) {
-        return getProvider().pingPushClient(bus, pushClientId);
+    public static <T> Future<T> push(String clientServiceAddress, Object javaArgument, Object state, Bus bus, Object clientRunId) {
+        return getProvider().push(clientServiceAddress, javaArgument, state, bus, clientRunId);
+    }
+
+    public static Future<Void> pushState(Object state, Object clientRunId) {
+        return pushState(state, null, clientRunId);
+    }
+
+    public static Future<Void> pushState(Object state, Bus bus, Object clientRunId) {
+        return getProvider().pushPing(state, bus, clientRunId);
     }
 
     public static void addUnresponsivePushClientListener(UnresponsivePushClientListener listener) {

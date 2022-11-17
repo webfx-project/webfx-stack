@@ -27,25 +27,32 @@ import dev.webfx.platform.async.Handler;
  * @author Bruno Salmon
  */
 final class SimpleMessage<U> implements Message<U> {
-    private final U body;
+    private final boolean local;
+    private final boolean send;
     private final Bus bus;
     private final String address;
     private final String replyAddress;
-    private final boolean send; // Is it a send or a publish?
-    private final boolean local;
+    private final U body;
+    private final Object state;
 
-    SimpleMessage(boolean local, boolean send, Bus bus, String address, String replyAddress, U body) {
+    public SimpleMessage(boolean local, boolean send, Bus bus, String address, String replyAddress, U body, Object state) {
         this.local = local;
         this.send = send;
         this.bus = bus;
         this.address = address;
         this.replyAddress = replyAddress;
         this.body = body;
+        this.state = state;
     }
 
     @Override
     public String address() {
         return address;
+    }
+
+    @Override
+    public Object state() {
+        return state;
     }
 
     @Override
@@ -64,13 +71,13 @@ final class SimpleMessage<U> implements Message<U> {
     }
 
     @Override
-    public void reply(Object msg) {
-        sendReply(msg, null);
+    public void reply(Object body, Object state) {
+        sendReply(body, state,  null);
     }
 
     @Override
-    public <T> void reply(Object msg, Handler<AsyncResult<Message<T>>> replyHandler) {
-        sendReply(msg, replyHandler);
+    public <T> void reply(Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
+        sendReply(body, state, replyHandler);
     }
 
     @Override
@@ -78,13 +85,14 @@ final class SimpleMessage<U> implements Message<U> {
         return replyAddress;
     }
 
+    private <T> void sendReply(Object msg, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
+        if (bus != null && replyAddress != null)
+            bus.send(local, replyAddress, msg, state, replyHandler); // Send back reply
+    }
+
     @Override
     public String toString() {
         return body == null ? "null" : body instanceof JsonObject ? ((JsonObject) body).toJsonString() : body.toString();
     }
 
-    private <T> void sendReply(Object msg, Handler<AsyncResult<Message<T>>> replyHandler) {
-        if (bus != null && replyAddress != null)
-            bus.send(local, replyAddress, msg, replyHandler); // Send back reply
-    }
 }

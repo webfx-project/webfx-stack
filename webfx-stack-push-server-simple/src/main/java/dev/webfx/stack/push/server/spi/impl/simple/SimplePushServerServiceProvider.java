@@ -24,20 +24,20 @@ public final class SimplePushServerServiceProvider implements PushServerServiceP
 
     private final static long PING_PUSH_PERIOD_MS = 20_000; // Should be lower than client WebSocketBusOptions.pingInterval (which is set to 30_000 at the time of writing this code)
 
-    private final Map<Object /*pushClientId*/, PushClientInfo> pushClientInfos = new HashMap<>();
+    private final Map<Object /*clientRunId*/, PushClientInfo> pushClientInfos = new HashMap<>();
     private final List<UnresponsivePushClientListener> unresponsivePushClientListeners = new ArrayList<>();
 
     @Override
-    public <T> Future<T> callClientService(String serviceAddress, Object javaArgument, Bus bus, Object pushClientId) {
+    public <T> Future<T> push(String clientServiceAddress, Object javaArgument, Object state, Bus bus, Object clientRunId) {
         Promise<T> promise = Promise.promise();
-        PushClientInfo pushClientInfo = getOrCreatePushClientInfo(pushClientId);
-        String clientBusCallServiceAddress = ClientPushBusAddressesSharedByBothClientAndServer.computeClientBusCallServiceAddress(pushClientId);
-        Console.log("Pushing " + clientBusCallServiceAddress + " -> " + serviceAddress);
+        PushClientInfo pushClientInfo = getOrCreatePushClientInfo(clientRunId);
+        String clientBusCallServiceAddress = ClientPushBusAddressesSharedByBothClientAndServer.computeClientBusCallServiceAddress(clientRunId);
+        Console.log("Pushing " + clientBusCallServiceAddress + " -> " + clientServiceAddress);
         pushClientInfo.touchCalled();
-        BusCallService.<T>call(clientBusCallServiceAddress, serviceAddress, javaArgument, bus).onComplete(ar -> {
+        BusCallService.<T>call(clientBusCallServiceAddress, clientServiceAddress, javaArgument, state, bus).onComplete(ar -> {
             pushClientInfo.touchReceived(ar.cause());
             if (ar.failed())
-                pushFailed(pushClientId);
+                pushFailed(clientRunId);
             promise.complete(ar.result());
         });
         return promise.future();
@@ -53,32 +53,32 @@ public final class SimplePushServerServiceProvider implements PushServerServiceP
         unresponsivePushClientListeners.remove(listener);
     }
 
-    private void firePushClientDisconnected(Object pushClientId) {
+    private void firePushClientDisconnected(Object clientRunId) {
         for (UnresponsivePushClientListener listener : unresponsivePushClientListeners)
-            listener.onUnresponsivePushClient(pushClientId);
+            listener.onUnresponsivePushClient(clientRunId);
     }
 
-    private void pushFailed(Object pushClientId) {
-        pushClientInfos.remove(pushClientId);
-        firePushClientDisconnected(pushClientId);
+    private void pushFailed(Object clientRunId) {
+        pushClientInfos.remove(clientRunId);
+        firePushClientDisconnected(clientRunId);
     }
 
-    private PushClientInfo getOrCreatePushClientInfo(Object pushClientId) {
-        PushClientInfo pushClientInfo = pushClientInfos.get(pushClientId);
+    private PushClientInfo getOrCreatePushClientInfo(Object clientRunId) {
+        PushClientInfo pushClientInfo = pushClientInfos.get(clientRunId);
         if (pushClientInfo == null)
-            pushClientInfos.put(pushClientId, pushClientInfo = new PushClientInfo(pushClientId));
+            pushClientInfos.put(clientRunId, pushClientInfo = new PushClientInfo(clientRunId));
         return pushClientInfo;
     }
 
     final class PushClientInfo {
-        final Object pushClientId;
+        final Object clientRunId;
         int pendingCalls;
         long lastCallTime;
         long lastResultReceivedTime;
         Scheduled pingScheduled;
 
-        PushClientInfo(Object pushClientId) {
-            this.pushClientId = pushClientId;
+        PushClientInfo(Object clientRunId) {
+            this.clientRunId = clientRunId;
         }
 
         void touchCalled() {
@@ -94,13 +94,13 @@ public final class SimplePushServerServiceProvider implements PushServerServiceP
                 rescheduleNextPing();
             else {
                 cancelNextPing();
-                pushFailed(pushClientId);
+                pushFailed(clientRunId);
             }
         }
 
         void rescheduleNextPing() {
             cancelNextPing();
-            pingScheduled = Scheduler.scheduleDelay(PING_PUSH_PERIOD_MS, () -> pingPushClient(BusService.bus(), pushClientId));
+            pingScheduled = Scheduler.scheduleDelay(PING_PUSH_PERIOD_MS, () -> pushPing(null, BusService.bus(), clientRunId));
         }
 
         void cancelNextPing() {

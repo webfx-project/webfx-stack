@@ -54,7 +54,7 @@ public interface BusHook {
      * @return true to let the registration occur, false otherwise
      */
     @SuppressWarnings("rawtypes")
-    default boolean handlePreSubscribe(String address, Handler<? extends Message> handler) { return true; }
+    default boolean handlePreRegister(String address, Handler<? extends Message> handler) { return true; }
 
     /**
      * Called when a message is received
@@ -73,7 +73,7 @@ public interface BusHook {
      * @param replyHandler Reply handler will be called when any reply from the recipient is received
      * @return true To allow the send/publish to occur, false otherwise
      */
-    default <T> boolean handleSendOrPub(boolean send, String address, Object msg, Handler<AsyncResult<Message<T>>> replyHandler) {
+    default <T> boolean handleSendOrPub(boolean send, String address, Object msg, Object sessionId, Handler<AsyncResult<Message<T>>> replyHandler) {
         return true;
     }
 
@@ -83,5 +83,5 @@ public interface BusHook {
      * @param address The address
      * @return true to let the unregistration occur, false otherwise
      */
-    default boolean handleUnsubscribe(String address) { return true; }
+    default boolean handleUnregister(String address) { return true; }
 }

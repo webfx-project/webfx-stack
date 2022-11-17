@@ -32,18 +32,30 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>webfx-stack-authn</module>
-        <module>webfx-stack-authz</module>
+        <module>webfx-stack-auth-authn</module>
+        <module>webfx-stack-auth-authn-buscall</module>
+        <module>webfx-stack-auth-authn-remote</module>
+        <module>webfx-stack-auth-authn-server-mojoauth</module>
+        <module>webfx-stack-auth-authz</module>
+        <module>webfx-stack-auth-login</module>
+        <module>webfx-stack-auth-login-buscall</module>
+        <module>webfx-stack-auth-login-remote</module>
+        <module>webfx-stack-auth-login-server-mojoauth</module>
+        <module>webfx-stack-auth-login-ui</module>
+        <module>webfx-stack-auth-login-ui-webthirdpary</module>
         <module>webfx-stack-com-bus</module>
         <module>webfx-stack-com-bus-call</module>
         <module>webfx-stack-com-bus-call-job</module>
+        <module>webfx-stack-com-bus-json</module>
+        <module>webfx-stack-com-bus-json-client</module>
+        <module>webfx-stack-com-bus-json-client-websocket</module>
+        <module>webfx-stack-com-bus-json-client-websocket-java</module>
+        <module>webfx-stack-com-bus-json-client-websocket-web</module>
+        <module>webfx-stack-com-bus-json-server</module>
+        <module>webfx-stack-com-bus-json-vertx</module>
         <module>webfx-stack-com-bus-simple</module>
-        <module>webfx-stack-com-bus-vertx</module>
         <module>webfx-stack-com-serial</module>
         <module>webfx-stack-com-websocket</module>
-        <module>webfx-stack-com-websocket-bus</module>
-        <module>webfx-stack-com-websocket-bus-java</module>
-        <module>webfx-stack-com-websocket-bus-web</module>
         <module>webfx-stack-com-websocket-gwt</module>
         <module>webfx-stack-com-websocket-java</module>
         <module>webfx-stack-db-datascope</module>
@@ -51,6 +63,13 @@
         <module>webfx-stack-db-query</module>
         <module>webfx-stack-db-query-buscall</module>
         <module>webfx-stack-db-query-remote</module>
+        <module>webfx-stack-db-querypush</module>
+        <module>webfx-stack-db-querypush-buscall</module>
+        <module>webfx-stack-db-querypush-client</module>
+        <module>webfx-stack-db-querypush-client-simple</module>
+        <module>webfx-stack-db-querypush-remote</module>
+        <module>webfx-stack-db-querypush-server</module>
+        <module>webfx-stack-db-querypush-server-simple</module>
         <module>webfx-stack-db-querysubmit-java-jdbc</module>
         <module>webfx-stack-db-querysubmit-vertx</module>
         <module>webfx-stack-db-submit</module>
@@ -79,16 +98,18 @@
         <module>webfx-stack-push-client-simple</module>
         <module>webfx-stack-push-server</module>
         <module>webfx-stack-push-server-simple</module>
-        <module>webfx-stack-querypush</module>
-        <module>webfx-stack-querypush-buscall</module>
-        <module>webfx-stack-querypush-client</module>
-        <module>webfx-stack-querypush-client-simple</module>
-        <module>webfx-stack-querypush-remote</module>
-        <module>webfx-stack-querypush-server</module>
-        <module>webfx-stack-querypush-server-simple</module>
         <module>webfx-stack-routing-activity</module>
         <module>webfx-stack-routing-router</module>
+        <module>webfx-stack-routing-router-client</module>
+        <module>webfx-stack-routing-router-vertx</module>
         <module>webfx-stack-routing-uirouter</module>
+        <module>webfx-stack-session</module>
+        <module>webfx-stack-session-client</module>
+        <module>webfx-stack-session-state</module>
+        <module>webfx-stack-session-state-client</module>
+        <module>webfx-stack-session-state-client-fx</module>
+        <module>webfx-stack-session-state-server</module>
+        <module>webfx-stack-session-vertx</module>
         <module>webfx-stack-ui-action</module>
         <module>webfx-stack-ui-controls</module>
         <module>webfx-stack-ui-fxraiser</module>

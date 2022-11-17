@@ -1970,7 +1970,7 @@
         <project name="webfx-stack-orm-dql-querypush-interceptor">
 
             <module-auto-injection-conditions>
-                <if-uses-java-package>dev.webfx.stack.querypush</if-uses-java-package>
+                <if-uses-java-package>dev.webfx.stack.db.querypush</if-uses-java-package>
                 <if-uses-java-package>dev.webfx.stack.orm.domainmodel</if-uses-java-package>
             </module-auto-injection-conditions>
 
@@ -3128,6 +3128,17 @@
                 <module>webfx-stack-orm-reactive-entities</module>
             </java-package>
 
+            <java-package name="dev.webfx.stack.db.querypush">
+                <module>webfx-stack-db-querypush</module>
+                <module>webfx-stack-db-querypush-buscall</module>
+                <module>webfx-stack-db-querypush-client</module>
+                <module>webfx-stack-db-querypush-remote</module>
+                <module>webfx-stack-db-querypush-server</module>
+                <module>webfx-stack-db-querypush-server-simple</module>
+                <module>webfx-stack-orm-dql-querypush-interceptor</module>
+                <module>webfx-stack-orm-reactive-call</module>
+            </java-package>
+
             <java-package name="dev.webfx.stack.db.submit">
                 <module>webfx-stack-db-querypush-server</module>
                 <module>webfx-stack-db-querysubmit-java-jdbc</module>
@@ -3154,17 +3165,6 @@
                 <module>webfx-stack-orm-reactive-dql</module>
                 <module>webfx-stack-orm-reactive-entities</module>
                 <module>webfx-stack-orm-reactive-visual</module>
-            </java-package>
-
-            <java-package name="dev.webfx.stack.querypush">
-                <module>webfx-stack-orm-dql-querypush-interceptor</module>
-                <module>webfx-stack-orm-reactive-call</module>
-                <module>webfx-stack-querypush</module>
-                <module>webfx-stack-querypush-buscall</module>
-                <module>webfx-stack-querypush-client</module>
-                <module>webfx-stack-querypush-remote</module>
-                <module>webfx-stack-querypush-server</module>
-                <module>webfx-stack-querypush-server-simple</module>
             </java-package>
 
             <java-package name="dev.webfx.stack.ui.fxraiser">

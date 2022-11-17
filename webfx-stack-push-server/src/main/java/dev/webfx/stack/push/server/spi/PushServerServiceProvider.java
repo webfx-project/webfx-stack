@@ -10,10 +10,10 @@ import dev.webfx.stack.push.ClientPushBusAddressesSharedByBothClientAndServer;
  */
 public interface PushServerServiceProvider {
 
-    <T> Future<T> callClientService(String serviceAddress, Object javaArgument, Bus bus, Object pushClientId);
+    <T> Future<T> push(String clientServiceAddress, Object javaArgument, Object state, Bus bus, Object clientRunId);
 
-    default Future pingPushClient(Bus bus, Object pushClientId) {
-        return callClientService(ClientPushBusAddressesSharedByBothClientAndServer.PUSH_PING_CLIENT_LISTENER_SERVICE_ADDRESS, "Server ping for push client " + pushClientId, bus, pushClientId);
+    default Future<Void> pushPing(Object state, Bus bus, Object clientRunId) {
+        return push(ClientPushBusAddressesSharedByBothClientAndServer.PUSH_PING_CLIENT_LISTENER_SERVICE_ADDRESS, "Push ping to client " + clientRunId, state, bus, clientRunId);
     }
 
     void addUnresponsivePushClientListener(UnresponsivePushClientListener listener);

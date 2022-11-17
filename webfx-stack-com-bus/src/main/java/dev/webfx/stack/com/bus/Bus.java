@@ -23,14 +23,14 @@ import dev.webfx.platform.async.AsyncResult;
 
 /**
  * A distributed lightweight event bus which can encompass multiple machines. The event bus
- * implements publish/subscribe, point to point messaging and request-response messaging.<p>
+ * implements publish/register, point to point messaging and request-response messaging.<p>
  * Messages sent over the event bus are represented by instances of the {@link Message} class.<p>
- * For publish/subscribe, messages can be published to an address using one of the {@link #publish}
+ * For publish/register, messages can be published to an address using one of the {@link #register}
  * methods. An address is a simple {@code String} instance.<p>
  * Handlers are registered against an address. There can be multiple handlers registered against
  * each address, and a particular handler can be registered against multiple addresses. The event
- * bus will route a sent message to all handlers which are registered against that address.<p>
- * For point to point messaging, messages can be sent to a address using one of the {@link #send}
+ * bus will route an incoming message to all handlers which are registered against that address.<p>
+ * For point to point messaging, messages can be sent to an address using one of the {@link #send}
  * methods. The messages will be delivered to a single handler, if one is registered on that
  * address. If more than one handler is registered on the same address, the bus will choose one and
  * deliver the message to that. The bus will aim to fairly distribute messages in a round-robin way,
@@ -38,7 +38,7 @@ import dev.webfx.platform.async.AsyncResult;
  * The order of messages received by any specific handler from a specific sender should match the
  * order of messages sent from that sender.<p>
  * When sending a message, a reply handler can be provided. If so, it will be called when the reply
- * from the receiver has been received. Reply messages can also be replied to, etc, ad infinitum<p>
+ * from the receiver has been received. Reply messages can also be replied to, etc... ad infinitum<p>
  * Different event bus instances can be clustered together over a network, to give a single logical
  * event bus.<p>
  *
@@ -54,20 +54,20 @@ public interface Bus {
      * Publish a message
      *
      * @param address The address to publish it to
-     * @param msg     The message
+     * @param body     The message
      */
-    default Bus publish(String address, Object msg) {
-        return publish(false, address, msg);
+    default Bus publish(String address, Object body, Object state) {
+        return publish(false, address, body, state);
     }
 
     /**
      * Publish a local message
      *
      * @param address The address to publish it to
-     * @param msg     The message
+     * @param body     The message
      */
-    default Bus publishLocal(String address, Object msg) {
-        return publish(true, address, msg);
+    default Bus publishLocal(String address, Object body, Object state) {
+        return publish(true, address, body, state);
     }
 
     /**
@@ -75,30 +75,30 @@ public interface Bus {
      *
      * @param local   Indicates if the message is published locally or remotely
      * @param address The address to publish it to
-     * @param msg     The message
+     * @param body     The message
      */
-    Bus publish(boolean local, String address, Object msg);
+    Bus publish(boolean local, String address, Object body, Object state);
 
     /**
      * Send a message
      *
      * @param address      The address to send it to
-     * @param msg          The message
+     * @param body          The message
      * @param replyHandler Reply handler will be called when any reply from the recipient is received
      */
-    default <T> Bus send(String address, Object msg, Handler<AsyncResult<Message<T>>> replyHandler) {
-        return send(false, address, msg, replyHandler);
+    default <T> Bus send(String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
+        return send(false, address, body, state, replyHandler);
     }
 
     /**
      * Send a local message
      *
      * @param address      The address to send it to
-     * @param msg          The message
+     * @param body          The message
      * @param replyHandler Reply handler will be called when any reply from the recipient is received
      */
-    default <T> Bus sendLocal(String address, Object msg, Handler<AsyncResult<Message<T>>> replyHandler) {
-        return send(true, address, msg, replyHandler);
+    default <T> Bus sendLocal(String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler) {
+        return send(true, address, body, state, replyHandler);
     }
 
     /**
@@ -106,10 +106,10 @@ public interface Bus {
      *
      * @param local        Indicates if the message is sent locally or remotely
      * @param address      The address to send it to
-     * @param msg          The message
+     * @param body          The message
      * @param replyHandler Reply handler will be called when any reply from the recipient is received
      */
-    <T> Bus send(boolean local, String address, Object msg, Handler<AsyncResult<Message<T>>> replyHandler);
+    <T> Bus send(boolean local, String address, Object body, Object state, Handler<AsyncResult<Message<T>>> replyHandler);
 
     /**
      * Registers a handler against the specified address
@@ -118,8 +118,8 @@ public interface Bus {
      * @param handler The handler
      * @return the handler registration, can be stored in order to unregister the handler later
      */
-    default <T> Registration subscribe(String address, Handler<Message<T>> handler) {
-        return subscribe(false, address, handler);
+    default <T> Registration register(String address, Handler<Message<T>> handler) {
+        return register(false, address, handler);
     }
 
     /**
@@ -129,8 +129,8 @@ public interface Bus {
      * @param address The address to register it at
      * @param handler The handler
      */
-    default <T> Registration subscribeLocal(String address, Handler<Message<T>> handler) {
-        return subscribe(true, address, handler);
+    default <T> Registration registerLocal(String address, Handler<Message<T>> handler) {
+        return register(true, address, handler);
     }
 
     /**
@@ -141,7 +141,7 @@ public interface Bus {
      * @param handler The handler
      * @return the handler registration, can be stored in order to unregister the handler later
      */
-    <T> Registration subscribe(boolean local, String address, Handler<Message<T>> handler);
+    <T> Registration register(boolean local, String address, Handler<Message<T>> handler);
 
     /**
      * Close the Bus and release all resources.

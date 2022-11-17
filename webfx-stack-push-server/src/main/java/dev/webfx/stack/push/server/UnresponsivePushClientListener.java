@@ -5,6 +5,6 @@ package dev.webfx.stack.push.server;
  */
 public interface UnresponsivePushClientListener {
 
-    void onUnresponsivePushClient(Object pushClientId);
+    void onUnresponsivePushClient(Object clientRunId);
 
 }

@@ -19,7 +19,7 @@ package dev.webfx.stack.com.bus;
 
 /**
  * Registration objects returned when an event handler is bound (e.g. via
- * {@link Bus#subscribe}), used to deregister.
+ * {@link Bus#register}), used to deregister.
  *
  * @author 田传武 (aka Larry Tin) - author of Goodow realtime-channel project
  * @author Bruno Salmon - fork, refactor & update for the webfx project
