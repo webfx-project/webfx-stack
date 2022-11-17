@@ -1,7 +1,7 @@
 package dev.webfx.stack.routing.router.session.impl;
 
 import dev.webfx.stack.routing.router.RoutingContext;
-import dev.webfx.stack.routing.router.session.Session;
+import dev.webfx.stack.session.Session;
 import dev.webfx.stack.routing.router.session.UserSessionHandler;
 
 /**

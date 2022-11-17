@@ -4,7 +4,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import dev.webfx.stack.routing.uirouter.activity.uiroute.UiRouteActivityContext;
-import dev.webfx.stack.routing.router.session.Session;
+import dev.webfx.stack.session.Session;
 import dev.webfx.stack.routing.uirouter.UiRouter;
 import dev.webfx.stack.routing.activity.ActivityContext;
 import dev.webfx.stack.routing.activity.ActivityContextFactory;

@@ -8,7 +8,7 @@
     <dependencies>
         <used-by-source-modules>
             <module transitive="true">webfx-stack-routing-activity</module>
-            <module transitive="true">webfx-stack-routing-router</module>
+            <module transitive="true">webfx-stack-routing-router-client</module>
             <module transitive="true">webfx-platform-util</module>
             <module transitive="true">webfx-platform-windowhistory</module>
         </used-by-source-modules>

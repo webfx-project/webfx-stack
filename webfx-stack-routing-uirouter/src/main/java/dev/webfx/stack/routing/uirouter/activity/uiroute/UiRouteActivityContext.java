@@ -1,7 +1,7 @@
 package dev.webfx.stack.routing.uirouter.activity.uiroute;
 
 import dev.webfx.stack.routing.activity.impl.elementals.activeproperty.ActivePropertyActivityContext;
-import dev.webfx.stack.routing.router.session.Session;
+import dev.webfx.stack.session.Session;
 import dev.webfx.stack.routing.uirouter.UiRouter;
 import dev.webfx.stack.routing.uirouter.uisession.UiSession;
 import dev.webfx.platform.windowhistory.spi.BrowsingHistory;

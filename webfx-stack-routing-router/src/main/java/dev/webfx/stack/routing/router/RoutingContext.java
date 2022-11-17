@@ -1,6 +1,6 @@
 package dev.webfx.stack.routing.router;
 
-import dev.webfx.stack.routing.router.session.Session;
+import dev.webfx.stack.session.Session;
 import dev.webfx.platform.json.WritableJsonObject;
 
 /**
@@ -37,6 +37,8 @@ public interface RoutingContext {
     void setUserPrincipal(Object userPrincipal);
 
     void clearUser();
+
+    default void sendResponse(Object responseBody) {}
 
     /*
 

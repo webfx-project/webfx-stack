@@ -1,9 +1,9 @@
 package dev.webfx.stack.routing.router.session.impl;
 
 import dev.webfx.stack.routing.router.RoutingContext;
-import dev.webfx.stack.routing.router.session.Session;
+import dev.webfx.stack.session.Session;
 import dev.webfx.stack.routing.router.session.SessionHandler;
-import dev.webfx.stack.routing.router.session.SessionStore;
+import dev.webfx.stack.session.SessionStore;
 import dev.webfx.platform.util.function.Callable;
 
 import java.util.function.Consumer;

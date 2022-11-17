@@ -1,38 +1,38 @@
 package dev.webfx.stack.routing.uirouter;
 
+import dev.webfx.platform.async.Handler;
+import dev.webfx.platform.console.Console;
+import dev.webfx.platform.json.Json;
+import dev.webfx.platform.json.JsonArray;
+import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.WritableJsonObject;
+import dev.webfx.platform.uischeduler.UiScheduler;
+import dev.webfx.platform.util.Numbers;
+import dev.webfx.platform.util.Objects;
+import dev.webfx.platform.util.collection.Collections;
+import dev.webfx.platform.util.function.Converter;
+import dev.webfx.platform.util.function.Factory;
+import dev.webfx.platform.windowhistory.spi.BrowsingHistory;
+import dev.webfx.platform.windowhistory.spi.impl.SubBrowsingHistory;
 import dev.webfx.stack.routing.activity.Activity;
 import dev.webfx.stack.routing.activity.ActivityContext;
 import dev.webfx.stack.routing.activity.ActivityContextFactory;
 import dev.webfx.stack.routing.activity.ActivityManager;
-import dev.webfx.stack.routing.uirouter.activity.uiroute.UiRouteActivityContext;
-import dev.webfx.stack.routing.uirouter.activity.uiroute.impl.UiRouteActivityContextBase;
-import dev.webfx.stack.routing.uirouter.activity.view.HasMountNodeProperty;
-import dev.webfx.stack.routing.uirouter.activity.view.HasNodeProperty;
-import dev.webfx.stack.routing.uirouter.uisession.UiSession;
 import dev.webfx.stack.routing.router.Route;
 import dev.webfx.stack.routing.router.Router;
 import dev.webfx.stack.routing.router.RoutingContext;
 import dev.webfx.stack.routing.router.auth.RedirectAuthHandler;
 import dev.webfx.stack.routing.router.session.SessionHandler;
-import dev.webfx.stack.routing.router.session.SessionStore;
 import dev.webfx.stack.routing.router.session.UserSessionHandler;
-import dev.webfx.stack.routing.router.session.impl.MemorySessionStore;
 import dev.webfx.stack.routing.router.session.impl.UserHolder;
 import dev.webfx.stack.routing.router.session.impl.UserSessionHandlerImpl;
-import dev.webfx.platform.uischeduler.UiScheduler;
-import dev.webfx.platform.windowhistory.spi.BrowsingHistory;
-import dev.webfx.platform.windowhistory.spi.impl.SubBrowsingHistory;
-import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.JsonArray;
-import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.WritableJsonObject;
-import dev.webfx.platform.console.Console;
-import dev.webfx.platform.util.Numbers;
-import dev.webfx.platform.util.Objects;
-import dev.webfx.platform.async.Handler;
-import dev.webfx.platform.util.collection.Collections;
-import dev.webfx.platform.util.function.Converter;
-import dev.webfx.platform.util.function.Factory;
+import dev.webfx.stack.routing.uirouter.activity.uiroute.UiRouteActivityContext;
+import dev.webfx.stack.routing.uirouter.activity.uiroute.impl.UiRouteActivityContextBase;
+import dev.webfx.stack.routing.uirouter.activity.view.HasMountNodeProperty;
+import dev.webfx.stack.routing.uirouter.activity.view.HasNodeProperty;
+import dev.webfx.stack.routing.uirouter.uisession.UiSession;
+import dev.webfx.stack.session.SessionService;
+import dev.webfx.stack.session.SessionStore;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -133,7 +133,7 @@ public final class UiRouter extends HistoryRouter {
             if (mountParentRouter != null)
                 sessionStore = mountParentRouter.getSessionStore();
             else
-                sessionStore = MemorySessionStore.create();
+                sessionStore = SessionService.getSessionStore();
         }
         return sessionStore;
     }
@@ -227,10 +227,8 @@ public final class UiRouter extends HistoryRouter {
         if (auth)
             addAuthorizationRouteCheck(path, regex);
         ActivityRoutingHandler<C> handler = new ActivityRoutingHandler<>(ActivityManager.factory(activityFactory, activityContextFactory), contextConverter);
-        if (regex)
-            router.routeWithRegex(path, handler);
-        else
-            router.route(path, handler);
+        Route route = regex ? router.routeWithRegex(path) : router.route(path);
+        route.handler(handler);
         return this;
     }
 

@@ -2,7 +2,7 @@ package dev.webfx.stack.routing.uirouter.uisession;
 
 import javafx.beans.property.Property;
 import javafx.beans.value.ObservableBooleanValue;
-import dev.webfx.stack.authz.mixin.ObservableUserAuthorizationFactory;
+import dev.webfx.stack.auth.authz.mixin.ObservableUserAuthorizationFactory;
 import dev.webfx.stack.routing.uirouter.uisession.impl.UiSessionImpl;
 
 /**
