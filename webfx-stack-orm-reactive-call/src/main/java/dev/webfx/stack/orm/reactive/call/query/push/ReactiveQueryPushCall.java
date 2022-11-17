@@ -1,17 +1,16 @@
 package dev.webfx.stack.orm.reactive.call.query.push;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableValue;
-import dev.webfx.stack.orm.reactive.call.query.ReactiveQueryCall;
-import dev.webfx.stack.orm.push.client.PushClientService;
-import dev.webfx.stack.querypush.QueryPushArgument;
-import dev.webfx.stack.querypush.QueryPushResult;
-import dev.webfx.stack.querypush.QueryPushService;
-import dev.webfx.stack.querypush.diff.QueryResultDiff;
 import dev.webfx.platform.console.Console;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
+import dev.webfx.stack.db.querypush.QueryPushArgument;
+import dev.webfx.stack.db.querypush.QueryPushResult;
+import dev.webfx.stack.db.querypush.QueryPushService;
+import dev.webfx.stack.db.querypush.diff.QueryResultDiff;
+import dev.webfx.stack.orm.reactive.call.query.ReactiveQueryCall;
+import dev.webfx.stack.session.state.client.fx.FxClientRunId;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,15 +66,6 @@ public final class ReactiveQueryPushCall extends ReactiveQueryCall {
         return this;
     }
 
-    public ObservableValue<Object> pushClientIdProperty() {
-        return pushClientIdProperty;
-    }
-
-    public ReactiveQueryPushCall setPushClientId(Object pushClientId) {
-        pushClientIdProperty.setValue(pushClientId);
-        return this;
-    }
-
     public Object getPushClientId() {
         return pushClientIdProperty.getValue();
     }
@@ -120,7 +110,7 @@ public final class ReactiveQueryPushCall extends ReactiveQueryCall {
         QueryPushService.executeQueryPush(QueryPushArgument.builder()
                 .setQueryStreamId(queryStreamId)
                 .setParentQueryStreamId(parentQueryStreamId)
-                .setPushClientId(getPushClientId())
+                .setClientRunId(getPushClientId())
                 .setQueryArgument(transmittedQueryArgument)
                 .setActive(isActive())
                 .setResend(resend)
@@ -192,7 +182,7 @@ public final class ReactiveQueryPushCall extends ReactiveQueryCall {
 
     @Override
     protected void onStarted() {
-        pushClientIdProperty.bind(PushClientService.pushClientIdProperty());
+        pushClientIdProperty.bind(FxClientRunId.clientRunIdProperty());
         super.onStarted();
     }
 

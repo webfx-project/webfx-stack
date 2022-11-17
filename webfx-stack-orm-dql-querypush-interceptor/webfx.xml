@@ -2,7 +2,7 @@
 <project>
 
     <module-auto-injection-conditions>
-        <if-uses-java-package>dev.webfx.stack.querypush</if-uses-java-package>
+        <if-uses-java-package>dev.webfx.stack.db.querypush</if-uses-java-package>
         <if-uses-java-package>dev.webfx.stack.orm.domainmodel</if-uses-java-package>
     </module-auto-injection-conditions>
 

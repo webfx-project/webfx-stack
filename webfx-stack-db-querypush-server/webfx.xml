@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <providers>
+        <provider interface="dev.webfx.stack.db.submit.listener.SubmitListener">dev.webfx.stack.db.querypush.server.QueryPushServerService$ProvidedSubmitListener</provider>
+    </providers>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+</project>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+    <providers>
+        <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.querypush.buscall.ExecuteQueryPushMethodEndpoint</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.querypush.buscall.serial.QueryPushArgumentSerialCodec</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.querypush.buscall.serial.QueryPushResultSerialCodec</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.querypush.buscall.serial.QueryResultTranslationSerialCodec</provider>
+    </providers>
+
+</project>

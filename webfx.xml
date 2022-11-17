@@ -118,6 +118,7 @@
                     <package>io.vertx.ext.web</package>
                     <package>io.vertx.ext.web.handler</package>
                     <package>io.vertx.ext.web.handler.sockjs</package>
+                    <package>io.vertx.ext.web.sstore</package>
                 </exported-packages>
             </library>
 
@@ -154,18 +155,30 @@
             <parent name="webfx-stack-parent"/>
 
             <modules>
-                <module>webfx-stack-authn</module>
-                <module>webfx-stack-authz</module>
+                <module>webfx-stack-auth-authn</module>
+                <module>webfx-stack-auth-authn-buscall</module>
+                <module>webfx-stack-auth-authn-remote</module>
+                <module>webfx-stack-auth-authn-server-mojoauth</module>
+                <module>webfx-stack-auth-authz</module>
+                <module>webfx-stack-auth-login</module>
+                <module>webfx-stack-auth-login-buscall</module>
+                <module>webfx-stack-auth-login-remote</module>
+                <module>webfx-stack-auth-login-server-mojoauth</module>
+                <module>webfx-stack-auth-login-ui</module>
+                <module>webfx-stack-auth-login-ui-webthirdpary</module>
                 <module>webfx-stack-com-bus</module>
                 <module>webfx-stack-com-bus-call</module>
                 <module>webfx-stack-com-bus-call-job</module>
+                <module>webfx-stack-com-bus-json</module>
+                <module>webfx-stack-com-bus-json-client</module>
+                <module>webfx-stack-com-bus-json-client-websocket</module>
+                <module>webfx-stack-com-bus-json-client-websocket-java</module>
+                <module>webfx-stack-com-bus-json-client-websocket-web</module>
+                <module>webfx-stack-com-bus-json-server</module>
+                <module>webfx-stack-com-bus-json-vertx</module>
                 <module>webfx-stack-com-bus-simple</module>
-                <module>webfx-stack-com-bus-vertx</module>
                 <module>webfx-stack-com-serial</module>
                 <module>webfx-stack-com-websocket</module>
-                <module>webfx-stack-com-websocket-bus</module>
-                <module>webfx-stack-com-websocket-bus-java</module>
-                <module>webfx-stack-com-websocket-bus-web</module>
                 <module>webfx-stack-com-websocket-gwt</module>
                 <module>webfx-stack-com-websocket-java</module>
                 <module>webfx-stack-db-datascope</module>
@@ -173,6 +186,13 @@
                 <module>webfx-stack-db-query</module>
                 <module>webfx-stack-db-query-buscall</module>
                 <module>webfx-stack-db-query-remote</module>
+                <module>webfx-stack-db-querypush</module>
+                <module>webfx-stack-db-querypush-buscall</module>
+                <module>webfx-stack-db-querypush-client</module>
+                <module>webfx-stack-db-querypush-client-simple</module>
+                <module>webfx-stack-db-querypush-remote</module>
+                <module>webfx-stack-db-querypush-server</module>
+                <module>webfx-stack-db-querypush-server-simple</module>
                 <module>webfx-stack-db-querysubmit-java-jdbc</module>
                 <module>webfx-stack-db-querysubmit-vertx</module>
                 <module>webfx-stack-db-submit</module>
@@ -201,16 +221,18 @@
                 <module>webfx-stack-push-client-simple</module>
                 <module>webfx-stack-push-server</module>
                 <module>webfx-stack-push-server-simple</module>
-                <module>webfx-stack-querypush</module>
-                <module>webfx-stack-querypush-buscall</module>
-                <module>webfx-stack-querypush-client</module>
-                <module>webfx-stack-querypush-client-simple</module>
-                <module>webfx-stack-querypush-remote</module>
-                <module>webfx-stack-querypush-server</module>
-                <module>webfx-stack-querypush-server-simple</module>
                 <module>webfx-stack-routing-activity</module>
                 <module>webfx-stack-routing-router</module>
+                <module>webfx-stack-routing-router-client</module>
+                <module>webfx-stack-routing-router-vertx</module>
                 <module>webfx-stack-routing-uirouter</module>
+                <module>webfx-stack-session</module>
+                <module>webfx-stack-session-client</module>
+                <module>webfx-stack-session-state</module>
+                <module>webfx-stack-session-state-client</module>
+                <module>webfx-stack-session-state-client-fx</module>
+                <module>webfx-stack-session-state-server</module>
+                <module>webfx-stack-session-vertx</module>
                 <module>webfx-stack-ui-action</module>
                 <module>webfx-stack-ui-controls</module>
                 <module>webfx-stack-ui-fxraiser</module>
@@ -328,6 +350,7 @@
                             <package>io.vertx.ext.web</package>
                             <package>io.vertx.ext.web.handler</package>
                             <package>io.vertx.ext.web.handler.sockjs</package>
+                            <package>io.vertx.ext.web.sstore</package>
                         </exported-packages>
                     </library>
 
@@ -343,7 +366,7 @@
 
         </project>
 
-        <project name="webfx-stack-authn">
+        <project name="webfx-stack-auth-authn">
 
             <exported-packages>
                 <source-packages/>
@@ -355,24 +378,122 @@
                 </used-by-source-modules>
             </dependencies>
 
+            <providers>
+                <provider interface="dev.webfx.stack.com.serial.spi.impl.SerialCodecBase">dev.webfx.stack.auth.authn.serial.UsernamePasswordCredentialSerialCodec</provider>
+            </providers>
+
             <source-packages>
-                <package>dev.webfx.stack.authn</package>
-                <package>dev.webfx.stack.authn.spi</package>
+                <package>dev.webfx.stack.auth.authn</package>
+                <package>dev.webfx.stack.auth.authn.serial</package>
+                <package>dev.webfx.stack.auth.authn.spi</package>
             </source-packages>
 
             <used-by-source-modules>
                 <module>java.base</module>
                 <module>webfx-platform-async</module>
+                <module>webfx-platform-json</module>
                 <module>webfx-platform-util</module>
+                <module>webfx-stack-com-serial</module>
             </used-by-source-modules>
 
             <used-services>
-                <required-service>dev.webfx.stack.authn.spi.AuthenticationServiceProvider</required-service>
+                <required-service>dev.webfx.stack.auth.authn.spi.AuthenticationServiceProvider</required-service>
             </used-services>
 
         </project>
 
-        <project name="webfx-stack-authz">
+        <project name="webfx-stack-auth-authn-buscall">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.auth.authn.buscall.AuthenticateMethodEndpoint</provider>
+            </providers>
+
+            <source-packages>
+                <package>dev.webfx.stack.auth.authn.buscall</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-stack-auth-authn</module>
+                <module>webfx-stack-com-bus-call</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-auth-authn-remote">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.stack.auth.authn.spi.AuthenticationServiceProvider">dev.webfx.stack.auth.authn.spi.impl.remote.RemoteAuthenticationServiceProvider</provider>
+            </providers>
+
+            <source-packages>
+                <package>dev.webfx.stack.auth.authn.spi.impl.remote</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-platform-async</module>
+                <module>webfx-stack-auth-authn</module>
+                <module>webfx-stack-auth-authn-buscall</module>
+                <module>webfx-stack-com-bus-call</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-auth-authn-server-mojoauth">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.stack.auth.authn.spi.AuthenticationServiceProvider">dev.webfx.stack.auth.authn.spi.impl.mojoauth.MojoAuthAuthenticationServiceProvider</provider>
+            </providers>
+
+            <required-libraries>
+                <library artifact="com.mojoauth.sdk:java-sdk:1.1.0">
+
+                    <exported-packages>
+                        <package>com.mojoauth.sdk.util</package>
+                        <package>com.mojoauth.sdk.models.responsemodels</package>
+                        <package>com.mojoauth.sdk.helper</package>
+                        <package>com.mojoauth.sdk.api</package>
+                    </exported-packages>
+
+                </library>
+            </required-libraries>
+
+            <source-packages>
+                <package>dev.webfx.stack.auth.authn.spi.impl.mojoauth</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java-sdk</module>
+                <module>webfx-platform-async</module>
+                <module>webfx-stack-auth-authn</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-auth-authz">
 
             <exported-packages>
                 <source-packages/>
@@ -383,13 +504,13 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.stack.authz</package>
-                <package>dev.webfx.stack.authz.mixin</package>
-                <package>dev.webfx.stack.authz.operation</package>
-                <package>dev.webfx.stack.authz.spi</package>
-                <package>dev.webfx.stack.authz.spi.impl</package>
-                <package>dev.webfx.stack.authz.spi.impl.inmemory</package>
-                <package>dev.webfx.stack.authz.spi.impl.inmemory.parser</package>
+                <package>dev.webfx.stack.auth.authz</package>
+                <package>dev.webfx.stack.auth.authz.mixin</package>
+                <package>dev.webfx.stack.auth.authz.operation</package>
+                <package>dev.webfx.stack.auth.authz.spi</package>
+                <package>dev.webfx.stack.auth.authz.spi.impl</package>
+                <package>dev.webfx.stack.auth.authz.spi.impl.inmemory</package>
+                <package>dev.webfx.stack.auth.authz.spi.impl.inmemory.parser</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -402,8 +523,177 @@
             </used-by-source-modules>
 
             <used-services>
-                <required-service>dev.webfx.stack.authz.spi.AuthorizationServiceProvider</required-service>
+                <required-service>dev.webfx.stack.auth.authz.spi.AuthorizationServiceProvider</required-service>
             </used-services>
+
+        </project>
+
+        <project name="webfx-stack-auth-login">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module transitive="true">webfx-platform-async</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.auth.login</package>
+                <package>dev.webfx.stack.auth.login.spi</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-util</module>
+            </used-by-source-modules>
+
+            <used-services>
+                <required-service>dev.webfx.stack.auth.login.spi.LoginServiceProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-stack-auth-login-buscall">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.auth.login.buscall.GetLoginUiInputMethodEndpoint</provider>
+            </providers>
+
+            <source-packages>
+                <package>dev.webfx.stack.auth.login.buscall</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-stack-auth-login</module>
+                <module>webfx-stack-com-bus-call</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-auth-login-remote">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.stack.auth.login.spi.LoginServiceProvider">dev.webfx.stack.auth.login.spi.impl.remote.RemoteLoginServiceProvider</provider>
+            </providers>
+
+            <source-packages>
+                <package>dev.webfx.stack.auth.login.spi.impl.remote</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-platform-async</module>
+                <module>webfx-stack-auth-login</module>
+                <module>webfx-stack-auth-login-buscall</module>
+                <module>webfx-stack-com-bus-call</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-auth-login-server-mojoauth">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.auth.login.spi.impl.mojoauth.MojoAuthLoginModuleBooter</provider>
+                <provider interface="dev.webfx.stack.auth.login.spi.LoginServiceProvider">dev.webfx.stack.auth.login.spi.impl.mojoauth.MojoAuthLoginServiceProvider</provider>
+            </providers>
+
+            <source-packages>
+                <package>dev.webfx.stack.auth.login.spi.impl.mojoauth</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java-sdk</module>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-boot</module>
+                <module>webfx-stack-auth-authn</module>
+                <module>webfx-stack-auth-login</module>
+                <module>webfx-stack-push-server</module>
+                <module>webfx-stack-routing-router</module>
+                <module>webfx-stack-session</module>
+                <module>webfx-stack-session-state</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-auth-login-ui">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.auth.login.ui</package>
+                <package>dev.webfx.stack.auth.login.ui.spi</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-kit-javafxgraphics-emul</module>
+                <module>webfx-platform-util</module>
+            </used-by-source-modules>
+
+            <used-services>
+                <required-service>dev.webfx.stack.auth.login.ui.spi.LoginUiProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-stack-auth-login-ui-webthirdpary">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.stack.auth.login.ui.spi.LoginUiProvider">dev.webfx.stack.auth.login.ui.spi.impl.webthirdparty.WebThirdPartyLoginUiProvider</provider>
+            </providers>
+
+            <source-packages>
+                <package>dev.webfx.stack.auth.login.ui.spi.impl.webthirdparty</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-kit-javafxgraphics-emul</module>
+                <module>webfx-kit-javafxweb-emul</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-stack-auth-login</module>
+                <module>webfx-stack-auth-login-ui</module>
+            </used-by-source-modules>
 
         </project>
 
@@ -414,7 +704,9 @@
             </exported-packages>
 
             <dependencies>
-                <used-by-source-modules/>
+                <used-by-source-modules>
+                    <module transitive="true">webfx-platform-async</module>
+                </used-by-source-modules>
             </dependencies>
 
             <source-packages>
@@ -470,6 +762,7 @@
                 <module>webfx-platform-util</module>
                 <module>webfx-stack-com-bus</module>
                 <module>webfx-stack-com-serial</module>
+                <module>webfx-stack-session-state</module>
             </used-by-source-modules>
 
             <used-services>
@@ -505,6 +798,193 @@
 
         </project>
 
+        <project name="webfx-stack-com-bus-json">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.com.bus.spi.impl.json</package>
+            </source-packages>
+
+            <used-by-source-modules/>
+
+        </project>
+
+        <project name="webfx-stack-com-bus-json-client">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.com.bus.spi.impl.json.client</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-json</module>
+                <module>webfx-stack-com-bus</module>
+                <module>webfx-stack-com-bus-json</module>
+                <module>webfx-stack-session-state</module>
+                <module>webfx-stack-session-state-client</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-com-bus-json-client-websocket">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.com.bus.spi.impl.json.client.websocket</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-json</module>
+                <module>webfx-platform-resource</module>
+                <module>webfx-platform-scheduler</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-com-bus</module>
+                <module>webfx-stack-com-bus-json-client</module>
+                <module>webfx-stack-com-websocket</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-com-bus-json-client-websocket-java">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <provider interface="dev.webfx.stack.com.bus.spi.BusServiceProvider">dev.webfx.stack.com.bus.spi.impl.json.client.websocket.java.JavaWebsocketBusServiceProvider</provider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.com.bus.spi.impl.json.client.websocket.java</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-platform-windowlocation</module>
+                <module>webfx-platform-windowlocation-java</module>
+                <module>webfx-stack-com-bus</module>
+                <module>webfx-stack-com-bus-json-client-websocket</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-com-bus-json-client-websocket-web">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <provider interface="dev.webfx.stack.com.bus.spi.BusServiceProvider">dev.webfx.stack.com.bus.spi.impl.json.client.websocket.web.WebWebsocketBusServiceProvider</provider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.com.bus.spi.impl.json.client.websocket.web</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-platform-json</module>
+                <module>webfx-platform-resource</module>
+                <module>webfx-platform-windowlocation</module>
+                <module>webfx-stack-com-bus</module>
+                <module>webfx-stack-com-bus-json-client-websocket</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-com-bus-json-server">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.com.bus.spi.impl.json.server</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-json</module>
+                <module>webfx-stack-com-bus</module>
+                <module>webfx-stack-com-bus-json</module>
+                <module>webfx-stack-session</module>
+                <module>webfx-stack-session-state</module>
+                <module>webfx-stack-session-state-server</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-com-bus-json-vertx">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <provider interface="dev.webfx.stack.com.bus.spi.BusServiceProvider">dev.webfx.stack.com.bus.spi.impl.json.vertx.VertxBusServiceProvider</provider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.com.bus.spi.impl.json.vertx</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>io-vertx-core</module>
+                <module>io-vertx-eventbusbridge-common</module>
+                <module>io-vertx-web</module>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-json</module>
+                <module>webfx-platform-vertx-common</module>
+                <module>webfx-stack-com-bus</module>
+                <module>webfx-stack-com-bus-json</module>
+                <module>webfx-stack-com-bus-json-server</module>
+                <module>webfx-stack-session-state</module>
+                <module>webfx-stack-session-vertx</module>
+            </used-by-source-modules>
+
+        </project>
+
         <project name="webfx-stack-com-bus-simple">
 
             <exported-packages>
@@ -524,34 +1004,6 @@
             </source-packages>
 
             <used-by-source-modules>
-                <module>webfx-stack-com-bus</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-stack-com-bus-vertx">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <providers>
-                <provider interface="dev.webfx.stack.com.bus.spi.BusServiceProvider">dev.webfx.stack.com.bus.spi.impl.vertx.VertxBusServiceProvider</provider>
-            </providers>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.com.bus.spi.impl.vertx</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>io-vertx-core</module>
-                <module>webfx-platform-async</module>
-                <module>webfx-platform-json</module>
-                <module>webfx-platform-vertx-common</module>
                 <module>webfx-stack-com-bus</module>
             </used-by-source-modules>
 
@@ -617,89 +1069,6 @@
             <used-services>
                 <required-service>dev.webfx.stack.com.websocket.spi.WebSocketServiceProvider</required-service>
             </used-services>
-
-        </project>
-
-        <project name="webfx-stack-com-websocket-bus">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.com.websocket.bus</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java.base</module>
-                <module>webfx-platform-async</module>
-                <module>webfx-platform-console</module>
-                <module>webfx-platform-json</module>
-                <module>webfx-platform-resource</module>
-                <module>webfx-platform-scheduler</module>
-                <module>webfx-platform-util</module>
-                <module>webfx-stack-com-bus</module>
-                <module>webfx-stack-com-websocket</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-stack-com-websocket-bus-java">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <providers>
-                <provider interface="dev.webfx.stack.com.bus.spi.BusServiceProvider">dev.webfx.stack.com.websocket.bus.java.JavaWebsocketBusServiceProvider</provider>
-            </providers>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.com.websocket.bus.java</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>webfx-platform-windowlocation</module>
-                <module>webfx-platform-windowlocation-java</module>
-                <module>webfx-stack-com-bus</module>
-                <module>webfx-stack-com-websocket-bus</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-stack-com-websocket-bus-web">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <providers>
-                <provider interface="dev.webfx.stack.com.bus.spi.BusServiceProvider">dev.webfx.stack.com.websocket.bus.web.WebWebsocketBusServiceProvider</provider>
-            </providers>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.com.websocket.bus.web</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>webfx-platform-json</module>
-                <module>webfx-platform-resource</module>
-                <module>webfx-platform-windowlocation</module>
-                <module>webfx-stack-com-bus</module>
-                <module>webfx-stack-com-websocket-bus</module>
-            </used-by-source-modules>
 
         </project>
 
@@ -919,6 +1288,218 @@
                 <module>webfx-stack-com-bus-call</module>
                 <module>webfx-stack-db-query</module>
                 <module>webfx-stack-db-query-buscall</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-db-querypush">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module transitive="true">webfx-stack-db-query</module>
+                    <module transitive="true">webfx-platform-async</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.db.querypush</package>
+                <package>dev.webfx.stack.db.querypush.diff</package>
+                <package>dev.webfx.stack.db.querypush.diff.impl</package>
+                <package>dev.webfx.stack.db.querypush.spi</package>
+                <package>dev.webfx.stack.db.querypush.spi.impl</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-db-datascope</module>
+                <module>webfx-stack-db-query</module>
+            </used-by-source-modules>
+
+            <used-services>
+                <required-service>dev.webfx.stack.db.querypush.spi.QueryPushServiceProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-stack-db-querypush-buscall">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.querypush.buscall.ExecuteQueryPushMethodEndpoint</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.querypush.buscall.serial.QueryPushArgumentSerialCodec</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.querypush.buscall.serial.QueryPushResultSerialCodec</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.querypush.buscall.serial.QueryResultTranslationSerialCodec</provider>
+            </providers>
+
+            <source-packages>
+                <package>dev.webfx.stack.db.querypush.buscall</package>
+                <package>dev.webfx.stack.db.querypush.buscall.serial</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-platform-json</module>
+                <module>webfx-stack-com-bus-call</module>
+                <module>webfx-stack-com-serial</module>
+                <module>webfx-stack-db-querypush</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-db-querypush-client">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.db.querypush.client</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-stack-com-bus</module>
+                <module>webfx-stack-db-querypush</module>
+                <module>webfx-stack-db-querypush-buscall</module>
+                <module>webfx-stack-push-client</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-db-querypush-client-simple">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <provider interface="dev.webfx.stack.db.querypush.spi.QueryPushServiceProvider">dev.webfx.stack.db.querypush.client.simple.SimpleQueryPushClientServiceProvider</provider>
+                <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.db.querypush.client.simple.SimpleQueryPushClientJob</provider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.db.querypush.client.simple</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-platform-boot</module>
+                <module>webfx-stack-com-bus</module>
+                <module>webfx-stack-db-querypush</module>
+                <module>webfx-stack-db-querypush-client</module>
+                <module>webfx-stack-db-querypush-remote</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-db-querypush-remote">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.db.querypush.spi.impl.remote</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-stack-com-bus-call</module>
+                <module>webfx-stack-db-datasource</module>
+                <module>webfx-stack-db-querypush</module>
+                <module>webfx-stack-db-querypush-buscall</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-db-querypush-server">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <provider interface="dev.webfx.stack.db.submit.listener.SubmitListener">dev.webfx.stack.db.querypush.server.QueryPushServerService$ProvidedSubmitListener</provider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.db.querypush.server</package>
+                <package>dev.webfx.stack.db.querypush.server.spi.impl</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-scheduler</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-com-bus</module>
+                <module>webfx-stack-db-datascope</module>
+                <module>webfx-stack-db-query</module>
+                <module>webfx-stack-db-querypush</module>
+                <module>webfx-stack-db-querypush-buscall</module>
+                <module>webfx-stack-db-submit</module>
+                <module>webfx-stack-db-submit-listener</module>
+                <module>webfx-stack-push-server</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-db-querypush-server-simple">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <provider interface="dev.webfx.stack.db.querypush.spi.QueryPushServiceProvider">dev.webfx.stack.db.querypush.server.spi.impl.simple.SimpleInMemoryServerQueryPushServiceProvider</provider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.db.querypush.server.spi.impl.simple</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-db-datascope</module>
+                <module>webfx-stack-db-query</module>
+                <module>webfx-stack-db-querypush</module>
+                <module>webfx-stack-db-querypush-server</module>
             </used-by-source-modules>
 
         </project>
@@ -1416,10 +1997,10 @@
                 <module>webfx-stack-db-datascope</module>
                 <module>webfx-stack-db-datasource</module>
                 <module>webfx-stack-db-query</module>
+                <module>webfx-stack-db-querypush</module>
                 <module>webfx-stack-orm-datasourcemodel-service</module>
                 <module>webfx-stack-orm-domainmodel</module>
                 <module>webfx-stack-orm-expression</module>
-                <module>webfx-stack-querypush</module>
             </used-by-source-modules>
 
         </project>
@@ -1617,8 +2198,8 @@
                 <module>webfx-platform-scheduler</module>
                 <module>webfx-platform-uischeduler</module>
                 <module>webfx-stack-db-query</module>
-                <module>webfx-stack-push-client</module>
-                <module>webfx-stack-querypush</module>
+                <module>webfx-stack-db-querypush</module>
+                <module>webfx-stack-session-state-client-fx</module>
             </used-by-source-modules>
 
         </project>
@@ -1764,12 +2345,12 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
-                <module>webfx-kit-javafxbase-emul</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-util</module>
                 <module>webfx-stack-com-bus</module>
                 <module>webfx-stack-com-bus-call</module>
                 <module>webfx-stack-push</module>
+                <module>webfx-stack-session-state-client</module>
             </used-by-source-modules>
 
             <used-services>
@@ -1866,218 +2447,6 @@
 
         </project>
 
-        <project name="webfx-stack-querypush">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules>
-                    <module transitive="true">webfx-stack-db-query</module>
-                    <module transitive="true">webfx-platform-async</module>
-                </used-by-source-modules>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.querypush</package>
-                <package>dev.webfx.stack.querypush.diff</package>
-                <package>dev.webfx.stack.querypush.diff.impl</package>
-                <package>dev.webfx.stack.querypush.spi</package>
-                <package>dev.webfx.stack.querypush.spi.impl</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java.base</module>
-                <module>webfx-platform-async</module>
-                <module>webfx-platform-util</module>
-                <module>webfx-stack-db-datascope</module>
-                <module>webfx-stack-db-query</module>
-            </used-by-source-modules>
-
-            <used-services>
-                <required-service>dev.webfx.stack.querypush.spi.QueryPushServiceProvider</required-service>
-            </used-services>
-
-        </project>
-
-        <project name="webfx-stack-querypush-buscall">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <providers>
-                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.querypush.buscall.ExecuteQueryPushMethodEndpoint</provider>
-                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.querypush.buscall.serial.QueryPushArgumentSerialCodec</provider>
-                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.querypush.buscall.serial.QueryPushResultSerialCodec</provider>
-                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.querypush.buscall.serial.QueryResultTranslationSerialCodec</provider>
-            </providers>
-
-            <source-packages>
-                <package>dev.webfx.stack.querypush.buscall</package>
-                <package>dev.webfx.stack.querypush.buscall.serial</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>webfx-platform-json</module>
-                <module>webfx-stack-com-bus-call</module>
-                <module>webfx-stack-com-serial</module>
-                <module>webfx-stack-querypush</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-stack-querypush-client">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.querypush.client</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java.base</module>
-                <module>webfx-stack-com-bus</module>
-                <module>webfx-stack-push-client</module>
-                <module>webfx-stack-querypush</module>
-                <module>webfx-stack-querypush-buscall</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-stack-querypush-client-simple">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <providers>
-                <provider interface="dev.webfx.stack.querypush.spi.QueryPushServiceProvider">dev.webfx.stack.querypush.client.simple.SimpleQueryPushClientServiceProvider</provider>
-                <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.querypush.client.simple.SimpleQueryPushClientJob</provider>
-            </providers>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.querypush.client.simple</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>webfx-platform-boot</module>
-                <module>webfx-stack-com-bus</module>
-                <module>webfx-stack-querypush</module>
-                <module>webfx-stack-querypush-client</module>
-                <module>webfx-stack-querypush-remote</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-stack-querypush-remote">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.querypush.spi.impl.remote</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java.base</module>
-                <module>webfx-platform-async</module>
-                <module>webfx-platform-console</module>
-                <module>webfx-stack-com-bus-call</module>
-                <module>webfx-stack-db-datasource</module>
-                <module>webfx-stack-querypush</module>
-                <module>webfx-stack-querypush-buscall</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-stack-querypush-server">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <providers>
-                <provider interface="dev.webfx.stack.db.submit.listener.SubmitListener">dev.webfx.stack.querypush.server.QueryPushServerService$ProvidedSubmitListener</provider>
-            </providers>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.querypush.server</package>
-                <package>dev.webfx.stack.querypush.server.spi.impl</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java.base</module>
-                <module>webfx-platform-async</module>
-                <module>webfx-platform-console</module>
-                <module>webfx-platform-scheduler</module>
-                <module>webfx-platform-util</module>
-                <module>webfx-stack-com-bus</module>
-                <module>webfx-stack-db-datascope</module>
-                <module>webfx-stack-db-query</module>
-                <module>webfx-stack-db-submit</module>
-                <module>webfx-stack-db-submit-listener</module>
-                <module>webfx-stack-push-server</module>
-                <module>webfx-stack-querypush</module>
-                <module>webfx-stack-querypush-buscall</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-stack-querypush-server-simple">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <providers>
-                <provider interface="dev.webfx.stack.querypush.spi.QueryPushServiceProvider">dev.webfx.stack.querypush.server.spi.impl.simple.SimpleInMemoryServerQueryPushServiceProvider</provider>
-            </providers>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.querypush.server.spi.impl.simple</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java.base</module>
-                <module>webfx-platform-async</module>
-                <module>webfx-platform-util</module>
-                <module>webfx-stack-db-datascope</module>
-                <module>webfx-stack-db-query</module>
-                <module>webfx-stack-querypush</module>
-                <module>webfx-stack-querypush-server</module>
-            </used-by-source-modules>
-
-        </project>
-
         <project name="webfx-stack-routing-activity">
 
             <exported-packages>
@@ -2113,18 +2482,53 @@
             </exported-packages>
 
             <dependencies>
-                <used-by-source-modules/>
+                <used-by-source-modules>
+                    <module transitive="true">webfx-stack-session</module>
+                    <module transitive="true">webfx-platform-json</module>
+                </used-by-source-modules>
             </dependencies>
 
             <source-packages>
                 <package>dev.webfx.stack.routing.router</package>
+                <package>dev.webfx.stack.routing.router.session</package>
+                <package>dev.webfx.stack.routing.router.session.impl</package>
+                <package>dev.webfx.stack.routing.router.spi</package>
+                <package>dev.webfx.stack.routing.router.util</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-json</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-session</module>
+            </used-by-source-modules>
+
+            <used-services>
+                <required-service>dev.webfx.stack.routing.router.spi.RouterFactoryProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-stack-routing-router-client">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.stack.routing.router.spi.RouterFactoryProvider">dev.webfx.stack.routing.router.spi.impl.client.ClientRouterFactoryProvider</provider>
+            </providers>
+
+            <source-packages>
                 <package>dev.webfx.stack.routing.router.auth</package>
                 <package>dev.webfx.stack.routing.router.auth.authz</package>
                 <package>dev.webfx.stack.routing.router.auth.impl</package>
-                <package>dev.webfx.stack.routing.router.impl</package>
-                <package>dev.webfx.stack.routing.router.session</package>
-                <package>dev.webfx.stack.routing.router.session.impl</package>
-                <package>dev.webfx.stack.routing.router.util</package>
+                <package>dev.webfx.stack.routing.router.spi.impl.client</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -2133,7 +2537,41 @@
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-json</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-authz</module>
+                <module>webfx-stack-auth-authz</module>
+                <module>webfx-stack-routing-router</module>
+                <module>webfx-stack-session</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-routing-router-vertx">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <undetected-module>io-vertx-core</undetected-module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.stack.routing.router.spi.RouterFactoryProvider">dev.webfx.stack.routing.router.spi.impl.vertx.VertxRouterFactoryProvider</provider>
+            </providers>
+
+            <source-packages>
+                <package>dev.webfx.stack.routing.router.spi.impl.vertx</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>io-vertx-web</module>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-json</module>
+                <module>webfx-platform-vertx-common</module>
+                <module>webfx-stack-routing-router</module>
+                <module>webfx-stack-session</module>
+                <module>webfx-stack-session-vertx</module>
             </used-by-source-modules>
 
         </project>
@@ -2147,7 +2585,7 @@
             <dependencies>
                 <used-by-source-modules>
                     <module transitive="true">webfx-stack-routing-activity</module>
-                    <module transitive="true">webfx-stack-routing-router</module>
+                    <module transitive="true">webfx-stack-routing-router-client</module>
                     <module transitive="true">webfx-platform-util</module>
                     <module transitive="true">webfx-platform-windowhistory</module>
                 </used-by-source-modules>
@@ -2183,9 +2621,11 @@
                 <module>webfx-platform-uischeduler</module>
                 <module>webfx-platform-util</module>
                 <module>webfx-platform-windowhistory</module>
-                <module>webfx-stack-authz</module>
+                <module>webfx-stack-auth-authz</module>
                 <module>webfx-stack-routing-activity</module>
                 <module>webfx-stack-routing-router</module>
+                <module>webfx-stack-routing-router-client</module>
+                <module>webfx-stack-session</module>
                 <module>webfx-stack-ui-operation</module>
             </used-by-source-modules>
 
@@ -2193,6 +2633,188 @@
                 <optional-service>dev.webfx.stack.routing.uirouter.UiRoute</optional-service>
                 <optional-service>dev.webfx.stack.routing.uirouter.operations.RouteRequestEmitter</optional-service>
             </used-services>
+
+        </project>
+
+        <project name="webfx-stack-session">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.session</package>
+                <package>dev.webfx.stack.session.spi</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-util</module>
+            </used-by-source-modules>
+
+            <used-services>
+                <required-service>dev.webfx.stack.session.spi.SessionServiceProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-stack-session-client">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.stack.session.spi.SessionServiceProvider">dev.webfx.stack.session.spi.impl.client.ClientSessionServiceProvider</provider>
+            </providers>
+
+            <source-packages>
+                <package>dev.webfx.stack.session.spi.impl.client</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-session</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-session-state">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module transitive="true">webfx-platform-async</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.session.state</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-json</module>
+                <module>webfx-stack-session</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-session-state-client">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.session.state.client</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-storage</module>
+                <module>webfx-platform-uischeduler</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-session</module>
+                <module>webfx-stack-session-state</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-session-state-client-fx">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.session.state.client.fx</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-session</module>
+                <module>webfx-stack-session-state-client</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-session-state-server">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.session.state.server</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-stack-session</module>
+                <module>webfx-stack-session-state</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-session-vertx">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <undetected-module>io-vertx-core</undetected-module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.stack.session.spi.SessionServiceProvider">dev.webfx.stack.session.spi.impl.vertx.VertxSessionServiceProvider</provider>
+            </providers>
+
+            <source-packages>
+                <package>dev.webfx.stack.session.spi.impl.vertx</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>io-vertx-web</module>
+                <module>java.base</module>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-vertx-common</module>
+                <module>webfx-stack-session</module>
+            </used-by-source-modules>
 
         </project>
 
@@ -2304,7 +2926,7 @@
             </dependencies>
 
             <module-auto-injection-conditions>
-                <if-uses-java-package>dev.webfx.stack.querypush</if-uses-java-package>
+                <if-uses-java-package>dev.webfx.platform.json</if-uses-java-package>
                 <if-uses-java-package>dev.webfx.stack.ui.fxraiser</if-uses-java-package>
             </module-auto-injection-conditions>
 
@@ -2367,7 +2989,7 @@
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-uischeduler</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-authz</module>
+                <module>webfx-stack-auth-authz</module>
                 <module>webfx-stack-ui-action</module>
                 <module>webfx-stack-ui-operation</module>
             </used-by-source-modules>
@@ -2443,10 +3065,58 @@
 
         <usages>
 
+            <java-package name="dev.webfx.platform.json">
+                <module>webfx-platform-fetch</module>
+                <module>webfx-platform-fetch-gwt</module>
+                <module>webfx-platform-fetch-java</module>
+                <module>webfx-platform-json</module>
+                <module>webfx-platform-json-gwt</module>
+                <module>webfx-platform-json-teavm</module>
+                <module>webfx-platform-json-vertx</module>
+                <module>webfx-platform-webassembly-teavm</module>
+                <module>webfx-platform-webworker-java</module>
+                <module>webfx-platform-windowhistory</module>
+                <module>webfx-platform-windowhistory-gwt</module>
+                <module>webfx-platform-windowhistory-web</module>
+                <module>webfx-stack-auth-authn</module>
+                <module>webfx-stack-com-bus</module>
+                <module>webfx-stack-com-bus-call</module>
+                <module>webfx-stack-com-bus-json-client</module>
+                <module>webfx-stack-com-bus-json-client-websocket</module>
+                <module>webfx-stack-com-bus-json-client-websocket-web</module>
+                <module>webfx-stack-com-bus-json-server</module>
+                <module>webfx-stack-com-bus-json-vertx</module>
+                <module>webfx-stack-com-serial</module>
+                <module>webfx-stack-com-websocket</module>
+                <module>webfx-stack-com-websocket-gwt</module>
+                <module>webfx-stack-com-websocket-java</module>
+                <module>webfx-stack-db-datascope</module>
+                <module>webfx-stack-db-query-buscall</module>
+                <module>webfx-stack-db-querypush-buscall</module>
+                <module>webfx-stack-db-submit-buscall</module>
+                <module>webfx-stack-i18n-json</module>
+                <module>webfx-stack-orm-dql</module>
+                <module>webfx-stack-orm-entity-controls</module>
+                <module>webfx-stack-orm-expression</module>
+                <module>webfx-stack-orm-reactive-dql</module>
+                <module>webfx-stack-orm-reactive-entities</module>
+                <module>webfx-stack-orm-reactive-visual</module>
+                <module>webfx-stack-routing-router</module>
+                <module>webfx-stack-routing-router-client</module>
+                <module>webfx-stack-routing-router-vertx</module>
+                <module>webfx-stack-routing-uirouter</module>
+                <module>webfx-stack-session-state</module>
+                <module>webfx-stack-ui-fxraiser-json</module>
+                <module>webfx-stack-ui-util</module>
+            </java-package>
+
             <java-package name="dev.webfx.stack.db.query">
                 <module>webfx-stack-db-query</module>
                 <module>webfx-stack-db-query-buscall</module>
                 <module>webfx-stack-db-query-remote</module>
+                <module>webfx-stack-db-querypush</module>
+                <module>webfx-stack-db-querypush-server</module>
+                <module>webfx-stack-db-querypush-server-simple</module>
                 <module>webfx-stack-db-querysubmit-java-jdbc</module>
                 <module>webfx-stack-db-querysubmit-vertx</module>
                 <module>webfx-stack-orm-domainmodel-service</module>
@@ -2456,12 +3126,10 @@
                 <module>webfx-stack-orm-reactive-call</module>
                 <module>webfx-stack-orm-reactive-dql</module>
                 <module>webfx-stack-orm-reactive-entities</module>
-                <module>webfx-stack-querypush</module>
-                <module>webfx-stack-querypush-server</module>
-                <module>webfx-stack-querypush-server-simple</module>
             </java-package>
 
             <java-package name="dev.webfx.stack.db.submit">
+                <module>webfx-stack-db-querypush-server</module>
                 <module>webfx-stack-db-querysubmit-java-jdbc</module>
                 <module>webfx-stack-db-querysubmit-vertx</module>
                 <module>webfx-stack-db-submit</module>
@@ -2471,7 +3139,6 @@
                 <module>webfx-stack-orm-dql-submit-interceptor</module>
                 <module>webfx-stack-orm-entity</module>
                 <module>webfx-stack-orm-entity-controls</module>
-                <module>webfx-stack-querypush-server</module>
             </java-package>
 
             <java-package name="dev.webfx.stack.orm.domainmodel">
@@ -2508,6 +3175,7 @@
 
             <java-package name="java.util.regex">
                 <module>webfx-stack-routing-router</module>
+                <module>webfx-stack-routing-router-client</module>
             </java-package>
 
             <java-class name="javafx.scene.control.ScrollPane">

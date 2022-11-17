@@ -10,8 +10,8 @@ module webfx.stack.orm.reactive.call {
     requires webfx.platform.scheduler;
     requires webfx.platform.uischeduler;
     requires webfx.stack.db.query;
-    requires webfx.stack.push.client;
-    requires webfx.stack.querypush;
+    requires webfx.stack.db.querypush;
+    requires webfx.stack.session.state.client.fx;
 
     // Exported packages
     exports dev.webfx.stack.orm.reactive.call;
