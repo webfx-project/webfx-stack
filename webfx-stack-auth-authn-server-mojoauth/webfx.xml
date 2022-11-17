@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+    <providers>
+        <provider interface="dev.webfx.stack.auth.authn.spi.AuthenticationServiceProvider">dev.webfx.stack.auth.authn.spi.impl.mojoauth.MojoAuthAuthenticationServiceProvider</provider>
+    </providers>
+
+    <required-libraries>
+        <library artifact="com.mojoauth.sdk:java-sdk:1.1.0"/>
+    </required-libraries>
+
+</project>

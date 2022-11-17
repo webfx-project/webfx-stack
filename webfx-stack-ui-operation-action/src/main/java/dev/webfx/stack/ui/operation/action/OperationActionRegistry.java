@@ -8,7 +8,7 @@ import javafx.event.ActionEvent;
 import dev.webfx.stack.ui.action.Action;
 import dev.webfx.stack.ui.action.ActionBinder;
 import dev.webfx.stack.ui.operation.HasOperationCode;
-import dev.webfx.stack.authz.mixin.AuthorizationUtil;
+import dev.webfx.stack.auth.authz.mixin.AuthorizationUtil;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.async.AsyncFunction;
 import dev.webfx.platform.async.Future;
