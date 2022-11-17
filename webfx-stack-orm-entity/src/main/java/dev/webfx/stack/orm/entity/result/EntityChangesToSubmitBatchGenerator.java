@@ -115,7 +115,7 @@ public final class EntityChangesToSubmitBatchGenerator {
                                     parameters[parameterIndex] = entityId.getPrimaryKey();
                                 else {
                                     Integer initialIndex = newEntityIdInitialInsertBatchIndexes.get(entityId);
-                                    Integer finalIndex = newEntityFinalInsertBatchIndexes.get(initialIndex);
+                                    Integer finalIndex = initialIndex == null ? null : newEntityFinalInsertBatchIndexes.get(initialIndex);
                                     if (finalIndex == null)
                                         continue loop;
                                     parameters[parameterIndex] = new GeneratedKeyBatchIndex(finalIndex);
