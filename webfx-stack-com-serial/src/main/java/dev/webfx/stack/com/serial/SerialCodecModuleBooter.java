@@ -5,6 +5,7 @@ import dev.webfx.platform.console.Console;
 import dev.webfx.stack.com.serial.spi.SerialCodec;
 import dev.webfx.platform.util.collection.Collections;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.ServiceLoader;
 
@@ -27,9 +28,10 @@ public final class SerialCodecModuleBooter implements ApplicationModuleBooter {
     public void bootModule() {
         StringBuilder sb = new StringBuilder();
         List<SerialCodec> serialCodecs = Collections.listOf(ServiceLoader.load(SerialCodec.class));
+        serialCodecs.sort(Comparator.comparing(serialCodec -> serialCodec.getJavaClass().getName()));
         for (SerialCodec serialCodec : serialCodecs) {
             SerialCodecManager.registerSerialCodec(serialCodec);
-            sb.append(sb.length() == 0 ? serialCodecs.size() + " serial codecs provided for: " : ", ").append(serialCodec.getJavaClass().getSimpleName());
+            sb.append(sb.length() == 0 ? serialCodecs.size() + " serial codecs provided for:\n - " : "\n - ").append(serialCodec.getJavaClass().getName());
         }
         Console.log(sb);
     }

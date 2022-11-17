@@ -5,7 +5,6 @@ import dev.webfx.platform.util.Dates;
 import dev.webfx.platform.util.Numbers;
 import dev.webfx.stack.com.serial.spi.SerialCodec;
 import dev.webfx.stack.com.serial.spi.impl.ExceptionSerialCodec;
-import dev.webfx.platform.json.*;
 
 import java.lang.reflect.Array;
 import java.time.Instant;
@@ -100,6 +99,8 @@ public final class SerialCodecManager {
         if (json == null)
             return null;
         String codecId = json.getString(CODEC_ID_KEY);
+        if (codecId == null)
+            return null;
         SerialCodec<J> decoder = getSerialDecoder(codecId);
         if (decoder == null)
             throw new IllegalArgumentException("No SerialCodec found for id: '" + codecId + "' when trying to decode " + json.toJsonString());
