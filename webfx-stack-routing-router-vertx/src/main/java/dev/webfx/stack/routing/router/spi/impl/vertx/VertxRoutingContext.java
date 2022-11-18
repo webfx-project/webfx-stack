@@ -1,7 +1,7 @@
 package dev.webfx.stack.routing.router.spi.impl.vertx;
 
 import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.JsonObject;
 import dev.webfx.stack.routing.router.Route;
 import dev.webfx.stack.routing.router.RoutingContext;
 import dev.webfx.stack.session.Session;
@@ -13,7 +13,7 @@ import dev.webfx.stack.session.spi.impl.vertx.VertxSession;
 public final class VertxRoutingContext implements RoutingContext {
 
     private final io.vertx.ext.web.RoutingContext vertxRoutingContext;
-    private WritableJsonObject params;
+    private JsonObject params;
 
     private VertxRoutingContext(io.vertx.ext.web.RoutingContext vertxRoutingContext) {
         this.vertxRoutingContext = vertxRoutingContext;
@@ -38,7 +38,7 @@ public final class VertxRoutingContext implements RoutingContext {
     }
 
     @Override
-    public WritableJsonObject getParams() {
+    public JsonObject getParams() {
         if (params == null) {
             params = Json.createObject();
             vertxRoutingContext.request().params().forEach((name, value) -> params.set(name, value));

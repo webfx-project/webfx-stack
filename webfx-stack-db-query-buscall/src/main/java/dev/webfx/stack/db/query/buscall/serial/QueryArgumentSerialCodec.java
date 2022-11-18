@@ -1,7 +1,7 @@
 package dev.webfx.stack.db.query.buscall.serial;
 
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.WritableJsonObject;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
@@ -21,7 +21,7 @@ public final class QueryArgumentSerialCodec extends SerialCodecBase<QueryArgumen
     }
 
     @Override
-    public void encodeToJson(QueryArgument arg, WritableJsonObject json) {
+    public void encodeToJson(QueryArgument arg, JsonObject json) {
         json.set(DATA_SOURCE_ID_KEY, arg.getDataSourceId());
         json.set(DATA_SCOPE_KEY, SerialCodecManager.encodeToJson(arg.getDataScope()));
         json.set(LANGUAGE_KEY, arg.getLanguage());
@@ -31,7 +31,7 @@ public final class QueryArgumentSerialCodec extends SerialCodecBase<QueryArgumen
     }
 
     @Override
-    public QueryArgument decodeFromJson(JsonObject json) {
+    public QueryArgument decodeFromJson(ReadOnlyJsonObject json) {
         return new QueryArgument(null,
                 json.get(DATA_SOURCE_ID_KEY),
                 SerialCodecManager.decodeFromJson(json.getObject(DATA_SCOPE_KEY)),

@@ -17,7 +17,7 @@
  */
 package dev.webfx.stack.com.bus.spi.impl.json.client.websocket;
 
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.stack.com.bus.Bus;
@@ -51,7 +51,7 @@ public final class ReconnectBus extends WebSocketBus {
     private ReconnectBus(WebSocketBusOptions options) {
         super(options);
         this.options = options;
-        JsonObject socketOptions = options.getSocketOptions();
+        ReadOnlyJsonObject socketOptions = options.getSocketOptions();
         reconnect = socketOptions == null || !socketOptions.has(AUTO_RECONNECT) || socketOptions.getBoolean(AUTO_RECONNECT);
         backOffGenerator = new FuzzingBackOffGenerator(1000, 30 * 60 * 1000, 0.5);
 
@@ -128,7 +128,7 @@ public final class ReconnectBus extends WebSocketBus {
         }
         if (reconnect)
             reconnect();
-        JsonObject jsonRawMessage = parseJsonRawMessage(rawMessage);
+        ReadOnlyJsonObject jsonRawMessage = parseJsonRawMessage(rawMessage);
         String type = jsonRawMessage.getString(TYPE);
         if ("ping".equals(type) || "register".equals(type))
             return;

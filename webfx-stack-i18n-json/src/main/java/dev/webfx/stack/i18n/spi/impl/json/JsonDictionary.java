@@ -1,7 +1,7 @@
 package dev.webfx.stack.i18n.spi.impl.json;
 
 import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.stack.i18n.DefaultTokenKey;
 import dev.webfx.stack.i18n.Dictionary;
@@ -12,9 +12,9 @@ import dev.webfx.stack.i18n.TokenKey;
  */
 final class JsonDictionary implements Dictionary {
 
-    private final JsonObject json;
+    private final ReadOnlyJsonObject json;
 
-    JsonDictionary(JsonObject json) {
+    JsonDictionary(ReadOnlyJsonObject json) {
         this.json = json;
     }
 
@@ -26,8 +26,8 @@ final class JsonDictionary implements Dictionary {
     public <TK extends Enum<?> & TokenKey> Object getMessageTokenValue(Object messageKey, TK tokenKey) {
         String jsonKey = Strings.toString(messageKey);
         Object o = json.get(jsonKey);
-        if (o instanceof JsonObject)
-            return ((JsonObject) o).get(tokenKey.name().toLowerCase());
+        if (o instanceof ReadOnlyJsonObject)
+            return ((ReadOnlyJsonObject) o).get(tokenKey.name().toLowerCase());
         return tokenKey == DefaultTokenKey.TEXT ? Strings.toString(o) : null;
     }
 }

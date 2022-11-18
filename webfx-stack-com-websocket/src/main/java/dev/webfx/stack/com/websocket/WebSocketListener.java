@@ -1,6 +1,6 @@
 package dev.webfx.stack.com.websocket;
 
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 
 /**
  * Listens for events on a {@link WebSocket}.
@@ -24,5 +24,5 @@ public interface WebSocketListener {
     /**
      * Called when the socket is closed. When the socket is closed, it cannot be reopened.
      */
-    void onClose(JsonObject reason);
+    void onClose(ReadOnlyJsonObject reason);
 }

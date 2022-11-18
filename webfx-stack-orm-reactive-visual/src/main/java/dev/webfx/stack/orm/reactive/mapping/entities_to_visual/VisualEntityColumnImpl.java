@@ -13,7 +13,7 @@ import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.terms.As;
 import dev.webfx.stack.orm.expression.terms.UnaryExpression;
 import dev.webfx.stack.orm.domainmodel.formatter.ValueFormatter;
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 
 /**
  * @author Bruno Salmon
@@ -22,7 +22,7 @@ public class VisualEntityColumnImpl<E extends Entity> extends EntityColumnImpl<E
 
     private VisualColumn visualColumn;
 
-    public VisualEntityColumnImpl(String expressionDefinition, Expression<E> expression, Object label, ValueFormatter displayFormatter, VisualColumn visualColumn, JsonObject json) {
+    public VisualEntityColumnImpl(String expressionDefinition, Expression<E> expression, Object label, ValueFormatter displayFormatter, VisualColumn visualColumn, ReadOnlyJsonObject json) {
         super(expressionDefinition, expression, label, displayFormatter, json);
         this.visualColumn = visualColumn;
     }

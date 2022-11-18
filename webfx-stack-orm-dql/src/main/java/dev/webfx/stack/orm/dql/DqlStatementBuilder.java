@@ -1,7 +1,7 @@
 package dev.webfx.stack.orm.dql;
 
 import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.platform.util.Strings;
 
 /**
@@ -26,16 +26,16 @@ public final class DqlStatementBuilder {
 
     public DqlStatementBuilder(Object jsonOrClass) {
         String s = jsonOrClass instanceof String ? (String) jsonOrClass : null;
-        if ((s == null || s.indexOf('{') == -1) && !(jsonOrClass instanceof JsonObject))
+        if ((s == null || s.indexOf('{') == -1) && !(jsonOrClass instanceof ReadOnlyJsonObject))
             domainClassId = jsonOrClass;
         else {
-            JsonObject json = s != null ? Json.parseObject(s) : (JsonObject) jsonOrClass;
+            ReadOnlyJsonObject json = s != null ? Json.parseObject(s) : (ReadOnlyJsonObject) jsonOrClass;
             domainClassId = json.get("class");
             applyJson(json);
         }
     }
 
-    public DqlStatementBuilder(JsonObject json) {
+    public DqlStatementBuilder(ReadOnlyJsonObject json) {
         domainClassId = json.get("class");
         applyJson(json);
     }
@@ -77,7 +77,7 @@ public final class DqlStatementBuilder {
         return this;
     }
 
-    public DqlStatementBuilder applyJson(JsonObject json) {
+    public DqlStatementBuilder applyJson(ReadOnlyJsonObject json) {
         if (json == null)
             return this;
         if (!isApplicable(json.getString("class")))

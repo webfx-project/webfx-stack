@@ -2,7 +2,7 @@ package dev.webfx.stack.com.bus.spi.impl.json.client.websocket;
 
 import dev.webfx.platform.util.Objects;
 import dev.webfx.stack.com.bus.BusOptions;
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 
 /**
  * @author Bruno Salmon
@@ -21,7 +21,7 @@ public final class WebSocketBusOptions extends BusOptions {
 
     private Integer pingInterval;
 
-    private JsonObject socketOptions;
+    private ReadOnlyJsonObject socketOptions;
 
     @Override
     public WebSocketBusOptions turnUnsetPropertiesToDefault() {
@@ -35,7 +35,7 @@ public final class WebSocketBusOptions extends BusOptions {
     }
 
     @Override
-    public WebSocketBusOptions applyJson(JsonObject json) {
+    public WebSocketBusOptions applyJson(ReadOnlyJsonObject json) {
         super.applyJson(json);
         protocol = Protocol.valueOf(json.getString("protocol", protocol.name()));
         serverSSL = json.getBoolean("serverSSL", serverSSL);
@@ -90,11 +90,11 @@ public final class WebSocketBusOptions extends BusOptions {
         return this;
     }
 
-    public JsonObject getSocketOptions() {
+    public ReadOnlyJsonObject getSocketOptions() {
         return socketOptions;
     }
 
-    public WebSocketBusOptions setSocketOptions(JsonObject socketOptions) {
+    public WebSocketBusOptions setSocketOptions(ReadOnlyJsonObject socketOptions) {
         this.socketOptions = socketOptions;
         return this;
     }

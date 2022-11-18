@@ -1,8 +1,8 @@
 package dev.webfx.stack.com.serial.spi.impl;
 
 import dev.webfx.platform.console.Console;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.WritableJsonObject;
 
 /**
  * @author Bruno Salmon
@@ -17,12 +17,12 @@ public class ExceptionSerialCodec extends SerialCodecBase<Exception> {
     }
 
     @Override
-    public void encodeToJson(Exception exception, WritableJsonObject json) {
+    public void encodeToJson(Exception exception, JsonObject json) {
         json.set(MESSAGE_KEY, exception.getClass().getName() + ": " + exception.getMessage() + "\n" + Console.captureStackTrace(exception));
     }
 
     @Override
-    public Exception decodeFromJson(JsonObject json) {
+    public Exception decodeFromJson(ReadOnlyJsonObject json) {
         return new Exception(json.getString(MESSAGE_KEY));
     }
 }

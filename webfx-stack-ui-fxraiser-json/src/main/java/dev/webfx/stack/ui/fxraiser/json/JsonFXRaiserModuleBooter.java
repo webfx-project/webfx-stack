@@ -3,8 +3,8 @@ package dev.webfx.stack.ui.fxraiser.json;
 import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
 import dev.webfx.platform.json.Json;
 import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.WritableJsonArray;
-import dev.webfx.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.json.JsonArray;
 import dev.webfx.stack.ui.fxraiser.FXValueRaiser;
 import dev.webfx.stack.ui.fxraiser.impl.ValueConverterRegistry;
 import javafx.scene.shape.SVGPath;
@@ -34,9 +34,9 @@ public class JsonFXRaiserModuleBooter implements ApplicationModuleBooter {
             public <T> T raiseValue(Object value, Class<T> raisedClass, Object... args) {
                 if (value instanceof String) {
                     String s = (String) value;
-                    if (s.startsWith("{") && s.endsWith("}") && isAssignableFrom(raisedClass, WritableJsonObject.class))
+                    if (s.startsWith("{") && s.endsWith("}") && isAssignableFrom(raisedClass, JsonObject.class))
                         return (T) Json.parseObjectSilently(s);
-                    if (s.startsWith("[") && s.endsWith("]") && isAssignableFrom(raisedClass, WritableJsonArray.class))
+                    if (s.startsWith("[") && s.endsWith("]") && isAssignableFrom(raisedClass, JsonArray.class))
                         return (T) Json.parseArraySilently(s);
                 }
                 return null;
@@ -46,8 +46,8 @@ public class JsonFXRaiserModuleBooter implements ApplicationModuleBooter {
         ValueConverterRegistry.registerValueConverter(new FXValueRaiser() {
             @Override
             public <T> T raiseValue(Object value, Class<T> raisedClass, Object... args) {
-                if (value instanceof JsonObject && isAssignableFrom(raisedClass, SVGPath.class))
-                    return (T) JsonSVGPath.createSVGPath((JsonObject) value);
+                if (value instanceof ReadOnlyJsonObject && isAssignableFrom(raisedClass, SVGPath.class))
+                    return (T) JsonSVGPath.createSVGPath((ReadOnlyJsonObject) value);
                 return null;
             }
         });

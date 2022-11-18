@@ -1,7 +1,7 @@
 package dev.webfx.stack.orm.dql;
 
 import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 
 import java.util.Arrays;
 
@@ -53,7 +53,7 @@ public final class DqlStatement {
         this.columns = columns;
     }
 
-    public DqlStatement(JsonObject json) {
+    public DqlStatement(ReadOnlyJsonObject json) {
         domainClassId = json.get("class");
         alias = json.getString("alias");
         fields = getPossibleArrayAsString(json, "fields");
@@ -176,7 +176,7 @@ public final class DqlStatement {
         return result;
     }
 
-    static String getPossibleArrayAsString(JsonObject json, String key) {
+    static String getPossibleArrayAsString(ReadOnlyJsonObject json, String key) {
         Object nativeElement = json.getNativeElement(key);
         return nativeElement == null ? null : nativeElement instanceof String ? (String) nativeElement : Json.toJsonString(nativeElement);
     }

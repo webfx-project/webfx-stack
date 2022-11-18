@@ -3,7 +3,7 @@ package dev.webfx.stack.com.bus.spi.impl.json.server;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.JsonObject;
 import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.stack.com.bus.DeliveryOptions;
 import dev.webfx.stack.com.bus.spi.impl.json.JsonBusConstants;
@@ -25,8 +25,8 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
         serverJsonBus.register(JsonBusConstants.PING_STATE_ADDRESS, event -> event.reply(null, new DeliveryOptions()));
     }
 
-    public static Future<Boolean> manageStateOnIncomingOrOutgoingRawJsonMessage(WritableJsonObject rawJsonMessage, Session serverSession, boolean fromClientToServer) {
-        WritableJsonObject headers = rawJsonMessage.getObject(JsonBusConstants.HEADERS);
+    public static Future<Boolean> manageStateOnIncomingOrOutgoingRawJsonMessage(JsonObject rawJsonMessage, Session serverSession, boolean fromClientToServer) {
+        JsonObject headers = rawJsonMessage.getObject(JsonBusConstants.HEADERS);
         Object state = headers == null ? null : StateAccessor.decodeState(headers.getString(JsonBusConstants.HEADERS_STATE));
 
         // Incoming message from client to server
@@ -53,7 +53,7 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
         return Future.succeededFuture(null);
     }
 
-    private static void setJsonRawMessageState(WritableJsonObject rawJsonMessage, WritableJsonObject headers, Object state) {
+    private static void setJsonRawMessageState(JsonObject rawJsonMessage, JsonObject headers, Object state) {
         if (state != null) {
             if (headers == null)
                 rawJsonMessage.set(JsonBusConstants.HEADERS, headers = Json.createObject());

@@ -1,7 +1,7 @@
 package dev.webfx.stack.db.submit.buscall.serial;
 
 import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
@@ -22,7 +22,7 @@ public final class SubmitArgumentSerialCodec extends SerialCodecBase<SubmitArgum
     }
 
     @Override
-    public void encodeToJson(SubmitArgument arg, WritableJsonObject json) {
+    public void encodeToJson(SubmitArgument arg, JsonObject json) {
         json.set(DATA_SOURCE_ID_KEY, arg.getDataSourceId());
         if (arg.getDataScope() != null)
             json.set(DATA_SCOPE_KEY, SerialCodecManager.encodeToJson(arg.getDataScope()));
@@ -35,7 +35,7 @@ public final class SubmitArgumentSerialCodec extends SerialCodecBase<SubmitArgum
     }
 
     @Override
-    public SubmitArgument decodeFromJson(JsonObject json) {
+    public SubmitArgument decodeFromJson(ReadOnlyJsonObject json) {
         return new SubmitArgument(null,
                 json.get(DATA_SOURCE_ID_KEY),
                 SerialCodecManager.decodeFromJson(json.getObject(DATA_SCOPE_KEY)),

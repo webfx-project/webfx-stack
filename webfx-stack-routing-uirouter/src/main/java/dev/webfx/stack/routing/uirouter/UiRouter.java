@@ -3,9 +3,9 @@ package dev.webfx.stack.routing.uirouter;
 import dev.webfx.platform.async.Handler;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.JsonArray;
+import dev.webfx.platform.json.ReadOnlyJsonArray;
 import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Numbers;
 import dev.webfx.platform.util.Objects;
@@ -316,14 +316,14 @@ public final class UiRouter extends HistoryRouter {
             return activityContext;
         }
 
-        private void applyRoutingContextParamsToActivityContext(JsonObject routingContextParams, C activityContext) {
+        private void applyRoutingContextParamsToActivityContext(ReadOnlyJsonObject routingContextParams, C activityContext) {
             // Temporary applying the parameters to the whole application context, so they can be shared between activities
             // (ex: changing :x parameter in activity1 and then pressing a navigation button in a parent container activity
             // that goes to /:x/activity2 => the parent container can get the last :x value changed by activity1)
-            WritableJsonObject localParams = null;
+            JsonObject localParams = null;
             //UiRouteActivityContext uiAppContext = ApplicationContext.get();
             //WritableJsonObject appParams = (WritableJsonObject) uiAppContext.getParams();
-            JsonArray keys = routingContextParams.keys();
+            ReadOnlyJsonArray keys = routingContextParams.keys();
             for (int i = 0, size = keys.size(); i < size; i++) {
                 String key = keys.getString(i);
                 Object value = routingContextParams.getNativeElement(key);

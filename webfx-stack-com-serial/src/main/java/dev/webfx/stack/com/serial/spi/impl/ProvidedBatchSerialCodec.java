@@ -1,8 +1,8 @@
 package dev.webfx.stack.com.serial.spi.impl;
 
-import dev.webfx.platform.json.JsonArray;
+import dev.webfx.platform.json.ReadOnlyJsonArray;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.WritableJsonObject;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.platform.async.Batch;
 
@@ -19,13 +19,13 @@ public final class ProvidedBatchSerialCodec extends SerialCodecBase<Batch> {
     }
 
     @Override
-    public void encodeToJson(Batch batch, WritableJsonObject json) {
+    public void encodeToJson(Batch batch, JsonObject json) {
         json.set(BATCH_ARRAY_KEY, SerialCodecManager.encodeToJsonArray(batch.getArray()));
     }
 
     @Override
-    public Batch decodeFromJson(JsonObject json) {
-        JsonArray array = json.getArray(BATCH_ARRAY_KEY);
+    public Batch decodeFromJson(ReadOnlyJsonObject json) {
+        ReadOnlyJsonArray array = json.getArray(BATCH_ARRAY_KEY);
         Class contentClass = Object.class;
         if (array.size() > 0)
             contentClass = SerialCodecManager.getJavaClass(array.getObject(0).getString(SerialCodecManager.CODEC_ID_KEY));

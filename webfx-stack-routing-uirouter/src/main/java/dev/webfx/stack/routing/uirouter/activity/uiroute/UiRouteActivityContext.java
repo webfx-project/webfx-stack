@@ -5,7 +5,7 @@ import dev.webfx.stack.session.Session;
 import dev.webfx.stack.routing.uirouter.UiRouter;
 import dev.webfx.stack.routing.uirouter.uisession.UiSession;
 import dev.webfx.platform.windowhistory.spi.BrowsingHistory;
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 
 /**
  * @author Bruno Salmon
@@ -21,7 +21,7 @@ public interface UiRouteActivityContext
         return getUiRouter().getHistory();
     }
 
-    JsonObject getParams();
+    ReadOnlyJsonObject getParams();
 
     default <T> T getParameter(String key) { return getParams().get(key); }
 

@@ -5,7 +5,7 @@ import dev.webfx.stack.orm.reactive.entities.entities_to_grid.EntityColumnFactor
 import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.domainmodel.formatter.ValueFormatter;
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 
 /**
  * @author Bruno Salmon
@@ -18,11 +18,11 @@ public interface VisualEntityColumnFactory extends EntityColumnFactory {
         return DEFAULT;
     }
 
-    default <E extends Entity> VisualEntityColumn<E> create(String expressionDefinition, Expression<E> expression, Object label, ValueFormatter displayFormatter, JsonObject json) {
+    default <E extends Entity> VisualEntityColumn<E> create(String expressionDefinition, Expression<E> expression, Object label, ValueFormatter displayFormatter, ReadOnlyJsonObject json) {
         return create(expressionDefinition, expression, label, displayFormatter, null, json);
     }
 
-    default <E extends Entity> VisualEntityColumn<E> create(String expressionDefinition, Expression<E> expression, Object label, ValueFormatter displayFormatter, VisualColumn visualColumn, JsonObject json) {
+    default <E extends Entity> VisualEntityColumn<E> create(String expressionDefinition, Expression<E> expression, Object label, ValueFormatter displayFormatter, VisualColumn visualColumn, ReadOnlyJsonObject json) {
         return new VisualEntityColumnImpl<>(expressionDefinition, expression, label, displayFormatter, visualColumn, json);
     }
 

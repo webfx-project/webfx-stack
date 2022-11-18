@@ -19,7 +19,7 @@ package dev.webfx.stack.com.bus.spi.impl.json.client.websocket;
 
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.stack.com.bus.spi.impl.json.client.JsonClientBus;
@@ -77,7 +77,7 @@ public class WebSocketBus extends JsonClientBus {
             }
 
             @Override
-            public void onClose(JsonObject reason) {
+            public void onClose(ReadOnlyJsonObject reason) {
                 publishOnCloseEvent(reason);
                 if (webSocketListener != null)
                     webSocketListener.onClose(reason);

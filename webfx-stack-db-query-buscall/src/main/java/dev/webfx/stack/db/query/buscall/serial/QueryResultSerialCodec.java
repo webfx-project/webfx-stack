@@ -20,11 +20,11 @@ public final class QueryResultSerialCodec extends SerialCodecBase<QueryResult> {
     }
 
     @Override
-    public void encodeToJson(QueryResult rs, WritableJsonObject json) {
+    public void encodeToJson(QueryResult rs, JsonObject json) {
         try {
             int columnCount = rs.getColumnCount();
             // Column names serialization
-            WritableJsonArray namesArray = json.createJsonArray();
+            JsonArray namesArray = json.createJsonArray();
             String[] columnNames = rs.getColumnNames();
             if (columnNames != null) {
                 for (String name : columnNames)
@@ -45,12 +45,12 @@ public final class QueryResultSerialCodec extends SerialCodecBase<QueryResult> {
     }
 
     @Override
-    public QueryResult decodeFromJson(JsonObject json) {
+    public QueryResult decodeFromJson(ReadOnlyJsonObject json) {
         //Logger.log("Decoding json result set: " + json);
         Integer columnCount = json.getInteger(COLUMN_COUNT_KEY);
         // Column names deserialization
         String[] names = null;
-        JsonArray namesArray = json.getArray(COLUMN_NAMES_KEY);
+        ReadOnlyJsonArray namesArray = json.getArray(COLUMN_NAMES_KEY);
         if (namesArray != null) {
             columnCount = namesArray.size();
             names = new String[columnCount];
@@ -59,7 +59,7 @@ public final class QueryResultSerialCodec extends SerialCodecBase<QueryResult> {
         }
         // Values deserialization
         Object[] inlineValues;
-        JsonArray valuesArray = json.getArray(VALUES_KEY);
+        ReadOnlyJsonArray valuesArray = json.getArray(VALUES_KEY);
         if (valuesArray != null)
             inlineValues = Json.toJavaArray(valuesArray);
         else

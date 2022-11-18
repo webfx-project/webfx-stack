@@ -2,7 +2,7 @@ package dev.webfx.stack.com.bus;
 
 
 import dev.webfx.platform.util.Objects;
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 
 /**
  * @author Bruno Salmon
@@ -20,7 +20,7 @@ public class BusOptions {
         return this;
     }
 
-    public BusOptions applyJson(JsonObject json) {
+    public BusOptions applyJson(ReadOnlyJsonObject json) {
         busPrefix = json.getString("busPrefix", busPrefix);
         clientBusAddressPrefix = json.getString("clientBusAddressPrefix", clientBusAddressPrefix);
         serverBusAddress = json.getString("serverBusAddress", serverBusAddress);

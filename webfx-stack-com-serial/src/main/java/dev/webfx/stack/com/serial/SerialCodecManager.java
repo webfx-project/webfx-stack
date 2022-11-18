@@ -78,15 +78,15 @@ public final class SerialCodecManager {
         return encodeToJsonObject(object);
     }
 
-    public static JsonObject encodeToJsonObject(Object object) {
+    public static ReadOnlyJsonObject encodeToJsonObject(Object object) {
         if (object == null)
             return null;
-        if (object instanceof JsonObject)
-            return (JsonObject) object;
+        if (object instanceof ReadOnlyJsonObject)
+            return (ReadOnlyJsonObject) object;
         return encodeJavaObjectToJsonObject(object, Json.createObject());
     }
 
-    private static WritableJsonObject encodeJavaObjectToJsonObject(Object javaObject, WritableJsonObject json) {
+    private static JsonObject encodeJavaObjectToJsonObject(Object javaObject, JsonObject json) {
         SerialCodec encoder = getSerialEncoder(javaObject.getClass());
         if (encoder == null)
             throw new IllegalArgumentException("No SerialCodec for type: " + javaObject.getClass());
@@ -95,7 +95,7 @@ public final class SerialCodecManager {
         return json;
     }
 
-    public static <J> J decodeFromJsonObject(JsonObject json) {
+    public static <J> J decodeFromJsonObject(ReadOnlyJsonObject json) {
         if (json == null)
             return null;
         String codecId = json.getString(CODEC_ID_KEY);
@@ -108,8 +108,8 @@ public final class SerialCodecManager {
     }
 
     public static <J> J decodeFromJson(Object object) {
-        if (object instanceof JsonObject)
-            return decodeFromJsonObject((JsonObject) object);
+        if (object instanceof ReadOnlyJsonObject)
+            return decodeFromJsonObject((ReadOnlyJsonObject) object);
         if (object instanceof String) {
             String s = (String) object;
             if (s.startsWith(INSTANT_VALUE_PREFIX)) {
@@ -122,16 +122,16 @@ public final class SerialCodecManager {
         return (J) object;
     }
 
-    public static JsonArray encodePrimitiveArrayToJsonArray(Object[] primArray) {
+    public static ReadOnlyJsonArray encodePrimitiveArrayToJsonArray(Object[] primArray) {
         if (primArray == null)
             return null;
-        WritableJsonArray ca = Json.createArray();
+        JsonArray ca = Json.createArray();
         for (Object value : primArray)
             ca.push(encodeToJson(value));
         return ca;
     }
 
-    public static Object[] decodePrimitiveArrayFromJsonArray(JsonArray ca) {
+    public static Object[] decodePrimitiveArrayFromJsonArray(ReadOnlyJsonArray ca) {
         if (ca == null)
             return null;
         int n = ca.size();
@@ -141,16 +141,16 @@ public final class SerialCodecManager {
         return array;
     }
 
-    public static JsonArray encodeToJsonArray(Object[] array) {
+    public static ReadOnlyJsonArray encodeToJsonArray(Object[] array) {
         if (array == null)
             return null;
-        WritableJsonArray ca = Json.createArray();
+        JsonArray ca = Json.createArray();
         for (Object object : array)
             ca.push(encodeToJsonObject(object));
         return ca;
     }
 
-    public static <A> A[] decodeFromJsonArray(JsonArray ca, Class<A> expectedClass) {
+    public static <A> A[] decodeFromJsonArray(ReadOnlyJsonArray ca, Class<A> expectedClass) {
         if (ca == null)
             return null;
         int n = ca.size();

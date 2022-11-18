@@ -12,7 +12,7 @@ import dev.webfx.stack.routing.activity.impl.ActivityContextBase;
 import dev.webfx.platform.windowhistory.WindowHistory;
 import dev.webfx.platform.windowhistory.spi.BrowsingHistory;
 import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 
 /**
  * @author Bruno Salmon
@@ -24,7 +24,7 @@ public class UiRouteActivityContextBase
         implements UiRouteActivityContext<THIS> {
 
     private UiRouter uiRouter;
-    private JsonObject params;
+    private ReadOnlyJsonObject params;
     private Session session;
     private String routingPath;
 
@@ -61,12 +61,12 @@ public class UiRouteActivityContextBase
         return thisOrParentUiRouter.getHistory();
     }
 
-    public void setParams(JsonObject params) {
+    public void setParams(ReadOnlyJsonObject params) {
         this.params = params;
     }
 
     @Override
-    public JsonObject getParams() {
+    public ReadOnlyJsonObject getParams() {
         if (params == null)
             params = Json.createObject();
         return params;

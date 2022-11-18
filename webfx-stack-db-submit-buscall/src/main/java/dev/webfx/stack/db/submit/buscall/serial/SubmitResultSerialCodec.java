@@ -1,7 +1,7 @@
 package dev.webfx.stack.db.submit.buscall.serial;
 
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.WritableJsonObject;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
@@ -18,14 +18,14 @@ public final class SubmitResultSerialCodec extends SerialCodecBase<SubmitResult>
     }
 
     @Override
-    public void encodeToJson(SubmitResult arg, WritableJsonObject json) {
+    public void encodeToJson(SubmitResult arg, JsonObject json) {
         json.set(ROW_COUNT_KEY, arg.getRowCount());
         if (!Arrays.isEmpty(arg.getGeneratedKeys()))
             json.set(GENERATED_KEYS_KEY, SerialCodecManager.encodePrimitiveArrayToJsonArray(arg.getGeneratedKeys()));
     }
 
     @Override
-    public SubmitResult decodeFromJson(JsonObject json) {
+    public SubmitResult decodeFromJson(ReadOnlyJsonObject json) {
         return new SubmitResult(
                 json.getInteger(ROW_COUNT_KEY),
                 SerialCodecManager.decodePrimitiveArrayFromJsonArray(json.getArray(GENERATED_KEYS_KEY))

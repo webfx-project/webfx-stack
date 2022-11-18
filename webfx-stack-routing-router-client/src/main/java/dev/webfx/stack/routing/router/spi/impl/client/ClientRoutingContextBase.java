@@ -2,7 +2,7 @@ package dev.webfx.stack.routing.router.spi.impl.client;
 
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.JsonObject;
 import dev.webfx.stack.routing.router.Route;
 import dev.webfx.stack.routing.router.RoutingContext;
 import dev.webfx.stack.session.Session;
@@ -20,7 +20,7 @@ public abstract class ClientRoutingContextBase implements RoutingContext {
     protected final Collection<ClientRoute> routes;
     protected Iterator<ClientRoute> iter;
     protected Route currentRoute;
-    private WritableJsonObject params;
+    private JsonObject params;
     private Session session;
     private Object userPrincipal;
 
@@ -28,7 +28,7 @@ public abstract class ClientRoutingContextBase implements RoutingContext {
         this.mountPoint = mountPoint;
         this.path = path;
         this.routes = routes;
-        this.params = (WritableJsonObject) state; // Is merging state and params the right thing to do?
+        this.params = (JsonObject) state; // Is merging state and params the right thing to do?
         iter = routes.iterator();
     }
 
@@ -106,7 +106,7 @@ public abstract class ClientRoutingContextBase implements RoutingContext {
     }
 
     @Override
-    public WritableJsonObject getParams() {
+    public JsonObject getParams() {
         if (params == null)
             params = Json.createObject();
         return params;

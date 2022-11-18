@@ -1,6 +1,6 @@
 package dev.webfx.stack.routing.router.spi.impl.client;
 
-import dev.webfx.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.JsonObject;
 import dev.webfx.stack.routing.router.RoutingContext;
 import dev.webfx.stack.session.Session;
 
@@ -30,7 +30,7 @@ final class SubClientRoutingContext extends ClientRoutingContextBase {
     }
 
     @Override
-    public WritableJsonObject getParams() {
+    public JsonObject getParams() {
         return inner.getParams();
     }
 

@@ -19,7 +19,7 @@ package dev.webfx.stack.com.bus.spi.impl.json.client;
 
 import dev.webfx.platform.json.Json;
 import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.stack.com.bus.DeliveryOptions;
 import dev.webfx.stack.com.bus.Message;
 import dev.webfx.stack.com.bus.spi.impl.NetworkBus;
@@ -40,20 +40,20 @@ public abstract class JsonBus extends NetworkBus implements JsonBusConstants {
 
     @Override
     protected Message<?> parseIncomingNetworkRawMessage(String rawMessage) {
-        WritableJsonObject jsonRawMessage = parseJsonRawMessage(rawMessage);
-        JsonObject headers = jsonRawMessage.getObject(HEADERS);
+        JsonObject jsonRawMessage = parseJsonRawMessage(rawMessage);
+        ReadOnlyJsonObject headers = jsonRawMessage.getObject(HEADERS);
         Object state = headers == null ? null : StateAccessor.decodeState(headers.getString(HEADERS_STATE));
         return parseIncomingNetworkRawMessage(jsonRawMessage.getString(ADDRESS), jsonRawMessage.getString(REPLY_ADDRESS), jsonRawMessage.get(BODY), new DeliveryOptions().setState(state));
     }
 
-    protected WritableJsonObject parseJsonRawMessage(String rawMessage) {
+    protected JsonObject parseJsonRawMessage(String rawMessage) {
         return Json.parseObject(rawMessage);
     }
 
     @Override
     protected String createOutgoingNetworkRawMessage(boolean send, String address, Object body, DeliveryOptions options, String replyAddress) {
         // We first create its Json raw representation.
-        WritableJsonObject jsonRawMessage = Json.createObject()
+        JsonObject jsonRawMessage = Json.createObject()
                 .set(TYPE, send ? SEND : PUBLISH)
                 .set(ADDRESS, address)
                 .set(BODY, body);
@@ -63,17 +63,17 @@ public abstract class JsonBus extends NetworkBus implements JsonBusConstants {
         return jsonToNetworkRawMessage(jsonRawMessage, options);
     }
 
-    protected String jsonToNetworkRawMessage(WritableJsonObject jsonRawMessage) {
+    protected String jsonToNetworkRawMessage(JsonObject jsonRawMessage) {
         return jsonToNetworkRawMessage(jsonRawMessage, new DeliveryOptions());
     }
 
-    protected String jsonToNetworkRawMessage(WritableJsonObject jsonRawMessage, DeliveryOptions options) {
+    protected String jsonToNetworkRawMessage(JsonObject jsonRawMessage, DeliveryOptions options) {
         // If there is a state to transmit, we encode it and put it in the message headers
         setJsonRawMessageState(jsonRawMessage, options);
         return jsonRawMessage.toJsonString();
     }
 
-    protected void setJsonRawMessageState(WritableJsonObject jsonRawMessage, DeliveryOptions options) {
+    protected void setJsonRawMessageState(JsonObject jsonRawMessage, DeliveryOptions options) {
         Object state = options.getState();
         if (state != null)
             jsonRawMessage.set(HEADERS, Json.createObject()

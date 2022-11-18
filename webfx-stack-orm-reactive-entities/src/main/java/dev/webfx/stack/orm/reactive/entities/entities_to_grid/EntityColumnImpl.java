@@ -13,7 +13,7 @@ import dev.webfx.stack.orm.expression.terms.Dot;
 import dev.webfx.stack.orm.expression.terms.function.Call;
 import dev.webfx.stack.orm.domainmodel.formatter.ValueFormatter;
 import dev.webfx.stack.orm.domainmodel.formatter.FormatterRegistry;
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 
 import java.util.function.Function;
 
@@ -27,7 +27,7 @@ public class EntityColumnImpl<E extends Entity> implements EntityColumn<E> {
     protected Expression<E> displayExpression;
     protected ValueFormatter displayFormatter;
     protected Object label;
-    protected final JsonObject json;
+    protected final ReadOnlyJsonObject json;
     private Boolean isForeignObject;
     private DomainClass domainClass;
     private DomainClass foreignClass;
@@ -38,7 +38,7 @@ public class EntityColumnImpl<E extends Entity> implements EntityColumn<E> {
     private String foreignSearchCondition;
     private Expression<E> applicableCondition;
 
-    protected EntityColumnImpl(String expressionDefinition, Expression<E> expression, Object label, ValueFormatter displayFormatter, JsonObject json) {
+    protected EntityColumnImpl(String expressionDefinition, Expression<E> expression, Object label, ValueFormatter displayFormatter, ReadOnlyJsonObject json) {
         this.expressionDefinition = expressionDefinition;
         this.displayFormatter = displayFormatter;
         this.label = label;

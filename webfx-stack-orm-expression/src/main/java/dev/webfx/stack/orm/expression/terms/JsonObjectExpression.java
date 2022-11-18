@@ -1,14 +1,14 @@
 package dev.webfx.stack.orm.expression.terms;
 
 import dev.webfx.extras.type.Type;
+import dev.webfx.platform.json.JsonObject;
 import dev.webfx.stack.orm.expression.CollectOptions;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.lci.DomainReader;
 import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.WritableJsonObject;
-import dev.webfx.platform.util.noreflect.IndexedArray;
-import dev.webfx.platform.util.noreflect.KeyObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.util.noreflect.ReadOnlyIndexedArray;
+import dev.webfx.platform.util.noreflect.ReadOnlyKeyObject;
 
 // TODO: remove platform dependency
 
@@ -17,9 +17,9 @@ import dev.webfx.platform.util.noreflect.KeyObject;
  */
 public final class JsonObjectExpression<T> extends AbstractExpression<T> {
 
-    private final KeyObject jsonObjectExpressions;
+    private final ReadOnlyKeyObject jsonObjectExpressions;
 
-    public JsonObjectExpression(KeyObject jsonObjectExpressions) {
+    public JsonObjectExpression(ReadOnlyKeyObject jsonObjectExpressions) {
         super(1);
         this.jsonObjectExpressions = jsonObjectExpressions;
     }
@@ -30,9 +30,9 @@ public final class JsonObjectExpression<T> extends AbstractExpression<T> {
     }
 
     @Override
-    public JsonObject evaluate(T domainObject, DomainReader<T> domainReader) {
-        WritableJsonObject json = Json.createObject();
-        IndexedArray keys = jsonObjectExpressions.keys();
+    public ReadOnlyJsonObject evaluate(T domainObject, DomainReader<T> domainReader) {
+        JsonObject json = Json.createObject();
+        ReadOnlyIndexedArray keys = jsonObjectExpressions.keys();
         for (int i = 0; i < keys.size(); i++) {
             String key = keys.getString(i);
             Expression<T> expression = jsonObjectExpressions.get(key);
@@ -44,7 +44,7 @@ public final class JsonObjectExpression<T> extends AbstractExpression<T> {
     @Override
     public StringBuilder toString(StringBuilder sb) {
         sb.append('{');
-        IndexedArray keys = jsonObjectExpressions.keys();
+        ReadOnlyIndexedArray keys = jsonObjectExpressions.keys();
         for (int i = 0; i < keys.size(); i++) {
             if (i != 0)
                 sb.append(", ");
@@ -58,7 +58,7 @@ public final class JsonObjectExpression<T> extends AbstractExpression<T> {
 
     @Override
     public void collect(CollectOptions options) {
-        IndexedArray keys = jsonObjectExpressions.keys();
+        ReadOnlyIndexedArray keys = jsonObjectExpressions.keys();
         for (int i = 0; i < keys.size(); i++) {
             String key = keys.getString(i);
             Expression<T> expression = jsonObjectExpressions.get(key);

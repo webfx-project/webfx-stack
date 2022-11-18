@@ -1,7 +1,7 @@
 package dev.webfx.stack.com.bus.call;
 
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.WritableJsonObject;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.platform.async.AsyncResult;
@@ -64,7 +64,7 @@ public final class SerializableAsyncResult<T> implements AsyncResult<T> {
         }
 
         @Override
-        public void encodeToJson(SerializableAsyncResult result, WritableJsonObject json) {
+        public void encodeToJson(SerializableAsyncResult result, JsonObject json) {
             if (result.cause() != null)
                 json.set(ERROR_KEY, result.cause().getMessage());
             if (result.result() != null)
@@ -72,7 +72,7 @@ public final class SerializableAsyncResult<T> implements AsyncResult<T> {
         }
 
         @Override
-        public SerializableAsyncResult decodeFromJson(JsonObject json) {
+        public SerializableAsyncResult decodeFromJson(ReadOnlyJsonObject json) {
             String errorMessage = json.getString(ERROR_KEY);
             return new SerializableAsyncResult<>(
                     SerialCodecManager.decodeFromJson(json.get(RESULT_KEY)),

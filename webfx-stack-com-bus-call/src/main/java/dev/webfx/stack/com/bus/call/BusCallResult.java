@@ -2,8 +2,8 @@ package dev.webfx.stack.com.bus.call;
 
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.WritableJsonObject;
 
 /**
  * @author Bruno Salmon
@@ -41,7 +41,7 @@ public final class BusCallResult<T> {
     public BusCallResult(int callNumber, Object object) {
         this.callNumber = callNumber;
         //Platform.log("BusCallResult constructor, class of object = " + object.getClass());
-        if (object instanceof JsonObject)
+        if (object instanceof ReadOnlyJsonObject)
             this.serializedTargetResult = object;
         else
             this.targetResult = (T) object;
@@ -84,13 +84,13 @@ public final class BusCallResult<T> {
         }
 
         @Override
-        public void encodeToJson(BusCallResult result, WritableJsonObject json) {
+        public void encodeToJson(BusCallResult result, JsonObject json) {
             json.set(CALL_NUMBER_KEY, result.getCallNumber())
                     .set(TARGET_RESULT_KEY, result.getSerializedTargetResult());
         }
 
         @Override
-        public BusCallResult decodeFromJson(JsonObject json) {
+        public BusCallResult decodeFromJson(ReadOnlyJsonObject json) {
             //Platform.log("Decoding " + json.toJsonString());
             return new BusCallResult(
                     json.getInteger(CALL_NUMBER_KEY),

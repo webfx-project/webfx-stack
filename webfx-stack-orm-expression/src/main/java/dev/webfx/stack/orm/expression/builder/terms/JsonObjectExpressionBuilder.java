@@ -1,16 +1,16 @@
 package dev.webfx.stack.orm.expression.builder.terms;
 
+import dev.webfx.platform.json.JsonObject;
 import dev.webfx.stack.orm.expression.terms.JsonObjectExpression;
-import dev.webfx.platform.util.noreflect.IndexedArray;
+import dev.webfx.platform.util.noreflect.ReadOnlyIndexedArray;
 import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.WritableJsonObject;
 
 /**
  * @author Bruno Salmon
  */
 public final class JsonObjectExpressionBuilder extends ExpressionBuilder {
 
-    private final WritableJsonObject jsonObjectExpressionBuilders = Json.createObject();
+    private final JsonObject jsonObjectExpressionBuilders = Json.createObject();
 
     private JsonObjectExpression jsonObjectExpression;
 
@@ -29,8 +29,8 @@ public final class JsonObjectExpressionBuilder extends ExpressionBuilder {
     public JsonObjectExpression build() {
         if (jsonObjectExpression == null) {
             propagateDomainClasses();
-            WritableJsonObject jsonExpressions = Json.createObject();
-            IndexedArray keys = jsonObjectExpressionBuilders.keys();
+            JsonObject jsonExpressions = Json.createObject();
+            ReadOnlyIndexedArray keys = jsonObjectExpressionBuilders.keys();
             for (int i = 0; i < keys.size(); i++) {
                 String key = keys.getString(i);
                 ExpressionBuilder expression = jsonObjectExpressionBuilders.get(key);

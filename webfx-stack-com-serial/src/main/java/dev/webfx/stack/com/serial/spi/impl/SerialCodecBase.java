@@ -4,8 +4,8 @@ package dev.webfx.stack.com.serial.spi.impl;
  * @author Bruno Salmon
  */
 
+import dev.webfx.platform.json.JsonObject;
 import dev.webfx.stack.com.serial.SerialCodecManager;
-import dev.webfx.platform.json.WritableJsonObject;
 import dev.webfx.stack.com.serial.spi.SerialCodec;
 
 public abstract class SerialCodecBase<T> implements SerialCodec<T> {
@@ -28,11 +28,11 @@ public abstract class SerialCodecBase<T> implements SerialCodec<T> {
         return codecId;
     }
 
-    protected static void encodeKey(String key, Object value, WritableJsonObject json) {
+    protected static void encodeKey(String key, Object value, JsonObject json) {
         json.set(key, SerialCodecManager.encodeToJson(value));
     }
 
-    protected static void encodeKeyIfNotNull(String key, Object value, WritableJsonObject json) {
+    protected static void encodeKeyIfNotNull(String key, Object value, JsonObject json) {
         if (value != null)
             encodeKey(key, value, json);
     }

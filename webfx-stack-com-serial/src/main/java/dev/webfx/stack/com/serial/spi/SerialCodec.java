@@ -1,7 +1,7 @@
 package dev.webfx.stack.com.serial.spi;
 
 import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 
 /*
  * @author Bruno Salmon
@@ -13,8 +13,8 @@ public interface SerialCodec<T> {
 
     Class<? extends T> getJavaClass();
 
-    void encodeToJson(T javaObject, WritableJsonObject json);
+    void encodeToJson(T javaObject, JsonObject json);
 
-    T decodeFromJson(JsonObject json);
+    T decodeFromJson(ReadOnlyJsonObject json);
 
 }

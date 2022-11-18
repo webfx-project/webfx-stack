@@ -2,7 +2,7 @@ package dev.webfx.stack.session.state;
 
 import dev.webfx.platform.json.Json;
 import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 
 /**
  * @author Bruno Salmon
@@ -22,7 +22,7 @@ public final class StateAccessor {
     }
 
     public static String encodeState(Object state) {
-        return state == null ? null : state instanceof JsonObject ? ((JsonObject) state).toJsonString() : state.toString();
+        return state == null ? null : state instanceof ReadOnlyJsonObject ? ((ReadOnlyJsonObject) state).toJsonString() : state.toString();
     }
 
     public static String getSessionId(Object state) {
@@ -62,16 +62,16 @@ public final class StateAccessor {
     }
 
     private static Object getStateAttribute(Object state, String name) {
-        if (state instanceof JsonObject)
-            return ((JsonObject) state).get(name);
+        if (state instanceof ReadOnlyJsonObject)
+            return ((ReadOnlyJsonObject) state).get(name);
         return null;
     }
 
     private static Object setStateAttribute(Object state, String name, Object value, boolean override) {
         if (value != null && state == null)
             state = createEmptyState();
-        if (state instanceof WritableJsonObject) {
-            WritableJsonObject jsonObject = (WritableJsonObject) state;
+        if (state instanceof JsonObject) {
+            JsonObject jsonObject = (JsonObject) state;
             if (value != null && (!jsonObject.has(name) || override) || value == null && override && jsonObject.has(name)) {
                 //System.out.println("state." + name + " = " + value);
                 jsonObject.set(name, value);

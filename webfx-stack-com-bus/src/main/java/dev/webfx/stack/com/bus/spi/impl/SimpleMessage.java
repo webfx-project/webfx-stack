@@ -20,7 +20,7 @@ package dev.webfx.stack.com.bus.spi.impl;
 import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.stack.com.bus.DeliveryOptions;
 import dev.webfx.stack.com.bus.Message;
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.platform.async.AsyncResult;
 import dev.webfx.platform.async.Handler;
 
@@ -87,7 +87,7 @@ final class SimpleMessage<U> implements Message<U> {
 
     @Override
     public String toString() {
-        return body == null ? "null" : body instanceof JsonObject ? ((JsonObject) body).toJsonString() : body.toString();
+        return body == null ? "null" : body instanceof ReadOnlyJsonObject ? ((ReadOnlyJsonObject) body).toJsonString() : body.toString();
     }
 
 }

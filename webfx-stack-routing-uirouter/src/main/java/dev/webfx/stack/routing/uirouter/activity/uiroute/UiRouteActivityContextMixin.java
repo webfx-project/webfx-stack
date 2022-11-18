@@ -6,7 +6,7 @@ import dev.webfx.stack.routing.uirouter.UiRouter;
 import dev.webfx.stack.routing.uirouter.uisession.UiSession;
 import dev.webfx.stack.routing.uirouter.uisession.UiSessionMixin;
 import dev.webfx.platform.windowhistory.spi.BrowsingHistory;
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 
 /**
  * @author Bruno Salmon
@@ -25,7 +25,7 @@ public interface UiRouteActivityContextMixin
     default BrowsingHistory getHistory() { return getActivityContext().getHistory(); }
 
     @Override
-    default JsonObject getParams() { return getActivityContext().getParams(); }
+    default ReadOnlyJsonObject getParams() { return getActivityContext().getParams(); }
 
     @Override
     default Session getSession() {

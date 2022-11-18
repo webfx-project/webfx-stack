@@ -1,6 +1,6 @@
 package dev.webfx.stack.ui.fxraiser.json;
 
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.FillRule;
@@ -11,7 +11,7 @@ import javafx.scene.shape.SVGPath;
  */
 public final class JsonSVGPath {
 
-    public static SVGPath createSVGPath(JsonObject json) {
+    public static SVGPath createSVGPath(ReadOnlyJsonObject json) {
         String content = json.getString("svgPath");
         SVGPath svgPath = new SVGPath();
         svgPath.setContent(content);

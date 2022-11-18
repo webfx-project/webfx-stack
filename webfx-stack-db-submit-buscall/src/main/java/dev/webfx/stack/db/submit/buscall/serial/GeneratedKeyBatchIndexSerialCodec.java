@@ -1,7 +1,7 @@
 package dev.webfx.stack.db.submit.buscall.serial;
 
 import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.WritableJsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 import dev.webfx.stack.db.submit.GeneratedKeyBatchIndex;
 
@@ -15,12 +15,12 @@ public final class GeneratedKeyBatchIndexSerialCodec extends SerialCodecBase<Gen
     }
 
     @Override
-    public void encodeToJson(GeneratedKeyBatchIndex arg, WritableJsonObject json) {
+    public void encodeToJson(GeneratedKeyBatchIndex arg, JsonObject json) {
         json.set(BATCH_INDEX_KEY, arg.getBatchIndex());
     }
 
     @Override
-    public GeneratedKeyBatchIndex decodeFromJson(JsonObject json) {
+    public GeneratedKeyBatchIndex decodeFromJson(ReadOnlyJsonObject json) {
         return new GeneratedKeyBatchIndex(
                 json.getInteger(BATCH_INDEX_KEY)
         );
