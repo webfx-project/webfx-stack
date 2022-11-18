@@ -37,7 +37,8 @@ public final class ClientSideStateSessionSyncer {
         clientSideStateSession.changeSessionId(StateAccessor.getSessionId(serverState), true, true);
         // clientSession.userId <= serverState.userId ? YES IF SET, as this means the server communicates the user id
         clientSideStateSession.changeUserId(StateAccessor.getUserId(serverState), true, true);
-        // clientSession.runId <= serverState.runId ? NEVER, as the server is not meant to report that info back to the client
+        // clientSession.runId <= serverState.runId ? NEVER, as the server never communicates it (and is not supposed to)
+        // The runId is not stored in the client session anyway (as it's a different id on each run)
     }
 
     public static Object syncIncomingServerStateFromClientSession(Object serverState) {
@@ -46,12 +47,12 @@ public final class ClientSideStateSessionSyncer {
 
     public static Object syncIncomingServerStateFromClientSession(Object serverState, ClientSideStateSession clientSideStateSession) {
         Session clientSession = clientSideStateSession.getClientSession();
-        // serverState.sessionId <= clientSession.id ? ALWAYS, because this is the server session that is responsible for the session id
-        serverState = StateAccessor.setSessionId(serverState, SessionAccessor.getSessionId(clientSession), true);
-        // serverState.userId <= clientSession.userId ? YES IF NOT SET, otherwise this means the client switched user, so we keep that info
+        // serverState.sessionId <= clientSession.sessionId ? YES IF NOT SET (ie we keep the session value if the server didn't refresh the sessionId)
+        serverState = StateAccessor.setSessionId(serverState, SessionAccessor.getSessionId(clientSession), false);
+        // serverState.userId <= clientSession.userId ? YES IF NOT SET (ie we keep the session value if the server didn't refresh the userId)
         serverState = StateAccessor.setUserId(serverState, SessionAccessor.getUserId(clientSession), false);
-        // serverState.runId <= clientSession.runId ? YES IF NOT SET, otherwise this means the client communicates it, so we keep that info
-        serverState = StateAccessor.setRunId(serverState, SessionAccessor.getUserId(clientSession), false);
+        // serverState.runId <= clientSession.runId ? ALWAYS (but we actually take it from the memory - not the session)
+        serverState = StateAccessor.setRunId(serverState, clientSideStateSession.getRunId(), true);
         return serverState;
     }
 
