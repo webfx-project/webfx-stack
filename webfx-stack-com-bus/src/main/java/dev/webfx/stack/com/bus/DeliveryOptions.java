@@ -5,7 +5,13 @@ package dev.webfx.stack.com.bus;
  */
 public final class DeliveryOptions {
 
-    public static final DeliveryOptions LOCAL_ONLY = new DeliveryOptions().setLocalOnly(true);
+    public static DeliveryOptions localOnlyDeliveryOptions() {
+        return localOnlyDeliveryOptions(null);
+    }
+
+    public static DeliveryOptions localOnlyDeliveryOptions(Object state) {
+        return new DeliveryOptions().setLocalOnly(true).setState(state);
+    }
 
     private boolean localOnly;
 

@@ -60,7 +60,7 @@ public final class BusCallService {
                 busCallServiceAddress, // the address that receives the BusCallArgument objects
                     (busCallArgument, callerMessage) -> // great, a BusCallArgument has been received
                         // Forwarding the target argument to the target address (kind of local call) and waiting for the result
-                        sendJavaObjectAndWaitJsonReply(busCallArgument.getTargetAddress(), busCallArgument.getJsonEncodedTargetArgument(), callerMessage.options().setLocalOnly(true), ar ->
+                        sendJavaObjectAndWaitJsonReply(busCallArgument.getTargetAddress(), busCallArgument.getJsonEncodedTargetArgument(), DeliveryOptions.localOnlyDeliveryOptions(callerMessage.state()), ar ->
                             // Wrapping the result into a BusCallResult and sending it back to the initial BusCallService counterpart
                             sendJavaReply(new BusCallResult(busCallArgument.getCallNumber(), ar.succeeded() ? ar.result().body() : ar.cause()), new DeliveryOptions(), callerMessage)
                         )
@@ -224,7 +224,7 @@ public final class BusCallService {
      */
     public static <A, R> Registration registerBusCallEndpoint(String address, Function<A, R> javaFunction) {
         return BusCallService.<A, R>registerJavaHandlerForLocalCalls(address,
-                (javaArgument , callerMessage) -> sendJavaReply(javaFunction.apply(javaArgument), new DeliveryOptions(), callerMessage)
+                (javaArgument , callerMessage) -> sendJavaReply(javaFunction.apply(javaArgument), callerMessage.options(), callerMessage)
         );
     }
 

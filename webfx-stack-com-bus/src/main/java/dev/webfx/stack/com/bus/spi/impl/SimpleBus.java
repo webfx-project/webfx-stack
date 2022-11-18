@@ -75,17 +75,17 @@ public class SimpleBus implements Bus {
 
     // Can be called by a more complex implementation to indicate the bus is open
     protected void publishOnOpenEvent() {
-        publish(ON_OPEN, null, DeliveryOptions.LOCAL_ONLY);
+        publish(ON_OPEN, null, DeliveryOptions.localOnlyDeliveryOptions());
     }
 
     // Can be called by a more complex implementation to indicate the bus is closed
     protected void publishOnCloseEvent(Object reason) {
-        publish(ON_CLOSE, reason, DeliveryOptions.LOCAL_ONLY);
+        publish(ON_CLOSE, reason, DeliveryOptions.localOnlyDeliveryOptions());
     }
 
     // Can be called by a more complex implementation to indicate the bus is on error
     protected void publishOnError(Object error) {
-        publish(ON_ERROR, error, DeliveryOptions.LOCAL_ONLY);
+        publish(ON_ERROR, error, DeliveryOptions.localOnlyDeliveryOptions());
     }
 
     // Reacting to an open event
@@ -293,7 +293,7 @@ public class SimpleBus implements Bus {
             handler.handle(Future.succeededFuture(message));
         } catch (Throwable e) {
             Console.log("Failed to handle on address: " + address, e);
-            publish(ON_ERROR, Json.createObject().set("address", address).set("message", message).set("cause", e), DeliveryOptions.LOCAL_ONLY);
+            publish(ON_ERROR, Json.createObject().set("address", address).set("message", message).set("cause", e), DeliveryOptions.localOnlyDeliveryOptions());
         }
     }
 
