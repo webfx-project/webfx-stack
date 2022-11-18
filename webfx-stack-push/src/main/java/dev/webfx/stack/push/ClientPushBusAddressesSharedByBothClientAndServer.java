@@ -5,9 +5,9 @@ package dev.webfx.stack.push;
  */
 public final class ClientPushBusAddressesSharedByBothClientAndServer {
 
-    public final static String PUSH_PING_CLIENT_LISTENER_SERVICE_ADDRESS = "pushPingClientListener";
+    public final static String PUSH_PING_CLIENT_LISTENER_SERVICE_ADDRESS = "service/push/client/ping";
 
-    public static String computeClientBusCallServiceAddress(Object pushClientId) {
-        return "busCallService/client/" + pushClientId;
+    public static String computeClientBusCallServiceAddress(Object clientRunId) {
+        return "busCallService/client/" + clientRunId;
     }
 }

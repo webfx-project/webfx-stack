@@ -7,6 +7,6 @@ import dev.webfx.stack.com.bus.Registration;
  */
 public interface PushClientServiceProvider {
 
-    Registration listenServerPushCalls(Object pushClientId);
+    Registration listenServerPushCalls();
 
 }

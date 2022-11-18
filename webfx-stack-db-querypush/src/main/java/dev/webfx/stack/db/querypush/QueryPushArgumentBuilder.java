@@ -11,7 +11,6 @@ public final class QueryPushArgumentBuilder {
 
     private Object queryStreamId;
     private Object parentQueryStreamId;
-    private Object clientRunId;
     private QueryArgument queryArgument;
     private Object dataSourceId;
     private Boolean active;
@@ -26,11 +25,6 @@ public final class QueryPushArgumentBuilder {
 
     public QueryPushArgumentBuilder setParentQueryStreamId(Object parentQueryStreamId) {
         this.parentQueryStreamId = parentQueryStreamId;
-        return this;
-    }
-
-    public QueryPushArgumentBuilder setClientRunId(Object clientRunId) {
-        this.clientRunId = clientRunId;
         return this;
     }
 
@@ -67,7 +61,6 @@ public final class QueryPushArgumentBuilder {
     public QueryPushArgumentBuilder copy(QueryPushArgument argument) {
         return setQueryStreamId(argument.getQueryStreamId())
                 .setParentQueryStreamId(argument.getParentQueryStreamId())
-                .setClientRunId(argument.getClientRunId())
                 .setQueryArgument(argument.getQueryArgument())
                 .setDataSourceId(argument.getDataSourceId())
                 .setActive(argument.getActive())
@@ -82,7 +75,6 @@ public final class QueryPushArgumentBuilder {
         return new QueryPushArgument(
                 queryStreamId,
                 parentQueryStreamId,
-                clientRunId,
                 queryArgument,
                 dataSourceId,
                 active,

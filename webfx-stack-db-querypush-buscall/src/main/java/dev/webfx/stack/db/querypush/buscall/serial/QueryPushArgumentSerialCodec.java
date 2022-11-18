@@ -11,7 +11,6 @@ public final class QueryPushArgumentSerialCodec extends SerialCodecBase<QueryPus
     private static final String CODEC_ID = "QueryPushArgument";
     private static final String QUERY_STREAM_ID_KEY = "queryStreamId";
     private static final String PARENT_QUERY_STREAM_ID_KEY = "parentQueryStreamId";
-    private static final String CLIENT_RUN_ID_KEY = "clientRunId";
     private static final String QUERY_ARGUMENT_KEY = "queryArgument";
     private static final String DATA_SOURCE_ID_KEY = "dataSourceId";
     private static final String ACTIVE_KEY = "active";
@@ -26,7 +25,6 @@ public final class QueryPushArgumentSerialCodec extends SerialCodecBase<QueryPus
     public void encodeToJson(QueryPushArgument arg, JsonObject json) {
         encodeKeyIfNotNull(QUERY_STREAM_ID_KEY, arg.getQueryStreamId(), json);
         encodeKeyIfNotNull(PARENT_QUERY_STREAM_ID_KEY, arg.getParentQueryStreamId(), json);
-        encodeKeyIfNotNull(CLIENT_RUN_ID_KEY, arg.getClientRunId(), json);
         encodeKeyIfNotNull(QUERY_ARGUMENT_KEY, arg.getQueryArgument(), json);
         encodeKey(DATA_SOURCE_ID_KEY, arg.getDataSourceId(), json);
         encodeKeyIfNotNull(ACTIVE_KEY, arg.getActive(), json);
@@ -39,7 +37,6 @@ public final class QueryPushArgumentSerialCodec extends SerialCodecBase<QueryPus
         return new QueryPushArgument(
                 json.get(QUERY_STREAM_ID_KEY),
                 json.get(PARENT_QUERY_STREAM_ID_KEY),
-                json.get(CLIENT_RUN_ID_KEY),
                 SerialCodecManager.decodeFromJson(json.get(QUERY_ARGUMENT_KEY)),
                 json.get(DATA_SOURCE_ID_KEY),
                 json.getBoolean(ACTIVE_KEY),

@@ -16,6 +16,7 @@ module webfx.stack.db.querypush.server {
     requires webfx.stack.db.submit;
     requires webfx.stack.db.submit.listener;
     requires webfx.stack.push.server;
+    requires webfx.stack.session.state;
 
     // Exported packages
     exports dev.webfx.stack.db.querypush.server;

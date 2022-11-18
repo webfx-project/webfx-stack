@@ -6,7 +6,6 @@ import dev.webfx.stack.com.bus.Registration;
 import dev.webfx.stack.com.bus.call.BusCallService;
 import dev.webfx.stack.orm.push.client.spi.PushClientServiceProvider;
 import dev.webfx.stack.push.ClientPushBusAddressesSharedByBothClientAndServer;
-import dev.webfx.stack.session.state.client.ClientSideStateSession;
 
 import java.util.ServiceLoader;
 import java.util.function.Function;
@@ -27,7 +26,7 @@ public final class PushClientService {
         });
         // But to make this work, the client bus call service must listen server calls. This takes place as soon as the
         // client id is set:
-        getProvider().listenServerPushCalls(ClientSideStateSession.getInstance().getRunId());
+        getProvider().listenServerPushCalls();
         /*ClientInstanceIdHolder.clientInstanceIdProperty().addListener(new ChangeListener<Object>() {
             private Registration registration;
 

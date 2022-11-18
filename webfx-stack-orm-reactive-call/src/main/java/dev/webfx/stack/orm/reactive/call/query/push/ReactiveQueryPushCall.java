@@ -8,7 +8,7 @@ import dev.webfx.stack.db.querypush.QueryPushResult;
 import dev.webfx.stack.db.querypush.QueryPushService;
 import dev.webfx.stack.db.querypush.diff.QueryResultDiff;
 import dev.webfx.stack.orm.reactive.call.query.ReactiveQueryCall;
-import dev.webfx.stack.session.state.client.fx.FxClientRunId;
+import dev.webfx.stack.session.state.client.fx.FxClientConnected;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
@@ -30,17 +30,11 @@ public final class ReactiveQueryPushCall extends ReactiveQueryCall {
 
     public ReactiveQueryPushCall() {
         super(null);
-    }
-
-    private final ObjectProperty<Object> pushClientIdProperty = new SimpleObjectProperty<Object/*GWT*/>() {
-        @Override
-        protected void invalidated() {
-            if (get() == null)
+        FxClientConnected.clientConnectedProperty().addListener((observable, oldValue, connected) -> {
+            if (!connected)
                 lostConnection = true;
-            else
-                scheduleFireCallNowIfRequired();
-        }
-    };
+        });
+    }
 
     private final ObjectProperty<ReactiveQueryPushCall> activeParentProperty = new SimpleObjectProperty<ReactiveQueryPushCall/*GWT*/>() {
         private ReactiveQueryPushCall previousActiveParent;
@@ -66,17 +60,12 @@ public final class ReactiveQueryPushCall extends ReactiveQueryCall {
         return this;
     }
 
-    public Object getPushClientId() {
-        return pushClientIdProperty.getValue();
-    }
-
     @Override
     protected boolean isFireCallRequiredNow() {
         if (waitingQueryStreamId) // If we already wait the queryStreamId, we won't make a new call now (we can't update the stream without its id)
             queryHasChangeWhileWaitingQueryStreamId |= hasArgumentChangedSinceLastCall(); // but we mark this flag in order to update the stream (if modified) when receiving its id
         ReactiveQueryPushCall parent = getActiveParent();
-        return  // pushClientId is null when the client is not yet connected to the server (so waiting the pushClientId before calling the server)
-                isStarted() && getPushClientId() != null
+        return  isStarted()
                         && getArgument() != null
                         && !waitingQueryStreamId
                         // Skipping new stream not yet active (waiting it becomes active before calling the server)
@@ -110,7 +99,6 @@ public final class ReactiveQueryPushCall extends ReactiveQueryCall {
         QueryPushService.executeQueryPush(QueryPushArgument.builder()
                 .setQueryStreamId(queryStreamId)
                 .setParentQueryStreamId(parentQueryStreamId)
-                .setClientRunId(getPushClientId())
                 .setQueryArgument(transmittedQueryArgument)
                 .setActive(isActive())
                 .setResend(resend)
@@ -139,7 +127,7 @@ public final class ReactiveQueryPushCall extends ReactiveQueryCall {
                 activeChildren.forEach(ReactiveQueryPushCall::fireCallWhenReady);
         });
         // Logging after the actual call (and not before) for optimization reason (better to log while the request is in process)
-        log("Calling query push: queryStreamId=" + queryStreamId + ", parentQueryStreamId=" + parentQueryStreamId + ", pushClientId=" + getPushClientId() + ", active=" + isActive() + ", resend=" + resend + ", queryArgument=" + transmittedQueryArgument);
+        log("Calling query push: queryStreamId=" + queryStreamId + ", parentQueryStreamId=" + parentQueryStreamId + ", active=" + isActive() + ", resend=" + resend + ", queryArgument=" + transmittedQueryArgument);
         // If the query argument hasn't changed, it's still possible that there is a change in the columns (but that didn't induce a change at the query level)
         if (transmittedQueryArgument == null) // Means the query argument hasn't change
             onQueryArgumentUnchanged();
@@ -181,14 +169,7 @@ public final class ReactiveQueryPushCall extends ReactiveQueryCall {
     }
 
     @Override
-    protected void onStarted() {
-        pushClientIdProperty.bind(FxClientRunId.clientRunIdProperty());
-        super.onStarted();
-    }
-
-    @Override
     protected void onStopped() {
-        pushClientIdProperty.unbind();
         super.onStopped();
         // TODO: unregister the client on server side
     }

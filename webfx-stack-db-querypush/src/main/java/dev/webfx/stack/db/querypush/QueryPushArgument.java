@@ -11,7 +11,6 @@ public final class QueryPushArgument {
 
     private final Object queryStreamId;
     private final Object parentQueryStreamId;
-    private final Object clientRunId;
     private final QueryArgument queryArgument;
     private final Object dataSourceId;
     private final Boolean active;
@@ -19,10 +18,9 @@ public final class QueryPushArgument {
     private final Boolean close;
     private final transient Consumer<QueryPushResult> queryPushResultConsumer;
 
-    public QueryPushArgument(Object queryStreamId, Object parentQueryStreamId, Object clientRunId, QueryArgument queryArgument, Object dataSourceId, Boolean active, Boolean resend, Boolean close, Consumer<QueryPushResult> queryPushResultConsumer) {
+    public QueryPushArgument(Object queryStreamId, Object parentQueryStreamId, QueryArgument queryArgument, Object dataSourceId, Boolean active, Boolean resend, Boolean close, Consumer<QueryPushResult> queryPushResultConsumer) {
         this.queryStreamId = queryStreamId;
         this.parentQueryStreamId = parentQueryStreamId;
-        this.clientRunId = clientRunId;
         this.queryArgument = queryArgument;
         this.queryPushResultConsumer = queryPushResultConsumer;
         this.dataSourceId = dataSourceId != null || queryArgument == null ? dataSourceId : queryArgument.getDataSourceId();
@@ -37,10 +35,6 @@ public final class QueryPushArgument {
 
     public Object getParentQueryStreamId() {
         return parentQueryStreamId;
-    }
-
-    public Object getClientRunId() {
-        return clientRunId;
     }
 
     public QueryArgument getQueryArgument() {
@@ -83,8 +77,8 @@ public final class QueryPushArgument {
         return new QueryPushArgumentBuilder();
     }
 
-    public static QueryPushArgument openStreamArgument(Object parentQueryStreamId, Object pushClientId, QueryArgument queryArgument, Consumer<QueryPushResult> queryResultConsumer) {
-        return new QueryPushArgument(null, parentQueryStreamId, pushClientId, queryArgument, null, true, null, null, queryResultConsumer);
+    public static QueryPushArgument openStreamArgument(Object parentQueryStreamId, QueryArgument queryArgument, Consumer<QueryPushResult> queryResultConsumer) {
+        return new QueryPushArgument(null, parentQueryStreamId, queryArgument, null, true, null, null, queryResultConsumer);
     }
 
     public static QueryPushArgument updateStreamArgument(Object queryStreamId, QueryArgument queryArgument) {
@@ -100,11 +94,11 @@ public final class QueryPushArgument {
     }
 
     public static QueryPushArgument updateStreamArgument(Object queryStreamId, QueryArgument queryArgument, Object dataSourceId, Boolean active) {
-        return new QueryPushArgument(queryStreamId, null, null, queryArgument, dataSourceId, active, null,null, null);
+        return new QueryPushArgument(queryStreamId, null, queryArgument, dataSourceId, active, null,null, null);
     }
 
     public static QueryPushArgument closeStreamArgument(Object queryStreamId, Object dataSourceId) {
-        return new QueryPushArgument(queryStreamId, null, null, null, dataSourceId, null,null, true, null);
+        return new QueryPushArgument(queryStreamId, null, null, dataSourceId, null,null, true, null);
     }
 
 }

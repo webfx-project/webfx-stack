@@ -8,6 +8,7 @@ module webfx.stack.push.client.simple {
     requires webfx.stack.com.bus.call;
     requires webfx.stack.push;
     requires webfx.stack.push.client;
+    requires webfx.stack.session.state.client;
 
     // Exported packages
     exports dev.webfx.stack.orm.push.client.spi.impl.simple;

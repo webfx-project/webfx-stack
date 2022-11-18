@@ -21,13 +21,13 @@ import static dev.webfx.stack.db.querypush.buscall.QueryPushListenerBusAddress.Q
 public final class QueryPushServerService {
 
     // Server side push of a query result to a specific client
-    public static <T> Future<T> pushQueryResultToClient(QueryPushResult queryPushResult, Object pushClientId) {
+    public static <T> Future<T> pushQueryResultToClient(QueryPushResult queryPushResult, Object clientRunId) {
         return PushServerService.push(
                 QUERY_PUSH_RESULT_CLIENT_LISTENER_ADDRESS,
                 queryPushResult,
                 new DeliveryOptions(),
                 BusService.bus(),
-                pushClientId
+                clientRunId
         );
     }
 

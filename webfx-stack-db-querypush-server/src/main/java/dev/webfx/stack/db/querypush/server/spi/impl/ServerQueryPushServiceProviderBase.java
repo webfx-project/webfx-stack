@@ -1,21 +1,23 @@
 package dev.webfx.stack.db.querypush.server.spi.impl;
 
+import dev.webfx.platform.async.Future;
 import dev.webfx.platform.console.Console;
-import dev.webfx.stack.db.querypush.PulseArgument;
-import dev.webfx.stack.db.querypush.QueryPushResult;
-import dev.webfx.stack.db.querypush.server.QueryPushServerService;
-import dev.webfx.stack.push.server.PushServerService;
-import dev.webfx.stack.db.querypush.QueryPushArgument;
-import dev.webfx.stack.db.querypush.diff.QueryResultComparator;
-import dev.webfx.stack.db.querypush.diff.QueryResultDiff;
-import dev.webfx.stack.db.querypush.spi.QueryPushServiceProvider;
+import dev.webfx.platform.scheduler.Scheduler;
+import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.stack.db.datascope.DataScope;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.QueryService;
-import dev.webfx.platform.scheduler.Scheduler;
-import dev.webfx.platform.async.Future;
-import dev.webfx.platform.util.collection.Collections;
+import dev.webfx.stack.db.querypush.PulseArgument;
+import dev.webfx.stack.db.querypush.QueryPushArgument;
+import dev.webfx.stack.db.querypush.QueryPushResult;
+import dev.webfx.stack.db.querypush.diff.QueryResultComparator;
+import dev.webfx.stack.db.querypush.diff.QueryResultDiff;
+import dev.webfx.stack.db.querypush.server.QueryPushServerService;
+import dev.webfx.stack.db.querypush.spi.QueryPushServiceProvider;
+import dev.webfx.stack.push.server.PushServerService;
+import dev.webfx.stack.session.state.StateAccessor;
+import dev.webfx.stack.session.state.ThreadLocalStateHolder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -337,7 +339,8 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
 
         public StreamInfo(QueryPushArgument arg) {
             queryStreamId = arg.getQueryStreamId();
-            clientRunId = arg.getClientRunId();
+            Object state = ThreadLocalStateHolder.getThreadLocalState();
+            clientRunId = StateAccessor.getRunId(state);
             Object parentQueryStreamId = arg.getParentQueryStreamId();
             parentStreamInfo = getStreamInfo(parentQueryStreamId);
             if (parentStreamInfo != null)

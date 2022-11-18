@@ -26,7 +26,7 @@ import io.vertx.ext.web.Session;
 /**
  * @author Bruno Salmon
  */
-final class VertxBus implements Bus, JsonBusConstants {
+final class VertxBus implements Bus {
 
     private final EventBus eventBus;
     private boolean open = true;
@@ -64,14 +64,14 @@ final class VertxBus implements Bus, JsonBusConstants {
     }
 
     private static Object getMessageState(io.vertx.core.eventbus.Message<?> message) {
-        return StateAccessor.decodeState(message.headers().get(HEADERS_STATE));
+        return StateAccessor.decodeState(message.headers().get(JsonBusConstants.HEADERS_STATE));
     }
 
     private static DeliveryOptions webfxToVertxDeliveryOptions(dev.webfx.stack.com.bus.DeliveryOptions webfxOptions) {
         DeliveryOptions deliveryOptions = new DeliveryOptions().setLocalOnly(webfxOptions.isLocalOnly());
         Object state = webfxOptions.getState();
         if (state != null)
-            deliveryOptions.addHeader(HEADERS_STATE, StateAccessor.encodeState(state));
+            deliveryOptions.addHeader(JsonBusConstants.HEADERS_STATE, StateAccessor.encodeState(state));
         return deliveryOptions;
     }
 
