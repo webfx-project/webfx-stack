@@ -9,8 +9,11 @@ import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.stack.com.bus.DeliveryOptions;
 import dev.webfx.stack.com.bus.spi.impl.json.JsonBusConstants;
 import dev.webfx.stack.session.Session;
+import dev.webfx.stack.session.state.SessionAccessor;
 import dev.webfx.stack.session.state.StateAccessor;
 import dev.webfx.stack.session.state.server.ServerSideStateSessionSyncer;
+
+import java.util.function.Consumer;
 
 
 /**
@@ -60,6 +63,8 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
                             Console.log(">> Incoming state: " + originalStateCapture + " >> " + finalState);
                         // We memorise that final state in the raw message
                         setJsonRawMessageState(rawJsonMessage, headers, finalState);
+                        // We tell the client is live
+                        clientIsLive(finalState, requestedSession);
                         // We tell the message delivery can now continue into the server, and return the session (not
                         // sure if the session object will be useful - most important thing is the to complete this
                         // asynchronous operation so the delivery can go on)
@@ -89,4 +94,27 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
             headers.set(JsonBusConstants.HEADERS_STATE, StateAccessor.encodeState(state));
         }
     }
+
+    private static Consumer<Object> clientLiveListener;
+
+    public static void setClientLiveListener(Consumer<Object> clientLiveListener) {
+        ServerJsonBusStateManager.clientLiveListener = clientLiveListener;
+    }
+
+    public static void clientIsLive(Object state, Session session) {
+        if (clientLiveListener != null) {
+            String runId = StateAccessor.getRunId(state);
+            if (runId == null) {
+                runId = SessionAccessor.getRunId(session);
+                if (runId == null) {
+                    session = session.get(ASSOCIATED_SESSION_KEY);
+                    if (session != null)
+                        runId = SessionAccessor.getRunId(session);
+                }
+            }
+            if (runId != null)
+                clientLiveListener.accept(runId);
+        }
+    }
+
 }

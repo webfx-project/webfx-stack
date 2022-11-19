@@ -220,6 +220,7 @@
                 <module>webfx-stack-push-client</module>
                 <module>webfx-stack-push-client-simple</module>
                 <module>webfx-stack-push-server</module>
+                <module>webfx-stack-push-server-liveclient-interceptor</module>
                 <module>webfx-stack-push-server-simple</module>
                 <module>webfx-stack-routing-activity</module>
                 <module>webfx-stack-routing-router</module>
@@ -940,6 +941,7 @@
             </source-packages>
 
             <used-by-source-modules>
+                <module>java.base</module>
                 <module>webfx-platform-async</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-json</module>
@@ -2337,7 +2339,9 @@
             </exported-packages>
 
             <dependencies>
-                <used-by-source-modules/>
+                <used-by-source-modules>
+                    <undetected-module>javafx-base</undetected-module>
+                </used-by-source-modules>
             </dependencies>
 
             <source-packages>
@@ -2347,11 +2351,13 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
+                <module>webfx-kit-util</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-util</module>
                 <module>webfx-stack-com-bus</module>
                 <module>webfx-stack-com-bus-call</module>
                 <module>webfx-stack-push</module>
+                <module>webfx-stack-session-state-client-fx</module>
             </used-by-source-modules>
 
             <used-services>
@@ -2415,6 +2421,38 @@
             <used-services>
                 <required-service>dev.webfx.stack.push.server.spi.PushServerServiceProvider</required-service>
             </used-services>
+
+        </project>
+
+        <project name="webfx-stack-push-server-liveclient-interceptor">
+
+            <!-- Injection not working in Modality. TODO: FIX THIS PB IN WEBFX CLI -->
+            <module-auto-injection-conditions>
+                <if-uses-java-package>dev.webfx.stack.push.server</if-uses-java-package>
+                <if-uses-java-package>dev.webfx.stack.com.bus.spi.impl.json.server</if-uses-java-package>
+            </module-auto-injection-conditions>
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.push.server.liveclient.interceptor.LiveClientInterceptorModuleBooter</provider>
+            </providers>
+
+            <source-packages>
+                <package>dev.webfx.stack.push.server.liveclient.interceptor</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-platform-boot</module>
+                <module>webfx-stack-com-bus-json-server</module>
+                <module>webfx-stack-push-server</module>
+            </used-by-source-modules>
 
         </project>
 
@@ -2686,7 +2724,10 @@
             <used-by-source-modules>
                 <module>java.base</module>
                 <module>webfx-platform-async</module>
+                <module>webfx-platform-json</module>
+                <module>webfx-platform-storage</module>
                 <module>webfx-platform-util</module>
+                <module>webfx-stack-com-serial</module>
                 <module>webfx-stack-session</module>
             </used-by-source-modules>
 
@@ -2782,6 +2823,7 @@
             </source-packages>
 
             <used-by-source-modules>
+                <module>java.base</module>
                 <module>webfx-platform-async</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-stack-session</module>
@@ -3107,9 +3149,15 @@
                 <module>webfx-stack-routing-router-client</module>
                 <module>webfx-stack-routing-router-vertx</module>
                 <module>webfx-stack-routing-uirouter</module>
+                <module>webfx-stack-session-client</module>
                 <module>webfx-stack-session-state</module>
                 <module>webfx-stack-ui-fxraiser-json</module>
                 <module>webfx-stack-ui-util</module>
+            </java-package>
+
+            <java-package name="dev.webfx.stack.com.bus.spi.impl.json.server">
+                <module>webfx-stack-com-bus-json-vertx</module>
+                <module>webfx-stack-push-server-liveclient-interceptor</module>
             </java-package>
 
             <java-package name="dev.webfx.stack.db.query">
@@ -3167,6 +3215,14 @@
                 <module>webfx-stack-orm-reactive-dql</module>
                 <module>webfx-stack-orm-reactive-entities</module>
                 <module>webfx-stack-orm-reactive-visual</module>
+            </java-package>
+
+            <java-package name="dev.webfx.stack.push.server">
+                <module>webfx-stack-auth-login-server-mojoauth</module>
+                <module>webfx-stack-db-querypush-server</module>
+                <module>webfx-stack-push-server</module>
+                <module>webfx-stack-push-server-liveclient-interceptor</module>
+                <module>webfx-stack-push-server-simple</module>
             </java-package>
 
             <java-package name="dev.webfx.stack.ui.fxraiser">

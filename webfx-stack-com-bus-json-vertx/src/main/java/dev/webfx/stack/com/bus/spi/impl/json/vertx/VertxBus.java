@@ -44,11 +44,14 @@ final class VertxBus implements Bus {
             boolean incomingMessage = type.equals(BridgeEventType.SEND) || type.equals(BridgeEventType.PUBLISH);
             // Outgoing messages  (from server to client): type = receive
             boolean outgoingMessage = type.equals(BridgeEventType.RECEIVE);
-            if (incomingMessage || outgoingMessage) {
+            boolean ping = type.equals(BridgeEventType.SOCKET_PING);
+            Session vertxWebSession = bridgeEvent.socket().webSession();
+            VertxSession webSession = VertxSession.create(vertxWebSession);
+            if (ping)
+                ServerJsonBusStateManager.clientIsLive(null, webSession);
+            else if (incomingMessage || outgoingMessage) {
                 JsonObject rawMessage = bridgeEvent.getRawMessage();
                 if (rawMessage != null) {
-                    Session vertxWebSession = bridgeEvent.socket().webSession();
-                    VertxSession webSession = VertxSession.create(vertxWebSession);
                     // This is the main call for state management
                     Future<?> sessionFuture = ServerJsonBusStateManager.manageStateOnIncomingOrOutgoingRawJsonMessage(
                             Json.createObject(rawMessage), webSession, incomingMessage);

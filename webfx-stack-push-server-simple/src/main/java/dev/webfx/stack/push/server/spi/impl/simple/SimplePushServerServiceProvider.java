@@ -48,6 +48,13 @@ public final class SimplePushServerServiceProvider implements PushServerServiceP
     }
 
     @Override
+    public void clientIsLive(Object clientRunId) {
+        PushClientInfo pushClientInfo = pushClientInfos.get(clientRunId);
+        if (pushClientInfo != null)
+            pushClientInfo.rescheduleNextPing();
+    }
+
+    @Override
     public void addUnresponsivePushClientListener(UnresponsivePushClientListener listener) {
         unresponsivePushClientListeners.add(listener);
     }
@@ -58,6 +65,7 @@ public final class SimplePushServerServiceProvider implements PushServerServiceP
     }
 
     private void firePushClientDisconnected(Object clientRunId) {
+        Console.log("Push client disconnected: clientRunId = " + clientRunId);
         for (UnresponsivePushClientListener listener : unresponsivePushClientListeners)
             listener.onUnresponsivePushClient(clientRunId);
     }
@@ -104,7 +112,7 @@ public final class SimplePushServerServiceProvider implements PushServerServiceP
 
         void rescheduleNextPing() {
             cancelNextPing();
-            pingScheduled = Scheduler.scheduleDelay(PING_PUSH_PERIOD_MS, () -> pushPing(new DeliveryOptions(), BusService.bus(), clientRunId));
+            pingScheduled = Scheduler.scheduleDelay(PING_PUSH_PERIOD_MS, this::pushPingNow);
         }
 
         void cancelNextPing() {
@@ -112,6 +120,10 @@ public final class SimplePushServerServiceProvider implements PushServerServiceP
                 pingScheduled.cancel();
             pingScheduled = null;
 
+        }
+
+        void pushPingNow() {
+            pushPing(new DeliveryOptions(), BusService.bus(), clientRunId);
         }
     }
 

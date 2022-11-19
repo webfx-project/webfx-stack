@@ -17,6 +17,8 @@ public interface PushServerServiceProvider {
         return push(ClientPushBusAddressesSharedByBothClientAndServer.PUSH_PING_CLIENT_LISTENER_SERVICE_ADDRESS, "Push ping to client " + clientRunId, options, bus, clientRunId);
     }
 
+    void clientIsLive(Object clientRunId);
+
     void addUnresponsivePushClientListener(UnresponsivePushClientListener listener);
 
     void removeUnresponsivePushClientListener(UnresponsivePushClientListener listener);

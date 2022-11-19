@@ -97,6 +97,7 @@
         <module>webfx-stack-push-client</module>
         <module>webfx-stack-push-client-simple</module>
         <module>webfx-stack-push-server</module>
+        <module>webfx-stack-push-server-liveclient-interceptor</module>
         <module>webfx-stack-push-server-simple</module>
         <module>webfx-stack-routing-activity</module>
         <module>webfx-stack-routing-router</module>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <!-- Injection not working in Modality. TODO: FIX THIS PB IN WEBFX CLI -->
+    <module-auto-injection-conditions>
+        <if-uses-java-package>dev.webfx.stack.push.server</if-uses-java-package>
+        <if-uses-java-package>dev.webfx.stack.com.bus.spi.impl.json.server</if-uses-java-package>
+    </module-auto-injection-conditions>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+    <providers>
+        <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.push.server.liveclient.interceptor.LiveClientInterceptorModuleBooter</provider>
+    </providers>
+
+</project>

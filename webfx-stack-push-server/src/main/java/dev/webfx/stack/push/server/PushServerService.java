@@ -33,6 +33,10 @@ public final class PushServerService {
         return getProvider().pushPing(new DeliveryOptions().setState(state), bus, clientRunId);
     }
 
+    public static void clientIsLive(Object clientRunId) {
+        getProvider().clientIsLive(clientRunId);
+    }
+
     public static void addUnresponsivePushClientListener(UnresponsivePushClientListener listener) {
         getProvider().addUnresponsivePushClientListener(listener);
     }
