@@ -5,7 +5,10 @@ module webfx.stack.session.client {
     // Direct dependencies modules
     requires java.base;
     requires webfx.platform.async;
+    requires webfx.platform.json;
+    requires webfx.platform.storage;
     requires webfx.platform.util;
+    requires webfx.stack.com.serial;
     requires webfx.stack.session;
 
     // Exported packages

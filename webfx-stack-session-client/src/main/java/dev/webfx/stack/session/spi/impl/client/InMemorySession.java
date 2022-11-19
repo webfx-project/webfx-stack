@@ -9,16 +9,16 @@ import java.util.Map;
 /**
  * @author Bruno Salmon
  */
-final class ClientSession implements Session {
+final class InMemorySession implements Session {
 
     private final String id;
-    private final Map<String, Object> objects = new HashMap<>();
+    final Map<String, Object> values = new HashMap<>();
 
-    public ClientSession() {
+    public InMemorySession() {
         this(Uuid.randomUuid());
     }
 
-    public ClientSession(String id) {
+    InMemorySession(String id) {
         this.id = id;
     }
 
@@ -29,22 +29,22 @@ final class ClientSession implements Session {
 
     @Override
     public Session put(String key, Object obj) {
-        objects.put(key, obj);
+        values.put(key, obj);
         return this;
     }
 
     @Override
     public <T> T get(String key) {
-        return (T) objects.get(key);
+        return (T) values.get(key);
     }
 
     @Override
     public <T> T remove(String key) {
-        return (T) objects.remove(key);
+        return (T) values.remove(key);
     }
 
     @Override
     public boolean isEmpty() {
-        return objects.isEmpty();
+        return values.isEmpty();
     }
 }

@@ -1,8 +1,8 @@
 package dev.webfx.stack.session.spi.impl.client;
 
+import dev.webfx.platform.async.Future;
 import dev.webfx.stack.session.Session;
 import dev.webfx.stack.session.SessionStore;
-import dev.webfx.platform.async.Future;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,18 +10,19 @@ import java.util.Map;
 /**
  * @author Bruno Salmon
  */
-final class ClientSessionStore implements SessionStore {
+final class InMemorySessionStore implements SessionStore {
 
     private final Map<String, Session> sessions = new HashMap<>();
 
     @Override
     public Session createSession() {
-        return new ClientSession();
+        return new InMemorySession();
     }
 
     @Override
     public Future<Session> get(String id) {
-        return Future.succeededFuture(sessions.get(id));
+        Session session = sessions.get(id);
+        return session != null ? Future.succeededFuture(session) : Future.failedFuture("No such session in this store");
     }
 
     @Override
