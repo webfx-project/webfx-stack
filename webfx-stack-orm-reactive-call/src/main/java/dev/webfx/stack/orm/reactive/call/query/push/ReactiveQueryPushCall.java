@@ -1,6 +1,5 @@
 package dev.webfx.stack.orm.reactive.call.query.push;
 
-import dev.webfx.platform.console.Console;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.querypush.QueryPushArgument;
@@ -8,8 +7,11 @@ import dev.webfx.stack.db.querypush.QueryPushResult;
 import dev.webfx.stack.db.querypush.QueryPushService;
 import dev.webfx.stack.db.querypush.diff.QueryResultDiff;
 import dev.webfx.stack.orm.reactive.call.query.ReactiveQueryCall;
-import dev.webfx.stack.session.state.client.fx.FxClientConnected;
+import dev.webfx.stack.session.state.client.fx.FXConnectionLost;
+import dev.webfx.stack.session.state.client.fx.FXReconnected;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 import java.util.ArrayList;
@@ -30,11 +32,26 @@ public final class ReactiveQueryPushCall extends ReactiveQueryCall {
 
     public ReactiveQueryPushCall() {
         super(null);
-        FxClientConnected.clientConnectedProperty().addListener((observable, oldValue, connected) -> {
-            if (!connected)
-                lostConnection = true;
-        });
     }
+
+
+    // Property used to memorize that a lost connection occurred - bound to FXConnectionLost in onStarted()
+    private final BooleanProperty lostConnectionProperty = new SimpleBooleanProperty() {
+        @Override
+        protected void invalidated() {
+            if (get()) // Means that we just lost connection to the server
+                lostConnection = true; // memorising this event for further decisions
+        }
+    };
+
+    // Property used to react to reconnections - bound to FXReconnected in onStarted()
+    private final BooleanProperty reconnectedProperty = new SimpleBooleanProperty() {
+        @Override
+        protected void invalidated() {
+            if (get()) // Means that the connection to the server is just back now
+                scheduleFireCallNowIfRequired(); // We schedule a server call if required to refresh the data
+        }
+    };
 
     private final ObjectProperty<ReactiveQueryPushCall> activeParentProperty = new SimpleObjectProperty<ReactiveQueryPushCall/*GWT*/>() {
         private ReactiveQueryPushCall previousActiveParent;
@@ -108,14 +125,14 @@ public final class ReactiveQueryPushCall extends ReactiveQueryCall {
         ).onComplete(ar -> { // This handler is called only once when the query push service call returns
             boolean refreshChildren = false;
             // Cases where we need to trigger a new query push service call:
-            if (ar.failed() // 1) on failure (this may happen if queryStreamId is not registered on the server anymore, for ex after server restart with a non persistent query push provider such as the in-memory default one)
+            if (ar.failed() // 1) on failure (this may happen if queryStreamId is not registered on the server anymore, for ex after server restart with a non-persistent query push provider such as the in-memory default one)
                     || queryHasChangeWhileWaitingQueryStreamId) { // 2) when the query has changed while we were waiting for the query stream id
                 log((isActive() ? "Refreshing queryStreamId=" + queryStreamId : "queryStreamId=" + queryStreamId + " will be refreshed when active") + (queryHasChangeWhileWaitingQueryStreamId ? " because the query has changed while waiting the queryStreamId" : " because a failure occurred while updating the query (may be an unrecognized queryStreamId after server restart)"));
                 queryHasChangeWhileWaitingQueryStreamId = false; // Resetting the flag
-                fireCallWhenReady(); // This will trigger an new pass (when active) leading to a new call to the query push service
+                fireCallWhenReady(); // This will trigger a new pass (when active) leading to a new call to the query push service
             } else {
                 resend = false;
-                Console.log("Ok " + ar.result());
+                log("Ok " + ar.result());
                 if (lostConnection || queryStreamId == null) {
                     lostConnection = false;
                     refreshChildren = true;
@@ -169,8 +186,24 @@ public final class ReactiveQueryPushCall extends ReactiveQueryCall {
     }
 
     @Override
+    protected void onStarted() {
+        lostConnectionProperty.bind(FXConnectionLost.connectionLostProperty());
+        reconnectedProperty.bind(FXReconnected.reconnectedProperty());
+        super.onStarted();
+    }
+
+    @Override
     protected void onStopped() {
+        lostConnectionProperty.unbind();
+        reconnectedProperty.unbind();
         super.onStopped();
         // TODO: unregister the client on server side
+    }
+
+    private static int SEQ;
+    private final int seq = ++SEQ;
+    @Override
+    protected void log(String message) {
+        super.log("ReactiveQueryPushCall-" + seq + "[queryStreamId=" + queryStreamId + "]: " + message);
     }
 }
