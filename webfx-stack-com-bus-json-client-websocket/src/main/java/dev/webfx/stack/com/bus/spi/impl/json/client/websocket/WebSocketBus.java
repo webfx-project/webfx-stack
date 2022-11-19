@@ -138,8 +138,7 @@ public class WebSocketBus extends JsonClientBus {
     protected void sendOutgoingNetworkRawMessage(String rawMessage) {
         if (!isOpen())
             throw new IllegalStateException("INVALID_STATE_ERR");
-        if (LOG_RAW_MESSAGES)
-            Console.log("Sending outgoing network raw message: " + rawMessage);
+        logRawMessage(rawMessage, false);
         webSocket.send(rawMessage);
     }
 

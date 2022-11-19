@@ -15,6 +15,7 @@ import java.util.Map;
 public abstract class NetworkBus extends SimpleBus {
 
     protected static final boolean LOG_RAW_MESSAGES = false;
+    protected static final boolean LOG_IGNORE_PING = true;
 
     // TODO: remove that public visibility
     public final Map<String, Integer> handlerCount = new HashMap<>();
@@ -38,11 +39,17 @@ public abstract class NetworkBus extends SimpleBus {
     protected abstract void sendOutgoingNetworkRawMessage(String rawMessage);
 
     protected void onIncomingNetworkRawMessage(String rawMessage) {
-        if (LOG_RAW_MESSAGES)
-            Console.log("Received incoming network raw message: " + rawMessage);
+        logRawMessage(rawMessage, true);
         Message<?> parsedMessage = parseIncomingNetworkRawMessage(rawMessage);
         onMessage(parsedMessage);
     }
+
+    protected void logRawMessage(String rawMessage, boolean incoming) {
+        if (LOG_RAW_MESSAGES && (!LOG_IGNORE_PING || !isPingRawMessage(rawMessage)))
+            Console.log((incoming ? "Received incoming network raw message: " : "Sending outgoing network raw message: ") + rawMessage);
+    }
+
+    protected abstract boolean isPingRawMessage(String rawMessage);
 
     protected Message<?> parseIncomingNetworkRawMessage(String address, String replyAddress, Object body, DeliveryOptions options) {
         return createMessage(false, address, replyAddress, body, options);

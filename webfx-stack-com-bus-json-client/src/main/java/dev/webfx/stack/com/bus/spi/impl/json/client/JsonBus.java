@@ -39,6 +39,11 @@ public abstract class JsonBus extends NetworkBus implements JsonBusConstants {
     }
 
     @Override
+    protected boolean isPingRawMessage(String rawMessage) {
+        return "{\"type\":\"ping\"}".equals(rawMessage);
+    }
+
+    @Override
     protected Message<?> parseIncomingNetworkRawMessage(String rawMessage) {
         JsonObject jsonRawMessage = parseJsonRawMessage(rawMessage);
         ReadOnlyJsonObject headers = jsonRawMessage.getObject(HEADERS);
