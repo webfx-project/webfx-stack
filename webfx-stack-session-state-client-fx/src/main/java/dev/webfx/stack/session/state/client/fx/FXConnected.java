@@ -13,7 +13,9 @@ public final class FXConnected {
     private final static BooleanProperty connectedProperty = new SimpleBooleanProperty(false) {
         @Override
         protected void invalidated() {
-            Console.log("FxConnected = " + get());
+            Console.log("FXConnected = " + get());
+            FXConnectionLost.refreshValue();
+            FXReconnected.refreshValue();
         }
     };
 
@@ -31,6 +33,7 @@ public final class FXConnected {
 
     static {
         FXInit.init();
+        FXConnectionSequence.init();
     }
 
 }
