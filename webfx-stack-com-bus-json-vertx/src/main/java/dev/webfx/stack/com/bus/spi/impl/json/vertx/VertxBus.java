@@ -47,17 +47,20 @@ final class VertxBus implements Bus {
             if (incomingMessage || outgoingMessage) {
                 JsonObject rawMessage = bridgeEvent.getRawMessage();
                 if (rawMessage != null) {
-                    Session webSession = bridgeEvent.socket().webSession();
-                    VertxSession vertxSession = VertxSession.create(webSession);
+                    Session vertxWebSession = bridgeEvent.socket().webSession();
+                    VertxSession webSession = VertxSession.create(vertxWebSession);
                     // This is the main call for state management
-                    Future<Boolean> sessionStorageFuture =
-                            ServerJsonBusStateManager.manageStateOnIncomingOrOutgoingRawJsonMessage(Json.createObject(rawMessage), vertxSession, incomingMessage);
-                    if (incomingMessage && !sessionStorageFuture.isComplete()) {
+                    Future<?> sessionFuture = ServerJsonBusStateManager.manageStateOnIncomingOrOutgoingRawJsonMessage(
+                            Json.createObject(rawMessage), webSession, incomingMessage);
+                    // If the session is not ready right now (this may happen because of a session switch), then
+                    // we need to wait this operation to complete before continuing the message delivery
+                    if (incomingMessage && !sessionFuture.isComplete()) {
                         callBridgeEventComplete = false;
-                        sessionStorageFuture.onComplete(x -> bridgeEvent.complete(true));
+                        sessionFuture.onComplete(x -> bridgeEvent.complete(true));
                     }
                 }
             }
+            // If the session is ready right now, we continue the message delivery right now
             if (callBridgeEventComplete)
                 bridgeEvent.complete(true);
         });
@@ -147,6 +150,7 @@ final class VertxBus implements Bus {
         return new Message<>() {
 
             private dev.webfx.stack.com.bus.DeliveryOptions options;
+
             @Override
             public T body() {
                 return (T) vertxToWebfxBody(vertxMessage.body());
