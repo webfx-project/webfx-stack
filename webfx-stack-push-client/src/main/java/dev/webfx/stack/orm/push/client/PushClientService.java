@@ -1,11 +1,13 @@
 package dev.webfx.stack.orm.push.client;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 import dev.webfx.stack.com.bus.Registration;
 import dev.webfx.stack.com.bus.call.BusCallService;
 import dev.webfx.stack.orm.push.client.spi.PushClientServiceProvider;
 import dev.webfx.stack.push.ClientPushBusAddressesSharedByBothClientAndServer;
+import dev.webfx.stack.session.state.client.fx.FXConnected;
 
 import java.util.ServiceLoader;
 import java.util.function.Function;
@@ -24,22 +26,12 @@ public final class PushClientService {
             Console.log(arg);
             return "OK";
         });
-        // But to make this work, the client bus call service must listen server calls. This takes place as soon as the
-        // client id is set:
-        getProvider().listenServerPushCalls();
-        /*ClientInstanceIdHolder.clientInstanceIdProperty().addListener(new ChangeListener<Object>() {
-            private Registration registration;
-
-            @Override
-            public void changed(ObservableValue<?> observable, Object oldValue, Object clientId) {
-                if (registration != null && BusService.bus().isOpen())
-                    registration.unregister();
-                if (clientId != null)
-                    registration = getProvider().listenServerPushCalls(clientId);
-                else
-                    registration = null;
-            }
-        });*/
+        // But to make this work, the client bus call service must listen server calls! This takes place as soon as the
+        // connection to the server is ready, or each time we reconnect to the server:
+        FXProperties.runNowAndOnPropertiesChange(() -> {
+            if (FXConnected.isConnected())
+                getProvider().listenServerPushCalls(); // Registering the push notifications for this client over the event bus
+        }, FXConnected.connectedProperty());
     }
 
     public static PushClientServiceProvider getProvider() {
