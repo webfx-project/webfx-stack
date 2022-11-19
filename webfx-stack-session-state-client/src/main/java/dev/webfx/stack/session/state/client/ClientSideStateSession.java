@@ -17,7 +17,7 @@ import java.util.Objects;
  */
 public final class ClientSideStateSession {
 
-    private static final String LOCAL_SESSION_ID = "localSessionId";
+    private static final String ACTIVE_CLIENT_SESSION_ID = "activeClientSessionId";
     private static final String RUN_ID = Uuid.randomUuid();
     private static final ClientSideStateSession INSTANCE = new ClientSideStateSession();
 
@@ -28,7 +28,7 @@ public final class ClientSideStateSession {
     private final SessionStore sessionStore;
     private Session clientSession;
     private boolean clientSessionChanged;
-    private boolean sessionIdChanged;
+    private boolean serverSessionIdChanged;
     private boolean userIdChanged;
     private boolean runIdChanged;
     private boolean connected;
@@ -45,7 +45,7 @@ public final class ClientSideStateSession {
 
     public ClientSideStateSession(SessionStore sessionStore) {
         this(sessionStore, sessionStore.createSession());
-        String clientSessionId = LocalStorage.getItem(LOCAL_SESSION_ID);
+        String clientSessionId = LocalStorage.getItem(ACTIVE_CLIENT_SESSION_ID);
         if (clientSessionId != null)
             sessionStore.get(clientSessionId)
                     .onComplete(ar -> {
@@ -62,7 +62,7 @@ public final class ClientSideStateSession {
 
     public ClientSideStateSession(SessionStore sessionStore, Session clientSession) {
         this.sessionStore = sessionStore;
-        setClientSession(clientSession);
+        this.clientSession = clientSession;
     }
 
     public void incrementServerMessageSequence() {
@@ -75,9 +75,10 @@ public final class ClientSideStateSession {
     }
 
     private void scheduleSessionStorage() {
-        if (scheduledSessionStore != null)
+        if (scheduledSessionStore == null)
             UiScheduler.scheduleDeferred(scheduledSessionStore = () -> {
                 sessionStore.put(clientSession);
+                LocalStorage.setItem(ACTIVE_CLIENT_SESSION_ID, clientSession.id());
                 scheduledSessionStore = null;
             });
     }
@@ -98,9 +99,9 @@ public final class ClientSideStateSession {
                     clientSessionChanged = false;
                     listener.onClientSessionChanged(getClientSession());
                 }
-                if (sessionIdChanged) {
-                    sessionIdChanged = false;
-                    listener.onSessionIdChanged(getSessionId());
+                if (serverSessionIdChanged) {
+                    serverSessionIdChanged = false;
+                    listener.onServerSessionIdChanged(getServerSessionId());
                 }
                 if (userIdChanged) {
                     userIdChanged = false;
@@ -130,21 +131,20 @@ public final class ClientSideStateSession {
     public void setClientSession(Session clientSession) {
         if (clientSession != this.clientSession) {
             this.clientSession = clientSession;
-            LocalStorage.setItem(LOCAL_SESSION_ID, clientSession.id());
             clientSessionChanged = true;
             scheduleSessionStoreAndListenerCall();
         }
     }
 
-    public String getSessionId() {
-        return SessionAccessor.getSessionId(clientSession);
+    public String getServerSessionId() {
+        return SessionAccessor.getServerSessionId(clientSession);
     }
 
-    public void changeSessionId(String sessionId, boolean skipNullValue, boolean fromServer) {
-        if (SessionAccessor.changeSessionId(clientSession, sessionId, skipNullValue)) {
-            sessionIdChanged = true;
-            lastSessionIdSyncedValue = sessionId;
-            lastSessionIdSyncedFromServer = fromServer;
+    public void changeServerSessionId(String serverSessionId, boolean skipNullValue, boolean fromServer) {
+        if (SessionAccessor.changeServerSessionId(clientSession, serverSessionId, skipNullValue)) {
+            serverSessionIdChanged = true;
+            lastServerSessionIdSyncedValue = serverSessionId;
+            lastServerSessionIdSyncedFromServer = fromServer;
             scheduleSessionStoreAndListenerCall();
         }
     }
@@ -185,20 +185,20 @@ public final class ClientSideStateSession {
             connectedChanged = true;
             scheduleListenerCall();
             if (!connected)
-                lastSessionIdSyncedValue = lastUserIdSyncedValue = lastRunIdSyncedValue = null;
+                lastServerSessionIdSyncedValue = lastUserIdSyncedValue = lastRunIdSyncedValue = null;
         }
     }
 
 
-    private String lastSessionIdSyncedValue;
-    private boolean lastSessionIdSyncedFromServer;
+    private String lastServerSessionIdSyncedValue;
+    private boolean lastServerSessionIdSyncedFromServer;
     private int lastSessionIdSyncedMessageSequence;
 
-    public Object updateStateSessionIdFromClientSessionIfNotYetSynced(Object clientState) {
-        String sessionId = SessionAccessor.getSessionId(clientSession);
-        if (!Objects.equals(sessionId, lastSessionIdSyncedValue) || !lastSessionIdSyncedFromServer && serverMessageSequence == lastSessionIdSyncedMessageSequence) {
-            clientState = StateAccessor.setSessionId(clientState, sessionId, false);
-            lastSessionIdSyncedValue = sessionId;
+    public Object updateStateServerSessionIdFromClientSessionIfNotYetSynced(Object clientState) {
+        String serverSessionId = SessionAccessor.getServerSessionId(clientSession);
+        if (!Objects.equals(serverSessionId, lastServerSessionIdSyncedValue) || !lastServerSessionIdSyncedFromServer && serverMessageSequence == lastSessionIdSyncedMessageSequence) {
+            clientState = StateAccessor.setServerSessionId(clientState, serverSessionId, false);
+            lastServerSessionIdSyncedValue = serverSessionId;
             lastSessionIdSyncedMessageSequence = serverMessageSequence;
         }
         return clientState;

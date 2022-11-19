@@ -39,12 +39,12 @@ public class MojoAuthLoginServiceProvider implements LoginServiceProvider {
     @Override
     public Future<?> getLoginUiInput() {
         Object state = ThreadLocalStateHolder.getThreadLocalState();
-        String sessionId = StateAccessor.getSessionId(state);
+        String serverSessionId = StateAccessor.getServerSessionId(state);
         String RETURN_URL = "http://127.0.0.1:8080" + REDIRECT_PATH;
         return Future.succeededFuture(HTML
                 .replace("{{API_KEY}}", API_KEY)
                 .replace("{{RETURN_URL}}", RETURN_URL)
-                .replace("{{SESSION_ID}}", sessionId)
+                .replace("{{SESSION_ID}}", serverSessionId)
         );
     }
 

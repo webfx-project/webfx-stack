@@ -6,7 +6,7 @@ public interface ClientSideStateSessionListener {
 
     void onClientSessionChanged(Session clientSession);
 
-    void onSessionIdChanged(String sessionId);
+    void onServerSessionIdChanged(String serverSessionId);
 
     void onUserIdChanged(String userId);
 

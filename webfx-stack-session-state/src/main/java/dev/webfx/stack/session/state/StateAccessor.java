@@ -9,7 +9,7 @@ import dev.webfx.platform.json.ReadOnlyJsonObject;
  */
 public final class StateAccessor {
 
-    private final static String SESSION_ID_ATTRIBUE_NAME = "sessionId";
+    private final static String SERVER_SESSION_ID_ATTRIBUE_NAME = "sessionId";
     private final static String USER_ID_ATTRIBUE_NAME = "userId";
     private final static String RUN_ID_ATTRIBUE_NAME = "runId";
 
@@ -25,16 +25,16 @@ public final class StateAccessor {
         return state == null ? null : state instanceof ReadOnlyJsonObject ? ((ReadOnlyJsonObject) state).toJsonString() : state.toString();
     }
 
-    public static String getSessionId(Object state) {
-        return (String) getStateAttribute(state, SESSION_ID_ATTRIBUE_NAME);
+    public static String getServerSessionId(Object state) {
+        return (String) getStateAttribute(state, SERVER_SESSION_ID_ATTRIBUE_NAME);
     }
 
-    public static Object setSessionId(Object state, String sessionId) {
-        return setSessionId(state, sessionId, true);
+    public static Object setServerSessionId(Object state, String sessionId) {
+        return setServerSessionId(state, sessionId, true);
     }
 
-    public static Object setSessionId(Object state, String sessionId, boolean override) {
-        return setStateAttribute(state, SESSION_ID_ATTRIBUE_NAME, sessionId, override);
+    public static Object setServerSessionId(Object state, String sessionId, boolean override) {
+        return setStateAttribute(state, SERVER_SESSION_ID_ATTRIBUE_NAME, sessionId, override);
     }
 
     public static String getUserId(Object state) {

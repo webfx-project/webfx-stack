@@ -34,7 +34,7 @@ public final class ClientSideStateSessionSyncer {
     public static void syncClientSessionFromIncomingServerState(ClientSideStateSession clientSideStateSession, Object serverState) {
         clientSideStateSession.incrementServerMessageSequence();
         // clientSession.sessionId <= serverState.sessionId ? YES IF SET, because this means the server communicated the session id
-        clientSideStateSession.changeSessionId(StateAccessor.getSessionId(serverState), true, true);
+        clientSideStateSession.changeServerSessionId(StateAccessor.getServerSessionId(serverState), true, true);
         // clientSession.userId <= serverState.userId ? YES IF SET, as this means the server communicates the user id
         clientSideStateSession.changeUserId(StateAccessor.getUserId(serverState), true, true);
         // clientSession.runId <= serverState.runId ? NEVER, as the server never communicates it (and is not supposed to)
@@ -47,8 +47,8 @@ public final class ClientSideStateSessionSyncer {
 
     public static Object syncIncomingServerStateFromClientSession(Object serverState, ClientSideStateSession clientSideStateSession) {
         Session clientSession = clientSideStateSession.getClientSession();
-        // serverState.sessionId <= clientSession.sessionId ? YES IF NOT SET (ie we keep the session value if the server didn't refresh the sessionId)
-        serverState = StateAccessor.setSessionId(serverState, SessionAccessor.getSessionId(clientSession), false);
+        // serverState.serverSessionId <= clientSession.serverSessionId ? YES IF NOT SET (ie we keep the session value if the server didn't refresh the sessionId)
+        serverState = StateAccessor.setServerSessionId(serverState, SessionAccessor.getServerSessionId(clientSession), false);
         // serverState.userId <= clientSession.userId ? YES IF NOT SET (ie we keep the session value if the server didn't refresh the userId)
         serverState = StateAccessor.setUserId(serverState, SessionAccessor.getUserId(clientSession), false);
         // serverState.runId <= clientSession.runId ? ALWAYS (but we actually take it from the memory - not the session)
@@ -66,7 +66,7 @@ public final class ClientSideStateSessionSyncer {
 
     public static void syncClientSessionFromOutgoingClientState(ClientSideStateSession clientSideStateSession, Object clientState) {
         // clientSession.sessionId <= clientState.sessionId ? YES IF SET
-        clientSideStateSession.changeSessionId(StateAccessor.getSessionId(clientState), true, false);
+        clientSideStateSession.changeServerSessionId(StateAccessor.getServerSessionId(clientState), true, false);
         // clientSession.userId <= clientState.userId ? YES IF SET
         clientSideStateSession.changeUserId(StateAccessor.getUserId(clientState), true, false);
         // clientSession.runId <= clientState.runId ? YES IF SET
@@ -79,7 +79,7 @@ public final class ClientSideStateSessionSyncer {
 
     public static Object syncOutgoingClientStateFromClientSession(Object clientState, ClientSideStateSession clientSideStateSession) {
         // clientState.sessionId <= clientSession.id ? YES IF NOT YET SENT TO SERVER
-        clientState = clientSideStateSession.updateStateSessionIdFromClientSessionIfNotYetSynced(clientState);
+        clientState = clientSideStateSession.updateStateServerSessionIdFromClientSessionIfNotYetSynced(clientState);
         // clientState.userId <= clientSession.userId ? YES IF NOT YET SENT TO SERVER
         clientState = clientSideStateSession.updateStateUserIdFromClientSessionIfNotYetSynced(clientState);
         // clientState.runId <= clientSession.runId ? YES IF NOT YET SENT TO SERVER
