@@ -1,1 +1,1 @@
-dev.webfx.stack.auth.login.spi.impl.mojoauth.MojoAuthLoginModuleBooter
+dev.webfx.stack.auth.login.spi.impl.mojoauth.MojoAuthLoginApplicationJob

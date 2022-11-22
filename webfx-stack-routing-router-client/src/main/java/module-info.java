@@ -11,6 +11,8 @@ module webfx.stack.routing.router.client {
     requires webfx.stack.auth.authz;
     requires webfx.stack.routing.router;
     requires webfx.stack.session;
+    requires webfx.stack.session.state.client;
+    requires webfx.stack.session.state.client.fx;
 
     // Exported packages
     exports dev.webfx.stack.routing.router.auth;

@@ -3,8 +3,8 @@ package dev.webfx.stack.routing.uirouter;
 import dev.webfx.platform.async.Handler;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.ReadOnlyJsonArray;
 import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonArray;
 import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Numbers;
@@ -22,17 +22,10 @@ import dev.webfx.stack.routing.router.Route;
 import dev.webfx.stack.routing.router.Router;
 import dev.webfx.stack.routing.router.RoutingContext;
 import dev.webfx.stack.routing.router.auth.RedirectAuthHandler;
-import dev.webfx.stack.routing.router.session.SessionHandler;
-import dev.webfx.stack.routing.router.session.UserSessionHandler;
-import dev.webfx.stack.routing.router.session.impl.UserHolder;
-import dev.webfx.stack.routing.router.session.impl.UserSessionHandlerImpl;
 import dev.webfx.stack.routing.uirouter.activity.uiroute.UiRouteActivityContext;
 import dev.webfx.stack.routing.uirouter.activity.uiroute.impl.UiRouteActivityContextBase;
 import dev.webfx.stack.routing.uirouter.activity.view.HasMountNodeProperty;
 import dev.webfx.stack.routing.uirouter.activity.view.HasNodeProperty;
-import dev.webfx.stack.routing.uirouter.uisession.UiSession;
-import dev.webfx.stack.session.SessionService;
-import dev.webfx.stack.session.SessionStore;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -50,10 +43,7 @@ public final class UiRouter extends HistoryRouter {
     private UiRouter mountChildSubRouter;  // pointer set on the parent router to reference the child sub router
     private final Map<String, ActivityContext> activityContextHistory = new HashMap<>();
     // Auth
-    private SessionStore sessionStore;
-    private static String sessionId;
     private RedirectAuthHandler redirectAuthHandler;
-    private UiSession uiSession;
 
     public static UiRouter create(UiRouteActivityContext hostingContext) {
         return create(hostingContext, hostingContext.getActivityContextFactory());
@@ -95,13 +85,13 @@ public final class UiRouter extends HistoryRouter {
         UiRouteActivityContextBase hostingUiRouterActivityContext = UiRouteActivityContextBase.toUiRouterActivityContextBase(hostingContext);
         if (hostingUiRouterActivityContext != null) // can be null if the hosting context is the application context
             hostingUiRouterActivityContext.setUiRouter(this);
-        setRouterSessionAndUserHandlers();
+        //setRouterSessionAndUserHandlers();
     }
 
-    private void setRouterSessionAndUserHandlers() {
+    /*private void setRouterSessionAndUserHandlers() {
         router.route().handler(SessionHandler.create(this::getSessionStore, () -> sessionId, id -> sessionId = id));
         router.route().handler(UserSessionHandler.create());
-    }
+    }*/
 
     @Override
     public void refresh() {
@@ -126,32 +116,6 @@ public final class UiRouter extends HistoryRouter {
             throw new IllegalStateException("setRedirectAuthHandler() must be called on this router before calling authRoute()");
         Route route = regex ? router.routeWithRegex(authPath) : router.route(authPath);
         route.handler(redirectAuthHandler);
-    }
-
-    private SessionStore getSessionStore() {
-        if (sessionStore == null) {
-            if (mountParentRouter != null)
-                sessionStore = mountParentRouter.getSessionStore();
-            else
-                sessionStore = SessionService.getSessionStore();
-        }
-        return sessionStore;
-    }
-
-    public UiSession getUiSession() {
-        if (uiSession == null) {
-            if (mountParentRouter != null)
-                return mountParentRouter.getUiSession();
-            uiSession = UiSession.get();
-            uiSession.userPrincipalProperty().addListener((observable, oldUser, userPrincipal) ->
-                    getSessionStore().get(sessionId)
-                            .onSuccess(session -> {
-                                UserSessionHandlerImpl.setSessionUserHolder(session, new UserHolder(userPrincipal));
-                                refresh();
-                            })
-            );
-        }
-        return uiSession;
     }
 
     public <C extends UiRouteActivityContext<C>> UiRouter routeAuth(String path, Factory<Activity<C>> activityFactory) {
@@ -312,7 +276,6 @@ public final class UiRouter extends HistoryRouter {
             applyRoutingContextParamsToActivityContext(routingContext.getParams(), activityContext);
             UiRouteActivityContextBase contextBase = UiRouteActivityContextBase.toUiRouterActivityContextBase(activityContext);
             contextBase.setRoutingPath(routingContext.path());
-            contextBase.setSession(routingContext.session());
             return activityContext;
         }
 

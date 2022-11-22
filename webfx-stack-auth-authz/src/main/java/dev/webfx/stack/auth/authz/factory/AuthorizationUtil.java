@@ -1,4 +1,4 @@
-package dev.webfx.stack.auth.authz.mixin;
+package dev.webfx.stack.auth.authz.factory;
 
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.value.ObservableBooleanValue;

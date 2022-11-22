@@ -11,8 +11,6 @@ module webfx.stack.routing.router {
 
     // Exported packages
     exports dev.webfx.stack.routing.router;
-    exports dev.webfx.stack.routing.router.session;
-    exports dev.webfx.stack.routing.router.session.impl;
     exports dev.webfx.stack.routing.router.spi;
     exports dev.webfx.stack.routing.router.util;
 

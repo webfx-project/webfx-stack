@@ -5,7 +5,6 @@ import dev.webfx.platform.json.Json;
 import dev.webfx.platform.json.JsonObject;
 import dev.webfx.stack.routing.router.Route;
 import dev.webfx.stack.routing.router.RoutingContext;
-import dev.webfx.stack.session.Session;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -21,8 +20,6 @@ public abstract class ClientRoutingContextBase implements RoutingContext {
     protected Iterator<ClientRoute> iter;
     protected Route currentRoute;
     private JsonObject params;
-    private Session session;
-    private Object userPrincipal;
 
     ClientRoutingContextBase(String mountPoint, String path, Collection<ClientRoute> routes, Object state) {
         this.mountPoint = mountPoint;
@@ -112,35 +109,10 @@ public abstract class ClientRoutingContextBase implements RoutingContext {
         return params;
     }
 
-    @Override
-    public Session session() {
-        return session;
-    }
-
-    @Override
-    public void setSession(Session session) {
-        this.session = session;
-    }
-
-    @Override
-    public Object userPrincipal() {
-        return userPrincipal;
-    }
-
-    @Override
-    public void setUserPrincipal(Object userPrincipal) {
-        this.userPrincipal = userPrincipal;
-    }
-
-    @Override
-    public void clearUser() {
-        setUserPrincipal(null);
-    }
-
     public static RoutingContext newRedirectedContext(RoutingContext context, String redirectPath) {
-        if (context instanceof ClientClientRoutingContext) {
-            ClientClientRoutingContext ctx = (ClientClientRoutingContext) context;
-            return new ClientClientRoutingContext(ctx.mountPoint(), ctx.router(), redirectPath, ctx.routes, ctx.getParams());
+        if (context instanceof ClientRoutingContextImpl) {
+            ClientRoutingContextImpl ctx = (ClientRoutingContextImpl) context;
+            return new ClientRoutingContextImpl(ctx.mountPoint(), ctx.router(), redirectPath, ctx.routes, ctx.getParams());
         }
         if (context instanceof SubClientRoutingContext) {
             SubClientRoutingContext ctx = (SubClientRoutingContext) context;

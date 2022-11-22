@@ -40,7 +40,7 @@ public final class ClientRouter implements Router {
     @Override
     public void accept(String path, Object state) {
         Console.log("Routing " + path);
-        new ClientClientRoutingContext(null, this, path, routes, state).next();
+        new ClientRoutingContextImpl(null, this, path, routes, state).next();
     }
 
     @Override

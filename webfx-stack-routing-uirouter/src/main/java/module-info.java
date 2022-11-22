@@ -7,18 +7,15 @@ module webfx.stack.routing.uirouter {
     requires javafx.base;
     requires javafx.graphics;
     requires webfx.kit.launcher;
-    requires webfx.kit.util;
     requires webfx.platform.async;
     requires webfx.platform.console;
     requires webfx.platform.json;
     requires webfx.platform.uischeduler;
     requires transitive webfx.platform.util;
     requires transitive webfx.platform.windowhistory;
-    requires webfx.stack.auth.authz;
     requires transitive webfx.stack.routing.activity;
     requires webfx.stack.routing.router;
     requires transitive webfx.stack.routing.router.client;
-    requires webfx.stack.session;
     requires webfx.stack.ui.operation;
 
     // Exported packages
@@ -35,8 +32,6 @@ module webfx.stack.routing.uirouter {
     exports dev.webfx.stack.routing.uirouter.activity.view.impl;
     exports dev.webfx.stack.routing.uirouter.impl;
     exports dev.webfx.stack.routing.uirouter.operations;
-    exports dev.webfx.stack.routing.uirouter.uisession;
-    exports dev.webfx.stack.routing.uirouter.uisession.impl;
 
     // Used services
     uses dev.webfx.stack.routing.uirouter.UiRoute;

@@ -87,24 +87,6 @@ public final class VertxRoutingContext implements RoutingContext {
     }
 
     @Override
-    public void setSession(Session session) {
-    }
-
-    @Override
-    public Object userPrincipal() {
-        return null;
-    }
-
-    @Override
-    public void setUserPrincipal(Object userPrincipal) {
-    }
-
-    @Override
-    public void clearUser() {
-        vertxRoutingContext.clearUser();
-    }
-
-    @Override
     public void sendResponse(Object responseBody) {
         vertxRoutingContext.response().putHeader("content-type", "text/html").end(responseBody.toString());
     }

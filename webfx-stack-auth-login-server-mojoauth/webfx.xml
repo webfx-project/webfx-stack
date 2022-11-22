@@ -10,7 +10,7 @@
     </dependencies>
 
     <providers>
-        <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.auth.login.spi.impl.mojoauth.MojoAuthLoginModuleBooter</provider>
+        <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.auth.login.spi.impl.mojoauth.MojoAuthLoginApplicationJob</provider>
         <provider interface="dev.webfx.stack.auth.login.spi.LoginServiceProvider">dev.webfx.stack.auth.login.spi.impl.mojoauth.MojoAuthLoginServiceProvider</provider>
     </providers>
 

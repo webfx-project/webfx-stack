@@ -11,7 +11,7 @@ import java.util.Collection;
  */
 final class SubClientRoutingContext extends ClientRoutingContextBase {
 
-    protected final RoutingContext inner;
+    final RoutingContext inner;
     private final String mountPoint;
 
     SubClientRoutingContext(String mountPoint, String path, Collection<ClientRoute> routes, RoutingContext inner) {
@@ -70,25 +70,5 @@ final class SubClientRoutingContext extends ClientRoutingContextBase {
     @Override
     public Session session() {
         return inner.session();
-    }
-
-    @Override
-    public void setSession(Session session) {
-        inner.setSession(session);
-    }
-
-    @Override
-    public Object userPrincipal() {
-        return inner.userPrincipal();
-    }
-
-    @Override
-    public void setUserPrincipal(Object userPrincipal) {
-        inner.setUserPrincipal(userPrincipal);
-    }
-
-    @Override
-    public void clearUser() {
-        inner.clearUser();
     }
 }

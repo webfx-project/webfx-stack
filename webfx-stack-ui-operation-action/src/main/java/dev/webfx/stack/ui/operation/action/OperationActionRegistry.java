@@ -8,7 +8,7 @@ import javafx.event.ActionEvent;
 import dev.webfx.stack.ui.action.Action;
 import dev.webfx.stack.ui.action.ActionBinder;
 import dev.webfx.stack.ui.operation.HasOperationCode;
-import dev.webfx.stack.auth.authz.mixin.AuthorizationUtil;
+import dev.webfx.stack.auth.authz.factory.AuthorizationUtil;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.async.AsyncFunction;
 import dev.webfx.platform.async.Future;
@@ -24,7 +24,7 @@ import java.util.function.Function;
  * This class is a registry for operation actions, more accurately, for their graphical properties (text, graphic,
  * disabled and visible properties). It allows a complete code separation between the action handling declaration from
  * one side and the graphical properties declaration from the other side.
- * For example, from one side the action handling can be declared typically as follow:
+ * For example, from one side the action handling can be declared typically as follows:
  *      OperationAction myOperationAction = newOperationAction(() -> new MyOperationRequest(myArguments));
  * This code just want an action executing myOperationRequest without telling how this action appear in the user interface.
  * From the other side (another part of the application, usually the initialization code), its graphical properties can
@@ -59,10 +59,6 @@ public final class OperationActionRegistry {
      * This method should be used when creating a graphical action for an operation that is not public but requires an
      * authorization. It will return an observable boolean value indicating if the operation is authorized or not
      * (reacting to the user principal change). Needs to be considered when setting up the disabled and visible properties.
-     * @param operationCode
-     * @param userPrincipalProperty
-     * @param authorizationFunction
-     * @return
      */
 
     public ObservableBooleanValue authorizedOperationActionProperty(Object operationCode, ObservableValue userPrincipalProperty, AsyncFunction<Object, Boolean> authorizationFunction) {

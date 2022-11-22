@@ -17,6 +17,7 @@ public final class FXUserId {
         protected void invalidated() {
             Console.log("FxUserId = " + get());
             ClientSideStateSession.getInstance().changeUserId(get().toString(), true, false);
+            FXLoggedIn.setLoggedIn(get() != null);
         }
     };
 

@@ -1,18 +1,17 @@
 package dev.webfx.stack.routing.uirouter.activity.uiroute.impl;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import dev.webfx.stack.routing.uirouter.activity.uiroute.UiRouteActivityContext;
-import dev.webfx.stack.session.Session;
-import dev.webfx.stack.routing.uirouter.UiRouter;
+import dev.webfx.platform.json.Json;
+import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.windowhistory.WindowHistory;
+import dev.webfx.platform.windowhistory.spi.BrowsingHistory;
 import dev.webfx.stack.routing.activity.ActivityContext;
 import dev.webfx.stack.routing.activity.ActivityContextFactory;
 import dev.webfx.stack.routing.activity.impl.ActivityContextBase;
-import dev.webfx.platform.windowhistory.WindowHistory;
-import dev.webfx.platform.windowhistory.spi.BrowsingHistory;
-import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.stack.routing.uirouter.UiRouter;
+import dev.webfx.stack.routing.uirouter.activity.uiroute.UiRouteActivityContext;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 
 /**
  * @author Bruno Salmon
@@ -25,7 +24,6 @@ public class UiRouteActivityContextBase
 
     private UiRouter uiRouter;
     private ReadOnlyJsonObject params;
-    private Session session;
     private String routingPath;
 
     protected UiRouteActivityContextBase(ActivityContext parentContext, ActivityContextFactory<THIS> contextFactory) {
@@ -81,14 +79,6 @@ public class UiRouteActivityContextBase
                 return ((UiRouteActivityContext<?>) parentContext).getParameter(key);
         }
         return value;
-    }
-
-    public Session getSession() {
-        return session;
-    }
-
-    public void setSession(Session session) {
-        this.session = session;
     }
 
     @Override

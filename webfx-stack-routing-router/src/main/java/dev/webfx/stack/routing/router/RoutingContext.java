@@ -30,14 +30,6 @@ public interface RoutingContext {
 
     Session session();
 
-    void setSession(Session session);
-
-    Object userPrincipal();
-
-    void setUserPrincipal(Object userPrincipal);
-
-    void clearUser();
-
     default void sendResponse(Object responseBody) {}
 
     /*

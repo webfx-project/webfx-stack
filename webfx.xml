@@ -506,7 +506,7 @@
 
             <source-packages>
                 <package>dev.webfx.stack.auth.authz</package>
-                <package>dev.webfx.stack.auth.authz.mixin</package>
+                <package>dev.webfx.stack.auth.authz.factory</package>
                 <package>dev.webfx.stack.auth.authz.operation</package>
                 <package>dev.webfx.stack.auth.authz.spi</package>
                 <package>dev.webfx.stack.auth.authz.spi.impl</package>
@@ -520,6 +520,7 @@
                 <module>webfx-platform-async</module>
                 <module>webfx-platform-uischeduler</module>
                 <module>webfx-platform-util</module>
+                <module>webfx-stack-session-state-client-fx</module>
                 <module>webfx-stack-ui-operation</module>
             </used-by-source-modules>
 
@@ -621,7 +622,7 @@
             </dependencies>
 
             <providers>
-                <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.auth.login.spi.impl.mojoauth.MojoAuthLoginModuleBooter</provider>
+                <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.auth.login.spi.impl.mojoauth.MojoAuthLoginApplicationJob</provider>
                 <provider interface="dev.webfx.stack.auth.login.spi.LoginServiceProvider">dev.webfx.stack.auth.login.spi.impl.mojoauth.MojoAuthLoginServiceProvider</provider>
             </providers>
 
@@ -633,6 +634,7 @@
                 <module>java-sdk</module>
                 <module>webfx-platform-async</module>
                 <module>webfx-platform-boot</module>
+                <module>webfx-platform-console</module>
                 <module>webfx-stack-auth-authn</module>
                 <module>webfx-stack-auth-login</module>
                 <module>webfx-stack-push-server</module>
@@ -2530,8 +2532,6 @@
 
             <source-packages>
                 <package>dev.webfx.stack.routing.router</package>
-                <package>dev.webfx.stack.routing.router.session</package>
-                <package>dev.webfx.stack.routing.router.session.impl</package>
                 <package>dev.webfx.stack.routing.router.spi</package>
                 <package>dev.webfx.stack.routing.router.util</package>
             </source-packages>
@@ -2580,6 +2580,8 @@
                 <module>webfx-stack-auth-authz</module>
                 <module>webfx-stack-routing-router</module>
                 <module>webfx-stack-session</module>
+                <module>webfx-stack-session-state-client</module>
+                <module>webfx-stack-session-state-client-fx</module>
             </used-by-source-modules>
 
         </project>
@@ -2645,8 +2647,6 @@
                 <package>dev.webfx.stack.routing.uirouter.activity.view.impl</package>
                 <package>dev.webfx.stack.routing.uirouter.impl</package>
                 <package>dev.webfx.stack.routing.uirouter.operations</package>
-                <package>dev.webfx.stack.routing.uirouter.uisession</package>
-                <package>dev.webfx.stack.routing.uirouter.uisession.impl</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -2654,18 +2654,15 @@
                 <module>webfx-kit-javafxbase-emul</module>
                 <module>webfx-kit-javafxgraphics-emul</module>
                 <module>webfx-kit-launcher</module>
-                <module>webfx-kit-util</module>
                 <module>webfx-platform-async</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-json</module>
                 <module>webfx-platform-uischeduler</module>
                 <module>webfx-platform-util</module>
                 <module>webfx-platform-windowhistory</module>
-                <module>webfx-stack-auth-authz</module>
                 <module>webfx-stack-routing-activity</module>
                 <module>webfx-stack-routing-router</module>
                 <module>webfx-stack-routing-router-client</module>
-                <module>webfx-stack-session</module>
                 <module>webfx-stack-ui-operation</module>
             </used-by-source-modules>
 

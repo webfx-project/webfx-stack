@@ -1,19 +1,27 @@
 package dev.webfx.stack.routing.router.spi.impl.client;
 
+import dev.webfx.stack.session.Session;
+import dev.webfx.stack.session.state.client.ClientSideStateSession;
+
 import java.util.Collection;
 
 /**
  * @author Bruno Salmon
  */
-final class ClientClientRoutingContext extends ClientRoutingContextBase {
+final class ClientRoutingContextImpl extends ClientRoutingContextBase {
 
     private final ClientRouter router;
     private Throwable failure;
     private int statusCode = -1;
 
-    ClientClientRoutingContext(String mountPoint, ClientRouter router, String path, Collection<ClientRoute> routes, Object state) {
+    ClientRoutingContextImpl(String mountPoint, ClientRouter router, String path, Collection<ClientRoute> routes, Object state) {
         super(mountPoint, path, routes, state);
         this.router = router;
+    }
+
+    @Override
+    public Session session() {
+        return ClientSideStateSession.getInstance().getClientSession();
     }
 
     ClientRouter router() {

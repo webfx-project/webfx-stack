@@ -8,11 +8,12 @@ module webfx.stack.auth.authz {
     requires webfx.platform.async;
     requires webfx.platform.uischeduler;
     requires webfx.platform.util;
+    requires webfx.stack.session.state.client.fx;
     requires webfx.stack.ui.operation;
 
     // Exported packages
     exports dev.webfx.stack.auth.authz;
-    exports dev.webfx.stack.auth.authz.mixin;
+    exports dev.webfx.stack.auth.authz.factory;
     exports dev.webfx.stack.auth.authz.operation;
     exports dev.webfx.stack.auth.authz.spi;
     exports dev.webfx.stack.auth.authz.spi.impl;
