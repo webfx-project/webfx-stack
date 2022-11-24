@@ -11,6 +11,7 @@
 
     <providers>
         <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.auth.authn.buscall.AuthenticateMethodEndpoint</provider>
+        <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.auth.authn.buscall.GetUserClaimsMethodEndpoint</provider>
     </providers>
 
 </project>

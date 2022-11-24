@@ -10,6 +10,6 @@ module webfx.stack.auth.authn.buscall {
     exports dev.webfx.stack.auth.authn.buscall;
 
     // Provided services
-    provides dev.webfx.stack.com.bus.call.spi.BusCallEndpoint with dev.webfx.stack.auth.authn.buscall.AuthenticateMethodEndpoint;
+    provides dev.webfx.stack.com.bus.call.spi.BusCallEndpoint with dev.webfx.stack.auth.authn.buscall.AuthenticateMethodEndpoint, dev.webfx.stack.auth.authn.buscall.GetUserClaimsMethodEndpoint;
 
 }

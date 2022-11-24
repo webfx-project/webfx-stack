@@ -12,6 +12,7 @@
     </dependencies>
 
     <providers>
+        <provider interface="dev.webfx.stack.com.serial.spi.impl.SerialCodecBase">dev.webfx.stack.auth.authn.serial.UserClaimsSerialCodec</provider>
         <provider interface="dev.webfx.stack.com.serial.spi.impl.SerialCodecBase">dev.webfx.stack.auth.authn.serial.UsernamePasswordCredentialSerialCodec</provider>
     </providers>
 
