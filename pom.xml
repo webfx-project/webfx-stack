@@ -35,8 +35,10 @@
         <module>webfx-stack-auth-authn</module>
         <module>webfx-stack-auth-authn-buscall</module>
         <module>webfx-stack-auth-authn-remote</module>
+        <module>webfx-stack-auth-authn-server</module>
         <module>webfx-stack-auth-authn-server-mojoauth</module>
-        <module>webfx-stack-auth-authz</module>
+        <module>webfx-stack-auth-authz-client</module>
+        <module>webfx-stack-auth-authz-server</module>
         <module>webfx-stack-auth-login</module>
         <module>webfx-stack-auth-login-buscall</module>
         <module>webfx-stack-auth-login-remote</module>

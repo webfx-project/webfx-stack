@@ -1,6 +1,5 @@
 package dev.webfx.stack.auth.login.spi.impl.mojoauth;
 
-import com.mojoauth.sdk.models.responsemodels.UserResponse;
 import dev.webfx.platform.boot.spi.ApplicationJob;
 import dev.webfx.platform.console.Console;
 import dev.webfx.stack.auth.authn.AuthenticationService;
@@ -27,28 +26,24 @@ public final class MojoAuthLoginApplicationJob implements ApplicationJob {
             String stateId = rc.getParams().getString("state_id");
             String sessionId = rc.getParams().getString("sessionId");
             Session webSession = rc.session();
-            Object associatedSession = webSession.get("$associatedSession");
-            String associateSessionId = associatedSession instanceof Session ? ((Session) associatedSession).id() : null;
-            Console.log("state_id = " + stateId + ", requested sessionId = " + sessionId + ", webSessionId = " + webSession.id() + ", associateSessionId = " + associateSessionId);
+            Console.log("state_id = " + stateId + ", requested sessionId = " + sessionId + ", webSessionId = " + webSession.id());
             AuthenticationService.authenticate(stateId)
                     .onComplete(ar -> {
-                        String responseText = "Login failed";
+                        String responseText;
                         if (ar.failed())
                             responseText = "Login error: " + ar.cause().getMessage();
                         else {
-                            UserResponse userResponse = (UserResponse) ar.result();
-                            if (userResponse.getAuthenticated()) {
-                                String userId = userResponse.getUser().getUserId();
-                                responseText = "Login successful";
-                                SessionService.getSessionStore().get(sessionId)
-                                        .onFailure(Throwable::printStackTrace)
-                                        .onSuccess(session -> {
-                                            String runId = SessionAccessor.getRunId(session);
-                                            Console.log("session.runId = " + runId);
-                                            if (runId != null)
-                                                PushServerService.pushState(StateAccessor.setUserId(null, userId), runId);
-                                        });
-                            }
+                            String oAuthAccessToken = ar.result().toString();
+                            responseText = "Login successful";
+                            // Retrieving runId from the session in order to push the user id to the client
+                            SessionService.getSessionStore().get(sessionId)
+                                    .onFailure(Throwable::printStackTrace)
+                                    .onSuccess(session -> {
+                                        String runId = SessionAccessor.getRunId(session);
+                                        Console.log("session.runId = " + runId);
+                                        if (runId != null)
+                                            PushServerService.pushState(StateAccessor.setUserId(null, oAuthAccessToken), runId);
+                                    });
                         }
                         rc.sendResponse(HTML_RESPONSE.replace("{{RESPONSE_TEXT}}", responseText));
                     });

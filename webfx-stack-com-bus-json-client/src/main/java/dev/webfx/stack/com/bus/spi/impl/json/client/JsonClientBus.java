@@ -25,8 +25,8 @@ public abstract class JsonClientBus extends JsonBus {
 
     @Override
     protected void onOpen() {
-        super.onOpen();
         ClientSideStateSessionSyncer.setClientConnected(true);
+        super.onOpen();
     }
 
     @Override
@@ -71,13 +71,4 @@ public abstract class JsonClientBus extends JsonBus {
         ClientSideStateSessionSyncer.syncClientSessionFromOutgoingClientState(state);
     }
 
-/*
-    @Override
-    protected String jsonToNetworkRawMessage(WritableJsonObject jsonRawMessage, Object state) {
-        // Completing the state before sending it to the server
-        state = ClientSideStateSessionSyncer.syncOutgoingClientStateFromClientSession(state);
-        ClientSideStateSessionSyncer.syncClientSessionFromOutgoingClientState(state);
-        return super.jsonToNetworkRawMessage(jsonRawMessage, state);
-    }
-*/
 }

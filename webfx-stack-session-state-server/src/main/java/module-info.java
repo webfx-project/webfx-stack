@@ -4,7 +4,7 @@ module webfx.stack.session.state.server {
 
     // Direct dependencies modules
     requires java.base;
-    requires webfx.platform.async;
+    requires transitive webfx.platform.async;
     requires webfx.platform.console;
     requires webfx.stack.session;
     requires webfx.stack.session.state;

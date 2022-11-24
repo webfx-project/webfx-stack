@@ -9,4 +9,8 @@
         <used-by-source-modules/>
     </dependencies>
 
+    <providers>
+        <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.com.bus.spi.impl.json.client.JsonClientBusModuleBooter</provider>
+    </providers>
+
 </project>

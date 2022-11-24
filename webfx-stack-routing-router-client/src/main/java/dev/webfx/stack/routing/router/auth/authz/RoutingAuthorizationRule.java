@@ -1,7 +1,7 @@
 package dev.webfx.stack.routing.router.auth.authz;
 
-import dev.webfx.stack.auth.authz.spi.impl.inmemory.AuthorizationRuleType;
-import dev.webfx.stack.auth.authz.spi.impl.inmemory.SimpleInMemoryAuthorizationRuleBase;
+import dev.webfx.stack.auth.authz.client.spi.impl.inmemory.AuthorizationRuleType;
+import dev.webfx.stack.auth.authz.client.spi.impl.inmemory.SimpleInMemoryAuthorizationRuleBase;
 
 /**
  * @author Bruno Salmon

@@ -1,5 +1,6 @@
 package dev.webfx.stack.session.state.client;
 
+import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.storage.LocalStorage;
 import dev.webfx.platform.uischeduler.UiScheduler;
@@ -85,19 +86,21 @@ public final class ClientSideStateSession {
 
     private void scheduleListenerCall() {
         if (scheduledListenerCall == null)
-            UiScheduler.scheduleDeferred(scheduledListenerCall = () -> {
+            callRunnable(scheduledListenerCall = () -> {
                 callListener();
                 scheduledListenerCall = null;
             });
     }
 
     private void callListener() {
-        UiScheduler.runInUiThread(() -> {
+        callRunnable(() -> {
             ClientSideStateSessionListener listener = clientSideStateSessionListener;
             if (listener != null) {
                 if (clientSessionChanged) {
                     clientSessionChanged = false;
                     listener.onClientSessionChanged(getClientSession());
+                    // Because we switched the session (or loaded it on start), we need to update all other settings
+                    serverSessionIdChanged = userIdChanged = runIdChanged = connectedChanged = true;
                 }
                 if (serverSessionIdChanged) {
                     serverSessionIdChanged = false;
@@ -117,6 +120,17 @@ public final class ClientSideStateSession {
                 }
             }
         });
+    }
+
+    private void callRunnable(Runnable runnable) {
+        // When the JavaFX UI has not yet started (only the application logic started), we don't postpone the call in
+        // the UI thread, we run it immediately because 1) there is no danger of UI thread exception at this point, and
+        // 2) the sequencing can be very sensitive on boot time, and postponing the call will probably alter the boot
+        // sequence and create problems.
+        if (!WebFxKitLauncher.isReady())
+            runnable.run();
+        else // Once the JavaFX UI has started, we ensure it runs in the UI thread
+            UiScheduler.runInUiThread(runnable);
     }
 
     public void setClientSideStateSessionHolder(ClientSideStateSessionListener clientSideStateSessionListener) {

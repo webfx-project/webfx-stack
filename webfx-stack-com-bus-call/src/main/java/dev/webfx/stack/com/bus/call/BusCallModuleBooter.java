@@ -22,7 +22,7 @@ public final class BusCallModuleBooter implements ApplicationModuleBooter {
 
     @Override
     public int getBootLevel() {
-        return JOBS_START_BOOT_LEVEL;
+        return COMMUNICATION_REGISTER_BOOT_LEVEL;
     }
 
     @Override

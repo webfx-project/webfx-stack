@@ -4,6 +4,7 @@ module webfx.stack.session.state.client {
 
     // Direct dependencies modules
     requires java.base;
+    requires webfx.kit.launcher;
     requires webfx.platform.console;
     requires webfx.platform.storage;
     requires webfx.platform.uischeduler;

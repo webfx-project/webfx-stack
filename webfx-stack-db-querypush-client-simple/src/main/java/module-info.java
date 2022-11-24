@@ -13,7 +13,7 @@ module webfx.stack.db.querypush.client.simple {
     exports dev.webfx.stack.db.querypush.client.simple;
 
     // Provided services
-    provides dev.webfx.platform.boot.spi.ApplicationJob with dev.webfx.stack.db.querypush.client.simple.SimpleQueryPushClientJob;
+    provides dev.webfx.platform.boot.spi.ApplicationModuleBooter with dev.webfx.stack.db.querypush.client.simple.SimpleQueryPushClientJob;
     provides dev.webfx.stack.db.querypush.spi.QueryPushServiceProvider with dev.webfx.stack.db.querypush.client.simple.SimpleQueryPushClientServiceProvider;
 
 }

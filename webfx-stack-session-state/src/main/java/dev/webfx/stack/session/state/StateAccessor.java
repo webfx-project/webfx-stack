@@ -29,24 +29,24 @@ public final class StateAccessor {
         return (String) getStateAttribute(state, SERVER_SESSION_ID_ATTRIBUE_NAME);
     }
 
-    public static Object setServerSessionId(Object state, String sessionId) {
-        return setServerSessionId(state, sessionId, true);
+    public static Object setServerSessionId(Object state, String serverSessionId) {
+        return setServerSessionId(state, serverSessionId, true);
     }
 
-    public static Object setServerSessionId(Object state, String sessionId, boolean override) {
-        return setStateAttribute(state, SERVER_SESSION_ID_ATTRIBUE_NAME, sessionId, override);
+    public static Object setServerSessionId(Object state, String serverSessionId, boolean override) {
+        return setStateAttribute(state, SERVER_SESSION_ID_ATTRIBUE_NAME, serverSessionId, override);
     }
 
     public static String getUserId(Object state) {
         return (String) getStateAttribute(state, USER_ID_ATTRIBUE_NAME);
     }
 
-    public static Object setUserId(Object state, String sessionId) {
-        return setUserId(state, sessionId, true);
+    public static Object setUserId(Object state, String userId) {
+        return setUserId(state, userId, true);
     }
 
-    public static Object setUserId(Object state, String sessionId, boolean override) {
-        return setStateAttribute(state, USER_ID_ATTRIBUE_NAME, sessionId, override);
+    public static Object setUserId(Object state, String userId, boolean override) {
+        return setStateAttribute(state, USER_ID_ATTRIBUE_NAME, userId, override);
     }
 
     public static String getRunId(Object state) {

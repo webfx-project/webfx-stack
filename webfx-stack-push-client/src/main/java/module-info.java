@@ -5,7 +5,6 @@ module webfx.stack.push.client {
     // Direct dependencies modules
     requires java.base;
     requires javafx.base;
-    requires webfx.kit.util;
     requires webfx.platform.console;
     requires webfx.platform.util;
     requires webfx.stack.com.bus;

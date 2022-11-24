@@ -3,7 +3,6 @@
 module webfx.stack.auth.login.server.mojoauth {
 
     // Direct dependencies modules
-    requires java.sdk;
     requires webfx.platform.async;
     requires webfx.platform.boot;
     requires webfx.platform.console;

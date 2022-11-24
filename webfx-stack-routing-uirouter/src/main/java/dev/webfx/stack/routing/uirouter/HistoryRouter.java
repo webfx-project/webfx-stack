@@ -1,10 +1,11 @@
 package dev.webfx.stack.routing.uirouter;
 
+import dev.webfx.platform.async.Handler;
+import dev.webfx.platform.console.Console;
 import dev.webfx.platform.windowhistory.spi.BrowsingHistory;
 import dev.webfx.platform.windowhistory.spi.BrowsingHistoryLocation;
 import dev.webfx.stack.routing.router.Router;
-import dev.webfx.platform.console.Console;
-import dev.webfx.platform.async.Handler;
+import dev.webfx.stack.session.state.client.fx.FXAuthorizationsChanged;
 
 /**
  * @author Bruno Salmon
@@ -28,6 +29,8 @@ public class HistoryRouter {
                 router.exceptionHandler(this); // restoring the handler
             }
         });
+        // Refreshing the page each time the authorizations change
+        FXAuthorizationsChanged.runOnAuthorizationsChanged(this::refresh);
     }
 
     public Router getRouter() {

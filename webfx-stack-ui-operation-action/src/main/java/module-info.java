@@ -10,7 +10,7 @@ module webfx.stack.ui.operation.action {
     requires webfx.platform.console;
     requires webfx.platform.uischeduler;
     requires webfx.platform.util;
-    requires webfx.stack.auth.authz;
+    requires webfx.stack.auth.authz.client;
     requires transitive webfx.stack.ui.action;
     requires webfx.stack.ui.operation;
 

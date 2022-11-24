@@ -1,6 +1,5 @@
 package dev.webfx.stack.orm.push.client;
 
-import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 import dev.webfx.stack.com.bus.Registration;
@@ -28,10 +27,7 @@ public final class PushClientService {
         });
         // But to make this work, the client bus call service must listen server calls! This takes place as soon as the
         // connection to the server is ready, or each time we reconnect to the server:
-        FXProperties.runNowAndOnPropertiesChange(() -> {
-            if (FXConnected.isConnected())
-                getProvider().listenServerPushCalls(); // Registering the push notifications for this client over the event bus
-        }, FXConnected.connectedProperty());
+        FXConnected.runOnEachConnected(getProvider()::listenServerPushCalls); // Register this client over the event bus for push notifications
     }
 
     public static PushClientServiceProvider getProvider() {

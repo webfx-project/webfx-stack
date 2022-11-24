@@ -112,6 +112,13 @@ public abstract class JsonBus extends NetworkBus implements JsonBusConstants {
     }
 
     protected void sendPingState() {
+        if (JsonClientBusModuleBooter.isCommunicationAllowed())
+            sendPingStateNow();
+        else
+            JsonClientBusModuleBooter.registerPendingPingStateJsonBus(this);
+    }
+
+    void sendPingStateNow() {
         sendOrPublishOverNetwork(true, PING_STATE_ADDRESS, null, new DeliveryOptions(), event -> System.out.println("Server acknowledged ping state"));
     }
 

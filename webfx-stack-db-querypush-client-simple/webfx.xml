@@ -6,8 +6,8 @@
     </exported-packages>
 
     <providers>
+        <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.db.querypush.client.simple.SimpleQueryPushClientJob</provider>
         <provider interface="dev.webfx.stack.db.querypush.spi.QueryPushServiceProvider">dev.webfx.stack.db.querypush.client.simple.SimpleQueryPushClientServiceProvider</provider>
-        <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.db.querypush.client.simple.SimpleQueryPushClientJob</provider>
     </providers>
 
     <dependencies>
