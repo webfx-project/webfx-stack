@@ -155,19 +155,19 @@
             <parent name="webfx-stack-parent"/>
 
             <modules>
-                <module>webfx-stack-auth-authn</module>
-                <module>webfx-stack-auth-authn-buscall</module>
-                <module>webfx-stack-auth-authn-remote</module>
-                <module>webfx-stack-auth-authn-server</module>
-                <module>webfx-stack-auth-authn-server-mojoauth</module>
-                <module>webfx-stack-auth-authz-client</module>
-                <module>webfx-stack-auth-authz-server</module>
-                <module>webfx-stack-auth-login</module>
-                <module>webfx-stack-auth-login-buscall</module>
-                <module>webfx-stack-auth-login-remote</module>
-                <module>webfx-stack-auth-login-server-mojoauth</module>
-                <module>webfx-stack-auth-login-ui</module>
-                <module>webfx-stack-auth-login-ui-webthirdpary</module>
+                <module>webfx-stack-authn</module>
+                <module>webfx-stack-authn-buscall</module>
+                <module>webfx-stack-authn-login</module>
+                <module>webfx-stack-authn-login-buscall</module>
+                <module>webfx-stack-authn-login-remote</module>
+                <module>webfx-stack-authn-login-server-mojoauth</module>
+                <module>webfx-stack-authn-login-ui</module>
+                <module>webfx-stack-authn-login-ui-webthirdpary</module>
+                <module>webfx-stack-authn-remote</module>
+                <module>webfx-stack-authn-server</module>
+                <module>webfx-stack-authn-server-mojoauth</module>
+                <module>webfx-stack-authz-client</module>
+                <module>webfx-stack-authz-server</module>
                 <module>webfx-stack-com-bus</module>
                 <module>webfx-stack-com-bus-call</module>
                 <module>webfx-stack-com-bus-call-job</module>
@@ -369,7 +369,7 @@
 
         </project>
 
-        <project name="webfx-stack-auth-authn">
+        <project name="webfx-stack-authn">
 
             <exported-packages>
                 <source-packages/>
@@ -382,14 +382,14 @@
             </dependencies>
 
             <providers>
-                <provider interface="dev.webfx.stack.com.serial.spi.impl.SerialCodecBase">dev.webfx.stack.auth.authn.serial.UserClaimsSerialCodec</provider>
-                <provider interface="dev.webfx.stack.com.serial.spi.impl.SerialCodecBase">dev.webfx.stack.auth.authn.serial.UsernamePasswordCredentialSerialCodec</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.impl.SerialCodecBase">dev.webfx.stack.authn.serial.UserClaimsSerialCodec</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.impl.SerialCodecBase">dev.webfx.stack.authn.serial.UsernamePasswordCredentialSerialCodec</provider>
             </providers>
 
             <source-packages>
-                <package>dev.webfx.stack.auth.authn</package>
-                <package>dev.webfx.stack.auth.authn.serial</package>
-                <package>dev.webfx.stack.auth.authn.spi</package>
+                <package>dev.webfx.stack.authn</package>
+                <package>dev.webfx.stack.authn.serial</package>
+                <package>dev.webfx.stack.authn.spi</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -401,12 +401,12 @@
             </used-by-source-modules>
 
             <used-services>
-                <required-service>dev.webfx.stack.auth.authn.spi.AuthenticationServiceProvider</required-service>
+                <required-service>dev.webfx.stack.authn.spi.AuthenticationServiceProvider</required-service>
             </used-services>
 
         </project>
 
-        <project name="webfx-stack-auth-authn-buscall">
+        <project name="webfx-stack-authn-buscall">
 
             <exported-packages>
                 <source-packages/>
@@ -417,22 +417,51 @@
             </dependencies>
 
             <providers>
-                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.auth.authn.buscall.AuthenticateMethodEndpoint</provider>
-                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.auth.authn.buscall.GetUserClaimsMethodEndpoint</provider>
+                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.authn.buscall.AuthenticateMethodEndpoint</provider>
+                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.authn.buscall.GetUserClaimsMethodEndpoint</provider>
             </providers>
 
             <source-packages>
-                <package>dev.webfx.stack.auth.authn.buscall</package>
+                <package>dev.webfx.stack.authn.buscall</package>
             </source-packages>
 
             <used-by-source-modules>
-                <module>webfx-stack-auth-authn</module>
+                <module>webfx-stack-authn</module>
                 <module>webfx-stack-com-bus-call</module>
             </used-by-source-modules>
 
         </project>
 
-        <project name="webfx-stack-auth-authn-remote">
+        <project name="webfx-stack-authn-login">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module transitive="true">webfx-platform-async</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.authn.login</package>
+                <package>dev.webfx.stack.authn.login.spi</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-util</module>
+            </used-by-source-modules>
+
+            <used-services>
+                <required-service>dev.webfx.stack.authn.login.spi.LoginServiceProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-stack-authn-login-buscall">
 
             <exported-packages>
                 <source-packages/>
@@ -443,27 +472,167 @@
             </dependencies>
 
             <providers>
-                <provider interface="dev.webfx.stack.auth.authn.spi.AuthenticationServiceProvider">dev.webfx.stack.auth.authn.spi.impl.remote.RemoteAuthenticationServiceProvider</provider>
+                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.authn.login.buscall.GetLoginUiInputMethodEndpoint</provider>
             </providers>
 
             <source-packages>
-                <package>dev.webfx.stack.auth.authn.spi.impl.remote</package>
+                <package>dev.webfx.stack.authn.login.buscall</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-stack-authn-login</module>
+                <module>webfx-stack-com-bus-call</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-authn-login-remote">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.stack.authn.login.spi.LoginServiceProvider">dev.webfx.stack.authn.login.spi.impl.remote.RemoteLoginServiceProvider</provider>
+            </providers>
+
+            <source-packages>
+                <package>dev.webfx.stack.authn.login.spi.impl.remote</package>
             </source-packages>
 
             <used-by-source-modules>
                 <module>webfx-platform-async</module>
-                <module>webfx-stack-auth-authn</module>
-                <module>webfx-stack-auth-authn-buscall</module>
+                <module>webfx-stack-authn-login</module>
+                <module>webfx-stack-authn-login-buscall</module>
                 <module>webfx-stack-com-bus-call</module>
             </used-by-source-modules>
 
         </project>
 
-        <project name="webfx-stack-auth-authn-server">
+        <project name="webfx-stack-authn-login-server-mojoauth">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.authn.login.spi.impl.mojoauth.MojoAuthLoginApplicationJob</provider>
+                <provider interface="dev.webfx.stack.authn.login.spi.LoginServiceProvider">dev.webfx.stack.authn.login.spi.impl.mojoauth.MojoAuthLoginServiceProvider</provider>
+            </providers>
+
+            <source-packages>
+                <package>dev.webfx.stack.authn.login.spi.impl.mojoauth</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-boot</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-stack-authn</module>
+                <module>webfx-stack-authn-login</module>
+                <module>webfx-stack-push-server</module>
+                <module>webfx-stack-routing-router</module>
+                <module>webfx-stack-session</module>
+                <module>webfx-stack-session-state</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-authn-login-ui">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.authn.login.ui</package>
+                <package>dev.webfx.stack.authn.login.ui.spi</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-kit-javafxgraphics-emul</module>
+                <module>webfx-platform-util</module>
+            </used-by-source-modules>
+
+            <used-services>
+                <required-service>dev.webfx.stack.authn.login.ui.spi.LoginUiProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-stack-authn-login-ui-webthirdpary">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.stack.authn.login.ui.spi.LoginUiProvider">dev.webfx.stack.authn.login.ui.spi.impl.webthirdparty.WebThirdPartyLoginUiProvider</provider>
+            </providers>
+
+            <source-packages>
+                <package>dev.webfx.stack.authn.login.ui.spi.impl.webthirdparty</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-kit-javafxgraphics-emul</module>
+                <module>webfx-kit-javafxweb-emul</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-stack-authn-login</module>
+                <module>webfx-stack-authn-login-ui</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-authn-remote">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.stack.authn.spi.AuthenticationServiceProvider">dev.webfx.stack.authn.spi.impl.remote.RemoteAuthenticationServiceProvider</provider>
+            </providers>
+
+            <source-packages>
+                <package>dev.webfx.stack.authn.spi.impl.remote</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-platform-async</module>
+                <module>webfx-stack-authn</module>
+                <module>webfx-stack-authn-buscall</module>
+                <module>webfx-stack-com-bus-call</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-authn-server">
 
             <module-auto-injection-conditions>
                 <if-uses-java-package>dev.webfx.stack.session.state.server</if-uses-java-package>
-                <if-uses-java-package>dev.webfx.stack.auth.authn</if-uses-java-package>
+                <if-uses-java-package>dev.webfx.stack.authn</if-uses-java-package>
             </module-auto-injection-conditions>
 
             <exported-packages>
@@ -475,22 +644,22 @@
             </dependencies>
 
             <providers>
-                <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.auth.authn.server.AuthenticationServerJob</provider>
+                <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.authn.server.AuthenticationServerJob</provider>
             </providers>
 
             <source-packages>
-                <package>dev.webfx.stack.auth.authn.server</package>
+                <package>dev.webfx.stack.authn.server</package>
             </source-packages>
 
             <used-by-source-modules>
                 <module>webfx-platform-boot</module>
-                <module>webfx-stack-auth-authn</module>
+                <module>webfx-stack-authn</module>
                 <module>webfx-stack-session-state-server</module>
             </used-by-source-modules>
 
         </project>
 
-        <project name="webfx-stack-auth-authn-server-mojoauth">
+        <project name="webfx-stack-authn-server-mojoauth">
 
             <exported-packages>
                 <source-packages/>
@@ -501,7 +670,7 @@
             </dependencies>
 
             <providers>
-                <provider interface="dev.webfx.stack.auth.authn.spi.AuthenticationServiceProvider">dev.webfx.stack.auth.authn.spi.impl.mojoauth.MojoAuthAuthenticationServiceProvider</provider>
+                <provider interface="dev.webfx.stack.authn.spi.AuthenticationServiceProvider">dev.webfx.stack.authn.spi.impl.mojoauth.MojoAuthAuthenticationServiceProvider</provider>
             </providers>
 
             <required-libraries>
@@ -518,7 +687,7 @@
             </required-libraries>
 
             <source-packages>
-                <package>dev.webfx.stack.auth.authn.spi.impl.mojoauth</package>
+                <package>dev.webfx.stack.authn.spi.impl.mojoauth</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -526,12 +695,12 @@
                 <module>java.base</module>
                 <module>webfx-platform-async</module>
                 <module>webfx-platform-json</module>
-                <module>webfx-stack-auth-authn</module>
+                <module>webfx-stack-authn</module>
             </used-by-source-modules>
 
         </project>
 
-        <project name="webfx-stack-auth-authz-client">
+        <project name="webfx-stack-authz-client">
 
             <exported-packages>
                 <source-packages/>
@@ -542,13 +711,13 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.stack.auth.authz.client</package>
-                <package>dev.webfx.stack.auth.authz.client.factory</package>
-                <package>dev.webfx.stack.auth.authz.client.operation</package>
-                <package>dev.webfx.stack.auth.authz.client.spi</package>
-                <package>dev.webfx.stack.auth.authz.client.spi.impl</package>
-                <package>dev.webfx.stack.auth.authz.client.spi.impl.inmemory</package>
-                <package>dev.webfx.stack.auth.authz.client.spi.impl.inmemory.parser</package>
+                <package>dev.webfx.stack.authz.client</package>
+                <package>dev.webfx.stack.authz.client.factory</package>
+                <package>dev.webfx.stack.authz.client.operation</package>
+                <package>dev.webfx.stack.authz.client.spi</package>
+                <package>dev.webfx.stack.authz.client.spi.impl</package>
+                <package>dev.webfx.stack.authz.client.spi.impl.inmemory</package>
+                <package>dev.webfx.stack.authz.client.spi.impl.inmemory.parser</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -562,12 +731,12 @@
             </used-by-source-modules>
 
             <used-services>
-                <required-service>dev.webfx.stack.auth.authz.client.spi.AuthorizationClientServiceProvider</required-service>
+                <required-service>dev.webfx.stack.authz.client.spi.AuthorizationClientServiceProvider</required-service>
             </used-services>
 
         </project>
 
-        <project name="webfx-stack-auth-authz-server">
+        <project name="webfx-stack-authz-server">
 
             <exported-packages>
                 <source-packages/>
@@ -578,12 +747,12 @@
             </dependencies>
 
             <providers>
-                <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.auth.authz.server.AuthorizationServerJob</provider>
+                <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.authz.server.AuthorizationServerJob</provider>
             </providers>
 
             <source-packages>
-                <package>dev.webfx.stack.auth.authz.server</package>
-                <package>dev.webfx.stack.auth.authz.server.spi</package>
+                <package>dev.webfx.stack.authz.server</package>
+                <package>dev.webfx.stack.authz.server.spi</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -595,177 +764,8 @@
             </used-by-source-modules>
 
             <used-services>
-                <required-service>dev.webfx.stack.auth.authz.server.spi.AuthorizationServerServiceProvider</required-service>
+                <required-service>dev.webfx.stack.authz.server.spi.AuthorizationServerServiceProvider</required-service>
             </used-services>
-
-        </project>
-
-        <project name="webfx-stack-auth-login">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules>
-                    <module transitive="true">webfx-platform-async</module>
-                </used-by-source-modules>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.auth.login</package>
-                <package>dev.webfx.stack.auth.login.spi</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java.base</module>
-                <module>webfx-platform-async</module>
-                <module>webfx-platform-util</module>
-            </used-by-source-modules>
-
-            <used-services>
-                <required-service>dev.webfx.stack.auth.login.spi.LoginServiceProvider</required-service>
-            </used-services>
-
-        </project>
-
-        <project name="webfx-stack-auth-login-buscall">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <providers>
-                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.auth.login.buscall.GetLoginUiInputMethodEndpoint</provider>
-            </providers>
-
-            <source-packages>
-                <package>dev.webfx.stack.auth.login.buscall</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>webfx-stack-auth-login</module>
-                <module>webfx-stack-com-bus-call</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-stack-auth-login-remote">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <providers>
-                <provider interface="dev.webfx.stack.auth.login.spi.LoginServiceProvider">dev.webfx.stack.auth.login.spi.impl.remote.RemoteLoginServiceProvider</provider>
-            </providers>
-
-            <source-packages>
-                <package>dev.webfx.stack.auth.login.spi.impl.remote</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>webfx-platform-async</module>
-                <module>webfx-stack-auth-login</module>
-                <module>webfx-stack-auth-login-buscall</module>
-                <module>webfx-stack-com-bus-call</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-stack-auth-login-server-mojoauth">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <providers>
-                <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.auth.login.spi.impl.mojoauth.MojoAuthLoginApplicationJob</provider>
-                <provider interface="dev.webfx.stack.auth.login.spi.LoginServiceProvider">dev.webfx.stack.auth.login.spi.impl.mojoauth.MojoAuthLoginServiceProvider</provider>
-            </providers>
-
-            <source-packages>
-                <package>dev.webfx.stack.auth.login.spi.impl.mojoauth</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>webfx-platform-async</module>
-                <module>webfx-platform-boot</module>
-                <module>webfx-platform-console</module>
-                <module>webfx-stack-auth-authn</module>
-                <module>webfx-stack-auth-login</module>
-                <module>webfx-stack-push-server</module>
-                <module>webfx-stack-routing-router</module>
-                <module>webfx-stack-session</module>
-                <module>webfx-stack-session-state</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-stack-auth-login-ui">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.stack.auth.login.ui</package>
-                <package>dev.webfx.stack.auth.login.ui.spi</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java.base</module>
-                <module>webfx-kit-javafxgraphics-emul</module>
-                <module>webfx-platform-util</module>
-            </used-by-source-modules>
-
-            <used-services>
-                <required-service>dev.webfx.stack.auth.login.ui.spi.LoginUiProvider</required-service>
-            </used-services>
-
-        </project>
-
-        <project name="webfx-stack-auth-login-ui-webthirdpary">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <providers>
-                <provider interface="dev.webfx.stack.auth.login.ui.spi.LoginUiProvider">dev.webfx.stack.auth.login.ui.spi.impl.webthirdparty.WebThirdPartyLoginUiProvider</provider>
-            </providers>
-
-            <source-packages>
-                <package>dev.webfx.stack.auth.login.ui.spi.impl.webthirdparty</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>webfx-kit-javafxgraphics-emul</module>
-                <module>webfx-kit-javafxweb-emul</module>
-                <module>webfx-platform-console</module>
-                <module>webfx-stack-auth-login</module>
-                <module>webfx-stack-auth-login-ui</module>
-            </used-by-source-modules>
 
         </project>
 
@@ -2651,7 +2651,7 @@
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-json</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-auth-authz-client</module>
+                <module>webfx-stack-authz-client</module>
                 <module>webfx-stack-routing-router</module>
                 <module>webfx-stack-session</module>
                 <module>webfx-stack-session-state-client</module>
@@ -2728,7 +2728,6 @@
                 <module>webfx-kit-javafxbase-emul</module>
                 <module>webfx-kit-javafxgraphics-emul</module>
                 <module>webfx-kit-launcher</module>
-                <module>webfx-kit-util</module>
                 <module>webfx-platform-async</module>
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-json</module>
@@ -3111,7 +3110,7 @@
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-uischeduler</module>
                 <module>webfx-platform-util</module>
-                <module>webfx-stack-auth-authz-client</module>
+                <module>webfx-stack-authz-client</module>
                 <module>webfx-stack-ui-action</module>
                 <module>webfx-stack-ui-operation</module>
             </used-by-source-modules>
@@ -3201,8 +3200,8 @@
                 <module>webfx-platform-windowhistory</module>
                 <module>webfx-platform-windowhistory-gwt</module>
                 <module>webfx-platform-windowhistory-web</module>
-                <module>webfx-stack-auth-authn</module>
-                <module>webfx-stack-auth-authn-server-mojoauth</module>
+                <module>webfx-stack-authn</module>
+                <module>webfx-stack-authn-server-mojoauth</module>
                 <module>webfx-stack-com-bus</module>
                 <module>webfx-stack-com-bus-call</module>
                 <module>webfx-stack-com-bus-json-client</module>
@@ -3235,13 +3234,13 @@
                 <module>webfx-stack-ui-util</module>
             </java-package>
 
-            <java-package name="dev.webfx.stack.auth.authn">
-                <module>webfx-stack-auth-authn</module>
-                <module>webfx-stack-auth-authn-buscall</module>
-                <module>webfx-stack-auth-authn-remote</module>
-                <module>webfx-stack-auth-authn-server</module>
-                <module>webfx-stack-auth-authn-server-mojoauth</module>
-                <module>webfx-stack-auth-login-server-mojoauth</module>
+            <java-package name="dev.webfx.stack.authn">
+                <module>webfx-stack-authn</module>
+                <module>webfx-stack-authn-buscall</module>
+                <module>webfx-stack-authn-login-server-mojoauth</module>
+                <module>webfx-stack-authn-remote</module>
+                <module>webfx-stack-authn-server</module>
+                <module>webfx-stack-authn-server-mojoauth</module>
             </java-package>
 
             <java-package name="dev.webfx.stack.com.bus.spi.impl.json.server">
@@ -3307,7 +3306,7 @@
             </java-package>
 
             <java-package name="dev.webfx.stack.push.server">
-                <module>webfx-stack-auth-login-server-mojoauth</module>
+                <module>webfx-stack-authn-login-server-mojoauth</module>
                 <module>webfx-stack-db-querypush-server</module>
                 <module>webfx-stack-push-server</module>
                 <module>webfx-stack-push-server-liveclient-interceptor</module>
@@ -3315,8 +3314,8 @@
             </java-package>
 
             <java-package name="dev.webfx.stack.session.state.server">
-                <module>webfx-stack-auth-authn-server</module>
-                <module>webfx-stack-auth-authz-server</module>
+                <module>webfx-stack-authn-server</module>
+                <module>webfx-stack-authz-server</module>
                 <module>webfx-stack-com-bus-json-server</module>
             </java-package>
 

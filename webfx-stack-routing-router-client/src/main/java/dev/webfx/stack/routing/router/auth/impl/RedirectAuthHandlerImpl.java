@@ -1,6 +1,6 @@
 package dev.webfx.stack.routing.router.auth.impl;
 
-import dev.webfx.stack.auth.authz.client.AuthorizationClientRequest;
+import dev.webfx.stack.authz.client.AuthorizationClientRequest;
 import dev.webfx.stack.routing.router.RoutingContext;
 import dev.webfx.stack.routing.router.auth.RedirectAuthHandler;
 import dev.webfx.stack.routing.router.auth.authz.RouteRequest;

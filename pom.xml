@@ -32,19 +32,19 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>webfx-stack-auth-authn</module>
-        <module>webfx-stack-auth-authn-buscall</module>
-        <module>webfx-stack-auth-authn-remote</module>
-        <module>webfx-stack-auth-authn-server</module>
-        <module>webfx-stack-auth-authn-server-mojoauth</module>
-        <module>webfx-stack-auth-authz-client</module>
-        <module>webfx-stack-auth-authz-server</module>
-        <module>webfx-stack-auth-login</module>
-        <module>webfx-stack-auth-login-buscall</module>
-        <module>webfx-stack-auth-login-remote</module>
-        <module>webfx-stack-auth-login-server-mojoauth</module>
-        <module>webfx-stack-auth-login-ui</module>
-        <module>webfx-stack-auth-login-ui-webthirdpary</module>
+        <module>webfx-stack-authn</module>
+        <module>webfx-stack-authn-buscall</module>
+        <module>webfx-stack-authn-login</module>
+        <module>webfx-stack-authn-login-buscall</module>
+        <module>webfx-stack-authn-login-remote</module>
+        <module>webfx-stack-authn-login-server-mojoauth</module>
+        <module>webfx-stack-authn-login-ui</module>
+        <module>webfx-stack-authn-login-ui-webthirdpary</module>
+        <module>webfx-stack-authn-remote</module>
+        <module>webfx-stack-authn-server</module>
+        <module>webfx-stack-authn-server-mojoauth</module>
+        <module>webfx-stack-authz-client</module>
+        <module>webfx-stack-authz-server</module>
         <module>webfx-stack-com-bus</module>
         <module>webfx-stack-com-bus-call</module>
         <module>webfx-stack-com-bus-call-job</module>
