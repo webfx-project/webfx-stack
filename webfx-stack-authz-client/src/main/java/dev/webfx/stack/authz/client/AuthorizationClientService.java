@@ -11,8 +11,8 @@ import java.util.ServiceLoader;
  */
 public final class AuthorizationClientService {
 
-    public static Future<Boolean> isAuthorized(Object operationAuthorizationRequest, Object userPrincipal) {
-        return getProvider().isAuthorized(operationAuthorizationRequest, userPrincipal);
+    public static Future<Boolean> isAuthorized(Object operationAuthorizationRequest) {
+        return getProvider().isAuthorized(operationAuthorizationRequest);
     }
 
     public static AuthorizationClientServiceProvider getProvider() {

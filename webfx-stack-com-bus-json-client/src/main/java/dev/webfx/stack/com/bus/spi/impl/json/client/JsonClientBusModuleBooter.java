@@ -28,7 +28,7 @@ public class JsonClientBusModuleBooter implements ApplicationModuleBooter {
 
     @Override
     public int getBootLevel() {
-        return COMMUNICATION_ANY_BOOT_LEVEL;
+        return COMMUNICATION_ALL_BOOT_LEVEL;
     }
 
     @Override

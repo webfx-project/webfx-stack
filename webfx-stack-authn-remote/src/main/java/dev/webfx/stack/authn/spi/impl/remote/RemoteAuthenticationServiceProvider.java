@@ -17,12 +17,17 @@ public class RemoteAuthenticationServiceProvider implements AuthenticationServic
     }
 
     @Override
-    public Future<?> verifyAuthenticated(Object userId) {
-        return BusCallService.call(AuthenticationServiceBusAddress.VERIFY_AUTHENTICATED_METHOD_ADDRESS, userId);
+    public Future<?> verifyAuthenticated() {
+        return BusCallService.call(AuthenticationServiceBusAddress.VERIFY_AUTHENTICATED_METHOD_ADDRESS, null);
     }
 
     @Override
-    public Future<UserClaims> getUserClaims(Object userId) {
-        return BusCallService.call(AuthenticationServiceBusAddress.GET_USER_CLAIMS_METHOD_ADDRESS, userId);
+    public Future<UserClaims> getUserClaims() {
+        return BusCallService.call(AuthenticationServiceBusAddress.GET_USER_CLAIMS_METHOD_ADDRESS, null);
+    }
+
+    @Override
+    public Future<Void> logout() {
+        return BusCallService.call(AuthenticationServiceBusAddress.LOGOUT_METHOD_ADDRESS, null);
     }
 }

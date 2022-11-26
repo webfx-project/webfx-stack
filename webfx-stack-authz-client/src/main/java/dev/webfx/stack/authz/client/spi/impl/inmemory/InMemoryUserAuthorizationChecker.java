@@ -1,6 +1,6 @@
 package dev.webfx.stack.authz.client.spi.impl.inmemory;
 
-import dev.webfx.stack.authz.client.spi.impl.UserPrincipalAuthorizationChecker;
+import dev.webfx.stack.authz.client.spi.impl.UserAuthorizationChecker;
 import dev.webfx.platform.async.AsyncResult;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.FutureBroadcaster;
@@ -9,24 +9,17 @@ import dev.webfx.platform.async.Handler;
 /**
  * @author Bruno Salmon
  */
-public class InMemoryUserPrincipalAuthorizationChecker implements UserPrincipalAuthorizationChecker {
+public class InMemoryUserAuthorizationChecker implements UserAuthorizationChecker {
 
-    private final Object userPrincipal;
     protected final InMemoryAuthorizationRuleRegistry ruleRegistry;
     private FutureBroadcaster<?> rulesLoadingBroadcaster;
 
-    public InMemoryUserPrincipalAuthorizationChecker(Object userPrincipal) {
-        this(userPrincipal, new InMemoryAuthorizationRuleRegistry());
+    public InMemoryUserAuthorizationChecker() {
+        this(new InMemoryAuthorizationRuleRegistry());
     }
 
-    public InMemoryUserPrincipalAuthorizationChecker(Object userPrincipal, InMemoryAuthorizationRuleRegistry ruleRegistry) {
-        this.userPrincipal = userPrincipal;
+    public InMemoryUserAuthorizationChecker(InMemoryAuthorizationRuleRegistry ruleRegistry) {
         this.ruleRegistry = ruleRegistry;
-    }
-
-    @Override
-    public Object getUserPrincipal() {
-        return userPrincipal;
     }
 
     @Override

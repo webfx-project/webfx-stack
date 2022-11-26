@@ -40,7 +40,7 @@ public final class QueryResult {
     private int versionNumber;
 
     public QueryResult(int rowCount, int columnCount, Object[] values, String[] columnNames) {
-        if (values.length != columnCount * rowCount || columnNames != null && columnNames.length != columnCount)
+        if ((values == null ? 0 : values.length) != columnCount * rowCount || columnNames != null && columnNames.length != columnCount)
             throw new IllegalArgumentException("Incoherent sizes in QueryResult initialization");
         this.rowCount = rowCount;
         this.columnCount = columnCount;
@@ -53,7 +53,7 @@ public final class QueryResult {
     }
 
     public QueryResult(int columnCount, Object[] values, String[] columnNames) {
-        this(values.length / columnCount, columnCount, values, columnNames);
+        this(values == null || values.length == 0 ? 0 : values.length / columnCount, columnCount, values, columnNames);
     }
 
     public QueryResult(Object[] values, String[] columnNames) {

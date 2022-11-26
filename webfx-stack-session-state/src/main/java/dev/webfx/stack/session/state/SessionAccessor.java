@@ -51,7 +51,10 @@ public final class SessionAccessor {
         if (skipNullValue && value == null || session == null || Objects.equals(value, session.get(key)))
             return false;
         //System.out.println("session(" + session.id() + ")." + key + " = " + value);
-        session.put(key, value);
+        if (value == null)
+            session.remove(key);
+        else
+            session.put(key, value);
         return true;
     }
 }

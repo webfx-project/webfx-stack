@@ -1,6 +1,7 @@
 package dev.webfx.stack.session.state.client.fx;
 
 import dev.webfx.platform.console.Console;
+import dev.webfx.stack.session.state.LogoutUserId;
 import dev.webfx.stack.session.state.client.ClientSideStateSession;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -15,9 +16,10 @@ public final class FXUserId {
     private final static ObjectProperty<Object> userIdProperty = new SimpleObjectProperty<>() {
         @Override
         protected void invalidated() {
-            Console.log("FxUserId = " + get());
-            ClientSideStateSession.getInstance().changeUserId(get().toString(), true, false);
-            FXLoggedIn.setLoggedIn(get() != null);
+            Object userId = get();
+            Console.log("FxUserId = " + userId);
+            ClientSideStateSession.getInstance().changeUserId((String) userId, false, false);
+            FXLoggedIn.setLoggedIn(!LogoutUserId.isLogoutUserIdOrNull(userId));
         }
     };
 

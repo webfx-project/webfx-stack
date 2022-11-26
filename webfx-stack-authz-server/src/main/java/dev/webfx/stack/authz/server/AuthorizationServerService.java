@@ -11,8 +11,8 @@ import java.util.ServiceLoader;
  */
 public final class AuthorizationServerService {
 
-    public static Future<Void> pushAuthorizations(Object userId, Object runId) {
-        return getProvider().pushAuthorizations(userId, runId);
+    public static Future<Void> pushAuthorizations() {
+        return getProvider().pushAuthorizations();
     }
 
     public static AuthorizationServerServiceProvider getProvider() {

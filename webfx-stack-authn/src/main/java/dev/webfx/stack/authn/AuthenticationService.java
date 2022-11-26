@@ -15,12 +15,16 @@ public final class AuthenticationService {
         return getProvider().authenticate(userCredentials);
     }
 
-    public static Future<?> verifyAuthenticated(Object userId) {
-        return getProvider().verifyAuthenticated(userId);
+    public static Future<?> verifyAuthenticated() {
+        return getProvider().verifyAuthenticated();
     }
 
-    public static Future<UserClaims> getUserClaims(Object userId) {
-        return getProvider().getUserClaims(userId);
+    public static Future<UserClaims> getUserClaims() {
+        return getProvider().getUserClaims();
+    }
+
+    public static Future<Void> logout() {
+        return getProvider().logout();
     }
 
     public static AuthenticationServiceProvider getProvider() {

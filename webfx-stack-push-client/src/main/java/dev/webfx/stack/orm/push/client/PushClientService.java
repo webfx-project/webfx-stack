@@ -22,7 +22,7 @@ public final class PushClientService {
         // PushServerService.pingPushClient() because the client bus call service will finally pass the arg to that
         // listener over the local client bus.
         registerPushFunction(ClientPushBusAddressesSharedByBothClientAndServer.PUSH_PING_CLIENT_LISTENER_SERVICE_ADDRESS, arg -> {
-            Console.log(arg);
+            Console.log("Received server push: " + arg);
             return "OK";
         });
         // But to make this work, the client bus call service must listen server calls! This takes place as soon as the

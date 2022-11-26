@@ -13,19 +13,9 @@ import java.util.function.Function;
  */
 public final class AuthorizationClientRequest<Rq, Rs> {
 
-    private Object userPrincipal;
     private Rq operationRequest;
     private AsyncFunction<Rq, Rs> authorizedOperationAsyncExecutor;
     private AsyncFunction<Throwable, ?> unauthorizedOperationAsyncExecutor = o -> Future.failedFuture(new UnauthorizedOperationException());
-
-    public Object getUserPrincipal() {
-        return userPrincipal;
-    }
-
-    public AuthorizationClientRequest<Rq, Rs> setUserPrincipal(Object userPrincipal) {
-        this.userPrincipal = userPrincipal;
-        return this;
-    }
 
     public Rq getOperationRequest() {
         return operationRequest;
@@ -75,7 +65,7 @@ public final class AuthorizationClientRequest<Rq, Rs> {
     }
 
     public Future<Boolean> isAuthorizedAsync() {
-        return AuthorizationClientService.isAuthorized(getOperationRequest(), getUserPrincipal());
+        return AuthorizationClientService.isAuthorized(getOperationRequest());
     }
 
     public Future<Rs> executeAsync() {

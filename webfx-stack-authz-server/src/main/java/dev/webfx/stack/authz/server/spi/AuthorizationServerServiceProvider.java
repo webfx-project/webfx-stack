@@ -7,6 +7,6 @@ import dev.webfx.platform.async.Future;
  */
 public interface AuthorizationServerServiceProvider {
 
-    Future<Void> pushAuthorizations(Object userId, Object runId);
+    Future<Void> pushAuthorizations();
 
 }

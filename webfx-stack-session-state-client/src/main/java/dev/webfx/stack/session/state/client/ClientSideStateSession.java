@@ -8,6 +8,7 @@ import dev.webfx.platform.util.uuid.Uuid;
 import dev.webfx.stack.session.Session;
 import dev.webfx.stack.session.SessionService;
 import dev.webfx.stack.session.SessionStore;
+import dev.webfx.stack.session.state.LogoutUserId;
 import dev.webfx.stack.session.state.SessionAccessor;
 import dev.webfx.stack.session.state.StateAccessor;
 
@@ -172,6 +173,9 @@ public final class ClientSideStateSession {
             userIdChanged = true;
             lastUserIdSyncedValue = userId;
             lastUserIdSyncedFromServer = fromServer;
+            // Erasing userId from client session if logged out
+            if (LogoutUserId.isLogoutUserId(userId))
+                SessionAccessor.changeUserId(clientSession, null, false);
             scheduleSessionStoreAndListenerCall();
         }
     }

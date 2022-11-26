@@ -16,7 +16,6 @@ import dev.webfx.stack.db.querypush.diff.QueryResultDiff;
 import dev.webfx.stack.db.querypush.server.QueryPushServerService;
 import dev.webfx.stack.db.querypush.spi.QueryPushServiceProvider;
 import dev.webfx.stack.push.server.PushServerService;
-import dev.webfx.stack.session.state.StateAccessor;
 import dev.webfx.stack.session.state.ThreadLocalStateHolder;
 
 import java.util.ArrayList;
@@ -339,8 +338,7 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
 
         public StreamInfo(QueryPushArgument arg) {
             queryStreamId = arg.getQueryStreamId();
-            Object state = ThreadLocalStateHolder.getThreadLocalState();
-            clientRunId = StateAccessor.getRunId(state);
+            clientRunId = ThreadLocalStateHolder.getRunId();
             Object parentQueryStreamId = arg.getParentQueryStreamId();
             parentStreamInfo = getStreamInfo(parentQueryStreamId);
             if (parentStreamInfo != null)

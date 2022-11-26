@@ -7,7 +7,7 @@ import dev.webfx.platform.async.Future;
  */
 public interface AuthorizationClientServiceProvider {
 
-    Future<Boolean> isAuthorized(Object operationAuthorizationRequest, Object userPrincipal);
+    Future<Boolean> isAuthorized(Object operationAuthorizationRequest);
 
     Void onAuthorizationsPush(Object pushObject);
 

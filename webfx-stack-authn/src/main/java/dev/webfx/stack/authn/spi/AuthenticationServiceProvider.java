@@ -10,8 +10,10 @@ public interface AuthenticationServiceProvider {
 
     Future<?> authenticate(Object userCredentials);
 
-    Future<?> verifyAuthenticated(Object userId);
+    Future<?> verifyAuthenticated();
 
-    Future<UserClaims> getUserClaims(Object userId);
+    Future<UserClaims> getUserClaims();
+
+    Future<Void> logout();
 
 }

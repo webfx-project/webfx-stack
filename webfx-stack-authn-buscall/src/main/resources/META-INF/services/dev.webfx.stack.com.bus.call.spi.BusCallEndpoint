@@ -1,2 +1,3 @@
 dev.webfx.stack.authn.buscall.AuthenticateMethodEndpoint
 dev.webfx.stack.authn.buscall.GetUserClaimsMethodEndpoint
+dev.webfx.stack.authn.buscall.LogoutMethodEndpoint

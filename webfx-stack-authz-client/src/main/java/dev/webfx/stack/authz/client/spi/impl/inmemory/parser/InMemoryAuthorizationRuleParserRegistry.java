@@ -18,9 +18,9 @@ public final class InMemoryAuthorizationRuleParserRegistry implements InMemoryAu
 
     public InMemoryAuthorizationRule parseAuthorization(String authorizationRule) {
         for (InMemoryAuthorizationRuleParser parser : parsers) {
-            InMemoryAuthorizationRule parserdInMemoryAuthorizationRule = parser.parseAuthorization(authorizationRule);
-            if (parserdInMemoryAuthorizationRule != null)
-                return parserdInMemoryAuthorizationRule;
+            InMemoryAuthorizationRule parsedInMemoryAuthorizationRule = parser.parseAuthorization(authorizationRule);
+            if (parsedInMemoryAuthorizationRule != null)
+                return parsedInMemoryAuthorizationRule;
         }
         return null;
     }

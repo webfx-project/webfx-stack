@@ -53,9 +53,7 @@ public abstract class JsonClientBus extends JsonBus {
         state = ClientSideStateSessionSyncer.syncIncomingServerStateFromClientSession(state);
         if (LOG_STATES)
             Console.log("<< incoming sate: " + state + " << " + incomingStateCapture);
-        try (ThreadLocalStateHolder ignored = ThreadLocalStateHolder.open(state)) {
-            return super.onMessage(message);
-        }
+        return ThreadLocalStateHolder.runWithState(state, () -> super.onMessage(message));
     }
 
     @Override

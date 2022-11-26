@@ -12,6 +12,8 @@ import dev.webfx.platform.async.Promise;
 import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.stack.authn.UserClaims;
 import dev.webfx.stack.authn.spi.AuthenticationServiceProvider;
+import dev.webfx.stack.session.state.ThreadLocalStateHolder;
+import dev.webfx.stack.session.state.server.ServerSideStateSessionSyncer;
 
 /**
  * @author Bruno Salmon
@@ -19,20 +21,21 @@ import dev.webfx.stack.authn.spi.AuthenticationServiceProvider;
 public final class MojoAuthAuthenticationServiceProvider implements AuthenticationServiceProvider {
 
     private final static String API_KEY = "test-72827470-9205-4e4b-ab73-292fb871ba5c";
-    private final static String USERS_STATUS_URL = "https://api.mojoauth.com/users/status";
+    //private final static String USERS_STATUS_URL = "https://api.mojoauth.com/users/status";
+
+    private final MojoAuthApi mojoAuthApi;
 
     public MojoAuthAuthenticationServiceProvider() {
-        MojoAuthSDK.Initialize init = new MojoAuthSDK.Initialize();
-        init.setApiKey(API_KEY);
+        MojoAuthSDK.Initialize.setApiKey(API_KEY);
+        mojoAuthApi = new MojoAuthApi();
     }
 
     @Override
-    public Future<String/* OAuth JWT Id token */> authenticate(Object userCredentials /* Mojo state_id from login */) {
-        if (!(userCredentials instanceof String))
-            return Future.failedFuture("MojoAuth authenticate() expects a String as input, not a " + (userCredentials == null ? " null" : userCredentials.getClass()) + " object.");
-        String statusId = (String) userCredentials;
+    public Future<String/* OAuth JWT ID token */> authenticate(Object userId /* expecting state_id from Mojo login */) {
+        if (!(userId instanceof String))
+            return Future.failedFuture("MojoAuth authenticate() expects a String as input, not a " + (userId == null ? " null" : userId.getClass()) + " object.");
+        String statusId = (String) userId;
         Promise<String> promise = Promise.promise();
-        MojoAuthApi mojoAuthApi = new MojoAuthApi();
         mojoAuthApi.pingStatus(statusId, new AsyncHandler<>() {
             @Override
             public void onSuccess(UserResponse data) {
@@ -51,25 +54,25 @@ public final class MojoAuthAuthenticationServiceProvider implements Authenticati
     }
 
     @Override
-    public Future<?> verifyAuthenticated(Object oAuthIdToken) {
-        return getUserClaims(oAuthIdToken).map(ignored -> oAuthIdToken);
+    public Future<?> verifyAuthenticated() {
+        String userId = ThreadLocalStateHolder.getUserId();
+        return getUserClaims().map(ignored -> userId);
     }
 
     @Override
-    public Future<UserClaims> getUserClaims(Object oAuthIdToken) {
-        if (!(oAuthIdToken instanceof String))
-            return Future.failedFuture("MojoAuth getUserClaims() expects a String as input, not a " + (oAuthIdToken == null ? " null" : oAuthIdToken.getClass()) + " object.");
+    public Future<UserClaims> getUserClaims() {
+        String oAuthIdToken = ThreadLocalStateHolder.getUserId(); //
         Promise<UserClaims> promise = Promise.promise();
-        // First step: verifying the passed JWT token
+        // Step 1) Verifying the passed JWT token
         Jwks jwks = new Jwks();
-        jwks.verifyAccessToken((String) oAuthIdToken, new AsyncHandler<>() {
+        jwks.verifyAccessToken(oAuthIdToken, new AsyncHandler<>() {
             @Override
             public void onSuccess(VerifyTokenResponse data) {
                 if (!data.getIsValid())
                     promise.fail("Invalid JWT token");
-                else { // Second step: decoding the JWT and extracting the claims
+                else { // Step 2) Decoding the JWT and extracting the claims
                     try {
-                        Jwt jwt = new Jwt((String) oAuthIdToken);
+                        Jwt jwt = new Jwt(oAuthIdToken);
                         ReadOnlyJsonObject payload = jwt.getJsonPayload();
                         UserClaims userClaims = new UserClaims(payload.getString("name"), payload.getString("email"), payload.getString("phone"), payload);
                         promise.complete(userClaims);
@@ -111,5 +114,10 @@ public final class MojoAuthAuthenticationServiceProvider implements Authenticati
                             return new UserClaims(user.getString("name"), user.getString("email"), user.getString("phone"), user);
                         }));
 */
+    }
+
+    @Override
+    public Future<Void> logout() {
+        return ServerSideStateSessionSyncer.pushLogoutMessageToClient();
     }
 }

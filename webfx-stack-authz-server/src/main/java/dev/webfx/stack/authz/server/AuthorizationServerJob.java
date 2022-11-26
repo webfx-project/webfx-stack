@@ -10,6 +10,6 @@ public class AuthorizationServerJob implements ApplicationJob {
 
     @Override
     public void onStart() {
-        ServerSideStateSessionSyncer.setUserIdAuthorizer(AuthorizationServerService::pushAuthorizations);
+        ServerSideStateSessionSyncer.setUserIdAuthorizer(ignored -> AuthorizationServerService.pushAuthorizations());
     }
 }

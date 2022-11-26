@@ -5,9 +5,7 @@ import dev.webfx.platform.async.Future;
 /**
  * @author Bruno Salmon
  */
-public interface UserPrincipalAuthorizationChecker {
-
-    Object getUserPrincipal();
+public interface UserAuthorizationChecker {
 
     Future<Boolean> isAuthorized(Object operationAuthorizationRequest);
 

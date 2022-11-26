@@ -8,6 +8,8 @@ module webfx.stack.authn.server.mojoauth {
     requires webfx.platform.async;
     requires webfx.platform.json;
     requires webfx.stack.authn;
+    requires webfx.stack.session.state;
+    requires webfx.stack.session.state.server;
 
     // Exported packages
     exports dev.webfx.stack.authn.spi.impl.mojoauth;

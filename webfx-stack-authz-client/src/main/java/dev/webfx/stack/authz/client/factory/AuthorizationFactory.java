@@ -1,12 +1,12 @@
 package dev.webfx.stack.authz.client.factory;
 
+import dev.webfx.platform.async.Future;
+import dev.webfx.platform.util.function.Factory;
 import dev.webfx.stack.authz.client.AuthorizationClientRequest;
-import dev.webfx.stack.session.state.client.fx.FXUserPrincipal;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
-import dev.webfx.platform.async.Future;
-import dev.webfx.platform.util.function.Factory;
+
 import java.util.function.Function;
 
 /**
@@ -15,7 +15,7 @@ import java.util.function.Function;
 public final class AuthorizationFactory {
 
     public static <Rq, Rs> AuthorizationClientRequest<Rq, Rs> newAuthorizationRequest() {
-        return new AuthorizationClientRequest<Rq, Rs>().setUserPrincipal(FXUserPrincipal.getUserPrincipal());
+        return new AuthorizationClientRequest<>();
     }
 
     public static <Rq, Rs> AuthorizationClientRequest<Rq, Rs> newAuthorizationRequest(Rq operationRequest) {
@@ -35,7 +35,7 @@ public final class AuthorizationFactory {
     }
 
     public static <C> ObservableBooleanValue authorizedOperationProperty(ObservableValue<C> observableContext, Function<C, ?> operationRequestFactory ) {
-        return AuthorizationUtil.authorizedOperationProperty(operationRequestFactory, AuthorizationFactory::isAuthorized, observableContext, FXUserPrincipal.userPrincipalProperty());
+        return AuthorizationUtil.authorizedOperationProperty(operationRequestFactory, AuthorizationFactory::isAuthorized, observableContext);
     }
 
 }

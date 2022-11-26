@@ -5,7 +5,7 @@ import dev.webfx.stack.routing.router.RoutingContext;
 import dev.webfx.stack.routing.router.auth.RedirectAuthHandler;
 import dev.webfx.stack.routing.router.auth.authz.RouteRequest;
 import dev.webfx.stack.routing.router.spi.impl.client.ClientRoutingContextBase;
-import dev.webfx.stack.session.state.client.fx.FXUserPrincipal;
+import dev.webfx.stack.session.state.client.fx.FXLoggedIn;
 
 /**
  * @author Bruno Salmon
@@ -27,7 +27,6 @@ public final class RedirectAuthHandlerImpl implements RedirectAuthHandler {
             context.next(); // Always accepting login and unauthorized paths
         else // Otherwise continuing the route only if the user is authorized, otherwise redirecting to auth page (login or unauthorized)
             new AuthorizationClientRequest<>()
-                    .setUserPrincipal(FXUserPrincipal.getUserPrincipal())
                     .setOperationRequest(new RouteRequest(requestedPath))
                     .onAuthorizedExecute(context::next)
                     .onUnauthorizedExecute(() -> redirectToAuth(context))
@@ -35,7 +34,7 @@ public final class RedirectAuthHandlerImpl implements RedirectAuthHandler {
     }
 
     private void redirectToAuth(RoutingContext context) {
-        RoutingContext authContext = ClientRoutingContextBase.newRedirectedContext(context, FXUserPrincipal.getUserPrincipal() == null ? loginPath : unauthorizedPath);
+        RoutingContext authContext = ClientRoutingContextBase.newRedirectedContext(context, FXLoggedIn.isLoggedIn() ? unauthorizedPath : loginPath);
         authContext.next();
     }
 }

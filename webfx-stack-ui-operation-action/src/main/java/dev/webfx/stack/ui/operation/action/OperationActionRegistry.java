@@ -1,17 +1,17 @@
 package dev.webfx.stack.ui.operation.action;
 
+import dev.webfx.platform.async.AsyncFunction;
+import dev.webfx.platform.async.Future;
+import dev.webfx.platform.uischeduler.UiScheduler;
+import dev.webfx.stack.authz.client.factory.AuthorizationUtil;
+import dev.webfx.stack.ui.action.Action;
+import dev.webfx.stack.ui.action.ActionBinder;
+import dev.webfx.stack.ui.operation.HasOperationCode;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import dev.webfx.stack.ui.action.Action;
-import dev.webfx.stack.ui.action.ActionBinder;
-import dev.webfx.stack.ui.operation.HasOperationCode;
-import dev.webfx.stack.authz.client.factory.AuthorizationUtil;
-import dev.webfx.platform.uischeduler.UiScheduler;
-import dev.webfx.platform.async.AsyncFunction;
-import dev.webfx.platform.async.Future;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,7 +28,7 @@ import java.util.function.Function;
  *      OperationAction myOperationAction = newOperationAction(() -> new MyOperationRequest(myArguments));
  * This code just want an action executing myOperationRequest without telling how this action appear in the user interface.
  * From the other side (another part of the application, usually the initialization code), its graphical properties can
- * be declared and registered typically as follow:
+ * be declared and registered typically as follows:
  *      Action myGraphicalAction = newAction(...);
  *      OperationActionRegistry.getInstance().registerOperationGraphicalAction(MyOperationRequest.class, registerOperationGraphicalAction);
  * or if MyOperationRequest implements HasOperationCode:
@@ -61,7 +61,7 @@ public final class OperationActionRegistry {
      * (reacting to the user principal change). Needs to be considered when setting up the disabled and visible properties.
      */
 
-    public ObservableBooleanValue authorizedOperationActionProperty(Object operationCode, ObservableValue userPrincipalProperty, AsyncFunction<Object, Boolean> authorizationFunction) {
+    public ObservableBooleanValue authorizedOperationActionProperty(Object operationCode, AsyncFunction<Object, Boolean> authorizationFunction) {
         // Note: it's possible we don't know yet what operation action we are talking about at this stage, because this
         // method can (and usually is) called before the operation action associated with that code is registered
         Function<OperationAction, Object> operationRequestFactory = this::newOperationActionRequest; // Will return null until the operation action with that code is registered
@@ -81,7 +81,7 @@ public final class OperationActionRegistry {
                 operationRequestFactory
                 , embedAuthorizationFunction
                 , operationActionProperty(operationCode) // reactive property (will change when operation action will be registered, causing a new authorization evaluation)
-                , userPrincipalProperty);
+        );
     }
 
     public <A> OperationActionRegistry registerOperationGraphicalAction(Class<A> operationRequestClass, Action graphicalAction) {
@@ -97,7 +97,7 @@ public final class OperationActionRegistry {
     private OperationActionRegistry checkPendingOperationActionGraphicalBindings() {
         if (notYetBoundOperationActions != null && pendingBindRunnable == null) {
             UiScheduler.scheduleDeferred(pendingBindRunnable = () -> {
-                Collection<OperationAction> operationActionsToBind =  notYetBoundOperationActions;
+                Collection<OperationAction> operationActionsToBind = notYetBoundOperationActions;
                 pendingBindRunnable = null;
                 notYetBoundOperationActions = null;
                 for (OperationAction operationAction : operationActionsToBind)

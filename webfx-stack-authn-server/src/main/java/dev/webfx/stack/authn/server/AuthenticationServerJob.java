@@ -11,6 +11,6 @@ public class AuthenticationServerJob implements ApplicationJob {
 
     @Override
     public void onStart() {
-        ServerSideStateSessionSyncer.setUserIdChecker(userId -> AuthenticationService.verifyAuthenticated(userId).map(Object::toString));
+        ServerSideStateSessionSyncer.setUserIdChecker(userId -> AuthenticationService.verifyAuthenticated().map(x -> x == null ? null : x.toString()));
     }
 }

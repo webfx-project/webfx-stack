@@ -163,6 +163,7 @@
                 <module>webfx-stack-authn-login-server-mojoauth</module>
                 <module>webfx-stack-authn-login-ui</module>
                 <module>webfx-stack-authn-login-ui-webthirdpary</module>
+                <module>webfx-stack-authn-logout-client</module>
                 <module>webfx-stack-authn-remote</module>
                 <module>webfx-stack-authn-server</module>
                 <module>webfx-stack-authn-server-mojoauth</module>
@@ -419,6 +420,7 @@
             <providers>
                 <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.authn.buscall.AuthenticateMethodEndpoint</provider>
                 <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.authn.buscall.GetUserClaimsMethodEndpoint</provider>
+                <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.authn.buscall.LogoutMethodEndpoint</provider>
             </providers>
 
             <source-packages>
@@ -601,6 +603,28 @@
 
         </project>
 
+        <project name="webfx-stack-authn-logout-client">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.authn.logout.client.operation</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-platform-async</module>
+                <module>webfx-stack-authn</module>
+                <module>webfx-stack-ui-operation</module>
+            </used-by-source-modules>
+
+        </project>
+
         <project name="webfx-stack-authn-remote">
 
             <exported-packages>
@@ -696,6 +720,8 @@
                 <module>webfx-platform-async</module>
                 <module>webfx-platform-json</module>
                 <module>webfx-stack-authn</module>
+                <module>webfx-stack-session-state</module>
+                <module>webfx-stack-session-state-server</module>
             </used-by-source-modules>
 
         </project>
@@ -2878,6 +2904,7 @@
                 <module>webfx-platform-uischeduler</module>
                 <module>webfx-platform-util</module>
                 <module>webfx-stack-session</module>
+                <module>webfx-stack-session-state</module>
                 <module>webfx-stack-session-state-client</module>
             </used-by-source-modules>
 
@@ -2903,6 +2930,7 @@
                 <module>java.base</module>
                 <module>webfx-platform-async</module>
                 <module>webfx-platform-console</module>
+                <module>webfx-stack-push-server</module>
                 <module>webfx-stack-session</module>
                 <module>webfx-stack-session-state</module>
             </used-by-source-modules>
@@ -3238,6 +3266,7 @@
                 <module>webfx-stack-authn</module>
                 <module>webfx-stack-authn-buscall</module>
                 <module>webfx-stack-authn-login-server-mojoauth</module>
+                <module>webfx-stack-authn-logout-client</module>
                 <module>webfx-stack-authn-remote</module>
                 <module>webfx-stack-authn-server</module>
                 <module>webfx-stack-authn-server-mojoauth</module>
@@ -3311,10 +3340,12 @@
                 <module>webfx-stack-push-server</module>
                 <module>webfx-stack-push-server-liveclient-interceptor</module>
                 <module>webfx-stack-push-server-simple</module>
+                <module>webfx-stack-session-state-server</module>
             </java-package>
 
             <java-package name="dev.webfx.stack.session.state.server">
                 <module>webfx-stack-authn-server</module>
+                <module>webfx-stack-authn-server-mojoauth</module>
                 <module>webfx-stack-authz-server</module>
                 <module>webfx-stack-com-bus-json-server</module>
             </java-package>

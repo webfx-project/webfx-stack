@@ -58,11 +58,11 @@ public final class BusCallService {
         return BusCallService.<BusCallArgument, Object> // specifying BusCallArgument parameterized type for the expected as java class reply
                 registerJavaHandlerForRemoteCalls( // helper method that does the job to register the java reply handler
                 busCallServiceAddress, // the address that receives the BusCallArgument objects
-                    (busCallArgument, callerMessage) -> // great, a BusCallArgument has been received
+                (busCallArgument, callerMessage) -> // great, a BusCallArgument has been received
                         // Forwarding the target argument to the target address (kind of local call) and waiting for the result
                         sendJavaObjectAndWaitJsonReply(busCallArgument.getTargetAddress(), busCallArgument.getJsonEncodedTargetArgument(), DeliveryOptions.localOnlyDeliveryOptions(callerMessage.state()), ar ->
-                            // Wrapping the result into a BusCallResult and sending it back to the initial BusCallService counterpart
-                            sendJavaReply(new BusCallResult(busCallArgument.getCallNumber(), ar.succeeded() ? ar.result().body() : ar.cause()), new DeliveryOptions(), callerMessage)
+                                // Wrapping the result into a BusCallResult and sending it back to the initial BusCallService counterpart
+                                sendJavaReply(new BusCallResult(busCallArgument.getCallNumber(), ar.succeeded() ? ar.result().body() : ar.cause()), new DeliveryOptions(), callerMessage)
                         )
         );
     }
@@ -150,8 +150,8 @@ public final class BusCallService {
      * @param <J> expected java class as input for the java handler
      */
     private static <J, T> Handler<Message<T>> javaHandlerToJsonMessageHandler(BiConsumer<J, Message<T>> javaHandler) {
-        return jsonMessage -> {
-            try (ThreadLocalStateHolder stateHolder = ThreadLocalStateHolder.open(jsonMessage.state())) {
+        return jsonMessage -> ThreadLocalStateHolder.runWithState(jsonMessage.state(), () -> {
+            try {
                 // Getting the java object from the json message
                 J javaObject = jsonMessageToJavaObject(jsonMessage); // this implicit cast may throw a ClassCastException
                 // and calling the java handler with that java object
@@ -159,7 +159,7 @@ public final class BusCallService {
             } catch (Throwable throwable) {
                 Console.log(throwable); // what else to do?
             }
-        };
+        });
     }
 
     /**
@@ -182,8 +182,8 @@ public final class BusCallService {
     }
 
     /**
-    * Method to register a json message handler (just delegates this to the event bus).
-    */
+     * Method to register a json message handler (just delegates this to the event bus).
+     */
     private static <T> Registration registerJsonMessageHandler(boolean local, String address, Handler<Message<T>> jsonMessageHandler) {
         return BusService.bus().register(local, address, jsonMessageHandler);
     }
@@ -200,20 +200,20 @@ public final class BusCallService {
      * @param <R> java class of the output result of the asynchronous function
      */
     public static <A, R> Registration registerBusCallEndpoint(String address, AsyncFunction<A, R> javaAsyncFunction) {
-        return BusCallService.<A, R>registerJavaHandlerForLocalCalls(address, (javaArgument , callerMessage) -> {
-            try (ThreadLocalStateHolder stateHolder = ThreadLocalStateHolder.open(callerMessage.state())) {
-                // Calling the java function each time a java object is received
-                javaAsyncFunction.apply(javaArgument).onComplete(javaAsyncResult -> // the java result of the asynchronous function is now ready
-                        // Replying to the caller by sending this java async result to it
-                        sendJavaReply(
-                                // And making sure that it is serializable using SerializableAsyncResult (but assuming that javaAsyncResult.result() is serializable)
-                                SerializableAsyncResult.getSerializableAsyncResult(javaAsyncResult),
-                                new DeliveryOptions(),
-                                callerMessage
-                        )
-                );
-            }
-        });
+        return BusCallService.<A, R>registerJavaHandlerForLocalCalls(address, (javaArgument, callerMessage) ->
+                ThreadLocalStateHolder.runWithState(callerMessage.state(), () -> {
+                            // Calling the java function each time a java object is received
+                            javaAsyncFunction.apply(javaArgument).onComplete(javaAsyncResult -> // the java result of the asynchronous function is now ready
+                                    // Replying to the caller by sending this java async result to it
+                                    sendJavaReply(
+                                            // And making sure that it is serializable using SerializableAsyncResult (but assuming that javaAsyncResult.result() is serializable)
+                                            SerializableAsyncResult.getSerializableAsyncResult(javaAsyncResult),
+                                            new DeliveryOptions(),
+                                            callerMessage
+                                    )
+                            );
+                        }
+                ));
     }
 
     /**
@@ -224,7 +224,7 @@ public final class BusCallService {
      */
     public static <A, R> Registration registerBusCallEndpoint(String address, Function<A, R> javaFunction) {
         return BusCallService.<A, R>registerJavaHandlerForLocalCalls(address,
-                (javaArgument , callerMessage) -> sendJavaReply(javaFunction.apply(javaArgument), callerMessage.options(), callerMessage)
+                (javaArgument, callerMessage) -> sendJavaReply(javaFunction.apply(javaArgument), callerMessage.options(), callerMessage)
         );
     }
 
@@ -236,7 +236,7 @@ public final class BusCallService {
      */
     public static <R> Registration registerBusCallEndpoint(String address, Callable<R> callable) {
         return BusCallService.<Object, R>registerJavaHandlerForLocalCalls(address,
-                (ignoredJavaArgument , callerMessage) -> sendJavaReply(callable.call(), null, callerMessage)
+                (ignoredJavaArgument, callerMessage) -> sendJavaReply(callable.call(), null, callerMessage)
         );
     }
 

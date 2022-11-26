@@ -17,8 +17,7 @@ public final class FXSession {
         protected void invalidated() {
             Session session = get();
             String localSessionId = session == null ? null : session.id();
-            String sessionId = session.get("sessionId");
-            Console.log("FxSession: localId = " + localSessionId + " - sessionId = " + sessionId);
+            Console.log("FxSession: localId = " + localSessionId);
             ClientSideStateSession.getInstance().setClientSession(session);
         }
     };

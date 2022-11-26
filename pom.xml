@@ -40,6 +40,7 @@
         <module>webfx-stack-authn-login-server-mojoauth</module>
         <module>webfx-stack-authn-login-ui</module>
         <module>webfx-stack-authn-login-ui-webthirdpary</module>
+        <module>webfx-stack-authn-logout-client</module>
         <module>webfx-stack-authn-remote</module>
         <module>webfx-stack-authn-server</module>
         <module>webfx-stack-authn-server-mojoauth</module>

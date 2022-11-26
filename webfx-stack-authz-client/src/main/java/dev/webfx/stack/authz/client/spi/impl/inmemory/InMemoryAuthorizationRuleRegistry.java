@@ -3,10 +3,7 @@ package dev.webfx.stack.authz.client.spi.impl.inmemory;
 import dev.webfx.stack.authz.client.spi.impl.inmemory.parser.InMemoryAuthorizationRuleParserRegistry;
 import dev.webfx.stack.authz.client.spi.impl.inmemory.parser.InMemoryAuthorizationRuleParser;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Bruno Salmon
@@ -30,6 +27,7 @@ public final class InMemoryAuthorizationRuleRegistry implements InMemoryAuthoriz
             else {
                 registry = new InMemoryAuthorizationRuleParserRegistry();
                 registry.registerParser(inMemoryAuthorizationRuleParser);
+                setAuthorizationRuleParser(registry);
             }
             registry.registerParser(ruleParser);
         }
@@ -64,7 +62,7 @@ public final class InMemoryAuthorizationRuleRegistry implements InMemoryAuthoriz
     public AuthorizationRuleResult computeRuleResult(Object operationRequest) {
         AuthorizationRuleResult result = AuthorizationRuleResult.OUT_OF_RULE_CONTEXT;
         Class<?> operationRequestClass = operationRequest.getClass();
-        while (operationRequestClass != null) {
+        while (true) {
             Collection<InMemoryAuthorizationRule> rules = registeredInMemoryAuthorizationRules.get(operationRequestClass);
             if (rules != null)
                 for (InMemoryAuthorizationRule rule : rules)
@@ -73,7 +71,7 @@ public final class InMemoryAuthorizationRuleRegistry implements InMemoryAuthoriz
                         case GRANTED: result = AuthorizationRuleResult.GRANTED; // Not breaking, as we need to check there is not another denying rule (which is priority)
                         case OUT_OF_RULE_CONTEXT: // just ignoring it and looping to the next
                     }
-            if (result != AuthorizationRuleResult.OUT_OF_RULE_CONTEXT)
+            if (result != AuthorizationRuleResult.OUT_OF_RULE_CONTEXT || operationRequestClass == null)
                 break;
             operationRequestClass = operationRequestClass.getSuperclass();
         }
