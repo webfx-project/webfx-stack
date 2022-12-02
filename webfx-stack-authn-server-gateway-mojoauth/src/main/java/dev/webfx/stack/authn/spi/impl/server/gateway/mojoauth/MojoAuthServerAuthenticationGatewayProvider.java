@@ -1,4 +1,4 @@
-package dev.webfx.stack.authn.spi.impl.mojoauth;
+package dev.webfx.stack.authn.spi.impl.server.gateway.mojoauth;
 
 import com.mojoauth.sdk.api.MojoAuthApi;
 import com.mojoauth.sdk.models.responsemodels.UserResponse;
@@ -11,23 +11,34 @@ import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.Promise;
 import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.stack.authn.UserClaims;
-import dev.webfx.stack.authn.spi.AuthenticationServiceProvider;
+import dev.webfx.stack.authn.logout.server.LogoutPush;
+import dev.webfx.stack.authn.spi.AuthenticatorInfo;
+import dev.webfx.stack.authn.spi.impl.server.gateway.ServerAuthenticationGatewayProvider;
 import dev.webfx.stack.session.state.ThreadLocalStateHolder;
-import dev.webfx.stack.session.state.server.ServerSideStateSessionSyncer;
 
 /**
  * @author Bruno Salmon
  */
-public final class MojoAuthAuthenticationServiceProvider implements AuthenticationServiceProvider {
+public final class MojoAuthServerAuthenticationGatewayProvider implements ServerAuthenticationGatewayProvider {
 
     private final static String API_KEY = "test-72827470-9205-4e4b-ab73-292fb871ba5c";
     //private final static String USERS_STATUS_URL = "https://api.mojoauth.com/users/status";
 
     private final MojoAuthApi mojoAuthApi;
 
-    public MojoAuthAuthenticationServiceProvider() {
+    public MojoAuthServerAuthenticationGatewayProvider() {
         MojoAuthSDK.Initialize.setApiKey(API_KEY);
         mojoAuthApi = new MojoAuthApi();
+    }
+
+    @Override
+    public AuthenticatorInfo getAuthenticatorInfo() {
+        return null;
+    }
+
+    @Override
+    public boolean acceptsUserCredentials(Object userCredentials) {
+        return false;
     }
 
     @Override
@@ -55,13 +66,13 @@ public final class MojoAuthAuthenticationServiceProvider implements Authenticati
 
     @Override
     public Future<?> verifyAuthenticated() {
-        String userId = ThreadLocalStateHolder.getUserId();
+        Object userId = ThreadLocalStateHolder.getUserId();
         return getUserClaims().map(ignored -> userId);
     }
 
     @Override
     public Future<UserClaims> getUserClaims() {
-        String oAuthIdToken = ThreadLocalStateHolder.getUserId(); //
+        String oAuthIdToken = (String) ThreadLocalStateHolder.getUserId();
         Promise<UserClaims> promise = Promise.promise();
         // Step 1) Verifying the passed JWT token
         Jwks jwks = new Jwks();
@@ -118,6 +129,6 @@ public final class MojoAuthAuthenticationServiceProvider implements Authenticati
 
     @Override
     public Future<Void> logout() {
-        return ServerSideStateSessionSyncer.pushLogoutMessageToClient();
+        return LogoutPush.pushLogoutMessageToClient();
     }
 }

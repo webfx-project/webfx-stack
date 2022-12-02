@@ -10,7 +10,7 @@
     </dependencies>
 
     <providers>
-        <provider interface="dev.webfx.stack.authn.spi.AuthenticationServiceProvider">dev.webfx.stack.authn.spi.impl.mojoauth.MojoAuthAuthenticationServiceProvider</provider>
+        <provider interface="dev.webfx.stack.authn.spi.impl.server.gateway.ServerAuthenticationGatewayProvider">dev.webfx.stack.authn.spi.impl.server.gateway.mojoauth.MojoAuthServerAuthenticationGatewayProvider</provider>
     </providers>
 
     <required-libraries>

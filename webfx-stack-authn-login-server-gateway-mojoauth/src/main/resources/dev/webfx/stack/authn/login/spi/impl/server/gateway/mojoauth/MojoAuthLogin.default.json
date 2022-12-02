@@ -1,0 +1,5 @@
+{
+  "mojoAuthApiKey": "${{ MOJO_AUTH_API_KEY }}",
+  "redirectHost": "${{ SERVER_PORT }}",
+  "redirectPath": "/login/callback/mojoAuth"
+}

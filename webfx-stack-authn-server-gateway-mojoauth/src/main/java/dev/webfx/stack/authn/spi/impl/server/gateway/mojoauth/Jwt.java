@@ -1,4 +1,4 @@
-package dev.webfx.stack.authn.spi.impl.mojoauth;
+package dev.webfx.stack.authn.spi.impl.server.gateway.mojoauth;
 
 import dev.webfx.platform.json.Json;
 import dev.webfx.platform.json.ReadOnlyJsonObject;

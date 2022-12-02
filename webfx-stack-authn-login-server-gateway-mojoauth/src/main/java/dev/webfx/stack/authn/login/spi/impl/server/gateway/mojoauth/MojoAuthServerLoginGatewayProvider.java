@@ -1,16 +1,17 @@
-package dev.webfx.stack.authn.login.spi.impl.mojoauth;
+package dev.webfx.stack.authn.login.spi.impl.server.gateway.mojoauth;
 
 import dev.webfx.platform.async.Future;
-import dev.webfx.stack.authn.login.spi.LoginServiceProvider;
+import dev.webfx.stack.authn.login.spi.impl.server.gateway.ServerLoginGatewayProvider;
 import dev.webfx.stack.session.state.ThreadLocalStateHolder;
+
+import static dev.webfx.stack.authn.login.spi.impl.server.gateway.mojoauth.MojoAuthServerLoginGatewayConfigurationConsumer.*;
 
 /**
  * @author Bruno Salmon
  */
-public class MojoAuthLoginServiceProvider implements LoginServiceProvider {
+public class MojoAuthServerLoginGatewayProvider implements ServerLoginGatewayProvider {
 
-    private final static String API_KEY = "test-72827470-9205-4e4b-ab73-292fb871ba5c";
-    final static String REDIRECT_PATH = "/login/mojoAuth";
+    private final static String GATEWAY_ID = "MojoAuth";
     private static final String HTML_TEMPLATE = "<!DOCTYPE html>\n" +
             "<head>\n" +
             "    <script charset='UTF-8' src='https://cdn.mojoauth.com/js/mojoauth.min.js'>\n" +
@@ -36,14 +37,22 @@ public class MojoAuthLoginServiceProvider implements LoginServiceProvider {
             "</html>\n";
 
     @Override
+    public Object getGatewayId() {
+        return GATEWAY_ID;
+    }
+
+    @Override
     public Future<?> getLoginUiInput() {
-        String serverSessionId = ThreadLocalStateHolder.getServerSessionId();
-        String RETURN_URL = "http://127.0.0.1:8080" + REDIRECT_PATH;
-        String html = HTML_TEMPLATE
-                .replace("{{API_KEY}}", API_KEY)
-                .replace("{{RETURN_URL}}", RETURN_URL)
-                .replace("{{SESSION_ID}}", serverSessionId);
-        return Future.succeededFuture(html);
+        return checkConfigurationValid()
+                .map(ignored -> {
+                    String serverSessionId = ThreadLocalStateHolder.getServerSessionId();
+                    String RETURN_URL = REDIRECT_HOST + REDIRECT_PATH;
+                    String html = HTML_TEMPLATE
+                            .replace("{{API_KEY}}", MOJO_AUTH_API_KEY)
+                            .replace("{{RETURN_URL}}", RETURN_URL)
+                            .replace("{{SESSION_ID}}", serverSessionId);
+                    return html;
+                });
     }
 
 }
