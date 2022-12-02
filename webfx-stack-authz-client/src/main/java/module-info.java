@@ -6,7 +6,6 @@ module webfx.stack.authz.client {
     requires java.base;
     requires javafx.base;
     requires webfx.platform.async;
-    requires webfx.platform.uischeduler;
     requires webfx.platform.util;
     requires webfx.stack.session.state.client.fx;
     requires webfx.stack.ui.operation;
