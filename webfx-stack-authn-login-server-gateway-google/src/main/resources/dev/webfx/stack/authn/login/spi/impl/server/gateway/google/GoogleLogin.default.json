@@ -1,0 +1,5 @@
+{
+  "googleClientId": "${{ GOOGLE_CLIENT_ID }}",
+  "redirectHost": "${{ SERVER_HOST }}",
+  "redirectPath": "/login/callback/google"
+}

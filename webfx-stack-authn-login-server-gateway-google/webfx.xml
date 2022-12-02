@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <exported-packages>
+        <source-packages/>
+        <resource-package>dev.webfx.stack.authn.login.spi.impl.server.gateway.google</resource-package>
+    </exported-packages>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+    <providers>
+        <provider interface="dev.webfx.stack.authn.login.spi.impl.server.gateway.ServerLoginGatewayProvider">dev.webfx.stack.authn.login.spi.impl.server.gateway.google.GoogleServerLoginGatewayProvider</provider>
+        <provider interface="dev.webfx.stack.conf.spi.ConfigurationConsumer">dev.webfx.stack.authn.login.spi.impl.server.gateway.google.GoogleServerLoginGatewayConfigurationConsumer</provider>
+    </providers>
+
+</project>
