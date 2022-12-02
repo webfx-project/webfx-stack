@@ -12,8 +12,8 @@ import java.util.ServiceLoader;
  */
 public final class LoginService {
 
-    public static Future<?> getLoginUiInput() {
-        return getProvider().getLoginUiInput();
+    public static Future<?> getLoginUiInput(Object context) {
+        return getProvider().getLoginUiInput(context);
     }
 
     public static LoginServiceProvider getProvider() {

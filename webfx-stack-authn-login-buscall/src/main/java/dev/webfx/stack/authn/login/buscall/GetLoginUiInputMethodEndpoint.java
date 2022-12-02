@@ -9,6 +9,6 @@ import dev.webfx.stack.com.bus.call.spi.AsyncFunctionBusCallEndpoint;
 public final class GetLoginUiInputMethodEndpoint extends AsyncFunctionBusCallEndpoint<Object, Object> {
 
     public GetLoginUiInputMethodEndpoint() {
-        super(LoginServiceBusAddress.GET_LOGIN_UI_INPUT_METHOD_ADDRESS, ignored -> LoginService.getLoginUiInput().map(x -> (Object) x));
+        super(LoginServiceBusAddress.GET_LOGIN_UI_INPUT_METHOD_ADDRESS, context -> LoginService.getLoginUiInput(context).map(x -> (Object) x));
     }
 }

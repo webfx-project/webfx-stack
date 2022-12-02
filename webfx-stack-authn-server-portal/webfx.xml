@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <module-auto-injection-conditions>
+        <if-uses-java-package>dev.webfx.stack.session.state.server</if-uses-java-package>
+        <if-uses-java-package>dev.webfx.stack.authn</if-uses-java-package>
+    </module-auto-injection-conditions>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+    <providers>
+        <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.authn.spi.impl.server.ServerAuthenticationJob</provider>
+        <provider interface="dev.webfx.stack.authn.spi.AuthenticationServiceProvider">dev.webfx.stack.authn.spi.impl.server.portal.ServerAuthenticationPortalProvider</provider>
+    </providers>
+
+</project>

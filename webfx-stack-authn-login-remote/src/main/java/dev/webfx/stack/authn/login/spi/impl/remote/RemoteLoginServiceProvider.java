@@ -11,8 +11,8 @@ import dev.webfx.stack.com.bus.call.BusCallService;
 public class RemoteLoginServiceProvider implements LoginServiceProvider {
 
     @Override
-    public Future<?> getLoginUiInput() {
-        return BusCallService.call(LoginServiceBusAddress.GET_LOGIN_UI_INPUT_METHOD_ADDRESS, null);
+    public Future<?> getLoginUiInput(Object context) {
+        return BusCallService.call(LoginServiceBusAddress.GET_LOGIN_UI_INPUT_METHOD_ADDRESS, context);
     }
 
 }

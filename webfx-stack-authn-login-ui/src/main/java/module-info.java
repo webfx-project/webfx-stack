@@ -12,6 +12,6 @@ module webfx.stack.authn.login.ui {
     exports dev.webfx.stack.authn.login.ui.spi;
 
     // Used services
-    uses dev.webfx.stack.authn.login.ui.spi.LoginUiProvider;
+    uses dev.webfx.stack.authn.login.ui.spi.UiLoginServiceProvider;
 
 }

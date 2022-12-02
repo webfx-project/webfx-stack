@@ -4,6 +4,6 @@ import dev.webfx.platform.async.Future;
 
 public interface LoginServiceProvider {
 
-    Future<?> getLoginUiInput();
+    Future<?> getLoginUiInput(Object context);
 
 }
