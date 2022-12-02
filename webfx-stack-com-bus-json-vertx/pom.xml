@@ -44,6 +44,12 @@
 
         <dependency>
             <groupId>dev.webfx</groupId>
+            <artifactId>webfx-platform-util</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>dev.webfx</groupId>
             <artifactId>webfx-platform-vertx-common</artifactId>
             <version>0.1.0-SNAPSHOT</version>
         </dependency>
@@ -64,6 +70,25 @@
             <groupId>dev.webfx</groupId>
             <artifactId>webfx-stack-com-bus-json-server</artifactId>
             <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>dev.webfx</groupId>
+            <artifactId>webfx-stack-conf</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>dev.webfx</groupId>
+            <artifactId>webfx-stack-conf-resource</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>dev.webfx</groupId>
+            <artifactId>webfx-stack-http-server-vertx</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>

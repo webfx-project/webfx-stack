@@ -3,14 +3,18 @@
 
     <exported-packages>
         <source-packages/>
+        <resource-package>dev.webfx.stack.com.bus.spi.impl.json.vertx</resource-package>
     </exported-packages>
-
-    <providers>
-        <provider interface="dev.webfx.stack.com.bus.spi.BusServiceProvider">dev.webfx.stack.com.bus.spi.impl.json.vertx.VertxBusServiceProvider</provider>
-    </providers>
 
     <dependencies>
         <used-by-source-modules/>
+        <!-- This module can't work by its own without the Vert.x http server -->
+        <plugin-module>webfx-stack-http-server-vertx</plugin-module>
     </dependencies>
+
+    <providers>
+        <provider interface="dev.webfx.stack.conf.spi.ConfigurationConsumer">dev.webfx.stack.com.bus.spi.impl.json.vertx.VertxBusConfigurationConsumer</provider>
+        <provider interface="dev.webfx.stack.com.bus.spi.BusServiceProvider">dev.webfx.stack.com.bus.spi.impl.json.vertx.VertxBusServiceProvider</provider>
+    </providers>
 
 </project>
