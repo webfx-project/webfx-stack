@@ -18,6 +18,6 @@ module webfx.stack.authn {
     uses dev.webfx.stack.authn.spi.AuthenticationServiceProvider;
 
     // Provided services
-    provides dev.webfx.stack.com.serial.spi.impl.SerialCodecBase with dev.webfx.stack.authn.serial.UserClaimsSerialCodec, dev.webfx.stack.authn.serial.UsernamePasswordCredentialSerialCodec;
+    provides dev.webfx.stack.com.serial.spi.SerialCodec with dev.webfx.stack.authn.serial.UserClaimsSerialCodec, dev.webfx.stack.authn.serial.UsernamePasswordCredentialsSerialCodec;
 
 }
