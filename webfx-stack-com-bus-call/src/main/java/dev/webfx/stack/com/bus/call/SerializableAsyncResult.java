@@ -1,5 +1,6 @@
 package dev.webfx.stack.com.bus.call;
 
+import dev.webfx.platform.async.impl.NoStackTraceThrowable;
 import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.platform.json.JsonObject;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
@@ -76,7 +77,7 @@ public final class SerializableAsyncResult<T> implements AsyncResult<T> {
             String errorMessage = json.getString(ERROR_KEY);
             return new SerializableAsyncResult<>(
                     SerialCodecManager.decodeFromJson(json.get(RESULT_KEY)),
-                    errorMessage == null ? null : new Exception(errorMessage)
+                    errorMessage == null ? null : new NoStackTraceThrowable(errorMessage)
             );
         }
     }

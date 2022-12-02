@@ -6,7 +6,6 @@ module webfx.stack.com.bus.json.client.websocket {
     requires java.base;
     requires webfx.platform.console;
     requires webfx.platform.json;
-    requires webfx.platform.resource;
     requires webfx.platform.scheduler;
     requires webfx.platform.util;
     requires webfx.stack.com.bus;

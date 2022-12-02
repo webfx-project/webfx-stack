@@ -1,8 +1,9 @@
 package dev.webfx.stack.com.bus.spi.impl.json.client.websocket;
 
-import dev.webfx.platform.util.Objects;
-import dev.webfx.stack.com.bus.BusOptions;
 import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.util.Objects;
+import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
+import dev.webfx.stack.com.bus.BusOptions;
 
 /**
  * @author Bruno Salmon
@@ -35,13 +36,13 @@ public final class WebSocketBusOptions extends BusOptions {
     }
 
     @Override
-    public WebSocketBusOptions applyJson(ReadOnlyJsonObject json) {
-        super.applyJson(json);
-        protocol = Protocol.valueOf(json.getString("protocol", protocol.name()));
-        serverSSL = json.getBoolean("serverSSL", serverSSL);
-        serverHost = json.getString("serverHost", serverHost);
-        serverPort = json.getString("serverPort", serverPort);
-        pingInterval = json.getInteger("pingInterval", pingInterval);
+    public WebSocketBusOptions applyConfig(ReadOnlyKeyObject config) {
+        super.applyConfig(config);
+        protocol = Protocol.valueOf(config.getString("protocol", protocol.name()));
+        serverSSL = config.getBoolean("serverSSL", serverSSL);
+        serverHost = config.getString("serverHost", serverHost);
+        serverPort = config.getString("serverPort", serverPort);
+        pingInterval = config.getInteger("pingInterval", pingInterval);
         return this;
     }
 
