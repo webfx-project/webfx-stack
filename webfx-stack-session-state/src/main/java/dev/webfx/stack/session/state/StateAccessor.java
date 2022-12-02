@@ -2,7 +2,9 @@ package dev.webfx.stack.session.state;
 
 import dev.webfx.platform.json.Json;
 import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.json.ReadOnlyJsonArray;
 import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.stack.com.serial.SerialCodecManager;
 
 /**
  * @author Bruno Salmon
@@ -18,11 +20,31 @@ public final class StateAccessor {
     }
 
     public static Object decodeState(String encodedState) {
-        return Json.parseObjectSilently(encodedState);
+        JsonObject rawJson = Json.parseObjectSilently(encodedState);
+        if (rawJson == null)
+            return encodedState;
+        JsonObject json = Json.createObject();
+        ReadOnlyJsonArray keys = rawJson.keys();
+        for (int i = 0; i < keys.size(); i++) {
+            String key = keys.getString(i);
+            json.set(key, (Object) SerialCodecManager.decodeFromJson(rawJson.get(key)));
+        }
+        return json;
     }
 
     public static String encodeState(Object state) {
-        return state == null ? null : state instanceof ReadOnlyJsonObject ? ((ReadOnlyJsonObject) state).toJsonString() : state.toString();
+        if (state == null)
+            return null;
+        if (!(state instanceof ReadOnlyJsonObject))
+            return state.toString();
+        ReadOnlyJsonObject json = (ReadOnlyJsonObject) state;
+        JsonObject rawJson = Json.createObject();
+        ReadOnlyJsonArray keys = json.keys();
+        for (int i = 0; i < keys.size(); i++) {
+            String key = keys.getString(i);
+            rawJson.set(key, SerialCodecManager.encodeToJson(json.get(key)));
+        }
+        return rawJson.toJsonString();
     }
 
     public static String getServerSessionId(Object state) {
@@ -37,15 +59,15 @@ public final class StateAccessor {
         return setStateAttribute(state, SERVER_SESSION_ID_ATTRIBUE_NAME, serverSessionId, override);
     }
 
-    public static String getUserId(Object state) {
-        return (String) getStateAttribute(state, USER_ID_ATTRIBUE_NAME);
+    public static Object getUserId(Object state) {
+        return getStateAttribute(state, USER_ID_ATTRIBUE_NAME);
     }
 
-    public static Object setUserId(Object state, String userId) {
+    public static Object setUserId(Object state, Object userId) {
         return setUserId(state, userId, true);
     }
 
-    public static Object setUserId(Object state, String userId, boolean override) {
+    public static Object setUserId(Object state, Object userId, boolean override) {
         return setStateAttribute(state, USER_ID_ATTRIBUE_NAME, userId, override);
     }
 

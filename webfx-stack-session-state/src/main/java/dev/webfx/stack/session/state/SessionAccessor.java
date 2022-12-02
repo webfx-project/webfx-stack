@@ -23,11 +23,11 @@ public final class SessionAccessor {
         return changeSessionAttribute(session, SERVER_SESSION_ID_ATTRIBUE_NAME, sessionId, skipNullValue);
     }
 
-    public static String getUserId(Session session) {
+    public static Object getUserId(Session session) {
         return session.get(USER_ID_ATTRIBUE_NAME);
     }
 
-    public static boolean changeUserId(Session session, String userId, boolean skipNullValue) {
+    public static boolean changeUserId(Session session, Object userId, boolean skipNullValue) {
         return changeSessionAttribute(session, USER_ID_ATTRIBUE_NAME, userId, skipNullValue);
     }
 

@@ -4,7 +4,7 @@ import dev.webfx.platform.async.AsyncFunction;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.Promise;
 import dev.webfx.platform.console.Console;
-import dev.webfx.stack.push.server.PushServerService;
+import dev.webfx.stack.authn.logout.server.LogoutPush;
 import dev.webfx.stack.session.Session;
 import dev.webfx.stack.session.SessionService;
 import dev.webfx.stack.session.state.LogoutUserId;
@@ -19,9 +19,9 @@ import java.util.Objects;
  */
 public final class ServerSideStateSessionSyncer {
 
-    private static AsyncFunction<String, String> userIdChecker;
+    private static AsyncFunction<Object, Object> userIdChecker;
 
-    public static void setUserIdChecker(AsyncFunction<String, String> userIdChecker) {
+    public static void setUserIdChecker(AsyncFunction<Object, Object> userIdChecker) {
         ServerSideStateSessionSyncer.userIdChecker = userIdChecker;
     }
 
@@ -52,14 +52,14 @@ public final class ServerSideStateSessionSyncer {
     }
 
     private static Future<Session> syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(Session serverSession, Object clientState, boolean forceStore) {
-        String userId = StateAccessor.getUserId(clientState);
+        Object userId = StateAccessor.getUserId(clientState);
         if (userId == null || userIdChecker == null)
             return syncFixedServerSessionFromIncomingClientState(serverSession, clientState, forceStore);
         Promise<Session> promise = Promise.promise();
         ThreadLocalStateHolder.runWithState(clientState, () -> userIdChecker.apply(userId))
                 .onComplete(ar -> {
                     // Setting the new user id (should be the same as the passed on if valid, or something like "INVALID" if not)
-                    String finalUserId = ar.result();
+                    Object finalUserId = ar.result();
                     // If the user identity check failed, we log out the user
                     if (finalUserId == null)
                         finalUserId = LogoutUserId.LOGOUT_USER_ID;
@@ -76,7 +76,7 @@ public final class ServerSideStateSessionSyncer {
                     ThreadLocalStateHolder.runWithState(clientState, () -> {
                         // Special case: invalid user => we force a logout
                         if (LogoutUserId.isLogoutUserId(ThreadLocalStateHolder.getUserId()))
-                            pushLogoutMessageToClient(); // This will push a logout userId, and subsequently push the new authorizations (see OUTGOING STATE)
+                            LogoutPush.pushLogoutMessageToClient(); // This will push a logout userId, and subsequently push the new authorizations (see OUTGOING STATE)
                         // General case: valid user (probably a user switch from the client, or a reconnection)
                         else if (userIdAuthorizer != null)
                             // We ask the authorizer to push the new authorizations for that user
@@ -124,7 +124,7 @@ public final class ServerSideStateSessionSyncer {
         // If a user id is set in that direction, this means the server switched, logged-in or logged-out the user,
         // so we need in all cases to call the authorizer to push the new authorizations to the client.
         // Note: that authorizations push shouldn't contain the user id to avoid a loop here.
-        String userId = StateAccessor.getUserId(serverState);
+        Object userId = StateAccessor.getUserId(serverState);
         if (userId != null && userIdAuthorizer != null)
             ThreadLocalStateHolder.runWithState(StateAccessor.setUserId(StateAccessor.setRunId(null, SessionAccessor.getRunId(serverSession)), userId), () -> userIdAuthorizer.apply(null));
         // serverSession.id <= serverState.serverSessionId ? NEVER (serverSession.id can't be changed at this point)
@@ -143,14 +143,6 @@ public final class ServerSideStateSessionSyncer {
         if (userIdChanged || sessionIdSyncedChanged)
             storeServerSession(serverSession);
         return serverState;
-    }
-
-    //
-
-    public static Future<Void> pushLogoutMessageToClient() {
-        String runId = ThreadLocalStateHolder.getRunId();
-        // TODO: decide if that dependency to PushServerService is ok here.
-        return PushServerService.pushState(StateAccessor.setUserId(null, LogoutUserId.LOGOUT_USER_ID), runId);
     }
 
 }

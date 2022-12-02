@@ -6,7 +6,7 @@ module webfx.stack.session.state.server {
     requires java.base;
     requires transitive webfx.platform.async;
     requires webfx.platform.console;
-    requires webfx.stack.push.server;
+    requires webfx.stack.authn.logout.server;
     requires webfx.stack.session;
     requires webfx.stack.session.state;
 

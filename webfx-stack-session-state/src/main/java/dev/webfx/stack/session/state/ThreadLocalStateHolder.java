@@ -48,7 +48,7 @@ public final class ThreadLocalStateHolder implements AutoCloseable {
         return StateAccessor.getServerSessionId(getThreadLocalState());
     }
 
-    public static String getUserId() {
+    public static Object getUserId() {
         return StateAccessor.getUserId(getThreadLocalState());
     }
 

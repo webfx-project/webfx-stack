@@ -164,11 +164,11 @@ public final class ClientSideStateSession {
         }
     }
 
-    public String getUserId() {
+    public Object getUserId() {
         return SessionAccessor.getUserId(clientSession);
     }
 
-    public void changeUserId(String userId, boolean skipNullValue, boolean fromServer) {
+    public void changeUserId(Object userId, boolean skipNullValue, boolean fromServer) {
         if (SessionAccessor.changeUserId(clientSession, userId, skipNullValue)) {
             userIdChanged = true;
             lastUserIdSyncedValue = userId;
@@ -202,8 +202,10 @@ public final class ClientSideStateSession {
             this.connected = connected;
             connectedChanged = true;
             scheduleListenerCall();
-            if (!connected)
-                lastServerSessionIdSyncedValue = lastUserIdSyncedValue = lastRunIdSyncedValue = null;
+            if (!connected) {
+                lastServerSessionIdSyncedValue = lastRunIdSyncedValue = null;
+                lastUserIdSyncedValue = null;
+            }
         }
     }
 
@@ -222,12 +224,12 @@ public final class ClientSideStateSession {
         return clientState;
     }
 
-    private String lastUserIdSyncedValue;
+    private Object lastUserIdSyncedValue;
     private boolean lastUserIdSyncedFromServer;
     private int lastUserIdSyncedMessageSequence;
 
     public Object updateStateUserIdFromClientSessionIfNotYetSynced(Object clientState) {
-        String userId = SessionAccessor.getUserId(clientSession);
+        Object userId = SessionAccessor.getUserId(clientSession);
         if (!Objects.equals(userId, lastUserIdSyncedValue) || !lastUserIdSyncedFromServer && serverMessageSequence == lastUserIdSyncedMessageSequence) {
             clientState = StateAccessor.setUserId(clientState, userId, false);
             lastUserIdSyncedValue = userId;

@@ -23,7 +23,7 @@ final class FXInit {
             }
 
             @Override
-            public void onUserIdChanged(String userId) {
+            public void onUserIdChanged(Object userId) {
                 FXUserId.setUserId(userId);
             }
 
