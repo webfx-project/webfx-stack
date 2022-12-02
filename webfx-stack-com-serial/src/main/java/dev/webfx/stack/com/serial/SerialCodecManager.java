@@ -22,16 +22,16 @@ public final class SerialCodecManager {
     public final static String CODEC_ID_KEY = "$codec";
     private final static String INSTANT_VALUE_PREFIX = "$instant:";
 
-    private static final Map<Class, SerialCodec> encoders = new HashMap<>();
-    private static final Map<String, SerialCodec> decoders = new HashMap<>();
-    private static final Map<String, Class> javaClasses = new HashMap<>();
+    private static final Map<Class<?>, SerialCodec<?>> encoders = new HashMap<>();
+    private static final Map<String, SerialCodec<?>> decoders = new HashMap<>();
+    private static final Map<String, Class<?>> javaClasses = new HashMap<>();
 
     static {
         registerSerialCodec(new ExceptionSerialCodec());
     }
 
-    public static void registerSerialCodec(SerialCodec codec) {
-        Class javaClass = codec.getJavaClass();
+    public static void registerSerialCodec(SerialCodec<?> codec) {
+        Class<?> javaClass = codec.getJavaClass();
         encoders.put(javaClass, codec);
         decoders.put(codec.getCodecId(), codec);
         javaClasses.put(codec.getCodecId(), javaClass);
@@ -42,20 +42,20 @@ public final class SerialCodecManager {
         registerJsonCodec(javaClass1, getJsonEncoder(javaClass2));
     } */
 
-    public static <J> SerialCodec<J> getSerialEncoder(Class<J> javaClass) {
-        for (Class c = javaClass; c != null; c = c.getSuperclass()) {
-            SerialCodec<J> codec = encoders.get(c);
+    public static <T> SerialCodec<T> getSerialEncoder(Class<T> javaClass) {
+        for (Class<?> c = javaClass; c != null; c = c.getSuperclass()) {
+            SerialCodec<T> codec = (SerialCodec<T>) encoders.get(c);
             if (codec != null)
                 return codec;
         }
         return null;
     }
 
-    public static SerialCodec getSerialDecoder(String codecId) {
-        return decoders.get(codecId);
+    public static <T> SerialCodec<T> getSerialDecoder(String codecId) {
+        return (SerialCodec<T>) decoders.get(codecId);
     }
 
-    public static Class getJavaClass(String codecId) {
+    public static Class<?> getJavaClass(String codecId) {
         return javaClasses.get(codecId);
     }
 
@@ -86,8 +86,8 @@ public final class SerialCodecManager {
         return encodeJavaObjectToJsonObject(object, Json.createObject());
     }
 
-    private static JsonObject encodeJavaObjectToJsonObject(Object javaObject, JsonObject json) {
-        SerialCodec encoder = getSerialEncoder(javaObject.getClass());
+    private static <T> JsonObject encodeJavaObjectToJsonObject(T javaObject, JsonObject json) {
+        SerialCodec<T> encoder = getSerialEncoder((Class<T>) javaObject.getClass());
         if (encoder == null)
             throw new IllegalArgumentException("No SerialCodec for type: " + javaObject.getClass());
         json.set(CODEC_ID_KEY, encoder.getCodecId());
@@ -95,19 +95,19 @@ public final class SerialCodecManager {
         return json;
     }
 
-    public static <J> J decodeFromJsonObject(ReadOnlyJsonObject json) {
+    public static <T> T decodeFromJsonObject(ReadOnlyJsonObject json) {
         if (json == null)
             return null;
         String codecId = json.getString(CODEC_ID_KEY);
         if (codecId == null)
             return null;
-        SerialCodec<J> decoder = getSerialDecoder(codecId);
+        SerialCodec<T> decoder = getSerialDecoder(codecId);
         if (decoder == null)
             throw new IllegalArgumentException("No SerialCodec found for id: '" + codecId + "' when trying to decode " + json.toJsonString());
         return decoder.decodeFromJson(json);
     }
 
-    public static <J> J decodeFromJson(Object object) {
+    public static <T> T decodeFromJson(Object object) {
         if (object instanceof ReadOnlyJsonObject)
             return decodeFromJsonObject((ReadOnlyJsonObject) object);
         if (object instanceof String) {
@@ -119,7 +119,7 @@ public final class SerialCodecManager {
                     object = instant;
             }
         }
-        return (J) object;
+        return (T) object;
     }
 
     public static ReadOnlyJsonArray encodePrimitiveArrayToJsonArray(Object[] primArray) {
@@ -150,11 +150,11 @@ public final class SerialCodecManager {
         return ca;
     }
 
-    public static <A> A[] decodeFromJsonArray(ReadOnlyJsonArray ca, Class<A> expectedClass) {
+    public static <T> T[] decodeFromJsonArray(ReadOnlyJsonArray ca, Class<T> expectedClass) {
         if (ca == null)
             return null;
         int n = ca.size();
-        A[] array = (A[]) Array.newInstance(expectedClass, n);
+        T[] array = (T[]) Array.newInstance(expectedClass, n);
         for (int i = 0; i < n; i++)
             array[i] = decodeFromJson(ca.getObject(i));
         return array;
