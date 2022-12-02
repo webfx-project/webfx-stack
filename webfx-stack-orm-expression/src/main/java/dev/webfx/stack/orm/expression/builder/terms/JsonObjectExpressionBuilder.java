@@ -2,7 +2,7 @@ package dev.webfx.stack.orm.expression.builder.terms;
 
 import dev.webfx.platform.json.JsonObject;
 import dev.webfx.stack.orm.expression.terms.JsonObjectExpression;
-import dev.webfx.platform.util.noreflect.ReadOnlyIndexedArray;
+import dev.webfx.platform.util.keyobject.ReadOnlyIndexedArray;
 import dev.webfx.platform.json.Json;
 
 /**

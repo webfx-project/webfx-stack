@@ -7,8 +7,8 @@ import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.lci.DomainReader;
 import dev.webfx.platform.json.Json;
 import dev.webfx.platform.json.ReadOnlyJsonObject;
-import dev.webfx.platform.util.noreflect.ReadOnlyIndexedArray;
-import dev.webfx.platform.util.noreflect.ReadOnlyKeyObject;
+import dev.webfx.platform.util.keyobject.ReadOnlyIndexedArray;
+import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
 
 // TODO: remove platform dependency
 
