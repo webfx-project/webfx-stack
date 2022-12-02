@@ -194,10 +194,13 @@ public class ConfigurationServiceProviderImpl implements ConfigurationServicePro
     }
 
     private Optional<String> resolveVariable(String variableName) {
-        if (Character.isDigit(variableName.charAt(0)))
+        // true, false and numbers are constants, not variables, and don't need resolution
+        if ("true".equals(variableName) || "false".equals(variableName) || Character.isDigit(variableName.charAt(0)))
             return Optional.of(variableName);
+        // Same with literal strings such as 'localhost'
         if (variableName.startsWith("'") && variableName.endsWith("'"))
             return Optional.of(variableName.substring(1, variableName.length() - 1));
+        // For all other cases, we try to resolve the variable by searching in the suppliers
         return suppliers.stream()
                 .map(s -> s.resolveVariable(variableName))
                 .filter(Optional::isPresent)
