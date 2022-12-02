@@ -1,4 +1,4 @@
 {
   "busPrefix": "${{ BUS_PREFIX | 'eventbus' }}",
-  "pingTimeout": "${{ PING_TIMEOUT | 40000 }}"
+  "pingTimeout": "${{ BUS_PING_TIMEOUT | 40000 }}"
 }
