@@ -1,6 +1,7 @@
 package dev.webfx.stack.conf.spi.impl.java.file;
 
 import dev.webfx.platform.async.Future;
+import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
 import dev.webfx.stack.conf.ConfigurationService;
 import dev.webfx.stack.conf.spi.ConfigurationSupplier;
@@ -55,8 +56,10 @@ public class DirectoryConfigurationSupplier implements ConfigurationSupplier, Ha
                 if (supportedExtensions.contains(ConfigurationService.getExtension(file.getName()))) {
                     ConfigurationFile configurationFile = new ConfigurationFile(file);
                     ReadOnlyKeyObject config = configurationFile.readConfiguration(false);
-                    if (config.has(variableName))
+                    if (config.has(variableName)) {
+                        Console.log("INFO: " + variableName + " was resolved from " + file.getName());
                         return Optional.of(config.getString(variableName));
+                    }
                 }
             }
         }
