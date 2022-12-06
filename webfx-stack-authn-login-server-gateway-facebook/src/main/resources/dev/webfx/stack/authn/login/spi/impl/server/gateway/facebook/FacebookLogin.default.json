@@ -1,5 +1,6 @@
 {
   "facebookClientId": "${{ FACEBOOK_CLIENT_ID }}",
+  "facebookClientSecret": "${{ FACEBOOK_CLIENT_SECRET }}",
   "redirectHost": "$ {{ SERVER_HOST }}",
   "redirectPath": "/login/callback/facebook"
 }

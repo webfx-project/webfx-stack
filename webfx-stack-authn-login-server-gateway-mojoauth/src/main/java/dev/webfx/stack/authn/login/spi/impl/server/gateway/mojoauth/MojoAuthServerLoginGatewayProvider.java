@@ -23,7 +23,7 @@ public class MojoAuthServerLoginGatewayProvider implements ServerLoginGatewayPro
             "\n" +
             "    const mojoauth = new MojoAuth('{{API_KEY}}', {\n" +
             "      language: 'en_GB',\n" +
-            "      redirect_url: '{{RETURN_URL}}?sessionId={{SESSION_ID}}'," +
+            "      redirect_url: '{{RETURN_URL}}/sessionId/{{SESSION_ID}}'," +
             "      source: [" +
             "       { type: 'email', feature: 'magiclink' } \n" +
 //            "       { type: 'email', feature: 'otp' }, \n" +
@@ -46,7 +46,7 @@ public class MojoAuthServerLoginGatewayProvider implements ServerLoginGatewayPro
         return checkConfigurationValid()
                 .map(ignored -> {
                     String serverSessionId = ThreadLocalStateHolder.getServerSessionId();
-                    String RETURN_URL = REDIRECT_HOST + REDIRECT_PATH;
+                    String RETURN_URL = "http://localhost:" + REDIRECT_HOST + REDIRECT_PATH;        // @TODO implement better solution here; Note that Facebook can't redirect to localhost
                     String html = HTML_TEMPLATE
                             .replace("{{API_KEY}}", MOJO_AUTH_API_KEY)
                             .replace("{{RETURN_URL}}", RETURN_URL)

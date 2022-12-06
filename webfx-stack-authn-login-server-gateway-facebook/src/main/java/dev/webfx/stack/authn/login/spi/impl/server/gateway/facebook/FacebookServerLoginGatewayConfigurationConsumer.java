@@ -12,10 +12,12 @@ public final class FacebookServerLoginGatewayConfigurationConsumer extends Defau
 
     private final static String FACEBOOK_LOGIN_CONF_NAME = "FacebookLogin";
     private final static String FACEBOOK_CLIENT_ID_CONF_KEY = "facebookClientId";
+    private final static String FACEBOOK_CLIENT_SECRET_CONF_KEY = "facebookClientSecret";
     private final static String REDIRECT_HOST_CONF_KEY = "redirectHost";
     private final static String REDIRECT_PATH_CONF_KEY = "redirectPath";
 
     static String FACEBOOK_CLIENT_ID;
+    static String FACEBOOK_CLIENT_SECRET;
     static String REDIRECT_HOST;
     static String REDIRECT_PATH;
 
@@ -25,7 +27,7 @@ public final class FacebookServerLoginGatewayConfigurationConsumer extends Defau
     }
 
     static boolean isConfigurationValid() {
-        return ConfigurationService.areValuesNonNullAndResolved(FACEBOOK_CLIENT_ID, REDIRECT_HOST, REDIRECT_PATH);
+        return ConfigurationService.areValuesNonNullAndResolved(FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET, REDIRECT_HOST, REDIRECT_PATH);
     }
 
     static Future<Void> checkConfigurationValid() {
@@ -37,6 +39,7 @@ public final class FacebookServerLoginGatewayConfigurationConsumer extends Defau
         if (config == null)
             return Future.failedFuture("No configuration found for Facebook login");
         FACEBOOK_CLIENT_ID = config.getString(FACEBOOK_CLIENT_ID_CONF_KEY);
+        FACEBOOK_CLIENT_SECRET = config.getString(FACEBOOK_CLIENT_SECRET_CONF_KEY);
         REDIRECT_HOST = config.getString(REDIRECT_HOST_CONF_KEY);
         REDIRECT_PATH = config.getString(REDIRECT_PATH_CONF_KEY);
         FacebookServerLoginGatewayCallbackListener.start();

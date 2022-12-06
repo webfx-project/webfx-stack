@@ -16,6 +16,12 @@
     <dependencies>
 
         <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-auth-oauth2</artifactId>
+            <version>4.3.4</version>
+        </dependency>
+
+        <dependency>
             <groupId>dev.webfx</groupId>
             <artifactId>webfx-platform-async</artifactId>
             <version>0.1.0-SNAPSHOT</version>
