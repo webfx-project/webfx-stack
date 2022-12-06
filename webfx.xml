@@ -199,6 +199,7 @@
                 <module>webfx-stack-com-websocket-gwt</module>
                 <module>webfx-stack-com-websocket-java</module>
                 <module>webfx-stack-conf</module>
+                <module>webfx-stack-conf-env-java</module>
                 <module>webfx-stack-conf-file-java</module>
                 <module>webfx-stack-conf-format-json</module>
                 <module>webfx-stack-conf-resource</module>
@@ -1704,6 +1705,30 @@
 
         </project>
 
+        <project name="webfx-stack-conf-env-java">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.conf.spi.impl.java.env</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-conf</module>
+            </used-by-source-modules>
+
+        </project>
+
         <project name="webfx-stack-conf-file-java">
 
             <exported-packages>
@@ -1722,6 +1747,7 @@
                 <module>java-nio-emul</module>
                 <module>java.base</module>
                 <module>webfx-platform-async</module>
+                <module>webfx-platform-console</module>
                 <module>webfx-platform-util</module>
                 <module>webfx-stack-conf</module>
             </used-by-source-modules>
