@@ -8,6 +8,7 @@ module webfx.stack.authn.server.gateway.mojoauth {
     requires webfx.platform.async;
     requires webfx.platform.json;
     requires webfx.stack.authn;
+    requires webfx.stack.authn.login.server.gateway.mojoauth;
     requires webfx.stack.authn.logout.server;
     requires webfx.stack.authn.server.gateway;
     requires webfx.stack.session.state;

@@ -12,6 +12,8 @@ public interface ServerAuthenticationGatewayProvider {
 
     Future<?> authenticate(Object userCredentials);
 
+    boolean acceptsUserId();
+
     Future<?> verifyAuthenticated();
 
     Future<UserClaims> getUserClaims();

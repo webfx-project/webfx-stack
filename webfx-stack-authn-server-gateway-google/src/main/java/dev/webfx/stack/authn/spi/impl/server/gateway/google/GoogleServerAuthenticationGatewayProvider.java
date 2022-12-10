@@ -23,8 +23,13 @@ public final class GoogleServerAuthenticationGatewayProvider implements ServerAu
     }
 
     @Override
-    public Future<Object> authenticate(Object userId) {
+    public Future<Object> authenticate(Object userCredentials) {
         return Future.failedFuture("Google authenticate() is not yet implemented");
+    }
+
+    @Override
+    public boolean acceptsUserId() {
+        return false;
     }
 
     @Override

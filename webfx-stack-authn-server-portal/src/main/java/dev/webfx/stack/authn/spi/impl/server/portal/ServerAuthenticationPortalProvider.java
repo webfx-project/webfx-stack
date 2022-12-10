@@ -5,7 +5,6 @@ import dev.webfx.stack.authn.UserClaims;
 import dev.webfx.stack.authn.spi.AuthenticationServiceProvider;
 import dev.webfx.stack.authn.spi.impl.server.gateway.ServerAuthenticationGatewayProvider;
 
-import java.util.Iterator;
 import java.util.ServiceLoader;
 
 /**
@@ -15,10 +14,9 @@ public class ServerAuthenticationPortalProvider implements AuthenticationService
 
     @Override
     public Future<?> authenticate(Object userCredentials) {
-        Iterator<ServerAuthenticationGatewayProvider> it = getGatewayProviders().iterator();
-        if (it.hasNext()) {
-            ServerAuthenticationGatewayProvider gatewayProvider = it.next();
-            if (gatewayProvider.acceptsUserCredentials(userCredentials))
+        for (ServerAuthenticationGatewayProvider gatewayProvider : getGatewayProviders()) {
+            boolean accepts = gatewayProvider.acceptsUserCredentials(userCredentials);
+            if (accepts)
                 return gatewayProvider.authenticate(userCredentials);
         }
         return Future.failedFuture("No server authentication gateway found accepting credentials " + userCredentials);
@@ -26,25 +24,31 @@ public class ServerAuthenticationPortalProvider implements AuthenticationService
 
     @Override
     public Future<?> verifyAuthenticated() {
-        Iterator<ServerAuthenticationGatewayProvider> it = getGatewayProviders().iterator();
-        if (it.hasNext())
-            return it.next().verifyAuthenticated();
+        for (ServerAuthenticationGatewayProvider gatewayProvider : getGatewayProviders()) {
+            boolean accepts = gatewayProvider.acceptsUserId();
+            if (accepts)
+                return gatewayProvider.verifyAuthenticated();
+        }
         return Future.failedFuture("No server authentication gateway found!");
     }
 
     @Override
     public Future<UserClaims> getUserClaims() {
-        Iterator<ServerAuthenticationGatewayProvider> it = getGatewayProviders().iterator();
-        if (it.hasNext())
-            return it.next().getUserClaims();
+        for (ServerAuthenticationGatewayProvider gatewayProvider : getGatewayProviders()) {
+            boolean accepts = gatewayProvider.acceptsUserId();
+            if (accepts)
+                return gatewayProvider.getUserClaims();
+        }
         return Future.failedFuture("No server authentication gateway found!");
     }
 
     @Override
     public Future<Void> logout() {
-        Iterator<ServerAuthenticationGatewayProvider> it = getGatewayProviders().iterator();
-        if (it.hasNext())
-            return it.next().logout();
+        for (ServerAuthenticationGatewayProvider gatewayProvider : getGatewayProviders()) {
+            boolean accepts = gatewayProvider.acceptsUserId();
+            if (accepts)
+                return gatewayProvider.logout();
+        }
         return Future.failedFuture("No server authentication gateway found!");
     }
 

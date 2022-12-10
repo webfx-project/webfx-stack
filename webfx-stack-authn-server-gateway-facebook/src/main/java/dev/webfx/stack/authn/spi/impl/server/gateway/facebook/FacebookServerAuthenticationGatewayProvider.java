@@ -28,6 +28,11 @@ public final class FacebookServerAuthenticationGatewayProvider implements Server
     }
 
     @Override
+    public boolean acceptsUserId() {
+        return false;
+    }
+
+    @Override
     public Future<?> verifyAuthenticated() {
         return Future.failedFuture("Facebook verifyAuthenticated() is not yet implemented");
     }
