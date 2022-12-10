@@ -7,6 +7,7 @@ module webfx.stack.authn.login.server.gateway.google {
     requires webfx.platform.console;
     requires webfx.platform.util;
     requires webfx.stack.authn.login.server.gateway;
+    requires webfx.stack.authn.oauth2;
     requires webfx.stack.conf;
     requires webfx.stack.conf.resource;
     requires webfx.stack.routing.router;

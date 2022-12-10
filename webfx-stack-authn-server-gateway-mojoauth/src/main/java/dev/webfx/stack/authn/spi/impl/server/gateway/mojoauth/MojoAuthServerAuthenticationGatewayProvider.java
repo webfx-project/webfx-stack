@@ -11,6 +11,7 @@ import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.Promise;
 import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.stack.authn.UserClaims;
+import dev.webfx.stack.authn.login.spi.impl.server.gateway.mojoauth.MojoAuthServerLoginGatewayConfigurationConsumer;
 import dev.webfx.stack.authn.logout.server.LogoutPush;
 import dev.webfx.stack.authn.spi.AuthenticatorInfo;
 import dev.webfx.stack.authn.spi.impl.server.gateway.ServerAuthenticationGatewayProvider;
@@ -21,13 +22,13 @@ import dev.webfx.stack.session.state.ThreadLocalStateHolder;
  */
 public final class MojoAuthServerAuthenticationGatewayProvider implements ServerAuthenticationGatewayProvider {
 
-    private final static String API_KEY = "test-72827470-9205-4e4b-ab73-292fb871ba5c";
+    private final static String MOJO_AUTH_PREFIX = "MojoAuth.";
     //private final static String USERS_STATUS_URL = "https://api.mojoauth.com/users/status";
 
     private final MojoAuthApi mojoAuthApi;
 
     public MojoAuthServerAuthenticationGatewayProvider() {
-        MojoAuthSDK.Initialize.setApiKey(API_KEY);
+        MojoAuthSDK.Initialize.setApiKey(MojoAuthServerLoginGatewayConfigurationConsumer.MOJO_AUTH_API_KEY);
         mojoAuthApi = new MojoAuthApi();
     }
 
@@ -37,21 +38,29 @@ public final class MojoAuthServerAuthenticationGatewayProvider implements Server
     }
 
     @Override
-    public boolean acceptsUserCredentials(Object userCredentials) {
-        return false;
+    public boolean acceptsUserCredentials(Object mojoAuthPrefixedStateId) {
+        return isStringStartingWithMojoAuthPrefix(mojoAuthPrefixedStateId);
+    }
+
+    private static boolean isStringStartingWithMojoAuthPrefix(Object o) {
+        return o instanceof String && ((String) o).startsWith(MOJO_AUTH_PREFIX);
+    }
+
+    private static String getMojoAuthArgumentSuffix(Object argument) {
+        return ((String) argument).substring(MOJO_AUTH_PREFIX.length());
     }
 
     @Override
-    public Future<String/* OAuth JWT ID token */> authenticate(Object userId /* expecting state_id from Mojo login */) {
-        if (!(userId instanceof String))
-            return Future.failedFuture("MojoAuth authenticate() expects a String as input, not a " + (userId == null ? " null" : userId.getClass()) + " object.");
-        String statusId = (String) userId;
+    public Future<String/* OAuth JWT ID token */> authenticate(Object mojoAuthPrefixedStateId) {
+        if (!isStringStartingWithMojoAuthPrefix(mojoAuthPrefixedStateId))
+            return Future.failedFuture("Wrong argument for MojoAuth");
+        String stateId = getMojoAuthArgumentSuffix(mojoAuthPrefixedStateId);
         Promise<String> promise = Promise.promise();
-        mojoAuthApi.pingStatus(statusId, new AsyncHandler<>() {
+        mojoAuthApi.pingStatus(stateId, new AsyncHandler<>() {
             @Override
             public void onSuccess(UserResponse data) {
                 if (data.getAuthenticated())
-                    promise.complete(data.getOauth().getIdToken()); // Returning the ID token, so we can extract its claims in getUserClaims()
+                    promise.complete(MOJO_AUTH_PREFIX + data.getOauth().getIdToken()); // Returning the ID token, so we can extract its claims in getUserClaims()
                 else
                     promise.fail("User not authenticated");
             }
@@ -65,6 +74,12 @@ public final class MojoAuthServerAuthenticationGatewayProvider implements Server
     }
 
     @Override
+    public boolean acceptsUserId() {
+        Object userId = ThreadLocalStateHolder.getUserId();
+        return isStringStartingWithMojoAuthPrefix(userId);
+    }
+
+    @Override
     public Future<?> verifyAuthenticated() {
         Object userId = ThreadLocalStateHolder.getUserId();
         return getUserClaims().map(ignored -> userId);
@@ -72,7 +87,9 @@ public final class MojoAuthServerAuthenticationGatewayProvider implements Server
 
     @Override
     public Future<UserClaims> getUserClaims() {
-        String oAuthIdToken = (String) ThreadLocalStateHolder.getUserId();
+        if (!acceptsUserId())
+            return Future.failedFuture("Wrong argument for MojoAuth");
+        String oAuthIdToken = getMojoAuthArgumentSuffix(ThreadLocalStateHolder.getUserId());
         Promise<UserClaims> promise = Promise.promise();
         // Step 1) Verifying the passed JWT token
         Jwks jwks = new Jwks();

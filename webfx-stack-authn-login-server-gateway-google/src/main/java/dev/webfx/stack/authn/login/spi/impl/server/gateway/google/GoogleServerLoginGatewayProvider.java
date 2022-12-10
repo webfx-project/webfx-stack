@@ -12,7 +12,7 @@ import static dev.webfx.stack.authn.login.spi.impl.server.gateway.google.GoogleS
 public class GoogleServerLoginGatewayProvider implements ServerLoginGatewayProvider {
 
     private final static String GATEWAY_ID = "Google";
-    private static final String HTML_TEMPLATE = "<html>\n" +
+    private static final String HTML_TEMPLATE = "<!doctype html><html>\n" +
             "<body>\n" +
             "<script src=\"https://accounts.google.com/gsi/client\" async defer></script>\n" +
             "<div id=\"g_id_onload\"\n" +
@@ -41,7 +41,7 @@ public class GoogleServerLoginGatewayProvider implements ServerLoginGatewayProvi
         return checkConfigurationValid()
                 .map(ignored -> {
                     String serverSessionId = ThreadLocalStateHolder.getServerSessionId();
-                    String RETURN_URL = REDIRECT_HOST + REDIRECT_PATH;
+                    String RETURN_URL = REDIRECT_ORIGIN + REDIRECT_PATH;
                     String html = HTML_TEMPLATE
                             .replace("{{GOOGLE_CLIENT_ID}}", GOOGLE_CLIENT_ID)
                             .replace("{{RETURN_URL}}", RETURN_URL)

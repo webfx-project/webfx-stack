@@ -1,5 +1,6 @@
 {
-  "googleClientId": "${{ GOOGLE_CLIENT_ID }}",
-  "redirectHost": "${{ SERVER_HOST }}",
-  "redirectPath": "/login/callback/google"
+  "clientId":       "${{ GOOGLE_CLIENT_ID }}",
+  "clientSecret":   "${{ GOOGLE_CLIENT_SECRET }}",
+  "redirectOrigin": "${{ GOOGLE_REDIRECT_ORIGIN | HTTP_SERVER_ORIGIN }}",
+  "redirectPath":   "${{ GOGGLE_REDIRECT_PATH | '/login/callback/google' }}"
 }

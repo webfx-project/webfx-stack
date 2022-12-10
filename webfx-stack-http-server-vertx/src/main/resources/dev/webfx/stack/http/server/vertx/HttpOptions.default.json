@@ -1,12 +1,14 @@
 {
   "httpServers": [
     {
+      "protocol": "https",
       "port": "${{ HTTPS_PORT | 443 }}",
       "certPath": "${{ CERT_PATH }}",
       "keyPath": "${{ KEY_PATH }}"
     },
     {
-      "port": "${{ HTTP_PORT | 8080 }}"
+      "protocol": "http",
+      "port": "${{ HTTP_PORT | 80 }}"
     }
   ]
 }

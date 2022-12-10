@@ -10,21 +10,23 @@ import dev.webfx.stack.conf.spi.impl.resource.DefaultResourceConfigurationConsum
  */
 public final class GoogleServerLoginGatewayConfigurationConsumer extends DefaultResourceConfigurationConsumer {
 
-    private final static String GOOGLE_LOGIN_CONFIGURATION_NAME = "GoogleLogin";
-    private final static String GOOGLE_CLIENT_ID_CONF_KEY = "googleClientId";
-    private final static String REDIRECT_HOST_CONF_KEY = "redirectHost";
+    private final static String CONFIGURATION_NAME = "GoogleLogin";
+    private final static String CLIENT_ID_CONF_KEY = "clientId";
+    private final static String CLIENT_SECRET_CONF_KEY = "clientSecret";
+    private final static String REDIRECT_ORIGIN_CONF_KEY = "redirectOrigin";
     private final static String REDIRECT_PATH_CONF_KEY = "redirectPath";
 
     static String GOOGLE_CLIENT_ID;
-    static String REDIRECT_HOST;
+    static String GOOGLE_CLIENT_SECRET;
+    static String REDIRECT_ORIGIN;
     static String REDIRECT_PATH;
 
     public GoogleServerLoginGatewayConfigurationConsumer() {
-        super(GOOGLE_LOGIN_CONFIGURATION_NAME, "GoogleLogin.default.json");
+        super(CONFIGURATION_NAME, "GoogleLogin.default.json");
     }
 
     static boolean isConfigurationValid() {
-        return ConfigurationService.areValuesNonNullAndResolved(GOOGLE_CLIENT_ID, REDIRECT_HOST, REDIRECT_PATH);
+        return ConfigurationService.areValuesNonNullAndResolved(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, REDIRECT_ORIGIN, REDIRECT_PATH);
     }
 
     static Future<Void> checkConfigurationValid() {
@@ -35,8 +37,9 @@ public final class GoogleServerLoginGatewayConfigurationConsumer extends Default
     protected Future<Void> boot(ReadOnlyKeyObject config) {
         if (config == null)
             return Future.failedFuture("No configuration found for Google login");
-        GOOGLE_CLIENT_ID = config.getString(GOOGLE_CLIENT_ID_CONF_KEY);
-        REDIRECT_HOST = config.getString(REDIRECT_HOST_CONF_KEY);
+        GOOGLE_CLIENT_ID = config.getString(CLIENT_ID_CONF_KEY);
+        GOOGLE_CLIENT_SECRET = config.getString(CLIENT_SECRET_CONF_KEY);
+        REDIRECT_ORIGIN = config.getString(REDIRECT_ORIGIN_CONF_KEY);
         REDIRECT_PATH = config.getString(REDIRECT_PATH_CONF_KEY);
         GoogleServerLoginGatewayCallbackListener.start();
         return checkConfigurationValid();

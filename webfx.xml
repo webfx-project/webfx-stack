@@ -175,6 +175,8 @@
                 <module>webfx-stack-authn-login-ui-portal</module>
                 <module>webfx-stack-authn-logout-client</module>
                 <module>webfx-stack-authn-logout-server</module>
+                <module>webfx-stack-authn-oauth2</module>
+                <module>webfx-stack-authn-oauth2-vertx</module>
                 <module>webfx-stack-authn-remote</module>
                 <module>webfx-stack-authn-server-gateway</module>
                 <module>webfx-stack-authn-server-gateway-facebook</module>
@@ -613,6 +615,7 @@
                 <module>webfx-platform-console</module>
                 <module>webfx-platform-util</module>
                 <module>webfx-stack-authn-login-server-gateway</module>
+                <module>webfx-stack-authn-oauth2</module>
                 <module>webfx-stack-conf</module>
                 <module>webfx-stack-conf-resource</module>
                 <module>webfx-stack-routing-router</module>
@@ -956,6 +959,71 @@
 
         </project>
 
+        <project name="webfx-stack-authn-oauth2">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.stack.authn.oauth2</package>
+                <package>dev.webfx.stack.authn.oauth2.spi</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-util</module>
+            </used-by-source-modules>
+
+            <used-services>
+                <required-service>dev.webfx.stack.authn.oauth2.spi.OAuth2Provider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-stack-authn-oauth2-vertx">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <undetected-module>io-vertx-core</undetected-module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.stack.authn.oauth2.spi.OAuth2Provider">dev.webfx.stack.authn.oauth2.spi.impl.vertx.VertxOAuth2Provider</provider>
+            </providers>
+
+            <required-libraries>
+                <library artifact="io.vertx:vertx-auth-oauth2:4.3.4" name="io-vertx-auth-oauth2">
+                    <exported-packages>
+                        <package>io.vertx.ext.auth.oauth2</package>
+                        <package>io.vertx.ext.auth.oauth2.providers</package>
+                    </exported-packages>
+                </library>
+            </required-libraries>
+
+            <source-packages>
+                <package>dev.webfx.stack.authn.oauth2.spi.impl.vertx</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>io-vertx-auth-oauth2</module>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-vertx-common</module>
+                <module>webfx-stack-authn-oauth2</module>
+            </used-by-source-modules>
+
+        </project>
+
         <project name="webfx-stack-authn-remote">
 
             <exported-packages>
@@ -1095,6 +1163,7 @@
                 <module>webfx-platform-async</module>
                 <module>webfx-platform-json</module>
                 <module>webfx-stack-authn</module>
+                <module>webfx-stack-authn-login-server-gateway-mojoauth</module>
                 <module>webfx-stack-authn-logout-server</module>
                 <module>webfx-stack-authn-server-gateway</module>
                 <module>webfx-stack-session-state</module>
@@ -2406,6 +2475,7 @@
 
             <providers>
                 <provider interface="dev.webfx.stack.conf.spi.ConfigurationConsumer">dev.webfx.stack.http.server.vertx.VertxHttpConfigurationConsumer</provider>
+                <provider interface="dev.webfx.stack.conf.spi.ConfigurationSupplier">dev.webfx.stack.http.server.vertx.VertxHttpConfigurationSupplier</provider>
                 <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.http.server.vertx.VertxHttpModuleBooter</provider>
             </providers>
 

@@ -29,7 +29,8 @@ final class MojoAuthServerLoginGatewayCallbackListener {
                 String sessionId = rc.getParams().getString("sessionId");
                 Session webSession = rc.session();
                 Console.log("state_id = " + stateId + ", requested sessionId = " + sessionId + ", webSessionId = " + webSession.id());
-                AuthenticationService.authenticate(stateId)
+
+                AuthenticationService.authenticate("MojoAuth." + stateId)
                         .onComplete(ar -> {
                             String responseText;
                             if (ar.failed())
