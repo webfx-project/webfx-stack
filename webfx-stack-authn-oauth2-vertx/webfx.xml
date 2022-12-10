@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <dependencies>
+        <used-by-source-modules>
+            <undetected-module>io-vertx-core</undetected-module>
+        </used-by-source-modules>
+    </dependencies>
+
+    <providers>
+        <provider interface="dev.webfx.stack.authn.oauth2.spi.OAuth2Provider">dev.webfx.stack.authn.oauth2.spi.impl.vertx.VertxOAuth2Provider</provider>
+    </providers>
+
+    <required-libraries>
+        <library name="io-vertx-auth-oauth2" artifact="io.vertx:vertx-auth-oauth2:4.3.4">
+            <exported-packages>
+                <package>io.vertx.ext.auth.oauth2</package>
+                <package>io.vertx.ext.auth.oauth2.providers</package>
+            </exported-packages>
+        </library>
+    </required-libraries>
+
+</project>
