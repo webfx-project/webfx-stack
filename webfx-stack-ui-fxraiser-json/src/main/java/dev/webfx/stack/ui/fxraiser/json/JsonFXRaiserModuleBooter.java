@@ -2,9 +2,7 @@ package dev.webfx.stack.ui.fxraiser.json;
 
 import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
 import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.JsonObject;
 import dev.webfx.platform.json.ReadOnlyJsonObject;
-import dev.webfx.platform.json.JsonArray;
 import dev.webfx.stack.ui.fxraiser.FXValueRaiser;
 import dev.webfx.stack.ui.fxraiser.impl.ValueConverterRegistry;
 import javafx.scene.shape.SVGPath;
@@ -15,6 +13,9 @@ import static dev.webfx.platform.util.Objects.isAssignableFrom;
  * @author Bruno Salmon
  */
 public class JsonFXRaiserModuleBooter implements ApplicationModuleBooter {
+
+    private final static Class<?> jsonObjectClass = Json.createObject().getClass();
+    private final static Class<?> jsonArrayClass = Json.createArray().getClass();
 
     @Override
     public String getModuleName() {
@@ -33,10 +34,10 @@ public class JsonFXRaiserModuleBooter implements ApplicationModuleBooter {
             @Override
             public <T> T raiseValue(Object value, Class<T> raisedClass, Object... args) {
                 if (value instanceof String) {
-                    String s = (String) value;
-                    if (s.startsWith("{") && s.endsWith("}") && isAssignableFrom(raisedClass, JsonObject.class))
+                    String s = ((String) value).trim();
+                    if (s.startsWith("{") && s.endsWith("}") && isAssignableFrom(raisedClass, jsonObjectClass))
                         return (T) Json.parseObjectSilently(s);
-                    if (s.startsWith("[") && s.endsWith("]") && isAssignableFrom(raisedClass, JsonArray.class))
+                    if (s.startsWith("[") && s.endsWith("]") && isAssignableFrom(raisedClass, jsonArrayClass))
                         return (T) Json.parseArraySilently(s);
                 }
                 return null;
