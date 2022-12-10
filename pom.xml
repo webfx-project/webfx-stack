@@ -52,6 +52,8 @@
         <module>webfx-stack-authn-login-ui-portal</module>
         <module>webfx-stack-authn-logout-client</module>
         <module>webfx-stack-authn-logout-server</module>
+        <module>webfx-stack-authn-oauth2</module>
+        <module>webfx-stack-authn-oauth2-vertx</module>
         <module>webfx-stack-authn-remote</module>
         <module>webfx-stack-authn-server-gateway</module>
         <module>webfx-stack-authn-server-gateway-facebook</module>
