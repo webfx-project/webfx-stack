@@ -23,9 +23,14 @@ public final class VertxHttpConfigurationConsumer extends DefaultResourceConfigu
 
     private static final String CONFIGURATION_NAME = "HttpOptions";
     final static String HTTP_SERVERS_CONFIG_KEY = "httpServers";
+    final static String PROTOCOL_CONFIG_KEY = "protocol";
     final static String PORT_CONFIG_KEY = "port";
     final static String CERT_PATH_CONFIG_KEY = "certPath";
     final static String KEY_PATH_CONFIG_KEY = "keyPath";
+
+    static String HTTP_SERVER_PROTOCOL;
+    static String HTTP_SERVER_PORT;
+    static String HTTP_SERVER_ORIGIN;
 
     static ReadOnlyKeyObject CONFIGURATION;
 
@@ -40,14 +45,26 @@ public final class VertxHttpConfigurationConsumer extends DefaultResourceConfigu
     }
 
     static boolean checkHttpServerConfig(ReadOnlyKeyObject httpServerConfig, boolean logInvalid) {
+        String protocol = httpServerConfig.getString(PROTOCOL_CONFIG_KEY);
         String port = httpServerConfig.getString(PORT_CONFIG_KEY);
         String certPath = httpServerConfig.getString(CERT_PATH_CONFIG_KEY);
         String keyPath = httpServerConfig.getString(KEY_PATH_CONFIG_KEY);
-        if (ConfigurationService.areValuesNullOrResolved(port, certPath, keyPath)
-            && (certPath == null && keyPath == null || certPath != null && keyPath != null && Files.exists(Path.of(certPath)) && Files.exists(Path.of(keyPath))))
+        if (ConfigurationService.areValuesNonNullAndResolved(protocol, port)
+                && ConfigurationService.areValuesNullOrResolved(certPath, keyPath)
+                && (certPath == null && keyPath == null || certPath != null && keyPath != null && Files.exists(Path.of(certPath)) && Files.exists(Path.of(keyPath)))) {
+            // Reaching this code block indicates that the http configuration is valid.
+            // We set the HTTP_SERVER_XXX global variables from the first valid http configuration:
+            if (HTTP_SERVER_PROTOCOL == null) {
+                HTTP_SERVER_PROTOCOL = protocol;
+                HTTP_SERVER_PORT = port;
+                boolean isUsingDefaultPort = "http".equals(protocol) && "80".equals(port) || "https".equals(protocol) && "443".equals(port);
+                HTTP_SERVER_ORIGIN = protocol + "://${{ SERVER_HOST }}" + (isUsingDefaultPort ? "" : ":" + port);
+            }
+            // Returning true to indicate this configuration is valid
             return true;
+        }
         if (logInvalid)
-            Console.log("⚠️ WARNING: Couldn't start " + (certPath == null && keyPath == null ? "http" : "https") + " server on port " + port + " because the configuration is invalid");
+            Console.log("⚠️ WARNING: Couldn't start " + protocol + " server on port " + port + " because the configuration is invalid");
         return false;
     }
 
@@ -69,8 +86,8 @@ public final class VertxHttpConfigurationConsumer extends DefaultResourceConfigu
         CONFIGURATION = config;
 
         int errors = consumeEachValidHttpServerConfiguration(httpServerConfig -> {
-            String httpProtocol = httpServerConfig.getString(CERT_PATH_CONFIG_KEY) == null ? "http" : "https";
-            Console.log("Starting " + httpProtocol + " server on port " + httpServerConfig.getString(PORT_CONFIG_KEY));
+            String protocol = httpServerConfig.getString(PROTOCOL_CONFIG_KEY);
+            Console.log("Starting " + protocol + " server on port " + httpServerConfig.getString(PORT_CONFIG_KEY));
         }, true);
 
         return errors == 0 ? Future.succeededFuture() : Future.failedFuture(new ConfigurationException(errors < CONFIGURATION.getArray(HTTP_SERVERS_CONFIG_KEY).size()));

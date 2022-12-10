@@ -17,19 +17,19 @@ final class VertxHttpVerticle extends AbstractVerticle {
     @Override
     public void start() {
         consumeEachValidHttpServerConfiguration(httpServerConfig -> {
+            String protocol = httpServerConfig.getString(PROTOCOL_CONFIG_KEY);
             int port = httpServerConfig.getInteger(PORT_CONFIG_KEY);
             String certPath = httpServerConfig.getString(CERT_PATH_CONFIG_KEY);
             String keyPath = httpServerConfig.getString(KEY_PATH_CONFIG_KEY);
             if (certPath == null && keyPath == null)
-                createAndStartHttpServer(port, null);
+                createAndStartHttpServer(protocol, port, null);
             else
-                createAndStartHttpServer(port, new PemKeyCertOptions().setCertPath(certPath).setKeyPath(keyPath));
+                createAndStartHttpServer(protocol, port, new PemKeyCertOptions().setCertPath(certPath).setKeyPath(keyPath));
         }, false); // No need to log invalid configuration again as it was already done
     }
 
-    private void createAndStartHttpServer(int port, PemKeyCertOptions pemKeyCertOptions) {
-        String httpProtocol = pemKeyCertOptions == null ? "http" : "https";
-        //Console.log("Starting " + httpProtocol + " server on port " + port);
+    private void createAndStartHttpServer(String protocol, int port, PemKeyCertOptions pemKeyCertOptions) {
+        //Console.log("Starting " + protocol + " server on port " + port);
         // Creating the http server with the following options:
         vertx.createHttpServer(new HttpServerOptions()
                 .setMaxWebSocketFrameSize(65536 * 100) // Increasing the frame size to allow big client request
@@ -42,8 +42,8 @@ final class VertxHttpVerticle extends AbstractVerticle {
                 .requestHandler(VertxInstance.getHttpRouter())
                 // And finally starting the http server by listening the web port
                 .listen()
-                .onFailure(e -> Console.log("❌ Error while starting " + httpProtocol + " server on port " + port, e))
-                .onSuccess(x -> Console.log("✅ Successfully started " + httpProtocol + " server on port " + port))
+                .onFailure(e -> Console.log("❌ Error while starting " + protocol + " server on port " + port, e))
+                .onSuccess(x -> Console.log("✅ Successfully started " + protocol + " server on port " + port))
         ;
     }
 }
