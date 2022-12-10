@@ -41,7 +41,7 @@ public class GoogleServerLoginGatewayProvider implements ServerLoginGatewayProvi
         return checkConfigurationValid()
                 .map(ignored -> {
                     String serverSessionId = ThreadLocalStateHolder.getServerSessionId();
-                    String RETURN_URL = "http://localhost:8080" + REDIRECT_PATH;                    // @TODO implement better solution here
+                    String RETURN_URL = REDIRECT_ORIGIN + REDIRECT_PATH;
                     String html = HTML_TEMPLATE
                             .replace("{{GOOGLE_CLIENT_ID}}", GOOGLE_CLIENT_ID)
                             .replace("{{RETURN_URL}}", RETURN_URL)

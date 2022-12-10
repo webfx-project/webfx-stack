@@ -11,24 +11,20 @@ import dev.webfx.stack.conf.spi.impl.resource.DefaultResourceConfigurationConsum
 public final class MojoAuthServerLoginGatewayConfigurationConsumer extends DefaultResourceConfigurationConsumer {
 
     private final static String MOJO_AUTH_LOGIN_CONFIGURATION_NAME = "MojoAuthLogin";
-    private final static String MOJO_AUTH_API_KEY_CONF_KEY = "mojoAuthApiKey";
-    private final static String REDIRECT_HOST_CONF_KEY = "redirectHost";
+    private final static String API_KEY_CONF_KEY = "apiKey";
+    private final static String REDIRECT_ORIGIN_CONF_KEY = "redirectOrigin";
     private final static String REDIRECT_PATH_CONF_KEY = "redirectPath";
 
-    static String MOJO_AUTH_API_KEY;
-    static String REDIRECT_HOST;
+    public static String MOJO_AUTH_API_KEY;
+    static String REDIRECT_ORIGIN;
     static String REDIRECT_PATH;
-
-    private final static String HTML_RESPONSE = "<html><body style= \"width: 100%; height:62%; display: table; overflow: hidden;\">\n" +
-            "    <p style=\"display: table-cell; text-align: center; vertical-align: middle;\">{{RESPONSE_TEXT}}</p>\n" +
-            "</body></html>";
 
     public MojoAuthServerLoginGatewayConfigurationConsumer() {
         super(MOJO_AUTH_LOGIN_CONFIGURATION_NAME, "MojoAuthLogin.default.json");
     }
 
     static boolean isConfigurationValid() {
-        return ConfigurationService.areValuesNonNullAndResolved(MOJO_AUTH_API_KEY, REDIRECT_HOST, REDIRECT_PATH);
+        return ConfigurationService.areValuesNonNullAndResolved(MOJO_AUTH_API_KEY, REDIRECT_ORIGIN, REDIRECT_PATH);
     }
 
     static Future<Void> checkConfigurationValid() {
@@ -39,8 +35,8 @@ public final class MojoAuthServerLoginGatewayConfigurationConsumer extends Defau
     public Future<Void> boot(ReadOnlyKeyObject config) {
         if (config == null)
             return Future.failedFuture("No configuration found for MojoAuth login");
-        MOJO_AUTH_API_KEY = config.getString(MOJO_AUTH_API_KEY_CONF_KEY);
-        REDIRECT_HOST = config.getString(REDIRECT_HOST_CONF_KEY);
+        MOJO_AUTH_API_KEY = config.getString(API_KEY_CONF_KEY);
+        REDIRECT_ORIGIN = config.getString(REDIRECT_ORIGIN_CONF_KEY);
         REDIRECT_PATH = config.getString(REDIRECT_PATH_CONF_KEY);
         MojoAuthServerLoginGatewayCallbackListener.start();
         return checkConfigurationValid();

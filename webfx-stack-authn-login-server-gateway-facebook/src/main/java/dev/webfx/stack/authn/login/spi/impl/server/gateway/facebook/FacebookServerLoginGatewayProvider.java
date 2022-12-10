@@ -24,7 +24,7 @@ public class FacebookServerLoginGatewayProvider implements ServerLoginGatewayPro
         return checkConfigurationValid()
                 .map(ignored -> {
                     String serverSessionId = ThreadLocalStateHolder.getServerSessionId();
-                    String RETURN_URL = REDIRECT_HOST + REDIRECT_PATH;
+                    String RETURN_URL = REDIRECT_ORIGIN + REDIRECT_PATH;
                     String html = HTML_TEMPLATE
                             .replace("{{FACEBOOK_CLIENT_ID}}", FACEBOOK_CLIENT_ID)
                             .replace("{{RETURN_URL}}", RETURN_URL)

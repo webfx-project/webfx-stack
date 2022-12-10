@@ -7,12 +7,11 @@ module webfx.stack.authn.login.server.gateway.google {
     requires webfx.platform.console;
     requires webfx.platform.util;
     requires webfx.stack.authn.login.server.gateway;
+    requires webfx.stack.authn.oauth2;
     requires webfx.stack.conf;
     requires webfx.stack.conf.resource;
     requires webfx.stack.routing.router;
     requires webfx.stack.session.state;
-    requires io.vertx.auth.oauth2;
-    requires io.vertx.core;
 
     // Exported packages
     exports dev.webfx.stack.authn.login.spi.impl.server.gateway.google;

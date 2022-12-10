@@ -24,13 +24,13 @@ final class MojoAuthServerLoginGatewayCallbackListener {
     static void start() {
         if (isConfigurationValid()) {
             Router router = Router.create(); // Actually returns the http router (not creates a new one)
-            router.route("/login/callback/mojoAuth/sessionId/:sessionId").handler(rc -> {                               // @TODO extract this into constant
+            router.route(REDIRECT_PATH).handler(rc -> {
                 String stateId = rc.getParams().getString("state_id");
                 String sessionId = rc.getParams().getString("sessionId");
                 Session webSession = rc.session();
                 Console.log("state_id = " + stateId + ", requested sessionId = " + sessionId + ", webSessionId = " + webSession.id());
 
-                AuthenticationService.authenticate(stateId)
+                AuthenticationService.authenticate("MojoAuth." + stateId)
                         .onComplete(ar -> {
                             String responseText;
                             if (ar.failed())
