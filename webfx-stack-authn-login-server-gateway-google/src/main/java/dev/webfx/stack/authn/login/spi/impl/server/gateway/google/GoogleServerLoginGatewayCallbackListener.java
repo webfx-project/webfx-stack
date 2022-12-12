@@ -27,7 +27,7 @@ final class GoogleServerLoginGatewayCallbackListener {
 
                         Console.log("Google callback with credential=" + credential + ", and sessionId=" + sessionId);
 
-                        rc.sendResponse("OK");
+                        rc.sendResponse("Google callback!!");
                     });
                 });
         }

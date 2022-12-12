@@ -16,6 +16,7 @@ final class FacebookServerLoginGatewayCallbackListener {
             Router router = Router.create(); // Actually returns the http router (not creates a new one)
             router.route(REDIRECT_PATH).handler(rc -> {
                 Console.log("Facebook callback!!!");
+                rc.sendResponse("Facebook callback!!");
             });
         }
     }
