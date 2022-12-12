@@ -91,7 +91,7 @@ public class SimpleBus implements Bus {
     // Reacting to an open event
     protected void onOpen() {
         open = true;
-        Console.log("Bus open");
+        Console.log("✅ Bus open");
         if (hook != null)
             hook.handleOpened();
     }
@@ -103,7 +103,7 @@ public class SimpleBus implements Bus {
 
     // Reacting to a close event
     protected void onClose(Object reason) {
-        Console.log("Bus closed, reason = " + reason);
+        Console.log("❌ Bus closed, reason = " + reason);
         open = false;
         clearHandlers();
         if (hook != null)
@@ -112,7 +112,7 @@ public class SimpleBus implements Bus {
 
     // Reacting to an error event
     protected void onError(Object reason) {
-        Console.log("Bus error, reason = " + reason);
+        Console.log("❌ Bus error, reason = " + reason);
     }
 
     @Override
