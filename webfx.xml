@@ -204,6 +204,7 @@
                 <module>webfx-stack-conf-env-java</module>
                 <module>webfx-stack-conf-file-java</module>
                 <module>webfx-stack-conf-format-json</module>
+                <module>webfx-stack-conf-localstorage</module>
                 <module>webfx-stack-conf-resource</module>
                 <module>webfx-stack-db-datascope</module>
                 <module>webfx-stack-db-datasource</module>
@@ -1848,6 +1849,35 @@
 
             <used-by-source-modules>
                 <module>webfx-platform-json</module>
+                <module>webfx-platform-util</module>
+                <module>webfx-stack-conf</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-stack-conf-localstorage">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <providers>
+                <provider interface="dev.webfx.stack.conf.spi.ConfigurationSupplier">dev.webfx.stack.conf.spi.impl.localstorage.LocalStorageConfigurationSupplier</provider>
+            </providers>
+
+            <source-packages>
+                <package>dev.webfx.stack.conf.spi.impl.localstorage</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-platform-async</module>
+                <module>webfx-platform-console</module>
+                <module>webfx-platform-storage</module>
                 <module>webfx-platform-util</module>
                 <module>webfx-stack-conf</module>
             </used-by-source-modules>

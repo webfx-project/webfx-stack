@@ -81,6 +81,7 @@
         <module>webfx-stack-conf-env-java</module>
         <module>webfx-stack-conf-file-java</module>
         <module>webfx-stack-conf-format-json</module>
+        <module>webfx-stack-conf-localstorage</module>
         <module>webfx-stack-conf-resource</module>
         <module>webfx-stack-db-datascope</module>
         <module>webfx-stack-db-datasource</module>
