@@ -1,6 +1,6 @@
 package dev.webfx.stack.orm.entity;
 
-import dev.webfx.platform.util.collection.Collections;
+import dev.webfx.platform.util.serviceloader.MultipleServiceProviders;
 
 import java.util.Collection;
 import java.util.ServiceLoader;
@@ -17,7 +17,7 @@ public interface EntityFactoryProvider<E extends Entity> {
     EntityFactory<E> entityFactory();
 
     static Collection<EntityFactoryProvider> getProvidedFactories() {
-        return Collections.listOf(ServiceLoader.load(EntityFactoryProvider.class));
+        return MultipleServiceProviders.getProviders(EntityFactoryProvider.class, () -> ServiceLoader.load(EntityFactoryProvider.class));
     }
 
 }

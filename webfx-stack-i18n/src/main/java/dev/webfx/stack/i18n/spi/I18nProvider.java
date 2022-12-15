@@ -1,6 +1,7 @@
 package dev.webfx.stack.i18n.spi;
 
 import dev.webfx.platform.util.collection.Collections;
+import dev.webfx.platform.util.serviceloader.MultipleServiceProviders;
 import dev.webfx.stack.i18n.Dictionary;
 import dev.webfx.stack.i18n.TokenKey;
 import dev.webfx.stack.i18n.operations.ChangeLanguageRequestEmitter;
@@ -11,6 +12,7 @@ import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableValue;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.ServiceLoader;
 
 /**
@@ -22,8 +24,8 @@ public interface I18nProvider {
         return Collections.map(getProvidedInstantiators(), i -> i.emitLanguageRequest().getLanguage());
     }
 
-    default Collection<ChangeLanguageRequestEmitter> getProvidedInstantiators() {
-        return Collections.listOf(ServiceLoader.load(ChangeLanguageRequestEmitter.class));
+    default List<ChangeLanguageRequestEmitter> getProvidedInstantiators() {
+        return MultipleServiceProviders.getProviders(ChangeLanguageRequestEmitter.class, () -> ServiceLoader.load(ChangeLanguageRequestEmitter.class));
     }
 
     ObjectProperty<Object> languageProperty();
