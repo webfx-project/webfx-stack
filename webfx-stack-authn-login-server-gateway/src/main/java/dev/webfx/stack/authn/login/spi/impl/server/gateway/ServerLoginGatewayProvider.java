@@ -7,8 +7,10 @@ import dev.webfx.platform.async.Future;
  */
 public interface ServerLoginGatewayProvider {
 
+    void boot();
+
     Object getGatewayId();
 
-    Future<?> getLoginUiInput();
+    Future<?> getLoginUiInput(Object gatewayContext);
 
 }

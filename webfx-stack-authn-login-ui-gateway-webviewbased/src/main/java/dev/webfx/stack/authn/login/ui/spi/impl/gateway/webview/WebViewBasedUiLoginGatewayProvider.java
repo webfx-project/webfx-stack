@@ -2,8 +2,10 @@ package dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview;
 
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.stack.authn.login.LoginService;
+import dev.webfx.stack.authn.login.LoginUiContext;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProviderBase;
 import javafx.scene.Node;
+import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
@@ -31,12 +33,12 @@ public abstract class WebViewBasedUiLoginGatewayProvider extends UiLoginGatewayP
                     if (input != null) {
                         WebEngine webEngine = webView.getEngine();
                         if (input.startsWith("http"))
-                            webEngine.load(input);
+                            mainWebEngine.load(input);
                         else
-                            webEngine.loadContent(input);
+                            mainWebEngine.loadContent(input);
                     }
                 }));
-        return webView;
+        return mainWebViewContainer;
     }
 
 }

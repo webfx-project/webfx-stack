@@ -4,7 +4,6 @@ module webfx.stack.authn.login.server.gateway.mojoauth {
 
     // Direct dependencies modules
     requires webfx.platform.async;
-    requires webfx.platform.console;
     requires webfx.platform.util;
     requires webfx.stack.authn;
     requires webfx.stack.authn.login.server.gateway;

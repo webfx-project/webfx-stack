@@ -3,13 +3,19 @@
 module webfx.stack.authn.login.ui.gateway.webviewbased {
 
     // Direct dependencies modules
+    requires java.base;
     requires javafx.graphics;
     requires javafx.web;
     requires webfx.platform.uischeduler;
+    requires webfx.platform.util;
     requires webfx.stack.authn.login;
     requires webfx.stack.authn.login.ui.gateway;
 
     // Exported packages
     exports dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview;
+    exports dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.spi;
+
+    // Used services
+    uses dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.spi.LoginWebViewProvider;
 
 }

@@ -1,6 +1,8 @@
 {
   "clientId":       "${{ GOOGLE_CLIENT_ID }}",
   "clientSecret":   "${{ GOOGLE_CLIENT_SECRET }}",
+  "loginOrigin":   "${{ GOOGLE_LOGIN_ORIGIN | HTTP_SERVER_ORIGIN }}",
+  "loginPath":     "${{ GOOGLE_LOGIN_PATH | '/login/google' }}",
   "redirectOrigin": "${{ GOOGLE_REDIRECT_ORIGIN | HTTP_SERVER_ORIGIN }}",
-  "redirectPath":   "${{ GOGGLE_REDIRECT_PATH | '/login/callback/google' }}"
+  "redirectPath":   "${{ GOOGLE_REDIRECT_PATH | '/login/google/callback' }}"
 }

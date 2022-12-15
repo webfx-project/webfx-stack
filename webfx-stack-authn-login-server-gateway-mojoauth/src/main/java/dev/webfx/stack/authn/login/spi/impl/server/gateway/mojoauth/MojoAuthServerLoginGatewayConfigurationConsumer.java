@@ -38,7 +38,6 @@ public final class MojoAuthServerLoginGatewayConfigurationConsumer extends Defau
         MOJO_AUTH_API_KEY = config.getString(API_KEY_CONF_KEY);
         REDIRECT_ORIGIN = config.getString(REDIRECT_ORIGIN_CONF_KEY);
         REDIRECT_PATH = config.getString(REDIRECT_PATH_CONF_KEY);
-        MojoAuthServerLoginGatewayCallbackListener.start();
         return checkConfigurationValid();
     }
 }

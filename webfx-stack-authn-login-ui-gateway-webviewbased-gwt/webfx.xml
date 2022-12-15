@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+    <providers>
+        <provider interface="dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.spi.LoginWebViewProvider">dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.spi.impl.gwt.GwtLoginWebViewProvider</provider>
+    </providers>
+
+</project>

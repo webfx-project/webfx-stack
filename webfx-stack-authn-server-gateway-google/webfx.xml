@@ -10,7 +10,7 @@
     </dependencies>
 
     <providers>
-        <provider interface="dev.webfx.stack.authn.spi.impl.server.gateway.ServerAuthenticationGatewayProvider">dev.webfx.stack.authn.spi.impl.server.gateway.google.GoogleServerAuthenticationGatewayProvider</provider>
+        <provider interface="dev.webfx.stack.authn.server.gateway.spi.ServerAuthenticationGatewayProvider">dev.webfx.stack.authn.server.gateway.spi.impl.google.GoogleServerAuthenticationGatewayProvider</provider>
     </providers>
 
 </project>

@@ -6,6 +6,7 @@ module webfx.stack.authn.server.portal {
     requires java.base;
     requires webfx.platform.async;
     requires webfx.platform.boot;
+    requires webfx.platform.util;
     requires webfx.stack.authn;
     requires webfx.stack.authn.server.gateway;
     requires webfx.stack.session.state.server;
@@ -15,7 +16,7 @@ module webfx.stack.authn.server.portal {
     exports dev.webfx.stack.authn.spi.impl.server.portal;
 
     // Used services
-    uses dev.webfx.stack.authn.spi.impl.server.gateway.ServerAuthenticationGatewayProvider;
+    uses dev.webfx.stack.authn.server.gateway.spi.ServerAuthenticationGatewayProvider;
 
     // Provided services
     provides dev.webfx.platform.boot.spi.ApplicationJob with dev.webfx.stack.authn.spi.impl.server.ServerAuthenticationJob;

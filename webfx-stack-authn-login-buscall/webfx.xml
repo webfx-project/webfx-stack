@@ -11,6 +11,7 @@
 
     <providers>
         <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.authn.login.buscall.GetLoginUiInputMethodEndpoint</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.login.buscall.serial.LoginUiContextSerialCodec</provider>
     </providers>
 
 </project>

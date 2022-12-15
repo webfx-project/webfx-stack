@@ -4,12 +4,14 @@ module webfx.stack.authn.login.server.gateway.facebook {
 
     // Direct dependencies modules
     requires webfx.platform.async;
-    requires webfx.platform.console;
     requires webfx.platform.util;
+    requires webfx.stack.authn;
     requires webfx.stack.authn.login.server.gateway;
     requires webfx.stack.conf;
     requires webfx.stack.conf.resource;
+    requires webfx.stack.push.server;
     requires webfx.stack.routing.router;
+    requires webfx.stack.session;
     requires webfx.stack.session.state;
 
     // Exported packages

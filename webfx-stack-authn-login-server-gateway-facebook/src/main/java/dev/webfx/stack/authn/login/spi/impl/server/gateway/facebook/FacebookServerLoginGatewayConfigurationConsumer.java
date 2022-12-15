@@ -13,21 +13,25 @@ public final class FacebookServerLoginGatewayConfigurationConsumer extends Defau
     private final static String LOGIN_CONF_NAME = "FacebookLogin";
     private final static String CLIENT_ID_CONF_KEY = "clientId";
     private final static String CLIENT_SECRET_CONF_KEY = "clientSecret";
+    private final static String LOGIN_ORIGIN_CONF_KEY = "loginOrigin";
+    private final static String LOGIN_PATH_CONF_KEY = "loginPath";
     private final static String REDIRECT_ORIGIN_CONF_KEY = "redirectOrigin";
     private final static String REDIRECT_PATH_CONF_KEY = "redirectPath";
 
-    static String FACEBOOK_CLIENT_ID;
-    static String FACEBOOK_CLIENT_SECRET;
-    static String REDIRECT_ORIGIN;
-    static String REDIRECT_PATH;
+    public static String FACEBOOK_CLIENT_ID;
+    public static String FACEBOOK_CLIENT_SECRET;
+    static String LOGIN_ORIGIN;
+    static String LOGIN_PATH;
+    public static String REDIRECT_ORIGIN;
+    public static String REDIRECT_PATH;
 
 
     public FacebookServerLoginGatewayConfigurationConsumer() {
         super(LOGIN_CONF_NAME, "FacebookLogin.default.json");
     }
 
-    static boolean isConfigurationValid() {
-        return ConfigurationService.areValuesNonNullAndResolved(FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET, REDIRECT_ORIGIN, REDIRECT_PATH);
+    public static boolean isConfigurationValid() {
+        return ConfigurationService.areValuesNonNullAndResolved(FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET, LOGIN_ORIGIN, LOGIN_PATH, REDIRECT_ORIGIN, REDIRECT_PATH);
     }
 
     static Future<Void> checkConfigurationValid() {
@@ -40,9 +44,10 @@ public final class FacebookServerLoginGatewayConfigurationConsumer extends Defau
             return Future.failedFuture("No configuration found for Facebook login");
         FACEBOOK_CLIENT_ID = config.getString(CLIENT_ID_CONF_KEY);
         FACEBOOK_CLIENT_SECRET = config.getString(CLIENT_SECRET_CONF_KEY);
+        LOGIN_ORIGIN = config.getString(LOGIN_ORIGIN_CONF_KEY);
+        LOGIN_PATH = config.getString(LOGIN_PATH_CONF_KEY);
         REDIRECT_ORIGIN = config.getString(REDIRECT_ORIGIN_CONF_KEY);
         REDIRECT_PATH = config.getString(REDIRECT_PATH_CONF_KEY);
-        FacebookServerLoginGatewayCallbackListener.start();
         return checkConfigurationValid();
     }
 }

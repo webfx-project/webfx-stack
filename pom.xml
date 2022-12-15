@@ -49,6 +49,8 @@
         <module>webfx-stack-authn-login-ui-gateway-mojoauth</module>
         <module>webfx-stack-authn-login-ui-gateway-password</module>
         <module>webfx-stack-authn-login-ui-gateway-webviewbased</module>
+        <module>webfx-stack-authn-login-ui-gateway-webviewbased-gwt</module>
+        <module>webfx-stack-authn-login-ui-gateway-webviewbased-openjfx</module>
         <module>webfx-stack-authn-login-ui-portal</module>
         <module>webfx-stack-authn-logout-client</module>
         <module>webfx-stack-authn-logout-server</module>
