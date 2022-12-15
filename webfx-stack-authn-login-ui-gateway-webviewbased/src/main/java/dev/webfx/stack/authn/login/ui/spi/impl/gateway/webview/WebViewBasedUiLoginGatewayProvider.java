@@ -22,8 +22,13 @@ public abstract class WebViewBasedUiLoginGatewayProvider extends UiLoginGatewayP
 
     @Override
     public Node createLoginUi() {
-        WebView webView = new WebView();
-        LoginService.getLoginUiInput(getGatewayId())
+        WebView mainWebView = LoginWebViewService.createLoginWebView();
+        StackPane mainWebViewContainer = new StackPane(mainWebView);
+        WebEngine mainWebEngine = mainWebView.getEngine();
+
+        // Now that our web view is correctly set up to start a login process, we call the login service to get the UI
+        // input, which - in a case of a web view - should be the either a URL to load, or directly a HTML content.
+        LoginService.getLoginUiInput(new LoginUiContext(getGatewayId(), LoginWebViewService.isWebViewInIFrame()))
                 .onComplete(ar -> UiScheduler.runInUiThread(() -> {
                     String input = null;
                     if (ar.failed())
@@ -31,7 +36,7 @@ public abstract class WebViewBasedUiLoginGatewayProvider extends UiLoginGatewayP
                     else if (ar.result() instanceof String)
                         input = (String) ar.result();
                     if (input != null) {
-                        WebEngine webEngine = webView.getEngine();
+                        //System.out.println("WebView input = " + input);
                         if (input.startsWith("http"))
                             mainWebEngine.load(input);
                         else
