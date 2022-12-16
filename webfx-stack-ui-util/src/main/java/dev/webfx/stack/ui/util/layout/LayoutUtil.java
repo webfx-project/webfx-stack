@@ -58,6 +58,10 @@ public final class LayoutUtil {
         return goldPane;
     }
 
+    public static Region createHSpace(double width) {
+        return setMinWidth(new Region(), width);
+    }
+
     public static Region createHGrowable() {
         return setHGrowable(setMaxWidthToInfinite(new Region()));
     }
