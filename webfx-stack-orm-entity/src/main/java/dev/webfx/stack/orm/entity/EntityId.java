@@ -38,4 +38,12 @@ public interface EntityId {
     static EntityId create(DomainClass domainClass) {
         return EntityIdImpl.create(domainClass);
     }
+
+    static EntityId create(Class<? extends Entity> entityClass, Object primaryKey) {
+        return EntityIdImpl.create(EntityDomainClassIdRegistry.getEntityDomainClass(entityClass), primaryKey);
+    }
+
+    static EntityId create(Class<? extends Entity> entityClass) {
+        return EntityIdImpl.create(EntityDomainClassIdRegistry.getEntityDomainClass(entityClass));
+    }
 }

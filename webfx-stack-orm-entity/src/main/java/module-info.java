@@ -11,6 +11,7 @@ module webfx.stack.orm.entity {
     requires transitive webfx.stack.db.datascope;
     requires transitive webfx.stack.db.query;
     requires transitive webfx.stack.db.submit;
+    requires webfx.stack.orm.datasourcemodel.service;
     requires transitive webfx.stack.orm.domainmodel;
     requires transitive webfx.stack.orm.dql;
     requires transitive webfx.stack.orm.expression;

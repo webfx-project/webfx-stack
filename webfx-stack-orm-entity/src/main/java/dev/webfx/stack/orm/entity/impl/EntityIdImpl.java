@@ -3,6 +3,8 @@ package dev.webfx.stack.orm.entity.impl;
 import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
 
+import java.util.Objects;
+
 /**
  * @author Bruno Salmon
  */
@@ -38,8 +40,8 @@ public final class EntityIdImpl implements EntityId {
 
         EntityIdImpl entityId = (EntityIdImpl) o;
 
-        if (domainClass != null ? !domainClass.equals(entityId.domainClass) : entityId.domainClass != null) return false;
-        return !(primaryKey != null ? !primaryKey.equals(entityId.primaryKey) : entityId.primaryKey != null);
+        if (!Objects.equals(domainClass, entityId.domainClass)) return false;
+        return Objects.equals(primaryKey, entityId.primaryKey);
 
     }
 

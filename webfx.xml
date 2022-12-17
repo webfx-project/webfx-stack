@@ -2970,6 +2970,7 @@
                 <module>webfx-stack-db-datascope</module>
                 <module>webfx-stack-db-query</module>
                 <module>webfx-stack-db-submit</module>
+                <module>webfx-stack-orm-datasourcemodel-service</module>
                 <module>webfx-stack-orm-domainmodel</module>
                 <module>webfx-stack-orm-dql</module>
                 <module>webfx-stack-orm-expression</module>
