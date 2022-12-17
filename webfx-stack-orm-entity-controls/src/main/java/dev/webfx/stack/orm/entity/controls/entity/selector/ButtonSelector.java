@@ -2,6 +2,7 @@ package dev.webfx.stack.orm.entity.controls.entity.selector;
 
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -154,6 +155,7 @@ public abstract class ButtonSelector<T> {
     public void setButton(Button button) {
         this.button = button;
         button.setOnAction(e -> onButtonClicked());
+        button.setCursor(Cursor.HAND);
         button.setOnMouseEntered(e -> onMouseEntered());
         button.setOnMouseExited( e -> onMouseExited());
         updateButtonContentOnNewSelectedItem();
