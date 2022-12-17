@@ -3,6 +3,7 @@ package dev.webfx.stack.ui.controls.button;
 import dev.webfx.stack.i18n.I18n;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Background;
@@ -198,6 +199,7 @@ public final class ButtonBuilder {
                 } else
                     button.textFillProperty().bind(FXProperties.compute(button.pressedProperty(), pressed -> pressed ? pressedTextFill : textFill));
             }
+            button.setCursor(Cursor.HAND);
         }
         return button;
     }
