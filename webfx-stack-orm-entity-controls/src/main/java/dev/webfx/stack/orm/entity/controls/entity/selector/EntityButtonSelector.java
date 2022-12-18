@@ -90,6 +90,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> {
     public void setJsonOrClass(Object jsonOrClass) {
         this.jsonOrClass = jsonOrClass;
         renderingExpression = null;
+        dialogVisualGrid = null;
         if (jsonOrClass != null) {
             DqlStatement dqlStatement = new DqlStatementBuilder(jsonOrClass).build();
             DomainModel domainModel = dataSourceModel.getDomainModel();
