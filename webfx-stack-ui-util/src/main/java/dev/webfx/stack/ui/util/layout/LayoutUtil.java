@@ -80,9 +80,13 @@ public final class LayoutUtil {
         return setMinSize(region, 0);
     }
 
-    private static <N extends Region> N setMinSize(N region, double value) {
-        region.setMinWidth(value);
-        region.setMinHeight(value);
+    public static <N extends Region> N setMinSize(N region, double value) {
+        return setMinSize(region, value, value);
+    }
+
+    public static <N extends Region> N setMinSize(N region, double minWidth, double minHeight) {
+        region.setMinWidth(minWidth);
+        region.setMinHeight(minHeight);
         return region;
     }
 
