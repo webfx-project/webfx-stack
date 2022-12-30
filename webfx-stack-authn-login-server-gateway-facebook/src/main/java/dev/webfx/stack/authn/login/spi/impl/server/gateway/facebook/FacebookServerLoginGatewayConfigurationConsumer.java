@@ -11,6 +11,8 @@ import dev.webfx.stack.conf.spi.impl.resource.DefaultResourceConfigurationConsum
 public final class FacebookServerLoginGatewayConfigurationConsumer extends DefaultResourceConfigurationConsumer {
 
     private final static String LOGIN_CONF_NAME = "FacebookLogin";
+
+    private final static String DEFAULT_CONFIGURATION_RESOURCE_FILE_NAME = "FacebookLogin.default.json";
     private final static String CLIENT_ID_CONF_KEY = "clientId";
     private final static String CLIENT_SECRET_CONF_KEY = "clientSecret";
     private final static String LOGIN_ORIGIN_CONF_KEY = "loginOrigin";
@@ -27,7 +29,7 @@ public final class FacebookServerLoginGatewayConfigurationConsumer extends Defau
 
 
     public FacebookServerLoginGatewayConfigurationConsumer() {
-        super(LOGIN_CONF_NAME, "FacebookLogin.default.json");
+        super(LOGIN_CONF_NAME, DEFAULT_CONFIGURATION_RESOURCE_FILE_NAME);
     }
 
     public static boolean isConfigurationValid() {

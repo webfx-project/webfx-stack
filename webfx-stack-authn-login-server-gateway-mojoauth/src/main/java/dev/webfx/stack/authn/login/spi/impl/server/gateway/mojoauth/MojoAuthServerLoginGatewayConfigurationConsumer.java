@@ -11,6 +11,7 @@ import dev.webfx.stack.conf.spi.impl.resource.DefaultResourceConfigurationConsum
 public final class MojoAuthServerLoginGatewayConfigurationConsumer extends DefaultResourceConfigurationConsumer {
 
     private final static String MOJO_AUTH_LOGIN_CONFIGURATION_NAME = "MojoAuthLogin";
+    private final static String DEFAULT_CONFIGURATION_RESOURCE_FILE_NAME = "MojoAuthLogin.default.json";
     private final static String API_KEY_CONF_KEY = "apiKey";
     private final static String REDIRECT_ORIGIN_CONF_KEY = "redirectOrigin";
     private final static String REDIRECT_PATH_CONF_KEY = "redirectPath";
@@ -20,7 +21,7 @@ public final class MojoAuthServerLoginGatewayConfigurationConsumer extends Defau
     static String REDIRECT_PATH;
 
     public MojoAuthServerLoginGatewayConfigurationConsumer() {
-        super(MOJO_AUTH_LOGIN_CONFIGURATION_NAME, "MojoAuthLogin.default.json");
+        super(MOJO_AUTH_LOGIN_CONFIGURATION_NAME, DEFAULT_CONFIGURATION_RESOURCE_FILE_NAME);
     }
 
     static boolean isConfigurationValid() {

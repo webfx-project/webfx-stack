@@ -2606,6 +2606,10 @@
                 <module>webfx-stack-conf-resource</module>
             </used-by-source-modules>
 
+            <used-services>
+                <optional-service>dev.webfx.stack.conf.spi.ConfigurationConsumer</optional-service>
+            </used-services>
+
         </project>
 
         <project name="webfx-stack-i18n">

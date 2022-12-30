@@ -18,11 +18,12 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 public final class VertxBusConfigurationConsumer extends DefaultResourceConfigurationConsumer {
 
     private static final String CONFIGURATION_NAME = "VertxBusOptions";
+    private final static String DEFAULT_CONFIGURATION_RESOURCE_FILE_NAME = "VertxBusOptions.default.json";
     final static String BUS_PREFIX_CONFIG_KEY = "busPrefix";
     final static String PING_TIMEOUT_KEY = "pingTimeout";
 
     public VertxBusConfigurationConsumer() {
-        super(CONFIGURATION_NAME, "VertxBusOptions.default.json");
+        super(CONFIGURATION_NAME, DEFAULT_CONFIGURATION_RESOURCE_FILE_NAME);
     }
 
     @Override

@@ -20,6 +20,9 @@ module webfx.stack.http.server.vertx {
     // Resources packages
     opens dev.webfx.stack.http.server.vertx;
 
+    // Used services
+    uses dev.webfx.stack.conf.spi.ConfigurationConsumer;
+
     // Provided services
     provides dev.webfx.platform.boot.spi.ApplicationJob with dev.webfx.stack.http.server.vertx.VertxHttpStarterJob;
     provides dev.webfx.stack.conf.spi.ConfigurationConsumer with dev.webfx.stack.http.server.vertx.VertxHttpConfigurationConsumer;

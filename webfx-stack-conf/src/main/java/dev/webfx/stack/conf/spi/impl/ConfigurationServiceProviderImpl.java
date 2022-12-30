@@ -3,12 +3,16 @@ package dev.webfx.stack.conf.spi.impl;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.json.ReadOnlyJsonObject;
-import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.platform.util.keyobject.KeyObject;
 import dev.webfx.platform.util.keyobject.ReadOnlyIndexedArray;
 import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
+import dev.webfx.platform.util.serviceloader.MultipleServiceProviders;
 import dev.webfx.stack.conf.ConfigurationService;
-import dev.webfx.stack.conf.spi.*;
+import dev.webfx.stack.conf.spi.ConfigurationServiceProvider;
+import dev.webfx.stack.conf.spi.ConfigurationConsumer;
+import dev.webfx.stack.conf.spi.ConfigurationFormat;
+import dev.webfx.stack.conf.spi.ConfigurationSupplier;
+import dev.webfx.stack.conf.spi.HasConfigurationLogInfo;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -32,7 +36,7 @@ public class ConfigurationServiceProviderImpl implements ConfigurationServicePro
     public void boot() {
         // 1) Auto-registering the configuration formats declared as Java services
         registerProviders(">> Registered configuration formats:",
-                ServiceLoader.load(dev.webfx.stack.conf.spi.ConfigurationFormat.class), // must be fully qualified for CLI detection
+                MultipleServiceProviders.getProviders(ConfigurationFormat.class, () -> ServiceLoader.load(ConfigurationFormat.class)),
                 this::registerConfigurationFormat,
                 ConfigurationFormat::formatExtension);
 
@@ -40,21 +44,20 @@ public class ConfigurationServiceProviderImpl implements ConfigurationServicePro
 
         // 2) Auto-registering the configuration suppliers declared as Java services
         registerProviders(">> Registered configuration suppliers:",
-                ServiceLoader.load(dev.webfx.stack.conf.spi.ConfigurationSupplier.class), // must be fully qualified for CLI detection
+                MultipleServiceProviders.getProviders(ConfigurationSupplier.class, () -> ServiceLoader.load(ConfigurationSupplier.class)),
                 this::registerConfigurationSupplier);
 
         // 3) Auto-registering the consumers declared as Java services
         registerProviders(">> Booting registered configuration consumers:",
-                ServiceLoader.load(dev.webfx.stack.conf.spi.ConfigurationConsumer.class), // must be fully qualified for CLI detection
+                MultipleServiceProviders.getProviders(ConfigurationConsumer.class, () -> ServiceLoader.load(ConfigurationConsumer.class)),
                 this::registerConfigurationConsumer);
     }
 
-    private <T> void registerProviders(String logHeader, ServiceLoader<T> serviceLoader, Consumer<T> registerMethod) {
-        registerProviders(logHeader, serviceLoader, registerMethod, provider -> provider.getClass().getName());
+    private <T> void registerProviders(String logHeader, List<T> providers, Consumer<T> registerMethod) {
+        registerProviders(logHeader, providers, registerMethod, provider -> provider.getClass().getName());
     }
 
-    private <T> void registerProviders(String logHeader, ServiceLoader<T> serviceLoader, Consumer<T> registerMethod, Function<T, String> nameGetter) {
-        List<T> providers = Collections.listOf(serviceLoader);
+    private <T> void registerProviders(String logHeader, List<T> providers, Consumer<T> registerMethod, Function<T, String> nameGetter) {
         if (providers.isEmpty())
             Console.log(logHeader + " NONE");
         else {
@@ -165,20 +168,39 @@ public class ConfigurationServiceProviderImpl implements ConfigurationServicePro
     private String resolveVariables(String configText) {
         Matcher matcher = VARIABLE_PATTERN.matcher(configText);
         StringBuilder sb = null;
+        // Do we still have variable patterns?
         while (matcher.find()) {
+            // If yes, we take the variable token, which may be a variable name (ex: SERVER_HOST) or an expression (ex: SERVER_HOST | 'localhost')
             String variableToken = matcher.group(1).trim();
+            // We try to resolve that variable token (i.e. find the variable value, or evaluate the expression)
             Optional<String> variableValue = resolveVariableToken(variableToken);
+            // If we can't, we don't do any replacement, but we log a warning reporting the variable couldn't be resolved
             if (variableValue.isEmpty())
                 Console.log("⚠️ WARNING: Configuration variable " + variableToken + " couldn't be resolved");
             else {
-                //Console.log("Resolved configuration variable " + variableToken + " = " + variableValue.get());
+                // The variable has been resolved. Note that the variable value may be another expression composed of
+                // other variables, so we resolve it to cover this case.
+                String replacement = resolveVariables(variableValue.get());
+
+                // You can eventually uncomment the following log for debug purpose, but never keep it in production as
+                // variable values can be secret (so not a good idea to log them).
+                /* DEBUG ONLY: Console.log("Resolved configuration variable " + variableToken + " = " + replacement); */
+
+                // We are almost ready for the replacement, we just ensure first that sb is not null
                 if (sb == null)
                     sb = new StringBuilder();
-                matcher.appendReplacement(sb, resolveVariables(variableValue.get()));
+                // Now we do the replacement, but we pass an empty string and not the replacement yet at this stage. The
+                // reason is that matcher.appendReplacement(sb, replacement) can raise an exception if replacement
+                // contains again the variable pattern ${{ XXX }}, which can happen if the resolution of the variable
+                // value failed.
+                matcher.appendReplacement(sb, ""); // append all text before the variable pattern, and then ""
+                // Now we can append the replacement without raising an exception, even if replacement contains ${{ XXX }}
+                sb.append(replacement);
             }
         }
-        if (sb == null)
-            return configText;
+        if (sb == null) // Happens when no variable pattern was found, or none of them could be resolved,
+            return configText; // so we just return the original config text in this case.
+        // In other cases (variable patterns were found and resolved), we append the possible remaining text
         return matcher.appendTail(sb).toString();
     }
 

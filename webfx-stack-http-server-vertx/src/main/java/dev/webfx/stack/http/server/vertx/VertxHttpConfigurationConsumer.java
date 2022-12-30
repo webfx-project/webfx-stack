@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 public final class VertxHttpConfigurationConsumer extends DefaultResourceConfigurationConsumer {
 
     private static final String CONFIGURATION_NAME = "HttpOptions";
+    private final static String DEFAULT_CONFIGURATION_RESOURCE_FILE_NAME = "HttpOptions.default.json";
     final static String HTTP_SERVERS_CONFIG_KEY = "httpServers";
     final static String PROTOCOL_CONFIG_KEY = "protocol";
     final static String PORT_CONFIG_KEY = "port";
@@ -35,7 +36,7 @@ public final class VertxHttpConfigurationConsumer extends DefaultResourceConfigu
     static ReadOnlyKeyObject CONFIGURATION;
 
     public VertxHttpConfigurationConsumer() {
-        super(CONFIGURATION_NAME, "HttpOptions.default.json");
+        super(CONFIGURATION_NAME, DEFAULT_CONFIGURATION_RESOURCE_FILE_NAME);
         // Using a local session store
         SessionStore sessionStore = LocalSessionStore.create(VertxInstance.getVertx());
         VertxInstance.setSessionStore(sessionStore);
