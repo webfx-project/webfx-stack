@@ -11,6 +11,7 @@
 
     <providers>
         <provider interface="dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.spi.LoginWebViewProvider">dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.spi.impl.openjfx.FXLoginWebViewProvider</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.spi.impl.openjfx.HttpCookieSerialCodec</provider>
     </providers>
 
 </project>

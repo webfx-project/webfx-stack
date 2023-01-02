@@ -10,6 +10,10 @@ import javafx.scene.web.WebView;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+
 /**
  * @author Bruno Salmon
  */
@@ -23,7 +27,7 @@ public class FXLoginWebViewProvider implements LoginWebViewProvider {
         WebEngine mainWebEngine = webView.getEngine();
 
         // Some SSO logins like Google display the login process in a popup window. The JavaFX web engine doesn't allow
-        // popups by default, unless we set a handler that is responsible for their creation. So that's what we do:
+        // popups by default, unless we set a handler that is responsible for their creation. So that's what we do here:
         mainWebEngine.setCreatePopupHandler(p -> { // called when the SSO login code requires a popup
             // We create a second web view to display the content of that popup
             WebView popupWebView = new WebView();
@@ -37,114 +41,27 @@ public class FXLoginWebViewProvider implements LoginWebViewProvider {
 
         // When there is a state change on the main web engine, this can indicate the final success callback:
         mainWebEngine.getLoadWorker().stateProperty().addListener((ov,oldState,newState) -> {
-/*
-            String html = (String) mainWebEngine.executeScript("document.documentElement.outerHTML");
-            System.out.println(html);
-*/
-            Document document = mainWebEngine.getDocument();
-            Element headerNotices = document == null ? null : document.getElementById("header-notices");
-            if (headerNotices != null)
-                headerNotices.getParentNode().removeChild(headerNotices);
-
             if (popupDialogCallback != null) { // indicates that there was login popup dialog
                 popupDialogCallback.closeDialog(); // we close that dialog, because this state change must indicate the success callback
                 popupDialogCallback = null; // No need to do it again
             }
 
-/*
-            try {
-                Map<String, List<String>> cookies = CookieHandler.getDefault().get(new URI(".facebook.com"), new HashMap<>());
-                System.out.println("cookies = " + cookies);
-            } catch (IOException | URISyntaxException e) {
-                throw new RuntimeException(e);
-            }
+            // Also we remove the ugly DOM element from the Facebook login that says the browser is not supported
+/* Uncomment this to see the html code of the page rendered in the web view
+            String html = (String) mainWebEngine.executeScript("document.documentElement.outerHTML");
+            System.out.println(html);
 */
+            // The ugly Facebook DOM element id is 'header-notices', so we remove it if we find it.
+            Document document = mainWebEngine.getDocument();
+            Element headerNotices = document == null ? null : document.getElementById("header-notices");
+            if (headerNotices != null)
+                headerNotices.getParentNode().removeChild(headerNotices);
         });
 
+        // Setting a cookie handler with a persistent cookie store. This is mainly for the Facebook login which prompts
+        // an annoying cookie window. Thanks to the cookie persistence, this should now happen only once, on first time.
+        CookieHandler.setDefault(new CookieManager(new FXLoginCookieStore(), CookiePolicy.ACCEPT_ALL));
 
-/*
-
-        CookieManager manager = new CookieManager(new CookieStore() {
-
-            private final Map<String, HttpCookie> httpOnlyCookies = new HashMap<>();
-
-            public void add(URI uri, HttpCookie cookie) {
-                System.out.println("Adding cookie " + cookie + " for " + uri);
-                System.out.println("domain = " + cookie.getDomain());
-                System.out.println("maxAge = " + cookie.getMaxAge());
-                System.out.println("path = " + cookie.getPath());
-                System.out.println("httpOnly = " + cookie.isHttpOnly());
-                System.out.println("portList = " + cookie.getPortlist());
-                System.out.println("discard = " + cookie.getDiscard());
-                System.out.println("secure = " + cookie.getSecure());
-                System.out.println("version = " + cookie.getVersion());
-                System.out.println("comment = " + cookie.getComment());
-                System.out.println("commentURL = " + cookie.getCommentURL());
-                if (uri.toString().contains(".facebook.com")) {
-                    if (cookie.isHttpOnly())
-                        httpOnlyCookies.put(cookie.getName(), cookie);
-                    else
-                        LocalStorage.setItem(cookie.getName(), cookie.getValue());
-                }
-            }
-
-            @Override
-            public List<HttpCookie> get(URI uri) {
-                System.out.println("Requesting cookies for " + uri);
-                if (uri.toString().contains(".facebook.com"))
-                    return createFBCookies();
-                return List.of();
-            }
-
-            private List<HttpCookie> createFBCookies() {
-                List<HttpCookie> cookies = new ArrayList<>();
-                String[] keys = {"_js_datr", "datr", "c_user", "xs"};
-                for (String key : keys) {
-                    HttpCookie httpCookie = httpOnlyCookies.get(key);
-                    if (httpCookie != null)
-                        cookies.add(new HttpCookie(key, ""));
-                    else {
-                        String value = LocalStorage.getItem(key);
-                        if (value != null)
-                            cookies.add(createFBCookie(key, value));
-                    }
-                }
-                return cookies;
-            }
-
-            private HttpCookie createFBCookie(String key, String value) {
-                HttpCookie cookie = new HttpCookie(key, value);
-                boolean deleted = "deleted".equals(value);
-                cookie.setMaxAge(deleted ? 0 : 63071999);
-                cookie.setDomain(".facebook.com");
-                cookie.setPath("/");
-                cookie.setHttpOnly(false);
-                cookie.setSecure(!deleted);
-                return cookie;
-            }
-
-            @Override
-            public List<HttpCookie> getCookies() {
-                return null;
-            }
-
-            @Override
-            public List<URI> getURIs() {
-                return null;
-            }
-
-            @Override
-            public boolean remove(URI uri, HttpCookie cookie) {
-                return false;
-            }
-
-            @Override
-            public boolean removeAll() {
-                return false;
-            }
-        }, CookiePolicy.ACCEPT_ALL);
-        CookieHandler.setDefault(manager);
-*/
         return webView;
     }
 

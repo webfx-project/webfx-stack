@@ -938,6 +938,7 @@
 
             <providers>
                 <provider interface="dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.spi.LoginWebViewProvider">dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.spi.impl.openjfx.FXLoginWebViewProvider</provider>
+                <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.spi.impl.openjfx.HttpCookieSerialCodec</provider>
             </providers>
 
             <source-packages>
@@ -945,10 +946,15 @@
             </source-packages>
 
             <used-by-source-modules>
+                <module>java-nio-emul</module>
+                <module>java.base</module>
                 <module>java.xml</module>
                 <module>webfx-kit-javafxgraphics-emul</module>
                 <module>webfx-kit-javafxweb-emul</module>
+                <module>webfx-platform-json</module>
+                <module>webfx-platform-storagelocation</module>
                 <module>webfx-stack-authn-login-ui-gateway-webviewbased</module>
+                <module>webfx-stack-com-serial</module>
                 <module>webfx-stack-ui-controls</module>
             </used-by-source-modules>
 
@@ -4020,6 +4026,7 @@
                 <module>webfx-platform-windowhistory-web</module>
                 <module>webfx-stack-authn</module>
                 <module>webfx-stack-authn-login-buscall</module>
+                <module>webfx-stack-authn-login-ui-gateway-webviewbased-openjfx</module>
                 <module>webfx-stack-authn-server-gateway</module>
                 <module>webfx-stack-authn-server-gateway-facebook</module>
                 <module>webfx-stack-authn-server-gateway-google</module>

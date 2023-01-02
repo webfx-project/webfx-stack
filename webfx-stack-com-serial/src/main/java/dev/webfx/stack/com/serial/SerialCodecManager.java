@@ -99,8 +99,16 @@ public final class SerialCodecManager {
         if (json == null)
             return null;
         String codecId = json.getString(CODEC_ID_KEY);
-        if (codecId == null)
-            return null;
+        if (codecId == null) { // Particular case where no codec is specified
+            // In that case we don't map the json object to a java object, but return another json object with decoded values
+            JsonObject decodedJson = Json.createObject();
+            ReadOnlyJsonArray keys = json.keys();
+            for (int i = 0; i < keys.size(); i++) {
+                String key = keys.getElement(i);
+                decodedJson.set(key, (Object) decodeFromJson(json.get(key)));
+            }
+            return (T) decodedJson;
+        }
         SerialCodec<T> decoder = getSerialDecoder(codecId);
         if (decoder == null)
             throw new IllegalArgumentException("No SerialCodec found for id: '" + codecId + "' when trying to decode " + json.toJsonString());
@@ -108,8 +116,13 @@ public final class SerialCodecManager {
     }
 
     public static <T> T decodeFromJson(Object object) {
+        // Case 1: it's a json object => we call decodeFromJsonObject(). The returned object may be any java object.
         if (object instanceof ReadOnlyJsonObject)
             return decodeFromJsonObject((ReadOnlyJsonObject) object);
+        // Case 2: it's a json array => we call decodePrimitiveArrayFromJsonArray(). The return object is always an Object[] array.
+        if (object instanceof ReadOnlyJsonArray)
+            return (T) decodePrimitiveArrayFromJsonArray((ReadOnlyJsonArray) object);
+        // Case 3: it's a String with instant value prefix => we decode and return the instant value
         if (object instanceof String) {
             String s = (String) object;
             if (s.startsWith(INSTANT_VALUE_PREFIX)) {
@@ -119,6 +132,7 @@ public final class SerialCodecManager {
                     object = instant;
             }
         }
+        // Case 4: it's something else => we assume it's a value that don't need decoding and return it as is
         return (T) object;
     }
 
@@ -131,13 +145,13 @@ public final class SerialCodecManager {
         return ca;
     }
 
-    public static Object[] decodePrimitiveArrayFromJsonArray(ReadOnlyJsonArray ca) {
-        if (ca == null)
+    public static Object[] decodePrimitiveArrayFromJsonArray(ReadOnlyJsonArray jsonArray) {
+        if (jsonArray == null)
             return null;
-        int n = ca.size();
+        int n = jsonArray.size();
         Object[] array = new Object[n];
         for (int i = 0; i < n; i++)
-            array[i] = decodeFromJson(ca.getElement(i));
+            array[i] = decodeFromJson(jsonArray.getElement(i));
         return array;
     }
 
