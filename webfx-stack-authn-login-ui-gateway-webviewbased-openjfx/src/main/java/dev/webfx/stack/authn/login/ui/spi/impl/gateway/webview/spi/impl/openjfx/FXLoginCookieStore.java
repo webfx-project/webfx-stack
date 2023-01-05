@@ -7,6 +7,7 @@ import dev.webfx.platform.json.ReadOnlyJsonArray;
 import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.*;
 import java.nio.file.Files;
@@ -45,6 +46,8 @@ public class FXLoginCookieStore implements CookieStore {
                         memoryStore.add(uri, httpCookie);
                 }
             }
+        } catch (FileNotFoundException e) {
+            // That's normal to happen on first time, so no trace
         } catch (IOException e) {
             e.printStackTrace();
         }
