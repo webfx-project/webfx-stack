@@ -1,9 +1,8 @@
 package dev.webfx.stack.com.serial;
 
 import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
-import dev.webfx.platform.console.Console;
-import dev.webfx.stack.com.serial.spi.SerialCodec;
 import dev.webfx.platform.util.collection.Collections;
+import dev.webfx.stack.com.serial.spi.SerialCodec;
 
 import java.util.Comparator;
 import java.util.List;
@@ -33,6 +32,6 @@ public final class SerialCodecModuleBooter implements ApplicationModuleBooter {
             SerialCodecManager.registerSerialCodec(serialCodec);
             sb.append(sb.length() == 0 ? serialCodecs.size() + " serial codecs provided for:\n - " : "\n - ").append(serialCodec.getJavaClass().getName());
         }
-        Console.log(sb);
+        log(sb.toString());
     }
 }

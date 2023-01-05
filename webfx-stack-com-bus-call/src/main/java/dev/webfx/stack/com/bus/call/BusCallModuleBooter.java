@@ -1,7 +1,6 @@
 package dev.webfx.stack.com.bus.call;
 
 import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
-import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.stack.com.bus.BusService;
 import dev.webfx.stack.com.bus.call.spi.BusCallEndpoint;
@@ -34,7 +33,7 @@ public final class BusCallModuleBooter implements ApplicationModuleBooter {
             BusCallService.registerBusCallEndpoint(endpoint);
             sb.append(sb.length() == 0 ? endpoints.size() + " endpoints provided for addresses:\n - " : "\n - ").append(toText(endpoint));
         }
-        Console.log(sb);
+        log(sb.toString());
         // Initializing the bus immediately to make the connection process happen while the application is initializing
         BusService.bus(); // Instantiating the bus (if not already done) is enough to open the connection
     }

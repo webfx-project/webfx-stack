@@ -1,7 +1,6 @@
 package dev.webfx.stack.db.submit.listener;
 
 import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
-import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.collection.Collections;
 
 import java.util.List;
@@ -28,7 +27,7 @@ public final class SubmitListenerModuleBooter implements ApplicationModuleBooter
     public void bootModule() {
         providedListener = Collections.listOf(ServiceLoader.load(SubmitListener.class));
         providedListener.forEach(SubmitListenerService::addSubmitListener);
-        Console.log(providedListener.size() + " submit listeners found and registered:");
+        log(providedListener.size() + " submit listeners found and registered");
     }
 
     @Override

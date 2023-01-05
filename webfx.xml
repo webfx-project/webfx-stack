@@ -2539,7 +2539,6 @@
             <used-by-source-modules>
                 <module>java.base</module>
                 <module>webfx-platform-boot</module>
-                <module>webfx-platform-console</module>
                 <module>webfx-platform-util</module>
                 <module>webfx-stack-db-submit</module>
             </used-by-source-modules>
