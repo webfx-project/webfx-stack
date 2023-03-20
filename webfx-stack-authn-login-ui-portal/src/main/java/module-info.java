@@ -6,10 +6,10 @@ module webfx.stack.authn.login.ui.portal {
     requires java.base;
     requires javafx.controls;
     requires javafx.graphics;
+    requires webfx.extras.util.layout;
     requires webfx.platform.util;
     requires webfx.stack.authn.login.ui;
     requires webfx.stack.authn.login.ui.gateway;
-    requires webfx.stack.ui.util;
 
     // Exported packages
     exports dev.webfx.stack.authn.login.ui.spi.impl.portal;

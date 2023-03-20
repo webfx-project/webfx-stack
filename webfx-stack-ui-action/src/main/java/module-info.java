@@ -10,7 +10,7 @@ module webfx.stack.ui.action {
     requires webfx.kit.util;
     requires webfx.platform.util;
     requires webfx.stack.i18n;
-    requires webfx.stack.ui.util;
+    requires webfx.stack.ui.json;
 
     // Exported packages
     exports dev.webfx.stack.ui.action;

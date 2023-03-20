@@ -1,7 +1,7 @@
 package dev.webfx.stack.authn.login.ui.spi.impl.gateway;
 
-import dev.webfx.stack.ui.util.background.BackgroundFactory;
-import dev.webfx.stack.ui.util.border.BorderFactory;
+import dev.webfx.extras.util.background.BackgroundFactory;
+import dev.webfx.extras.util.border.BorderFactory;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;

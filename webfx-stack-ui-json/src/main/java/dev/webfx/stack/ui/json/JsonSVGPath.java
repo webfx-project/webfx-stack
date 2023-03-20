@@ -1,4 +1,4 @@
-package dev.webfx.stack.ui.fxraiser.json;
+package dev.webfx.stack.ui.json;
 
 import dev.webfx.platform.json.ReadOnlyJsonObject;
 import javafx.scene.paint.Color;

@@ -3,7 +3,7 @@ package dev.webfx.stack.authn.login.ui.spi.impl.portal;
 import dev.webfx.platform.util.serviceloader.MultipleServiceProviders;
 import dev.webfx.stack.authn.login.ui.spi.UiLoginServiceProvider;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProvider;
-import dev.webfx.stack.ui.util.layout.LayoutUtil;
+import dev.webfx.extras.util.layout.LayoutUtil;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;

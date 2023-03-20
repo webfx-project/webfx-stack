@@ -8,6 +8,7 @@ module webfx.stack.ui.fxraiser.json {
     requires webfx.platform.json;
     requires webfx.platform.util;
     requires webfx.stack.ui.fxraiser;
+    requires webfx.stack.ui.json;
 
     // Exported packages
     exports dev.webfx.stack.ui.fxraiser.json;

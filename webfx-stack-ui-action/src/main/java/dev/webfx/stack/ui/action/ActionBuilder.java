@@ -11,7 +11,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import dev.webfx.stack.i18n.I18n;
-import dev.webfx.stack.ui.util.image.JsonImageViews;
+import dev.webfx.stack.ui.json.JsonImageView;
 
 /**
  * @author Bruno Salmon
@@ -231,7 +231,7 @@ public class ActionBuilder {
     private void completeGraphicProperty() {
         if (graphicProperty == null) {
             if (graphic == null && graphicUrlOrJson != null)
-                graphic = JsonImageViews.createImageView(graphicUrlOrJson);
+                graphic = JsonImageView.createImageView(graphicUrlOrJson);
             if (graphic != null || i18nKey == null)
                 graphicProperty = new SimpleObjectProperty<>(graphic);
             else

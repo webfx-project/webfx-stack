@@ -11,11 +11,11 @@ import javafx.scene.layout.Border;
 import javafx.scene.paint.Paint;
 import dev.webfx.stack.ui.action.Action;
 import dev.webfx.stack.ui.action.ActionBinder;
-import dev.webfx.stack.ui.util.background.BackgroundBuilder;
-import dev.webfx.stack.ui.util.border.BorderBuilder;
-import dev.webfx.stack.ui.util.image.JsonImageViews;
-import dev.webfx.stack.ui.util.paint.PaintBuilder;
-import dev.webfx.stack.ui.util.layout.LayoutUtil;
+import dev.webfx.extras.util.background.BackgroundBuilder;
+import dev.webfx.extras.util.border.BorderBuilder;
+import dev.webfx.stack.ui.json.JsonImageView;
+import dev.webfx.extras.util.paint.PaintBuilder;
+import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.kit.util.properties.FXProperties;
 import java.util.function.Function;
 
@@ -158,7 +158,7 @@ public final class ButtonBuilder {
                 if (i18nKey != null)
                     I18n.bindI18nProperties(button, i18nKey);
                 if (icon == null && iconUrlOrJson != null)
-                    icon = JsonImageViews.createImageView(iconUrlOrJson);
+                    icon = JsonImageView.createImageView(iconUrlOrJson);
                 if (icon != null)
                     button.setGraphic(icon);
             }

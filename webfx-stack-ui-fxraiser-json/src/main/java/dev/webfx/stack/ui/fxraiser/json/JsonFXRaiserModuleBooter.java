@@ -5,6 +5,7 @@ import dev.webfx.platform.json.Json;
 import dev.webfx.platform.json.ReadOnlyJsonObject;
 import dev.webfx.stack.ui.fxraiser.FXValueRaiser;
 import dev.webfx.stack.ui.fxraiser.impl.ValueConverterRegistry;
+import dev.webfx.stack.ui.json.JsonSVGPath;
 import javafx.scene.shape.SVGPath;
 
 import static dev.webfx.platform.util.Objects.isAssignableFrom;

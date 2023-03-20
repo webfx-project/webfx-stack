@@ -11,8 +11,8 @@ import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
-import dev.webfx.stack.ui.util.layout.LayoutUtil;
-import dev.webfx.stack.ui.util.scene.SceneUtil;
+import dev.webfx.extras.util.layout.LayoutUtil;
+import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Booleans;
@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.webfx.stack.ui.util.layout.LayoutUtil.*;
+import static dev.webfx.extras.util.layout.LayoutUtil.*;
 
 /**
  * @author Bruno Salmon

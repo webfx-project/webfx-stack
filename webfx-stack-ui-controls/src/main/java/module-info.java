@@ -9,12 +9,17 @@ module webfx.stack.ui.controls {
     requires javafx.graphics;
     requires webfx.extras.imagestore;
     requires webfx.extras.materialdesign;
+    requires webfx.extras.util.background;
+    requires webfx.extras.util.border;
+    requires webfx.extras.util.layout;
+    requires webfx.extras.util.paint;
+    requires webfx.extras.util.scene;
     requires webfx.kit.util;
     requires webfx.platform.uischeduler;
     requires webfx.platform.util;
     requires webfx.stack.i18n;
     requires transitive webfx.stack.ui.action;
-    requires webfx.stack.ui.util;
+    requires webfx.stack.ui.json;
     requires webfx.stack.ui.validation;
 
     // Exported packages

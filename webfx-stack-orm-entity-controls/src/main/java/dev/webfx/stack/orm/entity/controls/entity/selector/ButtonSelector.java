@@ -15,10 +15,10 @@ import dev.webfx.stack.ui.controls.button.ButtonFactoryMixin;
 import dev.webfx.stack.ui.controls.button.ButtonFactory;
 import dev.webfx.stack.ui.controls.dialog.DialogCallback;
 import dev.webfx.stack.ui.controls.dialog.DialogUtil;
-import dev.webfx.stack.ui.util.layout.LayoutUtil;
-import dev.webfx.stack.ui.util.scene.SceneUtil;
+import dev.webfx.extras.util.layout.LayoutUtil;
+import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.extras.materialdesign.textfield.MaterialTextFieldPane;
-import dev.webfx.stack.ui.util.border.BorderFactory;
+import dev.webfx.extras.util.border.BorderFactory;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.AnimationFramePass;
 import dev.webfx.platform.uischeduler.UiScheduler;
@@ -26,7 +26,7 @@ import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.platform.util.function.Callable;
 
-import static dev.webfx.stack.ui.util.layout.LayoutUtil.*;
+import static dev.webfx.extras.util.layout.LayoutUtil.*;
 import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 
 /**

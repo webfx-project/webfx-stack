@@ -1,4 +1,4 @@
-package dev.webfx.stack.ui.util.image;
+package dev.webfx.stack.ui.json;
 
 import dev.webfx.extras.imagestore.ImageStore;
 import dev.webfx.platform.json.Json;
@@ -9,7 +9,7 @@ import javafx.scene.image.ImageView;
 /**
  * @author Bruno Salmon
  */
-public final class JsonImageViews {
+public final class JsonImageView {
 
     public static ImageView createImageView(Object urlOrJson) {
         if (urlOrJson == null || "".equals(urlOrJson))

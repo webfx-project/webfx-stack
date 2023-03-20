@@ -5,10 +5,10 @@ import javafx.scene.layout.Background;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import dev.webfx.stack.ui.action.Action;
-import dev.webfx.stack.ui.util.background.BackgroundFactory;
-import dev.webfx.stack.ui.util.border.BorderFactory;
+import dev.webfx.extras.util.background.BackgroundFactory;
+import dev.webfx.extras.util.border.BorderFactory;
 import dev.webfx.stack.ui.controls.ControlFactoryMixin;
-import dev.webfx.stack.ui.util.layout.LayoutUtil;
+import dev.webfx.extras.util.layout.LayoutUtil;
 
 /**
  * @author Bruno Salmon
