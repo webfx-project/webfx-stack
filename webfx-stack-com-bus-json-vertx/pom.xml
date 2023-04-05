@@ -17,12 +17,12 @@
 
         <dependency>
             <groupId>io.vertx</groupId>
-            <artifactId>vertx-core</artifactId>
+            <artifactId>vertx-bridge-common</artifactId>
         </dependency>
 
         <dependency>
             <groupId>io.vertx</groupId>
-            <artifactId>vertx-bridge-common</artifactId>
+            <artifactId>vertx-core</artifactId>
         </dependency>
 
         <dependency>
