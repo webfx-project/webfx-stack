@@ -105,6 +105,7 @@
         <module>webfx-stack-db-submit-remote</module>
         <module>webfx-stack-http-server-vertx</module>
         <module>webfx-stack-i18n</module>
+        <module>webfx-stack-i18n-controls</module>
         <module>webfx-stack-i18n-json</module>
         <module>webfx-stack-orm-datasourcemodel-service</module>
         <module>webfx-stack-orm-domainmodel</module>

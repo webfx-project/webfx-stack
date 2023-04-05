@@ -1,6 +1,6 @@
 package dev.webfx.stack.ui.controls.button;
 
-import dev.webfx.stack.i18n.I18n;
+import dev.webfx.stack.i18n.controls.I18nControls;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
@@ -156,7 +156,7 @@ public final class ButtonBuilder {
                 ActionBinder.bindButtonToAction(button, action);
             else {
                 if (i18nKey != null)
-                    I18n.bindI18nProperties(button, i18nKey);
+                    I18nControls.bindI18nProperties(button, i18nKey);
                 if (icon == null && iconUrlOrJson != null)
                     icon = JsonImageView.createImageView(iconUrlOrJson);
                 if (icon != null)

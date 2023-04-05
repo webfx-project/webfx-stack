@@ -13,7 +13,7 @@ module webfx.stack.authn.login.ui.gateway.password {
     requires webfx.platform.console;
     requires webfx.stack.authn;
     requires webfx.stack.authn.login.ui.gateway;
-    requires webfx.stack.i18n;
+    requires webfx.stack.i18n.controls;
     requires webfx.stack.ui.controls;
 
     // Exported packages

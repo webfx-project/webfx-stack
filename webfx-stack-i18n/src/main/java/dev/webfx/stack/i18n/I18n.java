@@ -7,9 +7,6 @@ import javafx.beans.property.Property;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableStringValue;
 import javafx.scene.Node;
-import javafx.scene.control.Labeled;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TextInputControl;
 import javafx.scene.text.Text;
 
 import java.util.Collection;
@@ -131,28 +128,6 @@ public final class I18n {
     public static <T extends Text> T bindI18nProperties(T text, Object i18nKey) {
         bindI18nTextProperty(text.textProperty(), i18nKey);
         return text;
-    }
-
-    public static <T extends Labeled> T setI18nProperties(T labeled, Object i18nKey) {
-        labeled.setText(getI18nText(i18nKey));
-        labeled.setGraphic(getI18nGraphic(i18nKey));
-        return labeled;
-    }
-
-    public static <T extends Labeled> T bindI18nProperties(T labeled, Object i18nKey) {
-        bindI18nTextProperty(labeled.textProperty(), i18nKey);
-        return labeled;
-    }
-
-    public static <T extends TextInputControl> T bindI18nProperties(T textInputControl, Object i18nKey) {
-        bindI18nPromptProperty(textInputControl.promptTextProperty(), i18nKey);
-        return textInputControl;
-    }
-
-    public static <T extends Tab> T bindI18nProperties(T tab, Object i18nKey) {
-        bindI18nTextProperty(tab.textProperty(), i18nKey);
-        bindI18nGraphicProperty(tab.graphicProperty(), i18nKey);
-        return tab;
     }
 
 }
