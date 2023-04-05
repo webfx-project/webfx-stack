@@ -72,4 +72,9 @@ public interface ReactiveEntitiesMapperAPI<E extends Entity, THIS> extends HasEn
         getReactiveEntitiesMapper().removeEntitiesHandler(entitiesHandler);
         return (THIS) this;
     }
+
+    default THIS  storeEntitiesInto(ObservableList<E> entities) {
+        getReactiveEntitiesMapper().storeEntitiesInto(entities);
+        return (THIS) this;
+    }
 }

@@ -1,5 +1,6 @@
 package dev.webfx.stack.orm.reactive.entities.dql_to_entities;
 
+import dev.webfx.kit.util.properties.ObservableLists;
 import dev.webfx.stack.orm.reactive.dql.query.ReactiveDqlQuery;
 import dev.webfx.stack.orm.reactive.dql.querypush.ReactiveDqlQueryPush;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.SqlCompiled;
@@ -75,6 +76,12 @@ public final class ReactiveEntitiesMapper<E extends Entity> implements HasEntity
 
     public ReactiveEntitiesMapper<E> removeEntitiesHandler(Consumer<EntityList<E>> entitiesHandler) {
         entitiesHandlers.remove(entitiesHandler);
+        return this;
+    }
+
+    @Override
+    public ReactiveEntitiesMapper<E> storeEntitiesInto(ObservableList<E> entities) {
+        ObservableLists.bind(entities, getObservableEntities());
         return this;
     }
 
