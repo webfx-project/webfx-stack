@@ -1,15 +1,12 @@
 package dev.webfx.stack.orm.expression.terms.function;
 
-import dev.webfx.stack.orm.expression.lci.DomainReader;
-import dev.webfx.stack.orm.expression.terms.function.java.Coalesce;
-import dev.webfx.stack.orm.expression.terms.function.java.CurrentDate;
-import dev.webfx.stack.orm.expression.terms.function.java.StringAgg;
-import dev.webfx.stack.orm.expression.terms.function.java.Sum;
 import dev.webfx.extras.type.PrimType;
 import dev.webfx.extras.type.SpecializedTextType;
 import dev.webfx.extras.type.Type;
 import dev.webfx.stack.orm.expression.lci.DomainReader;
+import dev.webfx.stack.orm.expression.terms.function.java.Coalesce;
 import dev.webfx.stack.orm.expression.terms.function.java.CurrentDate;
+import dev.webfx.stack.orm.expression.terms.function.java.StringAgg;
 import dev.webfx.stack.orm.expression.terms.function.java.Sum;
 
 import java.util.HashMap;
@@ -41,6 +38,7 @@ public class Function<T> {
         new Function("min").register();
         new Function("max").register();
         new Function("nullif").register();
+        new Function("greatest").register();
 
         new Sum().register();
         new StringAgg().register();
