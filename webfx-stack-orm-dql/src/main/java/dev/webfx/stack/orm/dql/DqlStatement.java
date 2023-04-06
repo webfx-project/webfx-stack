@@ -41,6 +41,10 @@ public final class DqlStatement {
         return new DqlStatement(null, null, null, null, null, null, null, DqlClause.create(limit, parameterValues), null);
     }
 
+    public static DqlStatement orderBy(CharSequence orderBy, Object... parameterValues) {
+        return new DqlStatement(null, null, null, null, null, null, DqlClause.create(orderBy, parameterValues), null, null);
+    }
+
     public DqlStatement(Object domainClassId, String alias, String fields, DqlClause where, DqlClause groupBy, DqlClause having, DqlClause orderBy, DqlClause limit, String columns) {
         this.domainClassId = domainClassId;
         this.alias = alias;
