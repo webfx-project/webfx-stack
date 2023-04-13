@@ -85,6 +85,7 @@
         <module>webfx-stack-conf-format-json</module>
         <module>webfx-stack-conf-localstorage</module>
         <module>webfx-stack-conf-resource</module>
+        <module>webfx-stack-conf-windowlocation</module>
         <module>webfx-stack-db-datascope</module>
         <module>webfx-stack-db-datasource</module>
         <module>webfx-stack-db-query</module>
