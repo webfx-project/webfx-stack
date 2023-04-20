@@ -15,6 +15,7 @@ import javafx.beans.value.ObservableValue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 import static dev.webfx.stack.orm.dql.DqlStatement.limit;
@@ -175,11 +176,18 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
         return t -> DqlStatement.parse(toDqlStatementStringConverter.convert(t));
     }
 
+    @Override
+    public <T> ReactiveDqlStatement<E> ifEquals(ObservableValue<T> property, T value, DqlStatement dqlStatement) {
+        return always(property, v -> Objects.equals(v, value) ? dqlStatement : null);
+    }
+
+    @Override
+    public <T> ReactiveDqlStatement<E> ifNotEquals(ObservableValue<T> property, T value, DqlStatement dqlStatement) {
+        return always(property, v -> !Objects.equals(v, value) ? dqlStatement : null);
+    }
+
     public ReactiveDqlStatement<E> ifTrue(ObservableValue<Boolean> ifProperty, DqlStatement dqlStatement) {
-        return addWithoutListening(FXProperties.compute(ifProperty, value -> {
-            markDqlStatementsAsChanged();
-            return value ? dqlStatement : null;
-        }));
+        return ifEquals(ifProperty, Boolean.TRUE, dqlStatement);
     }
 
     @Override
@@ -189,10 +197,7 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
 
     @Override
     public ReactiveDqlStatement<E> ifFalse(ObservableValue<Boolean> ifProperty, DqlStatement dqlStatement) {
-        return addWithoutListening(FXProperties.compute(ifProperty, value -> {
-            markDqlStatementsAsChanged();
-            return value ? null : dqlStatement;
-        }));
+        return ifEquals(ifProperty, Boolean.FALSE, dqlStatement);
     }
 
     public ReactiveDqlStatement<E> ifFalse(ObservableValue<Boolean> ifProperty, String dqlStatementString) {
@@ -233,6 +238,14 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
     @Override
     public <T> ReactiveDqlStatement<E> ifNotNullOtherwiseEmptyString(ObservableValue<T> property, Converter<T, String> toDqlStatementStringConverter) {
         return ifNotNullOtherwiseEmpty(property, stringToDqlStatementConverter(toDqlStatementStringConverter));
+    }
+
+    @Override
+    public <T, T2 extends T> ReactiveDqlStatement<E> ifInstanceOf(ObservableValue<T> property, Class<T2> clazz, Converter<T2, DqlStatement> toDqlStatementConverter) {
+        return addWithoutListening(FXProperties.compute(property, v -> {
+            markDqlStatementsAsChanged();
+            return dev.webfx.platform.util.Objects.isInstanceOf(v, clazz) ? toDqlStatementConverter.convert((T2) v) : null;
+        }));
     }
 
     /*==================================================================================================================

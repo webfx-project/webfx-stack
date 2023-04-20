@@ -68,6 +68,16 @@ public interface ReactiveDqlStatementAPI<E, THIS> {
         return (THIS) this;
     }
 
+    default <T> THIS ifEquals(ObservableValue<T> property, T value, DqlStatement dqlStatement) {
+        getReactiveDqlStatement().ifEquals(property, value, dqlStatement);
+        return (THIS) this;
+    }
+
+    default <T> THIS ifNotEquals(ObservableValue<T> property, T value, DqlStatement dqlStatement) {
+        getReactiveDqlStatement().ifNotEquals(property, value, dqlStatement);
+        return (THIS) this;
+    }
+
     default THIS ifTrue(ObservableValue<Boolean> ifProperty, DqlStatement dqlStatement) {
         getReactiveDqlStatement().ifTrue(ifProperty, dqlStatement);
         return (THIS) this;
@@ -84,7 +94,7 @@ public interface ReactiveDqlStatementAPI<E, THIS> {
     }
 
     default THIS ifFalse(ObservableValue<Boolean> ifProperty, String dqlStatementString) {
-        getReactiveDqlStatement().ifTrue(ifProperty, dqlStatementString);
+        getReactiveDqlStatement().ifFalse(ifProperty, dqlStatementString);
         return (THIS) this;
     }
 
@@ -121,6 +131,11 @@ public interface ReactiveDqlStatementAPI<E, THIS> {
 
     default <T> THIS ifNotNullOtherwiseEmptyString(ObservableValue<T> property, Converter<T, String> toDqlStatementStringConverter) {
         getReactiveDqlStatement().ifNotNullOtherwiseEmptyString(property, toDqlStatementStringConverter);
+        return (THIS) this;
+    }
+
+    default <T, T2 extends T> THIS ifInstanceOf(ObservableValue<T> property, Class<T2> clazz, Converter<T2, DqlStatement> toDqlStatementConverter) {
+        getReactiveDqlStatement().ifInstanceOf(property, clazz, toDqlStatementConverter);
         return (THIS) this;
     }
 }
