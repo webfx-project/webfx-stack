@@ -87,7 +87,7 @@ public class ConfigurationServiceProviderImpl implements ConfigurationServicePro
     public void registerConfigurationConsumer(ConfigurationConsumer consumer) {
         consumers.put(consumer.getConfigurationName(), consumer);
         consumer.boot()
-                .onSuccess(ignored -> Console.log("✅ " + consumer.getConfigurationName()  + " configuration successfully applied"))
+                .onSuccess(ignored -> Console.log("✅ " + consumer.getConfigurationName()  + " configuration successfully resolved and passed to consumer"))
                 .onFailure(e -> Console.log("❌ " + consumer.getConfigurationName() + " configuration is " + (e instanceof ConfigurationException && ((ConfigurationException) e).isPartial() ? "partially " : "") + "invalid"));
     }
 
