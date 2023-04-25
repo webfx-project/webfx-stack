@@ -7,7 +7,7 @@ import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.net.JdkSSLEngineOptions;
 import io.vertx.core.net.PemKeyCertOptions;
 
-import static dev.webfx.stack.http.server.vertx.VertxHttpConfigurationConsumer.*;
+import static dev.webfx.stack.http.server.vertx.VertxHttpOptionsConfigurationConsumer.*;
 
 /**
  * @author Bruno Salmon

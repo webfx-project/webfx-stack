@@ -1,1 +1,1 @@
-dev.webfx.stack.http.server.vertx.VertxHttpConfigurationSupplier
+dev.webfx.stack.http.server.vertx.VertxHttpOptionsConfigurationSupplier

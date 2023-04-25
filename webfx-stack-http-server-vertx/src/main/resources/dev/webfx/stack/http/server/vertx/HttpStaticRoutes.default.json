@@ -1,0 +1,8 @@
+{
+  "httpStaticRoutes": [
+    {
+      "routePattern": "/*",
+      "pathToStaticFolder": "./webroot"
+    }
+  ]
+}

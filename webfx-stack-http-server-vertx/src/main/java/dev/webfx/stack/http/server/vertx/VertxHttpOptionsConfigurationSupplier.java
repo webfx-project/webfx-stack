@@ -9,14 +9,14 @@ import dev.webfx.stack.conf.spi.ConfigurationSupplier;
 import java.util.Optional;
 import java.util.ServiceLoader;
 
-import static dev.webfx.stack.http.server.vertx.VertxHttpConfigurationConsumer.*;
+import static dev.webfx.stack.http.server.vertx.VertxHttpOptionsConfigurationConsumer.*;
 
 /**
  * @author Bruno Salmon
  */
-public class VertxHttpConfigurationSupplier implements ConfigurationSupplier {
+public class VertxHttpOptionsConfigurationSupplier implements ConfigurationSupplier {
 
-    public VertxHttpConfigurationSupplier() {
+    public VertxHttpOptionsConfigurationSupplier() {
         // Hack to ensure that VertxHttpConfigurationConsumer will be called first when registering the configuration
         // consumers (in ConfigurationServiceProviderImpl.boot() method). In this way, the variables HTTP_SERVER_PORT,
         // HTTP_SERVER_PROTOCOL, and HTTP_SERVER_ORIGIN will be resolved first by VertxHttpConfigurationConsumer, and
@@ -25,7 +25,7 @@ public class VertxHttpConfigurationSupplier implements ConfigurationSupplier {
         // list instance because MultipleServiceProviders caches it)
         MultipleServiceProviders.getProviders(ConfigurationConsumer.class, () -> ServiceLoader.load(ConfigurationConsumer.class))
                 // 2) sorting that list, so that VertxHttpConfigurationConsumer comes in first position
-                .sort((o1, o2) -> o1 instanceof VertxHttpConfigurationConsumer ? -1 : o2 instanceof VertxHttpConfigurationConsumer ? 1 : 0);
+                .sort((o1, o2) -> o1 instanceof VertxHttpOptionsConfigurationConsumer ? -1 : o2 instanceof VertxHttpOptionsConfigurationConsumer ? 1 : 0);
     }
 
     @Override

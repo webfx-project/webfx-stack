@@ -25,7 +25,7 @@ module webfx.stack.http.server.vertx {
 
     // Provided services
     provides dev.webfx.platform.boot.spi.ApplicationJob with dev.webfx.stack.http.server.vertx.VertxHttpStarterJob;
-    provides dev.webfx.stack.conf.spi.ConfigurationConsumer with dev.webfx.stack.http.server.vertx.VertxHttpConfigurationConsumer;
-    provides dev.webfx.stack.conf.spi.ConfigurationSupplier with dev.webfx.stack.http.server.vertx.VertxHttpConfigurationSupplier;
+    provides dev.webfx.stack.conf.spi.ConfigurationConsumer with dev.webfx.stack.http.server.vertx.VertxHttpStaticRoutesConfigurationConsumer, dev.webfx.stack.http.server.vertx.VertxHttpOptionsConfigurationConsumer;
+    provides dev.webfx.stack.conf.spi.ConfigurationSupplier with dev.webfx.stack.http.server.vertx.VertxHttpOptionsConfigurationSupplier;
 
 }

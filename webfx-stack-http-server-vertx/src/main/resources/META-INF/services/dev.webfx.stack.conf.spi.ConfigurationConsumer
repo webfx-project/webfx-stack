@@ -1,1 +1,2 @@
-dev.webfx.stack.http.server.vertx.VertxHttpConfigurationConsumer
+dev.webfx.stack.http.server.vertx.VertxHttpStaticRoutesConfigurationConsumer
+dev.webfx.stack.http.server.vertx.VertxHttpOptionsConfigurationConsumer

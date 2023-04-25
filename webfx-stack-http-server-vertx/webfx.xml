@@ -11,8 +11,9 @@
     </dependencies>
 
     <providers>
-        <provider interface="dev.webfx.stack.conf.spi.ConfigurationConsumer">dev.webfx.stack.http.server.vertx.VertxHttpConfigurationConsumer</provider>
-        <provider interface="dev.webfx.stack.conf.spi.ConfigurationSupplier">dev.webfx.stack.http.server.vertx.VertxHttpConfigurationSupplier</provider>
+        <provider interface="dev.webfx.stack.conf.spi.ConfigurationConsumer">dev.webfx.stack.http.server.vertx.VertxHttpStaticRoutesConfigurationConsumer</provider>
+        <provider interface="dev.webfx.stack.conf.spi.ConfigurationConsumer">dev.webfx.stack.http.server.vertx.VertxHttpOptionsConfigurationConsumer</provider>
+        <provider interface="dev.webfx.stack.conf.spi.ConfigurationSupplier">dev.webfx.stack.http.server.vertx.VertxHttpOptionsConfigurationSupplier</provider>
         <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.http.server.vertx.VertxHttpStarterJob</provider>
     </providers>
 

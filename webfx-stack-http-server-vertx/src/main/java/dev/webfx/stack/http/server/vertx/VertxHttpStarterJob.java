@@ -13,7 +13,7 @@ public final class VertxHttpStarterJob implements ApplicationJob {
 
     @Override
     public void onStart() {
-        VertxHttpRouterFinaliser.finaliseVertxHttpRouter();
+        VertxHttpRouterConfigurator.finaliseRouter();
         VertxInstance.getVertx().deployVerticle(new VertxHttpVerticle())
                 .onFailure(e -> Console.log("❌ Error while deploying VertxHttpVerticle: " + e.getMessage()))
                 .onSuccess(deployID -> verticleDeployID = deployID);

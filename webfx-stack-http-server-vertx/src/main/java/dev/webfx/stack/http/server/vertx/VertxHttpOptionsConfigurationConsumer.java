@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 /**
  * @author Bruno Salmon
  */
-public final class VertxHttpConfigurationConsumer extends DefaultResourceConfigurationConsumer {
+public final class VertxHttpOptionsConfigurationConsumer extends DefaultResourceConfigurationConsumer {
 
     private static final String CONFIGURATION_NAME = "HttpOptions";
     private final static String DEFAULT_CONFIGURATION_RESOURCE_FILE_NAME = "HttpOptions.default.json";
@@ -35,14 +35,39 @@ public final class VertxHttpConfigurationConsumer extends DefaultResourceConfigu
 
     static ReadOnlyKeyObject CONFIGURATION;
 
-    public VertxHttpConfigurationConsumer() {
+    public VertxHttpOptionsConfigurationConsumer() {
         super(CONFIGURATION_NAME, DEFAULT_CONFIGURATION_RESOURCE_FILE_NAME);
         // Using a local session store
         SessionStore sessionStore = LocalSessionStore.create(VertxInstance.getVertx());
         VertxInstance.setSessionStore(sessionStore);
         // Initialising the http router
-        Router router = VertxHttpRouterInitialiser.initialiseVertxHttpRouter();
+        Router router = VertxHttpRouterConfigurator.initialiseRouter();
         VertxInstance.setHttpRouter(router);
+    }
+
+    @Override
+    protected Future<Void> boot(ReadOnlyKeyObject config) {
+        CONFIGURATION = config;
+
+        int errors = consumeEachValidHttpServerConfiguration(httpServerConfig -> {
+            String protocol = httpServerConfig.getString(PROTOCOL_CONFIG_KEY);
+            Console.log("Starting " + protocol + " server on port " + httpServerConfig.getString(PORT_CONFIG_KEY));
+        }, true);
+
+        return errors == 0 ? Future.succeededFuture() : Future.failedFuture(new ConfigurationException(errors < CONFIGURATION.getArray(HTTP_SERVERS_CONFIG_KEY).size()));
+    }
+
+    static int consumeEachValidHttpServerConfiguration(Consumer<ReadOnlyKeyObject> consumer, boolean logInvalid) {
+        int errors = 0;
+        ReadOnlyIndexedArray httpServers = CONFIGURATION.getArray(HTTP_SERVERS_CONFIG_KEY);
+        for (int i = 0; i < httpServers.size(); i++) {
+            ReadOnlyKeyObject httpServerConfig = httpServers.getObject(i);
+            if (checkHttpServerConfig(httpServerConfig, logInvalid))
+                consumer.accept(httpServerConfig);
+            else
+                errors++;
+        }
+        return errors;
     }
 
     static boolean checkHttpServerConfig(ReadOnlyKeyObject httpServerConfig, boolean logInvalid) {
@@ -69,28 +94,4 @@ public final class VertxHttpConfigurationConsumer extends DefaultResourceConfigu
         return false;
     }
 
-    static int consumeEachValidHttpServerConfiguration(Consumer<ReadOnlyKeyObject> consumer, boolean logInvalid) {
-        int errors = 0;
-        ReadOnlyIndexedArray httpServers = CONFIGURATION.getArray(HTTP_SERVERS_CONFIG_KEY);
-        for (int i = 0; i < httpServers.size(); i++) {
-            ReadOnlyKeyObject httpServerConfig = httpServers.getObject(i);
-            if (checkHttpServerConfig(httpServerConfig, logInvalid))
-                consumer.accept(httpServerConfig);
-            else
-                errors++;
-        }
-        return errors;
-    }
-
-    @Override
-    protected Future<Void> boot(ReadOnlyKeyObject config) {
-        CONFIGURATION = config;
-
-        int errors = consumeEachValidHttpServerConfiguration(httpServerConfig -> {
-            String protocol = httpServerConfig.getString(PROTOCOL_CONFIG_KEY);
-            Console.log("Starting " + protocol + " server on port " + httpServerConfig.getString(PORT_CONFIG_KEY));
-        }, true);
-
-        return errors == 0 ? Future.succeededFuture() : Future.failedFuture(new ConfigurationException(errors < CONFIGURATION.getArray(HTTP_SERVERS_CONFIG_KEY).size()));
-    }
 }
