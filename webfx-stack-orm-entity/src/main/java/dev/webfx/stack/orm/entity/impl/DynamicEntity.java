@@ -109,18 +109,18 @@ public class DynamicEntity implements Entity {
         fieldValues.putAll(dynamicEntity.fieldValues);
     }
 
-    // Implementing equals() and hashCode() -- Used by Dan in MoneyFlowsActivity
+    // Implementing equals() and hashCode() -- Ex: entities are used as keys in GanttLayout parent/grandparent cache
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DynamicEntity that = (DynamicEntity) o;
-        return id.equals(that.id) && store != that.store;
+        return id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, store);
+        return Objects.hash(id);
     }
 }
