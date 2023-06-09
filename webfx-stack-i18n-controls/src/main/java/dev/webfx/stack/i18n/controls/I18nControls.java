@@ -18,6 +18,7 @@ public final class I18nControls {
 
     public static <T extends Labeled> T bindI18nProperties(T labeled, Object i18nKey) {
         I18n.bindI18nTextProperty(labeled.textProperty(), i18nKey);
+        I18n.bindI18nGraphicProperty(labeled.graphicProperty(), i18nKey);
         return labeled;
     }
 
