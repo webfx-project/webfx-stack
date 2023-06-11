@@ -283,4 +283,10 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
         return (EntityButtonSelector<E>) super.setCloseHandler(closeHandler);
     }
 
+    // For retro-compatibility TODO: remove once unused anymore
+    @Deprecated
+    public ReactiveVisualMapper<E> getEntityDialogMapper() {
+        return getReactiveVisualMapper();
+    }
+
 }
