@@ -31,6 +31,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
@@ -89,7 +90,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
         return this;
     }
 
-    public void setJsonOrClass(Object jsonOrClass) {
+    public EntityButtonSelector<E> setJsonOrClass(Object jsonOrClass) {
         this.jsonOrClass = jsonOrClass;
         renderingExpression = null;
         dialogVisualGrid = null;
@@ -110,11 +111,13 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
         }
         entityRenderer = renderingExpression == null ? null : ValueRendererFactory.getDefault().createValueRenderer(renderingExpression.getType());
         forceDialogRebuiltOnNextShow();
+        return this;
     }
 
-    public void setSearchCondition(String searchCondition) {
+    public EntityButtonSelector<E> setSearchCondition(String searchCondition) {
         this.searchCondition = searchCondition;
         searchConditionNamedParameters = null;
+        return this;
     }
 
     private Parameter[] getSearchConditionNamedParameters() {
@@ -128,8 +131,9 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
         return searchConditionNamedParameters;
     }
 
-    public void setLoadingStore(EntityStore loadingStore) {
+    public EntityButtonSelector<E> setLoadingStore(EntityStore loadingStore) {
         this.loadingStore = loadingStore;
+        return this;
     }
 
     @Override
@@ -193,13 +197,13 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
         store.setParameterValue("lowerSearchLike", "%" + search.toLowerCase() + "%");
     }
 
-    public void autoSelectFirstEntity() {
-        autoSelectFirstEntity(e -> true);
+    public EntityButtonSelector<E> autoSelectFirstEntity() {
+        return autoSelectFirstEntity(e -> true);
     }
 
-    public void autoSelectFirstEntity(Predicate<E> predicate) {
+    public EntityButtonSelector<E> autoSelectFirstEntity(Predicate<E> predicate) {
         if (predicate == null)
-            return;
+            return this;
         setUpDialog(false);
         if (entityDialogMapper != null) {
             ReactiveEntitiesMapper<E> reactiveEntitiesMapper = entityDialogMapper.getReactiveEntitiesMapper();
@@ -209,6 +213,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
                 reactiveEntitiesMapper.removeEntitiesHandler(entitiesHandlerHolder[0]);
             });
         }
+        return this;
     }
 
     public ReactiveVisualMapper<E> getReactiveVisualMapper() {
@@ -240,4 +245,42 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
         getReactiveVisualMapper().stop();
         super.closeDialog();
     }
+
+    // Bumping Fluent API
+
+    @Override
+    public EntityButtonSelector<E> setAutoOpenOnMouseEntered(boolean autoOpenOnMouseEntered) {
+        return (EntityButtonSelector<E>) super.setAutoOpenOnMouseEntered(autoOpenOnMouseEntered);
+    }
+
+    @Override
+    public EntityButtonSelector<E> setSearchEnabled(boolean searchEnabled) {
+        return (EntityButtonSelector<E>) super.setSearchEnabled(searchEnabled);
+    }
+
+    @Override
+    public EntityButtonSelector<E> setSelectedItem(E item) {
+        return (EntityButtonSelector<E>) super.setSelectedItem(item);
+    }
+
+    @Override
+    public EntityButtonSelector<E> setReadOnly(boolean readOnly) {
+        return (EntityButtonSelector<E>) super.setReadOnly(readOnly);
+    }
+
+    @Override
+    public EntityButtonSelector<E> setButton(Button button) {
+        return (EntityButtonSelector<E>) super.setButton(button);
+    }
+
+    @Override
+    public EntityButtonSelector<E>setShowMode(ShowMode showModeProperty) {
+        return (EntityButtonSelector<E>) super.setShowMode(showModeProperty);
+    }
+
+    @Override
+    public EntityButtonSelector<E> setCloseHandler(Runnable closeHandler) {
+        return (EntityButtonSelector<E>) super.setCloseHandler(closeHandler);
+    }
+
 }

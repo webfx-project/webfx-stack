@@ -80,16 +80,18 @@ public abstract class ButtonSelector<T> {
         return autoOpenOnMouseEntered;
     }
 
-    public void setAutoOpenOnMouseEntered(boolean autoOpenOnMouseEntered) {
+    public ButtonSelector<T> setAutoOpenOnMouseEntered(boolean autoOpenOnMouseEntered) {
         this.autoOpenOnMouseEntered = autoOpenOnMouseEntered;
+        return this;
     }
 
     public boolean isSearchEnabled() {
         return searchEnabled;
     }
 
-    public void setSearchEnabled(boolean searchEnabled) {
+    public ButtonSelector<T> setSearchEnabled(boolean searchEnabled) {
         this.searchEnabled = searchEnabled;
+        return this;
     }
 
     private TextField getSearchTextField() {
@@ -130,16 +132,18 @@ public abstract class ButtonSelector<T> {
         return selectedItemProperty.getValue();
     }
 
-    public void setSelectedItem(T item) {
+    public ButtonSelector<T> setSelectedItem(T item) {
         selectedItemProperty.setValue(item);
+        return this;
     }
 
     protected ReadOnlyDoubleProperty dialogHeightProperty() {
         return dialogHeightProperty;
     }
 
-    public void setReadOnly(boolean readOnly) {
+    public ButtonSelector<T> setReadOnly(boolean readOnly) {
         getButton().setDisable(readOnly);
+        return this;
     }
 
     public boolean isReadOnly() {
@@ -152,13 +156,14 @@ public abstract class ButtonSelector<T> {
         return button;
     }
 
-    public void setButton(Button button) {
+    public ButtonSelector<T> setButton(Button button) {
         this.button = button;
         button.setOnAction(e -> onButtonClicked());
         button.setCursor(Cursor.HAND);
         button.setOnMouseEntered(e -> onMouseEntered());
         button.setOnMouseExited( e -> onMouseExited());
         updateButtonContentOnNewSelectedItem();
+        return this;
     }
 
     public MaterialTextFieldPane toMaterialButton(Object i18nKey) {
@@ -179,8 +184,9 @@ public abstract class ButtonSelector<T> {
         return new MaterialTextFieldPane(LayoutUtil.setMaxWidthToInfinite(getButton()), selectedItemProperty());
     }
 
-    public void updateButtonContentOnNewSelectedItem() {
+    public ButtonSelector<T> updateButtonContentOnNewSelectedItem() {
         UiScheduler.runInUiThread(() -> getButton().setGraphic(getOrCreateButtonContentFromSelectedItem()));
+        return this;
     }
 
     protected abstract Node getOrCreateButtonContentFromSelectedItem();
@@ -228,8 +234,9 @@ public abstract class ButtonSelector<T> {
             showDialog();
     }
 
-    public void showDialog() {
+    public ButtonSelector<T> showDialog() {
         setUpDialog(true);
+        return this;
     }
 
     protected void setUpDialog(boolean show) {
@@ -278,8 +285,9 @@ public abstract class ButtonSelector<T> {
         return showModeProperty().getValue();
     }
 
-    public void setShowMode(ShowMode showModeProperty) {
+    public ButtonSelector<T> setShowMode(ShowMode showModeProperty) {
         this.showModeProperty().setValue(showModeProperty);
+        return this;
     }
 
     private double dialogHighestHeight;
@@ -479,8 +487,9 @@ public abstract class ButtonSelector<T> {
     }
 
     private Runnable closeHandler;
-    public void setCloseHandler(Runnable closeHandler) {
+    public ButtonSelector<T> setCloseHandler(Runnable closeHandler) {
         this.closeHandler = closeHandler;
+        return this;
     }
 
 }
