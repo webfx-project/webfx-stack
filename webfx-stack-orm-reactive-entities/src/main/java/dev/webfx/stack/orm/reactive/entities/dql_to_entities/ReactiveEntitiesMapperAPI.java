@@ -73,8 +73,18 @@ public interface ReactiveEntitiesMapperAPI<E extends Entity, THIS> extends HasEn
         return (THIS) this;
     }
 
-    default THIS  storeEntitiesInto(ObservableList<E> entities) {
+    default THIS storeEntitiesInto(ObservableList<E> entities) {
         getReactiveEntitiesMapper().storeEntitiesInto(entities);
         return (THIS) this;
     }
+
+    default THIS appendNullEntity(boolean first) {
+        getReactiveEntitiesMapper().appendNullEntity(first);
+        return (THIS) this;
+    }
+
+    default boolean isNullEntityAppended() {
+        return getReactiveEntitiesMapper().isNullEntityAppended();
+    }
+
 }

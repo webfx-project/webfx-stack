@@ -32,13 +32,27 @@ public final class ReactiveEntitiesMapper<E extends Entity> implements HasEntity
     private ObservableList<E> observableEntities;
     private List<E> restrictedFilterList;
     private EntityStore store;
-    private List<Consumer<EntityList<E>>> entitiesHandlers = new ArrayList<>();
+    private final List<Consumer<EntityList<E>>> entitiesHandlers = new ArrayList<>();
     private static int mapperCount = 0;
     private Object listId = "reactiveEntitiesMapper-" + ++mapperCount;
+    private boolean appendNullEntity;
+    private boolean appendNullEntityFirst;
 
     public ReactiveEntitiesMapper(ReactiveDqlQuery<E> reactiveDqlQuery) {
         this.reactiveDqlQuery = reactiveDqlQuery;
         FXProperties.runOnPropertiesChange(p -> onNewQueryResult((QueryResult) p.getValue()), reactiveDqlQuery.resultProperty());
+    }
+
+    @Override
+    public ReactiveEntitiesMapper<E> appendNullEntity(boolean first) {
+        appendNullEntity = true;
+        appendNullEntityFirst = first;
+        return this;
+    }
+
+    @Override
+    public boolean isNullEntityAppended() {
+        return appendNullEntity;
     }
 
     @Override
@@ -109,6 +123,12 @@ public final class ReactiveEntitiesMapper<E extends Entity> implements HasEntity
         // Otherwise really generates the entity list (the content will changed but not the instance of the returned list)
         SqlCompiled sqlCompiled = reactiveDqlQuery.getSqlCompiled();
         EntityList<E> entities = QueryResultToEntitiesMapper.mapQueryResultToEntities(rs, sqlCompiled.getQueryMapping(), getStore(), listId);
+        if (appendNullEntity) {
+            if (appendNullEntityFirst)
+                entities.add(0, null);
+            else
+                entities.add(null);
+        }
         // Caching and returning the result
         lastRsInput = rs;
         if (entities == getEntities()) // It's also important to make sure the output instance is not the same
