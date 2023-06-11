@@ -5,11 +5,8 @@ import dev.webfx.extras.cell.renderer.ValueRendererFactory;
 import dev.webfx.extras.visual.VisualResult;
 import dev.webfx.extras.visual.controls.grid.SkinnedVisualGrid;
 import dev.webfx.extras.visual.controls.grid.VisualGrid;
-import dev.webfx.stack.orm.reactive.entities.dql_to_entities.ReactiveEntitiesMapper;
-import dev.webfx.stack.orm.reactive.entities.entities_to_grid.EntityColumn;
-import dev.webfx.stack.orm.reactive.mapping.entities_to_visual.ReactiveVisualMapper;
-import dev.webfx.stack.orm.reactive.mapping.entities_to_visual.VisualEntityColumnFactory;
-import dev.webfx.stack.ui.controls.button.ButtonFactoryMixin;
+import dev.webfx.platform.util.Arrays;
+import dev.webfx.platform.util.function.Callable;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.domainmodel.DomainModel;
@@ -22,8 +19,12 @@ import dev.webfx.stack.orm.expression.CollectOptions;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.terms.ExpressionArray;
 import dev.webfx.stack.orm.expression.terms.Parameter;
-import dev.webfx.platform.util.Arrays;
-import dev.webfx.platform.util.function.Callable;
+import dev.webfx.stack.orm.reactive.entities.dql_to_entities.ReactiveEntitiesMapper;
+import dev.webfx.stack.orm.reactive.entities.entities_to_grid.EntityColumn;
+import dev.webfx.stack.orm.reactive.mapping.entities_to_visual.ReactiveVisualMapper;
+import dev.webfx.stack.orm.reactive.mapping.entities_to_visual.ReactiveVisualMapperAPI;
+import dev.webfx.stack.orm.reactive.mapping.entities_to_visual.VisualEntityColumnFactory;
+import dev.webfx.stack.ui.controls.button.ButtonFactoryMixin;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -44,7 +45,7 @@ import static dev.webfx.stack.orm.dql.DqlStatement.where;
 /**
  * @author Bruno Salmon
  */
-public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> {
+public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> implements ReactiveVisualMapperAPI<E, EntityButtonSelector<E>> {
 
     private final ObjectProperty<VisualResult> deferredVisualResult = new SimpleObjectProperty<>();
     private Object jsonOrClass;
@@ -83,8 +84,9 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> {
         return restrictedFilterList;
     }
 
-    public void setRestrictedFilterList(List<E> restrictedFilterList) {
+    public EntityButtonSelector<E> setRestrictedFilterList(List<E> restrictedFilterList) {
         this.restrictedFilterList = restrictedFilterList;
+        return this;
     }
 
     public void setJsonOrClass(Object jsonOrClass) {
@@ -133,6 +135,8 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> {
     @Override
     protected Node getOrCreateButtonContentFromSelectedItem() {
         E entity = getSelectedItem();
+        if (entity == null)
+            entity = getVisualNullEntity();
         Object renderedValue = entity == null ? null : entity.evaluate(renderingExpression);
         return entityRenderer.renderValue(renderedValue);
     }
@@ -154,7 +158,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> {
                     .setEntityColumns(VisualEntityColumnFactory.get().create(renderingExpression))
                     .visualizeResultInto(dialogVisualGrid)
                     .setSelectedEntityHandler(e -> {
-                        if (e != null && button != null)
+                        if (/*e != null && */button != null)
                             onDialogOk();
                     });
             if (isSearchEnabled())
@@ -207,7 +211,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> {
         }
     }
 
-    public ReactiveVisualMapper<E> getEntityDialogMapper() {
+    public ReactiveVisualMapper<E> getReactiveVisualMapper() {
         if (entityDialogMapper == null)
             getOrCreateDialogContent();
         return entityDialogMapper;
@@ -216,24 +220,24 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> {
     @Override
     protected void setUpDialog(boolean show) {
         super.setUpDialog(show);
-        getEntityDialogMapper().start();
+        getReactiveVisualMapper().start();
     }
 
     @Override
     protected void startLoading() {
-        if (!getEntityDialogMapper().isStarted())
+        if (!getReactiveVisualMapper().isStarted())
             entityDialogMapper.start();
     }
 
     @Override
     protected void onDialogOk() {
-        setSelectedItem(getEntityDialogMapper().getSelectedEntity());
+        setSelectedItem(getReactiveVisualMapper().getSelectedEntity());
         super.onDialogOk();
     }
 
     @Override
     protected void closeDialog() {
-        getEntityDialogMapper().stop();
+        getReactiveVisualMapper().stop();
         super.closeDialog();
     }
 }
