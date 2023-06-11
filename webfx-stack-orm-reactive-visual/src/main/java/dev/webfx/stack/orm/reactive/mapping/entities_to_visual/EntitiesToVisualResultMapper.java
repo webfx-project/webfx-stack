@@ -39,6 +39,10 @@ public final class EntitiesToVisualResultMapper {
     }
 
     public static <E extends Entity> VisualResult mapEntitiesToVisualResult(List<E> entities, EntityColumn<E>[] entityColumns) {
+        return mapEntitiesToVisualResult(entities, entityColumns, null);
+    }
+
+    public static <E extends Entity> VisualResult mapEntitiesToVisualResult(List<E> entities, EntityColumn<E>[] entityColumns, E visualNullEntity) {
         int rowCount = entities == null ? 0 : entities.size();
         int columnCount = Arrays.length(entityColumns);
         VisualResultBuilder rsb = VisualResultBuilder.create(rowCount, columnCount);
@@ -59,7 +63,9 @@ public final class EntitiesToVisualResultMapper {
                 ValueFormatter formatter = entityColumn.getDisplayFormatter();
                 if (entities != null)
                     for (Entity entity : entities) {
-                        Object value = entity.evaluate(expression);
+                        if (entity == null)
+                            entity = visualNullEntity;
+                        Object value = entity == null ? null : entity.evaluate(expression);
                         if (formatter != null)
                             value = formatter.formatValue(value);
                         rsb.setInlineValue(inlineIndex++, value);

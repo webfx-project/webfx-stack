@@ -9,7 +9,6 @@ import dev.webfx.stack.orm.reactive.dql.statement.conventions.HasSelectedGroupPr
 import dev.webfx.stack.orm.reactive.dql.statement.conventions.HasSelectedGroupReferenceResolver;
 import dev.webfx.stack.orm.reactive.dql.statement.conventions.HasSelectedMasterProperty;
 import dev.webfx.stack.orm.reactive.entities.dql_to_entities.ReactiveEntitiesMapper;
-import dev.webfx.stack.orm.reactive.entities.dql_to_entities.ReactiveEntitiesMapperAPI;
 import dev.webfx.stack.orm.reactive.entities.entities_to_grid.EntityColumn;
 import dev.webfx.stack.orm.reactive.entities.entities_to_grid.ReactiveGridMapper;
 import dev.webfx.stack.orm.reactive.mapping.entities_to_visual.conventions.*;
@@ -25,7 +24,7 @@ import java.util.function.Consumer;
  * @author Bruno Salmon
  */
 public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMapper<E>
-    implements ReactiveEntitiesMapperAPI<E, ReactiveVisualMapper<E>> {
+    implements ReactiveVisualMapperAPI<E, ReactiveVisualMapper<E>> {
 
     private final ObjectProperty<VisualResult> visualResultProperty = new SimpleObjectProperty<VisualResult/*GWT*/>() {
         @Override
@@ -44,8 +43,15 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
         }
     };
 
+    private E visualNullEntity;
+
     public ReactiveVisualMapper(ReactiveEntitiesMapper<E> reactiveEntitiesMapper) {
         super(reactiveEntitiesMapper);
+    }
+
+    @Override
+    public ReactiveVisualMapper<E> getReactiveVisualMapper() {
+        return this;
     }
 
     @Override
@@ -71,26 +77,42 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
         return getCurrentEntities().get(row);
     }
 
+    @Override
     public Property<VisualResult> visualResultProperty() {
         return visualResultProperty;
     }
 
+    @Override
     public ReactiveVisualMapper<E> visualizeResultInto(HasVisualResultProperty hasVisualResultProperty) {
         if (hasVisualResultProperty instanceof HasVisualSelectionProperty)
             setVisualSelectionProperty(((HasVisualSelectionProperty) hasVisualResultProperty).visualSelectionProperty());
         return visualizeResultInto(hasVisualResultProperty.visualResultProperty());
     }
 
+    @Override
     public ReactiveVisualMapper<E> visualizeResultInto(Property<VisualResult> visualResultProperty) {
         visualResultProperty.bind(this.visualResultProperty);
         return this;
     }
 
+    @Override
     public ReactiveVisualMapper<E> setVisualSelectionProperty(Property<VisualSelection> visualSelectionProperty) {
         visualSelectionProperty.bindBidirectional(this.visualSelectionProperty);
         return this;
     }
 
+    @Override
+    public ReactiveVisualMapper<E> setVisualNullEntity(E visualNullEntity) {
+        this.visualNullEntity = visualNullEntity;
+        return this;
+    }
+
+    @Override
+    public E getVisualNullEntity() {
+        return visualNullEntity;
+    }
+
+    @Override
     public ReactiveVisualMapper<E> applyDomainModelRowStyle() {
         return (ReactiveVisualMapper<E>) super.applyDomainModelRowStyle();
     }
@@ -140,7 +162,7 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
     }
 
     VisualResult entitiesToVisualResult(List<E> entities) {
-        return EntitiesToVisualResultMapper.mapEntitiesToVisualResult(entities, entityColumns);
+        return EntitiesToVisualResultMapper.mapEntitiesToVisualResult(entities, entityColumns, visualNullEntity);
     }
 
     /*==================================================================================================================
