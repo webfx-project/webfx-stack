@@ -3,7 +3,6 @@ package dev.webfx.stack.orm.reactive.entities.entities_to_objects;
 import dev.webfx.stack.orm.reactive.entities.dql_to_entities.OptimizedObservableListWrapper;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import dev.webfx.stack.orm.entity.Entity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.function.Function;
 /**
  * @author Bruno Salmon
  */
-final class ObservableEntitiesToObjectsMapper<E extends Entity, T> {
+final class ObservableEntitiesToObjectsMapper<E, T> {
 
     private final ObservableList<E> observableEntities;
     private final OptimizedObservableListWrapper<T> mappedObjects = new OptimizedObservableListWrapper<>();
