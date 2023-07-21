@@ -1,5 +1,6 @@
 package dev.webfx.stack.orm.dql.query.interceptor;
 
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
 import dev.webfx.stack.orm.datasourcemodel.service.DataSourceModelService;
 import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
@@ -41,10 +42,16 @@ public class DqlQueryInterceptorModuleBooter implements ApplicationModuleBooter 
             if (dataSourceModel != null) {
                 // Translating DQL to SQL
                 String statement = argument.getStatement(); // can be DQL or SQL
-                String sqlStatement = dataSourceModel.translateQuery(language, statement);
-                if (!statement.equals(sqlStatement)) { // happens when DQL has been translated to SQL
-                    //Logger.log("Translated to: " + sqlStatement);
-                    argument = QueryArgument.builder().copy(argument).setLanguage(null).setStatement(sqlStatement).build();
+                try {
+                    String sqlStatement = dataSourceModel.translateQuery(language, statement); // May raise an exception on syntax error or unknown fields
+                    if (!statement.equals(sqlStatement)) { // happens when DQL has been translated to SQL
+                        //Console.log("Translated to: " + sqlStatement);
+                        argument = QueryArgument.builder().copy(argument).setLanguage(null).setStatement(sqlStatement).build();
+                    }
+                } catch (Exception e) {
+                    Exception ex = new IllegalArgumentException("Error while translating query '" + statement + "' to " + language, e);
+                    Console.log(ex);
+                    return Future.failedFuture(ex);
                 }
             }
         }

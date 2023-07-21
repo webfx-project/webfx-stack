@@ -5,6 +5,7 @@ module webfx.stack.orm.dql.query.interceptor {
     // Direct dependencies modules
     requires webfx.platform.async;
     requires webfx.platform.boot;
+    requires webfx.platform.console;
     requires webfx.platform.util;
     requires webfx.stack.db.datasource;
     requires webfx.stack.db.query;
