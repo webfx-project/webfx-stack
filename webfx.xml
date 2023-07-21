@@ -33,8 +33,9 @@
             </exported-packages>
         </library>
 
-        <library name="Java-WebSocket">
+        <library name="org.java_websocket">
             <groupId>org.java-websocket</groupId>
+            <artifactId>Java-WebSocket</artifactId>
             <exported-packages>
                 <package>org.java_websocket</package>
                 <package>org.java_websocket.client</package>
@@ -45,45 +46,9 @@
         </library>
 
         <group>
-            <groupId>org.teavm</groupId>
-
-            <library name="teavm-interop">
-                <exported-packages>
-                    <package>org.teavm.interop</package>
-                </exported-packages>
-            </library>
-
-            <library name="teavm-jso">
-                <exported-packages>
-                    <package>org.teavm.jso</package>
-                </exported-packages>
-            </library>
-
-            <library name="teavm-jso-apis">
-                <exported-packages>
-                    <package>org.teavm.jso.core</package>
-                    <package>org.teavm.jso.dom.events</package>
-                    <package>org.teavm.jso.typedarrays</package>
-                </exported-packages>
-            </library>
-
-        </group>
-
-        <group>
             <groupId>io.vertx</groupId>
 
-            <library name="io-vertx-core">
-                <artifactId>vertx-core</artifactId>
-                <exported-packages>
-                    <package>io.vertx.core</package>
-                    <package>io.vertx.core.eventbus</package>
-                    <package>io.vertx.core.eventbus.impl</package>
-                    <package>io.vertx.core.http</package>
-                    <package>io.vertx.core.json</package>
-                    <package>io.vertx.core.net</package>
-                    <package>io.vertx.core.spi.cluster</package>
-                </exported-packages>
-            </library>
+            <!-- Note: Vert.x core & Vert.x web are already defined in WebFX Platform -->
 
             <library name="io-vertx-eventbusbridge-common">
                 <artifactId>vertx-bridge-common</artifactId>
@@ -110,16 +75,6 @@
                 <artifactId>vertx-pg-client</artifactId>
                 <exported-packages>
                     <package>io.vertx.pgclient</package>
-                </exported-packages>
-            </library>
-
-            <library name="io-vertx-web">
-                <artifactId>vertx-web</artifactId>
-                <exported-packages>
-                    <package>io.vertx.ext.web</package>
-                    <package>io.vertx.ext.web.handler</package>
-                    <package>io.vertx.ext.web.handler.sockjs</package>
-                    <package>io.vertx.ext.web.sstore</package>
                 </exported-packages>
             </library>
 
