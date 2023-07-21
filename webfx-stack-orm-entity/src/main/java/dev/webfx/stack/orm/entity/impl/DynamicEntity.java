@@ -98,7 +98,7 @@ public class DynamicEntity implements Entity {
 
     public StringBuilder toString(StringBuilder sb) {
         sb.append(id.getDomainClass()).append("(pk: ").append(id.getPrimaryKey());
-        for (Map.Entry entry : fieldValues.entrySet())
+        for (Map.Entry<?, ?> entry : fieldValues.entrySet())
             sb.append(", ").append(entry.getKey()).append(": ").append(entry.getValue());
         sb.append(')');
         return sb;
