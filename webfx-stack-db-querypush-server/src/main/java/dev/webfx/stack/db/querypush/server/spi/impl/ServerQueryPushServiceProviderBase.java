@@ -157,7 +157,7 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
         void pushResultToClient(StreamInfo streamInfo, QueryResult queryResult, QueryResultDiff queryResultDiff) {
             streamInfo.lastQueryResult = queryResult;
             Object queryStreamId = streamInfo.queryStreamId;
-            //Logger.log("pushResultToClient() to queryStreamId=" + queryStreamId + " with " + (queryResult != null ? queryResult.getRowCount() + " rows" : "diff"));
+            Console.log("pushResultToClient() to queryStreamId=" + queryStreamId + " with " + (queryResult != null ? queryResult.getRowCount() + " rows" : "diff"));
             QueryPushServerService.pushQueryResultToClient(new QueryPushResult(queryStreamId, queryResult, queryResultDiff), streamInfo.clientRunId)
                     .onFailure(cause -> { // Handling push call failure
                         long timeSinceCreation = now() - streamInfo.creationTime;

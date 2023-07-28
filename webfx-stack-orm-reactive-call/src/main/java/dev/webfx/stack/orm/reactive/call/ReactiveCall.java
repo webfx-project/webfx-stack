@@ -14,9 +14,9 @@ import java.util.function.Supplier;
 /**
  * @author Bruno Salmon
  */
-public class ReactiveCall<A,R> {
+public class ReactiveCall<A, R> {
 
-    private final AsyncFunction<A,R> asyncFunction;
+    private final AsyncFunction<A, R> asyncFunction;
     private boolean fireCallWhenReadyRequested;
     private A lastCallArgument;
     private Supplier<A> argumentFetcher;
@@ -83,7 +83,7 @@ public class ReactiveCall<A,R> {
     }
 
     public final void setArgument(A argument) {
-        this.argumentProperty.set(argument);
+        argumentProperty.set(argument);
     }
 
     protected final BooleanProperty callingProperty = new SimpleBooleanProperty();
@@ -151,8 +151,12 @@ public class ReactiveCall<A,R> {
             if (argument != null)
                 setArgument(argument);
             fetchingArgument = false;
-            if (argument == null)
-                return;
+        }
+        // Recent changes => does that work with ReactiveQueryPushCall?
+        if (getArgument() == null) {
+            memorizeLastCallArgument();
+            setResult(null);
+            return;
         }
         if (isFireCallRequiredNow())
             fireCall();
@@ -193,7 +197,7 @@ public class ReactiveCall<A,R> {
         scheduleFireCallNowIfRequired();
     }
 
-    // Should be protected but causes a Java compiler error with OpenJDK-14.0.1 so leave it public for now)
+    // Should be protected but causes a Java compiler error with OpenJDK-14.0.1 so leave it public for now
     public void fireCallWhenReady() {
         fireCallWhenReadyRequested = true;
         scheduleFireCallNowIfRequired();

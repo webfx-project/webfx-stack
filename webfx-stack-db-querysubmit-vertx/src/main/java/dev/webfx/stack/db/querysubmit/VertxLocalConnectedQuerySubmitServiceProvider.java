@@ -138,7 +138,7 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
     }
 
     private void executeSingleQueryOnConnection(QueryArgument queryArgument, SqlConnection connection, Promise<QueryResult> promise) {
-        // Logger.log("Single query with " + queryArgument);
+        //Console.log("Single query with " + queryArgument);
         // long t0 = System.currentTimeMillis();
         executeQueryOnConnection(queryArgument.getStatement(), queryArgument.getParameters(), connection, ar -> {
             if (ar.failed()) // Sql error
@@ -186,7 +186,7 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
     }
 
     private Future<SubmitResult> executeSubmitOnConnection(SubmitArgument submitArgument, SqlConnection connection, Transaction transaction, boolean batch, Promise<SubmitResult> promise) {
-        //Logger.log(submitArgument);
+        Console.log(submitArgument);
         executeQueryOnConnection(submitArgument.getStatement(), submitArgument.getParameters(), connection, res -> {
             if (res.failed()) { // Sql error
                 // Unless from batch, closing the connection now, so it can go back to the pool

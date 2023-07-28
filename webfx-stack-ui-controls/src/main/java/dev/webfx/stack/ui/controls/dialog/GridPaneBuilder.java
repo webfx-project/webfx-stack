@@ -1,6 +1,5 @@
 package dev.webfx.stack.ui.controls.dialog;
 
-import dev.webfx.stack.i18n.controls.I18nControls;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -113,7 +112,9 @@ public final class GridPaneBuilder implements DialogBuilder {
     }
 
     public GridPaneBuilder addButton(String buttonKey, Button button) {
-        I18nControls.bindI18nProperties(button, buttonKey).setFont(font);
+        //I18nControls.bindI18nProperties(button, buttonKey).setFont(font);
+        button.setText(buttonKey);
+        button.setFont(font);
         GridPane.setHalignment(button, HPos.RIGHT);
         gridPane.add(button, 0, rowCount++, colCount, 1);
         return this;
@@ -138,7 +139,9 @@ public final class GridPaneBuilder implements DialogBuilder {
     private HBox createButtonBar(String button1Key, Button button1, String button2Key, Button button2) {
         if ("Ok".equals(button1Key) && !watchedUserProperties.isEmpty())
             button1.disableProperty().bind(noChangesProperty);
-        return createButtonBar(I18nControls.bindI18nProperties(button1, button1Key), I18nControls.bindI18nProperties(button2, button2Key));
+        button1.setText(button1Key);
+        button2.setText(button2Key);
+        return createButtonBar(button1, button2);
     }
 
     private HBox createButtonBar(Button... buttons) {
@@ -161,7 +164,9 @@ public final class GridPaneBuilder implements DialogBuilder {
     }
 
     private <T extends Labeled> T setUpLabeled(T labeled, Object i18nKey) {
-        I18nControls.bindI18nProperties(labeled, i18nKey).setFont(font);
+        //I18nControls.bindI18nProperties(labeled, i18nKey).setFont(font);
+        labeled.setText(i18nKey.toString());
+        labeled.setFont(font);
         //label.textFillProperty().bind(Theme.dialogTextFillProperty());
         GridPane.setHalignment(labeled, HPos.RIGHT);
         if (labeled instanceof CheckBox)

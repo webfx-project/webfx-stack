@@ -89,6 +89,8 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
         // Resetting the default button (required for JavaFX if displayed a second time)
         ButtonFactory.resetDefaultButton(button);
         SceneUtil.autoFocusIfEnabled(usernameField);
+        usernameField.setText("bruno.salmon1@gmail.com");
+        passwordField.setText("password");
     }
 
 }

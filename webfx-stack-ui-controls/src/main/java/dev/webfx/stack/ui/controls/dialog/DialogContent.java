@@ -2,7 +2,11 @@ package dev.webfx.stack.ui.controls.dialog;
 
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
 
 /**
  * @author Bruno Salmon
@@ -92,8 +96,10 @@ public final class DialogContent implements DialogBuilder {
             builder.addTextRow(contentText);
         if (content != null)
             builder.addNodeFillingRow(content);
-        return builder
+        GridPane build = builder
                 .addButtons(okText, okButton, cancelText, cancelButton)
                 .build();
+        build.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+        return build;
     }
 }
