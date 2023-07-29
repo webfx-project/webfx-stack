@@ -12,4 +12,7 @@ module webfx.stack.conf.file.java {
     // Exported packages
     exports dev.webfx.stack.conf.spi.impl.java.file;
 
+    // Provided services
+    provides dev.webfx.stack.conf.spi.ConfigurationSupplier with dev.webfx.stack.conf.spi.impl.java.file.DirectoryConfigurationSupplier;
+
 }

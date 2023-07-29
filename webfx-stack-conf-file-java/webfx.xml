@@ -9,4 +9,8 @@
         <used-by-source-modules/>
     </dependencies>
 
+    <providers>
+        <provider interface="dev.webfx.stack.conf.spi.ConfigurationSupplier">dev.webfx.stack.conf.spi.impl.java.file.DirectoryConfigurationSupplier</provider>
+    </providers>
+
 </project>
