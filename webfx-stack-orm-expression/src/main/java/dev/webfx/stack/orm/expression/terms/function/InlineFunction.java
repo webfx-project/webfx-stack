@@ -1,5 +1,6 @@
 package dev.webfx.stack.orm.expression.terms.function;
 
+import dev.webfx.extras.type.SpecializedTextType;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.builder.ReferenceResolver;
 import dev.webfx.stack.orm.expression.builder.ThreadLocalReferenceResolver;
@@ -63,7 +64,7 @@ public final class InlineFunction<T> extends Function<T> {
 
     @Override
     public boolean isIdentity() {
-        return argNames != null && argNames.length == 1 && argNames[0].equals(body.toString());
+        return argNames != null && argNames.length == 1 && argNames[0].equals(body.toString()) && !(getReturnType() instanceof SpecializedTextType);
     }
 
     private static Expression parseBody(String body, final String[] argNames, final Type[] argTypes, Object domainClass, ParserDomainModelReader modelReader) {
