@@ -16,7 +16,7 @@
     </providers>
 
     <required-libraries>
-        <library name="io-vertx-auth-oauth2" artifact="io.vertx:vertx-auth-oauth2:4.3.4">
+        <library name="io-vertx-auth-oauth2" artifact="io.vertx:vertx-auth-oauth2:4.4.4">
             <exported-packages>
                 <package>io.vertx.ext.auth.oauth2</package>
                 <package>io.vertx.ext.auth.oauth2.providers</package>
