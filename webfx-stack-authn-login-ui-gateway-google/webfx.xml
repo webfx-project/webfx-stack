@@ -3,7 +3,7 @@
 
     <exported-packages>
         <source-packages/>
-        <resource-package>dev.webfx.stack.authn.login.ui.spi.impl.gateway.google</resource-package>
+        <resource-packages/>
     </exported-packages>
 
     <dependencies>

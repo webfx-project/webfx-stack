@@ -3,7 +3,7 @@
 
     <exported-packages>
         <source-packages/>
-        <resource-package>images.s16.controls</resource-package>
+        <resource-packages/>
     </exported-packages>
 
     <dependencies>
