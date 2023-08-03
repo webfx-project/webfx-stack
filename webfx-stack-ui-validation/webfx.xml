@@ -3,7 +3,7 @@
 
     <exported-packages>
         <source-packages/>
-        <resource-package>dev.webfx.stack.ui.validation.controlsfx.images</resource-package>
+        <resource-packages/>
     </exported-packages>
 
     <dependencies>
