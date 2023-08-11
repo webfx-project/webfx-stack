@@ -88,6 +88,11 @@ public interface Entity {
     default Long getLongFieldValue(Object domainFieldId) { return Numbers.toLong(getFieldValue(domainFieldId)); }
 
     /**
+     * Return the field value as a float. If the type is not a float, this can result in runtime errors.
+     */
+    default Float getFloatFieldValue(Object domainFieldId) { return Numbers.toFloat(getFieldValue(domainFieldId)); }
+
+    /**
      * Return the field value as a double. If the type is not a double, this can result in runtime errors.
      */
     default Double getDoubleFieldValue(Object domainFieldId) { return Numbers.toDouble(getFieldValue(domainFieldId)); }
