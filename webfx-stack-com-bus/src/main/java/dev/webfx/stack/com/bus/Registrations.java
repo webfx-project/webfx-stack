@@ -25,7 +25,7 @@ import java.util.List;
  * all added handlers if {@link Registration#unregister()} is called on this object.
  *
  * @author 田传武 (aka Larry Tin) - author of Goodow realtime-channel project
- * @author Bruno Salmon - fork, refactor & update for the webfx project
+ * @author Bruno Salmon - fork, refactor &amp; update for the webfx project
  *
  * <a href="https://github.com/goodow/realtime-channel/blob/master/src/main/java/com/goodow/realtime/core/Registrations.java">Original Goodow class</a>
  */

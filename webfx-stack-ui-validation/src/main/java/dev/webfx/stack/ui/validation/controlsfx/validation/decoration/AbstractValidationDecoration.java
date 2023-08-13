@@ -41,7 +41,7 @@ import java.util.List;
  * Custom validation decorator should define only two things:
  * how 'validation' and 'required' decorations should be created
  * <br>
- * See {@link GraphicValidationDecoration} or {@link StyleClassValidationDecoration} for examples of such implementations.
+ * See {@link GraphicValidationDecoration} for examples of such implementations.
  * 
  */
 public abstract class AbstractValidationDecoration implements ValidationDecoration {

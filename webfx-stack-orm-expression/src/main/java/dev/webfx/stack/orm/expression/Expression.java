@@ -79,7 +79,7 @@ public interface Expression<T> {
 
     /**
      * @return The precedence level of the expression, which will determine if parenthesis are needed when printing.
-     * For example: x * (y + z) => parenthesis because Plus precedence level (=6) < Multiply precedence level (=7)
+     * For example: x * (y + z) => parenthesis because Plus precedence level (=6) &lt; Multiply precedence level (=7)
      */
 
     int getPrecedenceLevel();

@@ -45,7 +45,7 @@ import java.util.function.Consumer;
  * The Decorator class is responsible for accessing decorations for a given node.
  * Through this class you may therefore add and remove decorations as desired.
  * 
- * <h3>Code Example</h3>
+ * <h2>Code Example</h2>
  * <p>Say you have a {@link TextField} that you want to decorate. You would simply
  * do the following:
  * 
