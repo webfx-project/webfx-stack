@@ -13,6 +13,7 @@ module webfx.stack.authn.login.ui.gateway.google {
     exports dev.webfx.stack.authn.login.ui.spi.impl.gateway.google;
 
     // Resources packages
+    opens dev.webfx.stack.authn.login.ui.spi;
     opens dev.webfx.stack.authn.login.ui.spi.impl.gateway;
     opens dev.webfx.stack.authn.login.ui.spi.impl.gateway.google;
 
