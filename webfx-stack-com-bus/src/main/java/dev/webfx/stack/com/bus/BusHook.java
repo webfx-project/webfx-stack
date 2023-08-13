@@ -24,7 +24,7 @@ import dev.webfx.platform.async.AsyncResult;
  * A hook that you can use to receive various events on the Bus.
  *
  * @author 田传武 (aka Larry Tin) - author of Goodow realtime-channel project
- * @author Bruno Salmon - fork, refactor & update for the webfx project
+ * @author Bruno Salmon - fork, refactor &amp; update for the webfx project
  *
  * <a href="https://github.com/goodow/realtime-channel/blob/master/src/main/java/com/goodow/realtime/channel/BusHook.java">Original Goodow class</a>
  */

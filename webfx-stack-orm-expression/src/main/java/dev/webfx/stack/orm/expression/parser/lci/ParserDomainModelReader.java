@@ -32,7 +32,7 @@ public interface ParserDomainModelReader {
     Symbol getDomainFieldSymbol(Object domainClass, String fieldName);
 
     /**
-     * Return the field group given its name (expressed in form of a Symbol instance). A field group such as "<default>"
+     * Return the field group given its name (expressed in form of a Symbol instance). A field group such as "{@code <default>}"
      * (fieldGroupName = "default" in this case) should have a list of fields (ex: firstName, lastName, age). This list
      * of fields can be get by calling the getExpression() method of the returned Symbol instance.
      *

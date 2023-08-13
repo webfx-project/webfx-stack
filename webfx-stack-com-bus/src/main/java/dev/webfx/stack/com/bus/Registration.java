@@ -22,7 +22,7 @@ package dev.webfx.stack.com.bus;
  * {@link Bus#register}), used to deregister.
  *
  * @author 田传武 (aka Larry Tin) - author of Goodow realtime-channel project
- * @author Bruno Salmon - fork, refactor & update for the webfx project
+ * @author Bruno Salmon - fork, refactor &amp; update for the webfx project
  *
  * <a href="https://github.com/goodow/realtime-channel/blob/master/src/main/java/com/goodow/realtime/core/PlatformFactory.java">Original Goodow class</a>
  */

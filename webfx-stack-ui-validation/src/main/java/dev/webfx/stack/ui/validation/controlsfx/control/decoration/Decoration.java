@@ -34,15 +34,13 @@ import java.util.Map;
 /**
  * Decoration is an abstract class used by the ControlsFX {@link Decorator} class
  * for adding and removing decorations on a node. ControlsFX
- * ships with pre-built decorations, including {@link GraphicDecoration} and
- * {@link StyleClassDecoration}.
+ * ships with pre-built decorations, including {@link GraphicDecoration}.
  * 
  * <p>To better understand how to use the ControlsFX decoration API in your 
  * application, refer to the code samples and explanations in {@link Decorator}.
  * 
  * @see Decorator
  * @see GraphicDecoration
- * @see StyleClassDecoration
  */
 public abstract class Decoration {
     
