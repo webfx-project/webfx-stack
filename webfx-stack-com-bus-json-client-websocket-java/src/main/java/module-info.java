@@ -3,8 +3,6 @@
 module webfx.stack.com.bus.json.client.websocket.java {
 
     // Direct dependencies modules
-    requires webfx.platform.windowlocation;
-    requires webfx.platform.windowlocation.java;
     requires webfx.stack.com.bus;
     requires webfx.stack.com.bus.json.client.websocket;
 
