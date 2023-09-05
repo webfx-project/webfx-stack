@@ -78,13 +78,6 @@
         <module>webfx-stack-com-websocket</module>
         <module>webfx-stack-com-websocket-gwt</module>
         <module>webfx-stack-com-websocket-java</module>
-        <module>webfx-stack-conf</module>
-        <module>webfx-stack-conf-env-java</module>
-        <module>webfx-stack-conf-file-java</module>
-        <module>webfx-stack-conf-format-json</module>
-        <module>webfx-stack-conf-localstorage</module>
-        <module>webfx-stack-conf-resource</module>
-        <module>webfx-stack-conf-windowlocation</module>
         <module>webfx-stack-db-datascope</module>
         <module>webfx-stack-db-datasource</module>
         <module>webfx-stack-db-query</module>
