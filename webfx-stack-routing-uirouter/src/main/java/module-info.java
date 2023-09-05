@@ -7,9 +7,9 @@ module webfx.stack.routing.uirouter {
     requires javafx.base;
     requires javafx.graphics;
     requires webfx.kit.launcher;
+    requires webfx.platform.ast.json.plugin;
     requires webfx.platform.async;
     requires webfx.platform.console;
-    requires webfx.platform.json;
     requires webfx.platform.uischeduler;
     requires transitive webfx.platform.util;
     requires transitive webfx.platform.windowhistory;

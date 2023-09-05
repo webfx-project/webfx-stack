@@ -5,8 +5,8 @@ module webfx.stack.i18n.json {
     // Direct dependencies modules
     requires java.base;
     requires javafx.base;
+    requires webfx.platform.ast.json.plugin;
     requires webfx.platform.async;
-    requires webfx.platform.json;
     requires webfx.platform.resource;
     requires webfx.platform.util;
     requires webfx.stack.i18n;

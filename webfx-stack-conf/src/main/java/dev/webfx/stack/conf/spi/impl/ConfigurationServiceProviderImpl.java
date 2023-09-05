@@ -2,10 +2,10 @@ package dev.webfx.stack.conf.spi.impl;
 
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.console.Console;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
-import dev.webfx.platform.util.keyobject.KeyObject;
-import dev.webfx.platform.util.keyobject.ReadOnlyIndexedArray;
-import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
+import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.AstObject;
+import dev.webfx.platform.ast.ReadOnlyAstArray;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.util.serviceloader.MultipleServiceProviders;
 import dev.webfx.stack.conf.ConfigurationService;
 import dev.webfx.stack.conf.spi.ConfigurationServiceProvider;
@@ -97,11 +97,11 @@ public class ConfigurationServiceProviderImpl implements ConfigurationServicePro
     }
 
     @Override
-    public ReadOnlyKeyObject readConfiguration(String configName, boolean resolveVariables) {
+    public ReadOnlyAstObject readConfiguration(String configName, boolean resolveVariables) {
         // Getting the default configuration (if exists)
-        ReadOnlyKeyObject defaultConfiguration = getDefaultConfiguration(configName);
+        ReadOnlyAstObject defaultConfiguration = getDefaultConfiguration(configName);
         // Getting the configuration from the suppliers (if exists)
-        ReadOnlyKeyObject supplierConfiguration = getSupplierConfiguration(configName, resolveVariables);
+        ReadOnlyAstObject supplierConfiguration = getSupplierConfiguration(configName, resolveVariables);
         // If no configuration could be found, we raise an exception
         if (defaultConfiguration == null && supplierConfiguration == null)
             return null; //throw new IllegalArgumentException("Configuration '" + configName + "' not found");
@@ -112,22 +112,22 @@ public class ConfigurationServiceProviderImpl implements ConfigurationServicePro
             return supplierConfiguration;
         // If we have both the default and supplier configuration, we return the supplier configuration but completed
         // with the possible missing keys from the default configuration
-        ReadOnlyIndexedArray keys = defaultConfiguration.keys();
+        ReadOnlyAstArray keys = defaultConfiguration.keys();
         for (int i = 0; i < keys.size(); i++) {
             String key = keys.getString(i);
             if (!supplierConfiguration.has(key))
-                // Ugly hack for now (because don't know how to create a new KeyObject)
-                ((KeyObject) supplierConfiguration).setScalar(key, defaultConfiguration.get(key));
+                // Ugly hack for now (because don't know how to create a new AstObject)
+                ((AstObject) supplierConfiguration).setScalar(key, defaultConfiguration.get(key));
         }
         return supplierConfiguration;
     }
 
-    private ReadOnlyKeyObject getDefaultConfiguration(String configName) {
+    private ReadOnlyAstObject getDefaultConfiguration(String configName) {
         ConfigurationConsumer consumer = consumers.get(configName);
         return consumer == null ? null : consumer.getDefaultConfiguration();
     }
 
-    private ReadOnlyKeyObject getSupplierConfiguration(String configName, boolean resolveVariables) {
+    private ReadOnlyAstObject getSupplierConfiguration(String configName, boolean resolveVariables) {
         for (ConfigurationSupplier supplier : suppliers)
             if (supplier.canReadConfiguration(configName))
                 return supplier.readConfiguration(configName, resolveVariables);
@@ -135,7 +135,7 @@ public class ConfigurationServiceProviderImpl implements ConfigurationServicePro
     }
 
     @Override
-    public Future<Void> writeConfiguration(String configName, ReadOnlyKeyObject config) {
+    public Future<Void> writeConfiguration(String configName, ReadOnlyAstObject config) {
         // If there is a supplier that can write the requested configuration, we delegate that job to it.
         for (ConfigurationSupplier supplier : suppliers)
             if (supplier.canWriteConfiguration(configName))
@@ -144,7 +144,7 @@ public class ConfigurationServiceProviderImpl implements ConfigurationServicePro
     }
 
     @Override
-    public ReadOnlyKeyObject readConfigurationText(String configText, String formatExtension, boolean resolveVariables) {
+    public ReadOnlyAstObject readConfigurationText(String configText, String formatExtension, boolean resolveVariables) {
         // Doing variables substitution at this point
         if (resolveVariables)
             configText = resolveVariables(configText);

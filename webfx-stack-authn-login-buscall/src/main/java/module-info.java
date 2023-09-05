@@ -3,7 +3,7 @@
 module webfx.stack.authn.login.buscall {
 
     // Direct dependencies modules
-    requires webfx.platform.json;
+    requires webfx.platform.ast.json.plugin;
     requires webfx.stack.authn.login;
     requires webfx.stack.com.bus.call;
     requires webfx.stack.com.serial;

@@ -1,6 +1,6 @@
 package dev.webfx.stack.conf.spi.impl;
 
-import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 
 /**
  * @author Bruno Salmon
@@ -12,7 +12,7 @@ public abstract class NoDefaultConfigurationConsumerBase extends ConfigurationCo
     }
 
     @Override
-    public ReadOnlyKeyObject getDefaultConfiguration() {
+    public ReadOnlyAstObject getDefaultConfiguration() {
         return null;
     }
 }

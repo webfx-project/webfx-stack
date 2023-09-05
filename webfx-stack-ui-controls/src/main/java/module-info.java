@@ -13,13 +13,12 @@ module webfx.stack.ui.controls {
     requires webfx.extras.util.border;
     requires webfx.extras.util.layout;
     requires webfx.extras.util.paint;
-    requires webfx.extras.util.scene;
     requires webfx.kit.util;
-    requires webfx.platform.uischeduler;
     requires webfx.platform.util;
     requires webfx.stack.i18n;
     requires webfx.stack.i18n.controls;
     requires transitive webfx.stack.ui.action;
+    requires transitive webfx.stack.ui.dialog;
     requires webfx.stack.ui.json;
     requires webfx.stack.ui.validation;
 

@@ -1,7 +1,7 @@
 package dev.webfx.stack.conf.spi;
 
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 
 /**
  * @author Bruno Salmon
@@ -12,6 +12,6 @@ public interface ConfigurationConsumer {
 
     String getConfigurationName();
 
-    ReadOnlyKeyObject getDefaultConfiguration();
+    ReadOnlyAstObject getDefaultConfiguration();
 
 }

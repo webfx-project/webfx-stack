@@ -1,7 +1,7 @@
 package dev.webfx.stack.routing.router;
 
 import dev.webfx.stack.session.Session;
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.ast.json.JsonObject;
 
 /**
  * @author Bruno Salmon

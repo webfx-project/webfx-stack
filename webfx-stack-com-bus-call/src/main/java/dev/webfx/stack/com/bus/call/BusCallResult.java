@@ -2,8 +2,8 @@ package dev.webfx.stack.com.bus.call;
 
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.json.JsonObject;
 
 /**
  * @author Bruno Salmon

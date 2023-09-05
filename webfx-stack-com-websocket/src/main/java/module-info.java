@@ -4,7 +4,7 @@ module webfx.stack.com.websocket {
 
     // Direct dependencies modules
     requires java.base;
-    requires webfx.platform.json;
+    requires webfx.platform.ast.json.plugin;
     requires webfx.platform.util;
 
     // Exported packages

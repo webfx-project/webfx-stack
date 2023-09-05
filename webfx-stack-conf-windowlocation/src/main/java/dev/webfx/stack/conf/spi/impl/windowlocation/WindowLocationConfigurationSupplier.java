@@ -1,7 +1,7 @@
 package dev.webfx.stack.conf.spi.impl.windowlocation;
 
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.windowlocation.WindowLocation;
 import dev.webfx.stack.conf.spi.ConfigurationSupplier;
 import dev.webfx.stack.conf.spi.HasConfigurationLogInfo;
@@ -44,7 +44,7 @@ public class WindowLocationConfigurationSupplier implements ConfigurationSupplie
     }
 
     @Override
-    public ReadOnlyKeyObject readConfiguration(String configName, boolean resolveVariables) {
+    public ReadOnlyAstObject readConfiguration(String configName, boolean resolveVariables) {
         throw new IllegalArgumentException("No configuration found for " + configName);
     }
 
@@ -54,7 +54,7 @@ public class WindowLocationConfigurationSupplier implements ConfigurationSupplie
     }
 
     @Override
-    public Future<Void> writeConfiguration(String configName, ReadOnlyKeyObject config) {
+    public Future<Void> writeConfiguration(String configName, ReadOnlyAstObject config) {
         throw new IllegalArgumentException("No configuration found for " + configName);
     }
 }

@@ -1,8 +1,8 @@
 package dev.webfx.stack.com.bus.spi.impl.json.client.websocket;
 
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
 import dev.webfx.platform.util.Objects;
-import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.com.bus.BusOptions;
 
 /**
@@ -36,13 +36,14 @@ public final class WebSocketBusOptions extends BusOptions {
     }
 
     @Override
-    public WebSocketBusOptions applyConfig(ReadOnlyKeyObject config) {
+    public WebSocketBusOptions applyConfig(ReadOnlyAstObject config) {
         super.applyConfig(config);
-        protocol = Protocol.valueOf(config.getString("protocol", protocol.name()));
-        serverSSL = config.getBoolean("serverSSL", serverSSL);
-        serverHost = config.getString("serverHost", serverHost);
-        serverPort = config.getString("serverPort", serverPort);
-        pingInterval = config.getInteger("pingInterval", pingInterval);
+        String configProtocol = config.getString("protocol");
+        protocol = configProtocol != null ? Protocol.valueOf(configProtocol.toUpperCase()) : Protocol.WS;
+        serverSSL = config.getBoolean("serverSSL");
+        serverHost = config.getString("serverHost");
+        serverPort = config.getString("serverPort");
+        pingInterval = config.getInteger("pingInterval");
         return this;
     }
 
@@ -93,11 +94,6 @@ public final class WebSocketBusOptions extends BusOptions {
 
     public ReadOnlyJsonObject getSocketOptions() {
         return socketOptions;
-    }
-
-    public WebSocketBusOptions setSocketOptions(ReadOnlyJsonObject socketOptions) {
-        this.socketOptions = socketOptions;
-        return this;
     }
 
 }

@@ -1,7 +1,7 @@
 package dev.webfx.stack.authn.server.gateway.spi.impl;
 
-import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
 
 import java.util.Base64;
 

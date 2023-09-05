@@ -3,8 +3,8 @@ package dev.webfx.stack.com.bus;
 /**
  * @author Bruno Salmon
  */
-public interface BusFactory<O extends BusOptions> {
+public interface BusFactory {
 
-    Bus createBus(O options);
+    Bus createBus();
 
 }

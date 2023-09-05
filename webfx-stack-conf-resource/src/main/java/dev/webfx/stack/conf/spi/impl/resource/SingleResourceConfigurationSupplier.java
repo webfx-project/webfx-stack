@@ -3,7 +3,7 @@ package dev.webfx.stack.conf.spi.impl.resource;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.Promise;
 import dev.webfx.platform.resource.Resource;
-import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.conf.ConfigurationService;
 import dev.webfx.stack.conf.spi.ConfigurationSupplier;
 
@@ -17,8 +17,8 @@ public class SingleResourceConfigurationSupplier implements ConfigurationSupplie
     private final String configurationName;
     private final String resourceFileName;
     private String configText;
-    private ReadOnlyKeyObject unresolvedConfig;
-    private ReadOnlyKeyObject resolvedConfig;
+    private ReadOnlyAstObject unresolvedConfig;
+    private ReadOnlyAstObject resolvedConfig;
 
 
     public SingleResourceConfigurationSupplier(String configurationName, String resourceFileName) {
@@ -38,13 +38,13 @@ public class SingleResourceConfigurationSupplier implements ConfigurationSupplie
         return promise.future();
     }
 
-    public ReadOnlyKeyObject getUnresolvedConfig() {
+    public ReadOnlyAstObject getUnresolvedConfig() {
         if (unresolvedConfig == null)
             unresolvedConfig = ConfigurationService.readConfigurationText(configText, resourceFileName, false);
         return unresolvedConfig;
     }
 
-    public ReadOnlyKeyObject getResolvedConfig() {
+    public ReadOnlyAstObject getResolvedConfig() {
         if (resolvedConfig == null)
             resolvedConfig = ConfigurationService.readConfigurationText(configText, resourceFileName, true);
         return resolvedConfig;
@@ -61,7 +61,7 @@ public class SingleResourceConfigurationSupplier implements ConfigurationSupplie
     }
 
     @Override
-    public ReadOnlyKeyObject readConfiguration(String configName, boolean resolveVariables) {
+    public ReadOnlyAstObject readConfiguration(String configName, boolean resolveVariables) {
         if (!canReadConfiguration(configName))
             return null;
         return resolveVariables ? getResolvedConfig() : getUnresolvedConfig();
@@ -73,7 +73,7 @@ public class SingleResourceConfigurationSupplier implements ConfigurationSupplie
     }
 
     @Override
-    public Future<Void> writeConfiguration(String configName, ReadOnlyKeyObject config) {
+    public Future<Void> writeConfiguration(String configName, ReadOnlyAstObject config) {
         return Future.failedFuture("Can't write configuration on resource file");
     }
 }

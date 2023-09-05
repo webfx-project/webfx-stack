@@ -4,9 +4,9 @@ module webfx.stack.conf.env.java {
 
     // Direct dependencies modules
     requires java.base;
+    requires webfx.platform.ast;
     requires webfx.platform.async;
     requires webfx.platform.console;
-    requires webfx.platform.util;
     requires webfx.stack.conf;
 
     // Exported packages

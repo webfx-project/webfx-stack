@@ -1,8 +1,8 @@
 package dev.webfx.stack.conf;
 
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
-import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
+import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 import dev.webfx.stack.conf.spi.*;
 import dev.webfx.stack.conf.spi.impl.ConfigurationServiceProviderImpl;
@@ -39,19 +39,19 @@ public final class ConfigurationService {
         return getProvider().getRegisteredFormatExtensions();
     }
 
-    public static ReadOnlyKeyObject readConfiguration(String configName) {
+    public static ReadOnlyAstObject readConfiguration(String configName) {
         return readConfiguration(configName, true);
     }
 
-    public static ReadOnlyKeyObject readConfiguration(String configName, boolean resolveVariables) {
+    public static ReadOnlyAstObject readConfiguration(String configName, boolean resolveVariables) {
         return getProvider().readConfiguration(configName, resolveVariables);
     }
 
-    public static ReadOnlyKeyObject readConfigurationText(String configText, String formatExtension) {
+    public static ReadOnlyAstObject readConfigurationText(String configText, String formatExtension) {
         return readConfigurationText(configText, formatExtension, true);
     }
 
-    public static ReadOnlyKeyObject readConfigurationText(String configText, String formatExtension, boolean resolveVariables) {
+    public static ReadOnlyAstObject readConfigurationText(String configText, String formatExtension, boolean resolveVariables) {
         return getProvider().readConfigurationText(configText, formatExtension, resolveVariables);
     }
 

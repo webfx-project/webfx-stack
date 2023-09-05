@@ -4,6 +4,7 @@ module webfx.stack.com.bus.simple {
 
     // Direct dependencies modules
     requires webfx.stack.com.bus;
+    requires webfx.stack.com.bus.client;
 
     // Exported packages
     exports dev.webfx.stack.com.bus.spi.impl.simple;

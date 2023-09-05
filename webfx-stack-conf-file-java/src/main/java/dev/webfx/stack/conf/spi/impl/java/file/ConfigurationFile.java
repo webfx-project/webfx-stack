@@ -1,6 +1,6 @@
 package dev.webfx.stack.conf.spi.impl.java.file;
 
-import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.conf.ConfigurationService;
 
 import java.io.File;
@@ -22,7 +22,7 @@ public class ConfigurationFile {
         return file;
     }
 
-    public ReadOnlyKeyObject readConfiguration(boolean resolveVariables) {
+    public ReadOnlyAstObject readConfiguration(boolean resolveVariables) {
         try {
             String configText = Files.readString(file.toPath());
             return ConfigurationService.readConfigurationText(configText, file.getName(), resolveVariables);

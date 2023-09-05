@@ -1,6 +1,6 @@
 package dev.webfx.stack.com.websocket;
 
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
 
 /**
  * Listens for events on a {@link WebSocket}.

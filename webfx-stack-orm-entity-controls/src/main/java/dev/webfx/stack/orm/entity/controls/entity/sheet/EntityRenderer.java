@@ -11,7 +11,7 @@ import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.EntityStore;
 import dev.webfx.extras.cell.renderer.ValueRenderer;
 import dev.webfx.extras.cell.renderer.ValueRenderingContext;
-import dev.webfx.platform.json.Json;
+import dev.webfx.platform.ast.json.Json;
 import javafx.scene.layout.HBox;
 
 /**

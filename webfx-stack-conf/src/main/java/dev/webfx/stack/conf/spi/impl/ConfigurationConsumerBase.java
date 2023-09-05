@@ -1,6 +1,6 @@
 package dev.webfx.stack.conf.spi.impl;
 
-import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.conf.ConfigurationService;
 import dev.webfx.stack.conf.spi.ConfigurationConsumer;
 
@@ -20,7 +20,7 @@ public abstract class ConfigurationConsumerBase implements ConfigurationConsumer
         return configurationName;
     }
 
-    protected ReadOnlyKeyObject readConfiguration() {
+    protected ReadOnlyAstObject readConfiguration() {
         return ConfigurationService.readConfiguration(getConfigurationName(), true);
     }
 }

@@ -11,8 +11,10 @@
         </used-by-source-modules>
     </dependencies>
 
+<!--
     <providers>
         <provider interface="dev.webfx.stack.conf.spi.ConfigurationConsumer">dev.webfx.stack.com.bus.spi.impl.BusOptionsConfigurationConsumer</provider>
     </providers>
+-->
 
 </project>

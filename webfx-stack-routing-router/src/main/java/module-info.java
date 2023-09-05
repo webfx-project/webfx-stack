@@ -4,8 +4,8 @@ module webfx.stack.routing.router {
 
     // Direct dependencies modules
     requires java.base;
+    requires transitive webfx.platform.ast.json.plugin;
     requires webfx.platform.async;
-    requires transitive webfx.platform.json;
     requires webfx.platform.util;
     requires transitive webfx.stack.session;
 

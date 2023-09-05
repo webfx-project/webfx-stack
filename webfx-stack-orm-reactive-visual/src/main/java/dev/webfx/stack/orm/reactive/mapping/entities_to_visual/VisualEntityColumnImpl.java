@@ -13,7 +13,7 @@ import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.terms.As;
 import dev.webfx.stack.orm.expression.terms.UnaryExpression;
 import dev.webfx.stack.orm.domainmodel.formatter.ValueFormatter;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
 
 /**
  * @author Bruno Salmon

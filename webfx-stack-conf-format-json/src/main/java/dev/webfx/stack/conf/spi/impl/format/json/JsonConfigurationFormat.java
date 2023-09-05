@@ -1,8 +1,8 @@
 package dev.webfx.stack.conf.spi.impl.format.json;
 
-import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
-import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
+import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.conf.spi.ConfigurationFormat;
 
 /**
@@ -16,12 +16,12 @@ public final class JsonConfigurationFormat implements ConfigurationFormat {
     }
 
     @Override
-    public ReadOnlyKeyObject readConfigurationText(String configText) {
+    public ReadOnlyAstObject readConfigurationText(String configText) {
         return Json.parseObject(configText);
     }
 
     @Override
-    public String writeConfigurationText(ReadOnlyKeyObject config) {
+    public String writeConfigurationText(ReadOnlyAstObject config) {
         return ((ReadOnlyJsonObject) config).toJsonString();
     }
 

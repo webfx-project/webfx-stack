@@ -1,6 +1,6 @@
 package dev.webfx.stack.db.query.buscall.serial;
 
-import dev.webfx.platform.json.*;
+import dev.webfx.platform.ast.json.*;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.buscall.serial.compression.repeat.RepeatedValuesCompressor;

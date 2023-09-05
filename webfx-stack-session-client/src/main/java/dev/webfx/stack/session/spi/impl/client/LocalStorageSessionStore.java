@@ -1,9 +1,9 @@
 package dev.webfx.stack.session.spi.impl.client;
 
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.ReadOnlyJsonArray;
+import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.ast.json.JsonObject;
+import dev.webfx.platform.ast.json.ReadOnlyJsonArray;
 import dev.webfx.platform.storage.LocalStorage;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.session.Session;

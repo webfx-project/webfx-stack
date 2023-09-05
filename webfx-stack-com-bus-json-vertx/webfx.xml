@@ -9,12 +9,15 @@
     <dependencies>
         <used-by-source-modules/>
         <!-- This module can't work by its own without the Vert.x http server -->
-        <plugin-module>webfx-stack-http-server-vertx</plugin-module>
+        <plugin-module>webfx-stack-http-server-vertx-plugin</plugin-module>
     </dependencies>
 
     <providers>
+<!--
         <provider interface="dev.webfx.stack.conf.spi.ConfigurationConsumer">dev.webfx.stack.com.bus.spi.impl.json.vertx.VertxBusConfigurationConsumer</provider>
+-->
         <provider interface="dev.webfx.stack.com.bus.spi.BusServiceProvider">dev.webfx.stack.com.bus.spi.impl.json.vertx.VertxBusServiceProvider</provider>
+        <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.com.bus.spi.impl.json.vertx.VertxBusModuleBooter</provider>
     </providers>
 
 </project>

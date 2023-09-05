@@ -1,6 +1,6 @@
 package dev.webfx.stack.authn;
 
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 
 /**
  * @author Bruno Salmon
@@ -11,10 +11,10 @@ public class UserClaims {
     private final String email;
     private final String phone;
 
-    private final ReadOnlyJsonObject otherClaims;
+    private final ReadOnlyAstObject otherClaims;
 
 
-    public UserClaims(String username, String email, String phone, ReadOnlyJsonObject otherClaims) {
+    public UserClaims(String username, String email, String phone, ReadOnlyAstObject otherClaims) {
         this.username = username;
         this.email = email;
         this.phone = phone;
@@ -33,7 +33,7 @@ public class UserClaims {
         return phone;
     }
 
-    public ReadOnlyJsonObject getOtherClaims() {
+    public ReadOnlyAstObject getOtherClaims() {
         return otherClaims;
     }
 }

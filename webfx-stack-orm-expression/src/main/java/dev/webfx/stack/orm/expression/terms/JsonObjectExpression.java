@@ -1,14 +1,14 @@
 package dev.webfx.stack.orm.expression.terms;
 
 import dev.webfx.extras.type.Type;
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.ast.json.JsonObject;
 import dev.webfx.stack.orm.expression.CollectOptions;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.lci.DomainReader;
-import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
-import dev.webfx.platform.util.keyobject.ReadOnlyIndexedArray;
-import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
+import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstArray;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 
 // TODO: remove platform dependency
 
@@ -17,9 +17,9 @@ import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
  */
 public final class JsonObjectExpression<T> extends AbstractExpression<T> {
 
-    private final ReadOnlyKeyObject jsonObjectExpressions;
+    private final ReadOnlyAstObject jsonObjectExpressions;
 
-    public JsonObjectExpression(ReadOnlyKeyObject jsonObjectExpressions) {
+    public JsonObjectExpression(ReadOnlyAstObject jsonObjectExpressions) {
         super(1);
         this.jsonObjectExpressions = jsonObjectExpressions;
     }
@@ -32,7 +32,7 @@ public final class JsonObjectExpression<T> extends AbstractExpression<T> {
     @Override
     public ReadOnlyJsonObject evaluate(T domainObject, DomainReader<T> domainReader) {
         JsonObject json = Json.createObject();
-        ReadOnlyIndexedArray keys = jsonObjectExpressions.keys();
+        ReadOnlyAstArray keys = jsonObjectExpressions.keys();
         for (int i = 0; i < keys.size(); i++) {
             String key = keys.getString(i);
             Expression<T> expression = jsonObjectExpressions.get(key);
@@ -44,7 +44,7 @@ public final class JsonObjectExpression<T> extends AbstractExpression<T> {
     @Override
     public StringBuilder toString(StringBuilder sb) {
         sb.append('{');
-        ReadOnlyIndexedArray keys = jsonObjectExpressions.keys();
+        ReadOnlyAstArray keys = jsonObjectExpressions.keys();
         for (int i = 0; i < keys.size(); i++) {
             if (i != 0)
                 sb.append(", ");
@@ -58,7 +58,7 @@ public final class JsonObjectExpression<T> extends AbstractExpression<T> {
 
     @Override
     public void collect(CollectOptions options) {
-        ReadOnlyIndexedArray keys = jsonObjectExpressions.keys();
+        ReadOnlyAstArray keys = jsonObjectExpressions.keys();
         for (int i = 0; i < keys.size(); i++) {
             String key = keys.getString(i);
             Expression<T> expression = jsonObjectExpressions.get(key);

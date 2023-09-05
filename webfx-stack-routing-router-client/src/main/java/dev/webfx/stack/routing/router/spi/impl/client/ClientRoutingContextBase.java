@@ -1,8 +1,8 @@
 package dev.webfx.stack.routing.router.spi.impl.client;
 
 import dev.webfx.platform.console.Console;
-import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.ast.json.JsonObject;
 import dev.webfx.stack.routing.router.Route;
 import dev.webfx.stack.routing.router.RoutingContext;
 

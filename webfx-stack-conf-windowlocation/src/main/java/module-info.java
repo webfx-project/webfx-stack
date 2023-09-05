@@ -4,8 +4,8 @@ module webfx.stack.conf.windowlocation {
 
     // Direct dependencies modules
     requires java.base;
+    requires webfx.platform.ast;
     requires webfx.platform.async;
-    requires webfx.platform.util;
     requires webfx.platform.windowlocation;
     requires webfx.stack.conf;
 

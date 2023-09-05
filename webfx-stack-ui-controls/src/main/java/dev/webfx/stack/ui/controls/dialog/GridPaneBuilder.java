@@ -1,5 +1,9 @@
 package dev.webfx.stack.ui.controls.dialog;
 
+import dev.webfx.extras.util.layout.LayoutUtil;
+import dev.webfx.platform.util.collection.Collections;
+import dev.webfx.platform.util.tuples.Pair;
+import dev.webfx.stack.ui.dialog.DialogCallback;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -12,15 +16,11 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Font;
-import dev.webfx.platform.util.collection.Collections;
-import dev.webfx.platform.util.tuples.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-
-import static dev.webfx.extras.util.layout.LayoutUtil.createHGrowable;
 
 /**
  * @author Bruno Salmon
@@ -147,7 +147,7 @@ public final class GridPaneBuilder implements DialogBuilder {
     private HBox createButtonBar(Button... buttons) {
         for (Button button : buttons)
             button.setFont(font);
-        HBox hBox = new HBox(10, createHGrowable());
+        HBox hBox = new HBox(10, LayoutUtil.createHGrowable());
         hBox.getChildren().addAll(buttons);
         return hBox;
     }

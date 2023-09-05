@@ -2,7 +2,7 @@ package dev.webfx.stack.conf.spi.impl.java.file;
 
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.console.Console;
-import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.conf.ConfigurationService;
 import dev.webfx.stack.conf.spi.ConfigurationSupplier;
 import dev.webfx.stack.conf.spi.HasConfigurationLogInfo;
@@ -55,7 +55,7 @@ public class DirectoryConfigurationSupplier implements ConfigurationSupplier, Ha
             for (File file : files) {
                 if (supportedExtensions.contains(ConfigurationService.getExtension(file.getName()))) {
                     ConfigurationFile configurationFile = new ConfigurationFile(file);
-                    ReadOnlyKeyObject config = configurationFile.readConfiguration(false);
+                    ReadOnlyAstObject config = configurationFile.readConfiguration(false);
                     if (config.has(variableName)) {
                         Console.log("INFO: " + variableName + " was resolved from " + file.getName());
                         return Optional.of(config.getString(variableName));
@@ -77,7 +77,7 @@ public class DirectoryConfigurationSupplier implements ConfigurationSupplier, Ha
     }
 
     @Override
-    public ReadOnlyKeyObject readConfiguration(String configName, boolean resolveVariables) {
+    public ReadOnlyAstObject readConfiguration(String configName, boolean resolveVariables) {
         ConfigurationFile configurationFile = getExistingConfigFile(configName);
         if (configurationFile == null)
             throw new IllegalArgumentException("No configuration file found for " + configName);
@@ -91,7 +91,7 @@ public class DirectoryConfigurationSupplier implements ConfigurationSupplier, Ha
     }
 
     @Override
-    public Future<Void> writeConfiguration(String configName, ReadOnlyKeyObject config) {
+    public Future<Void> writeConfiguration(String configName, ReadOnlyAstObject config) {
         return null;
     }
 }

@@ -4,7 +4,7 @@ module webfx.stack.db.query {
 
     // Direct dependencies modules
     requires java.base;
-    requires webfx.platform.async;
+    requires transitive webfx.platform.async;
     requires webfx.platform.console;
     requires webfx.platform.util;
     requires transitive webfx.stack.db.datascope;

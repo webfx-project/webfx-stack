@@ -5,7 +5,7 @@ module webfx.stack.ui.json {
     // Direct dependencies modules
     requires javafx.graphics;
     requires webfx.extras.imagestore;
-    requires webfx.platform.json;
+    requires webfx.platform.ast.json.plugin;
     requires webfx.platform.util;
 
     // Exported packages

@@ -4,8 +4,8 @@ module webfx.stack.db.query.buscall {
 
     // Direct dependencies modules
     requires java.base;
+    requires webfx.platform.ast.json.plugin;
     requires webfx.platform.async;
-    requires webfx.platform.json;
     requires webfx.platform.util;
     requires webfx.stack.com.bus.call;
     requires webfx.stack.com.serial;

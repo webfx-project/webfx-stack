@@ -1,7 +1,7 @@
 package dev.webfx.stack.conf.spi;
 
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 
 import java.util.Optional;
 
@@ -13,10 +13,10 @@ public interface ConfigurationSupplier {
 
     boolean canReadConfiguration(String configName);
 
-    ReadOnlyKeyObject readConfiguration(String configName, boolean resolveVariables);
+    ReadOnlyAstObject readConfiguration(String configName, boolean resolveVariables);
 
     boolean canWriteConfiguration(String configName);
 
-    Future<Void> writeConfiguration(String configName, ReadOnlyKeyObject config);
+    Future<Void> writeConfiguration(String configName, ReadOnlyAstObject config);
 
 }

@@ -1,13 +1,13 @@
 package dev.webfx.stack.conf.spi;
 
-import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 
 public interface ConfigurationFormat {
 
     String formatExtension();
 
-    ReadOnlyKeyObject readConfigurationText(String configText);
+    ReadOnlyAstObject readConfigurationText(String configText);
 
-    String writeConfigurationText(ReadOnlyKeyObject config);
+    String writeConfigurationText(ReadOnlyAstObject config);
 
 }

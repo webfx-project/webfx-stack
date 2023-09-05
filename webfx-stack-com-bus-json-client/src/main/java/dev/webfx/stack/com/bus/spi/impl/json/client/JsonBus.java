@@ -17,12 +17,12 @@
  */
 package dev.webfx.stack.com.bus.spi.impl.json.client;
 
-import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.ast.json.JsonObject;
+import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
 import dev.webfx.stack.com.bus.DeliveryOptions;
 import dev.webfx.stack.com.bus.Message;
-import dev.webfx.stack.com.bus.spi.impl.NetworkBus;
+import dev.webfx.stack.com.bus.spi.impl.client.NetworkBus;
 import dev.webfx.stack.com.bus.spi.impl.json.JsonBusConstants;
 import dev.webfx.stack.session.state.StateAccessor;
 

@@ -1,8 +1,8 @@
 package dev.webfx.stack.ui.fxraiser.json;
 
 import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
-import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
 import dev.webfx.stack.ui.fxraiser.FXValueRaiser;
 import dev.webfx.stack.ui.fxraiser.impl.ValueConverterRegistry;
 import dev.webfx.stack.ui.json.JsonSVGPath;

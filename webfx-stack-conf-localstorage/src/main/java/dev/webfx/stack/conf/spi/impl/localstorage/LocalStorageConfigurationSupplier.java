@@ -3,7 +3,7 @@ package dev.webfx.stack.conf.spi.impl.localstorage;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.storage.LocalStorage;
-import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.conf.spi.ConfigurationSupplier;
 import dev.webfx.stack.conf.spi.HasConfigurationLogInfo;
 
@@ -33,7 +33,7 @@ public class LocalStorageConfigurationSupplier implements ConfigurationSupplier,
     }
 
     @Override
-    public ReadOnlyKeyObject readConfiguration(String configName, boolean resolveVariables) {
+    public ReadOnlyAstObject readConfiguration(String configName, boolean resolveVariables) {
         throw new IllegalArgumentException("No configuration found for " + configName);
     }
 
@@ -43,7 +43,7 @@ public class LocalStorageConfigurationSupplier implements ConfigurationSupplier,
     }
 
     @Override
-    public Future<Void> writeConfiguration(String configName, ReadOnlyKeyObject config) {
+    public Future<Void> writeConfiguration(String configName, ReadOnlyAstObject config) {
         throw new IllegalArgumentException("No configuration found for " + configName);
     }
 }

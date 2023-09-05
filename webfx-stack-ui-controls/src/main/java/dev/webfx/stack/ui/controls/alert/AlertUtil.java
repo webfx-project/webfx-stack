@@ -1,13 +1,13 @@
 package dev.webfx.stack.ui.controls.alert;
 
 import dev.webfx.stack.ui.controls.dialog.DialogContent;
+import dev.webfx.stack.ui.controls.dialog.DialogBuilderUtil;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Window;
-import dev.webfx.stack.ui.controls.dialog.DialogUtil;
 
 import static dev.webfx.extras.util.layout.LayoutUtil.setMaxSizeToInfinite;
 import static dev.webfx.extras.util.layout.LayoutUtil.setMaxWidthToInfinite;
@@ -40,8 +40,8 @@ public final class AlertUtil {
                 .setTitle("An error occurred")
                 //.setHeaderText(e.getMessage())
                 .setContent(expContent);
-        DialogUtil.showModalNodeInGoldLayout(dialogContent, (Pane) owner.getScene().getRoot());
-        DialogUtil.armDialogContentButtons(dialogContent, null);
+        DialogBuilderUtil.showModalNodeInGoldLayout(dialogContent, (Pane) owner.getScene().getRoot());
+        DialogBuilderUtil.armDialogContentButtons(dialogContent, null);
 
 /* Version using Alert (not working yet with WebFX)
         Alert alert = new Alert(Alert.AlertType.ERROR);

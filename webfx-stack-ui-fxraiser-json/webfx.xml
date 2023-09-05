@@ -14,7 +14,7 @@
     </dependencies>
 
     <module-auto-injection-conditions>
-        <if-uses-java-package>dev.webfx.platform.json</if-uses-java-package>
+        <if-uses-java-package>dev.webfx.platform.ast.json</if-uses-java-package>
         <if-uses-java-package>dev.webfx.stack.ui.fxraiser</if-uses-java-package>
     </module-auto-injection-conditions>
 

@@ -19,7 +19,7 @@ package dev.webfx.stack.com.websocket.spi.impl.java;
 
 import dev.webfx.stack.com.websocket.WebSocket;
 import dev.webfx.stack.com.websocket.spi.WebSocketServiceProvider;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
 
 /*
  * @author Bruno Salmon

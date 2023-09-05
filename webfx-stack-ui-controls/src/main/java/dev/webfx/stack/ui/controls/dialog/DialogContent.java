@@ -1,5 +1,6 @@
 package dev.webfx.stack.ui.controls.dialog;
 
+import dev.webfx.stack.ui.dialog.DialogCallback;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Background;

@@ -1,7 +1,7 @@
 package dev.webfx.stack.i18n.spi.impl.json;
 
-import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.stack.i18n.DefaultTokenKey;
 import dev.webfx.stack.i18n.Dictionary;

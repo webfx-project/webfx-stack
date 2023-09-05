@@ -1,6 +1,7 @@
 package dev.webfx.stack.ui.controls.dialog;
 
 import dev.webfx.stack.ui.controls.button.ButtonFactoryMixin;
+import dev.webfx.stack.ui.dialog.DialogCallback;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Region;
 import java.util.function.Consumer;

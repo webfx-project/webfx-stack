@@ -4,10 +4,10 @@ module webfx.stack.conf.localstorage {
 
     // Direct dependencies modules
     requires java.base;
+    requires webfx.platform.ast;
     requires webfx.platform.async;
     requires webfx.platform.console;
     requires webfx.platform.storage;
-    requires webfx.platform.util;
     requires webfx.stack.conf;
 
     // Exported packages

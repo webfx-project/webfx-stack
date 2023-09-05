@@ -17,11 +17,13 @@
  */
 package dev.webfx.stack.com.bus.spi.impl.json.client.websocket;
 
+import dev.webfx.platform.conf.ConfigLoader;
 import dev.webfx.platform.console.Console;
-import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
 import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.scheduler.Scheduler;
+import dev.webfx.platform.util.Booleans;
 import dev.webfx.stack.com.bus.spi.impl.json.client.JsonClientBus;
 import dev.webfx.stack.com.websocket.WebSocket;
 import dev.webfx.stack.com.websocket.WebSocketListener;
@@ -36,7 +38,7 @@ import dev.webfx.stack.com.websocket.WebSocketService;
 @SuppressWarnings("rawtypes")
 public class WebSocketBus extends JsonClientBus {
 
-    private final WebSocketListener internalWebSocketHandler;
+    private WebSocketListener internalWebSocketHandler;
     String serverUri;
     WebSocket webSocket;
     private int pingInterval;
@@ -44,16 +46,24 @@ public class WebSocketBus extends JsonClientBus {
     // Possible external web socket listener to observe web socket connection state
     private WebSocketListener webSocketListener;
 
-    WebSocketBus(WebSocketBusOptions options) {
+    WebSocketBus() {
         super(false);
-        options.turnUnsetPropertiesToDefault(); // should be already done by the platform but just in case
+        ConfigLoader.onConfigLoaded("webfx.stack.com.client.websocket", config -> {
+            WebSocketBusOptions options = new WebSocketBusOptions();
+            options.applyConfig(config);
+            //options.turnUnsetPropertiesToDefault(); // should be already done by the platform but just in case
+            onOptions(options);
+        });
+    }
+
+    protected void onOptions(WebSocketBusOptions options) {
         String serverUri =
                 (options.getProtocol() == WebSocketBusOptions.Protocol.WS ? "ws" : "http")
-                + (options.isServerSSL() ? "s://" : "://")
-                + options.getServerHost()
-                + ':' + options.getServerPort()
-                + '/' + options.getBusPrefix()
-                + (options.getProtocol() == WebSocketBusOptions.Protocol.WS ? "/websocket" : "");
+                        + (Booleans.isTrue(options.isServerSSL()) ? "s://" : "://")
+                        + options.getServerHost()
+                        + ':' + options.getServerPort()
+                        + '/' + options.getBusPrefix()
+                        + (options.getProtocol() == WebSocketBusOptions.Protocol.WS ? "/websocket" : "");
         internalWebSocketHandler = new WebSocketListener() {
             @Override
             public void onOpen() {

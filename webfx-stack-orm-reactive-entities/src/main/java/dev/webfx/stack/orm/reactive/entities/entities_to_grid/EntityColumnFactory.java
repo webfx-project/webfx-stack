@@ -8,9 +8,9 @@ import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.terms.ExpressionArray;
 import dev.webfx.stack.orm.domainmodel.formatter.ValueFormatter;
 import dev.webfx.stack.orm.domainmodel.formatter.FormatterRegistry;
-import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.ReadOnlyJsonArray;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.ast.json.ReadOnlyJsonArray;
+import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;

@@ -17,13 +17,11 @@
  */
 package dev.webfx.stack.com.bus.spi.impl.json.client.websocket;
 
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
 import dev.webfx.platform.scheduler.Scheduler;
-import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.stack.com.bus.BusHook;
-import dev.webfx.stack.com.bus.BusOptions;
-import dev.webfx.stack.com.bus.spi.impl.BusHookProxy;
+import dev.webfx.stack.com.bus.spi.impl.client.BusHookProxy;
 import dev.webfx.stack.com.websocket.WebSocket;
 
 import java.util.ArrayList;
@@ -38,19 +36,20 @@ import java.util.Map;
  */
 public final class ReconnectBus extends WebSocketBus {
     private static final String AUTO_RECONNECT = "reconnect";
-    private final FuzzingBackOffGenerator backOffGenerator;
+    private FuzzingBackOffGenerator backOffGenerator;
     private BusHook hook;
     private boolean reconnect;
     private final List<String> queuedNetworkRawMessages = new ArrayList<>();
-    private final WebSocketBusOptions options;
+    private WebSocketBusOptions options;
 
-    ReconnectBus(BusOptions options) {
-        this((WebSocketBusOptions) options);
+    public ReconnectBus() {
     }
 
-    private ReconnectBus(WebSocketBusOptions options) {
-        super(options);
+    @Override
+    protected void onOptions(WebSocketBusOptions options) {
+        super.onOptions(options);
         this.options = options;
+
         ReadOnlyJsonObject socketOptions = options.getSocketOptions();
         reconnect = socketOptions == null || !socketOptions.has(AUTO_RECONNECT) || socketOptions.getBoolean(AUTO_RECONNECT);
         backOffGenerator = new FuzzingBackOffGenerator(1000, 30 * 60 * 1000, 0.5);
@@ -139,6 +138,14 @@ public final class ReconnectBus extends WebSocketBus {
     protected boolean shouldClearReplyHandlerNow(String replyAddress) {
         // if it is a reply handler from a queued message, it shouldn't be cleared now because the message has not been
         // sent yet! It will be sent as soon as the bus will open and the reply handler should be called at the time
-        return Collections.noneMatch(queuedNetworkRawMessages, msg -> replyAddress.equals(parseJsonRawMessage(msg).getString(REPLY_ADDRESS)));
+        // Note: using an old-fashion loop to avoid a ConcurrentModificationException
+        for (int i = 0; i < queuedNetworkRawMessages.size(); i++) {
+            String msg = queuedNetworkRawMessages.get(i);
+            if (replyAddress.equals(parseJsonRawMessage(msg).getString(REPLY_ADDRESS)))
+                return false;
+        }
+        return true;
+        // previous code that was potentially raising ConcurrentModificationException
+        //return Collections.noneMatch(queuedNetworkRawMessages, msg -> replyAddress.equals(parseJsonRawMessage(msg).getString(REPLY_ADDRESS)));
     }
 }

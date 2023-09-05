@@ -8,7 +8,7 @@
     <dependencies>
         <used-by-source-modules>
             <module transitive="true">webfx-stack-session</module>
-            <module transitive="true">webfx-platform-json</module>
+            <module transitive="true">webfx-platform-ast-json-plugin</module>
         </used-by-source-modules>
     </dependencies>
 

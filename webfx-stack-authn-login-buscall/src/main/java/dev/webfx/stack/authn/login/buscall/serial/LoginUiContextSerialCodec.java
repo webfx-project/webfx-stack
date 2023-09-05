@@ -1,6 +1,7 @@
 package dev.webfx.stack.authn.login.buscall.serial;
 
-import dev.webfx.platform.json.*;
+import dev.webfx.platform.ast.json.JsonObject;
+import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
 import dev.webfx.stack.authn.login.LoginUiContext;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 

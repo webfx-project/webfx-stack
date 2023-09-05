@@ -1,7 +1,7 @@
 package dev.webfx.stack.routing.uirouter.operations;
 
 import dev.webfx.platform.windowhistory.spi.BrowsingHistory;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
 import dev.webfx.platform.async.AsyncFunction;
 
 /**

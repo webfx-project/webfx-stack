@@ -4,9 +4,9 @@ module webfx.stack.conf.resource {
 
     // Direct dependencies modules
     requires java.base;
+    requires webfx.platform.ast;
     requires webfx.platform.async;
     requires webfx.platform.resource;
-    requires webfx.platform.util;
     requires webfx.stack.conf;
 
     // Exported packages

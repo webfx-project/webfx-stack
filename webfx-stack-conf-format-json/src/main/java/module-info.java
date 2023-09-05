@@ -3,8 +3,8 @@
 module webfx.stack.conf.format.json {
 
     // Direct dependencies modules
-    requires webfx.platform.json;
-    requires webfx.platform.util;
+    requires webfx.platform.ast;
+    requires webfx.platform.ast.json.plugin;
     requires webfx.stack.conf;
 
     // Exported packages
