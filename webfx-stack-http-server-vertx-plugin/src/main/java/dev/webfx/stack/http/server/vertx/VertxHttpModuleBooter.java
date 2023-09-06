@@ -1,5 +1,6 @@
 package dev.webfx.stack.http.server.vertx;
 
+import dev.webfx.platform.ast.AST;
 import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
 import dev.webfx.platform.conf.ConfigLoader;
 import dev.webfx.platform.console.Console;
@@ -72,7 +73,7 @@ public class VertxHttpModuleBooter implements ApplicationModuleBooter {
 
             int errors = consumeEachValidHttpServerConfiguration(httpServerConfig -> {
                 String protocol = httpServerConfig.getString(PROTOCOL_CONFIG_KEY);
-                Console.log("Starting " + protocol + " server on port " + httpServerConfig.getString(PORT_CONFIG_KEY));
+                Console.log("🚀 Starting " + protocol + " server on port " + httpServerConfig.getString(PORT_CONFIG_KEY));
             }, true);
 
             //return errors == 0 ? Future.succeededFuture() : Future.failedFuture(new ConfigurationException(errors < CONFIGURATION.getArray(HTTP_SERVERS_CONFIG_KEY).size()));
@@ -132,7 +133,7 @@ public class VertxHttpModuleBooter implements ApplicationModuleBooter {
             return true;
         }
         if (logInvalid)
-            Console.log("⚠️ WARNING: Couldn't start " + protocol + " server on port " + port + " because the configuration is invalid");
+            Console.log("⛔️️ INVALID HTTP: Couldn't start http server due to invalid configuration: " + AST.formatObject(httpServerConfig, "json"));
         return false;
     }
 
@@ -159,7 +160,7 @@ public class VertxHttpModuleBooter implements ApplicationModuleBooter {
             // Returning true to indicate this configuration is valid
             return true;
         }
-        Console.log("⚠️ WARNING: Invalid static route configuration: " + httpStaticRouteConfig);
+        Console.log("⛔️️ INVALID ROUTE: Couldn't create static route due to invalid configuration: " + AST.formatObject(httpStaticRouteConfig, "json"));
         return false;
     }
 
