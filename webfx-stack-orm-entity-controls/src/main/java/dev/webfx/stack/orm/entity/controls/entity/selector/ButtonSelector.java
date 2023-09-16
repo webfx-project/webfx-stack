@@ -364,8 +364,12 @@ public abstract class ButtonSelector<T> {
                 if (isSearchEnabled())
                     maxHeight = Math.min(maxHeight, INITIAL_HIDDEN_DIALOG_HEIGHT);
                 dialogContent.setMaxHeight(maxHeight);
-                searchBox = !isSearchEnabled() ? null :
-                        new HBox(searchTextField, buttonFactory.newButton("...", this::switchToModalDialog));
+                searchBox = null;
+                if (isSearchEnabled()) {
+                    searchBox = new HBox(searchTextField, buttonFactory.newButton("...", this::switchToModalDialog));
+                    // Note: this background is visible only on the web version (as the TextField is transparent for now in WebFX)
+                    searchBox.setBackground(Background.fill(Color.WHITE));
+                }
                 installSearchBoxForDecidedShowModeIfEnabled();
                 dialogCallback = DialogUtil.showDropUpOrDownDialog(dialogPane, button, parentNow, loadedContentProperty, decidedShowMode == ShowMode.DROP_UP);
                 dialogCallback.addCloseHook(
