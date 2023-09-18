@@ -1,8 +1,7 @@
 package dev.webfx.stack.com.bus.spi.impl.json.client.websocket;
 
-import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
-import dev.webfx.platform.util.Objects;
 import dev.webfx.platform.ast.ReadOnlyAstObject;
+import dev.webfx.platform.util.Objects;
 import dev.webfx.stack.com.bus.BusOptions;
 
 /**
@@ -22,7 +21,7 @@ public final class WebSocketBusOptions extends BusOptions {
 
     private Integer pingInterval;
 
-    private ReadOnlyJsonObject socketOptions;
+    private ReadOnlyAstObject socketOptions;
 
     @Override
     public WebSocketBusOptions turnUnsetPropertiesToDefault() {
@@ -92,7 +91,7 @@ public final class WebSocketBusOptions extends BusOptions {
         return this;
     }
 
-    public ReadOnlyJsonObject getSocketOptions() {
+    public ReadOnlyAstObject getSocketOptions() {
         return socketOptions;
     }
 

@@ -1,7 +1,7 @@
 package dev.webfx.stack.db.submit.buscall.serial;
 
-import dev.webfx.platform.ast.json.JsonObject;
-import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.AstObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
@@ -22,7 +22,7 @@ public final class SubmitArgumentSerialCodec extends SerialCodecBase<SubmitArgum
     }
 
     @Override
-    public void encodeToJson(SubmitArgument arg, JsonObject json) {
+    public void encodeToJson(SubmitArgument arg, AstObject json) {
         json.set(DATA_SOURCE_ID_KEY, arg.getDataSourceId());
         if (arg.getDataScope() != null)
             json.set(DATA_SCOPE_KEY, SerialCodecManager.encodeToJson(arg.getDataScope()));
@@ -31,18 +31,18 @@ public final class SubmitArgumentSerialCodec extends SerialCodecBase<SubmitArgum
             json.set(LANGUAGE_KEY, arg.getLanguage());
         json.set(STATEMENT_KEY, arg.getStatement());
         if (!Arrays.isEmpty(arg.getParameters()))
-            json.set(PARAMETERS_KEY, SerialCodecManager.encodePrimitiveArrayToJsonArray(arg.getParameters()));
+            json.set(PARAMETERS_KEY, SerialCodecManager.encodePrimitiveArrayToAstArray(arg.getParameters()));
     }
 
     @Override
-    public SubmitArgument decodeFromJson(ReadOnlyJsonObject json) {
+    public SubmitArgument decodeFromJson(ReadOnlyAstObject json) {
         return new SubmitArgument(null,
                 json.get(DATA_SOURCE_ID_KEY),
                 SerialCodecManager.decodeFromJson(json.getObject(DATA_SCOPE_KEY)),
                 json.getBoolean(RETURN_GENERATED_KEYS_KEY),
                 json.getString(LANGUAGE_KEY),
                 json.getString(STATEMENT_KEY),
-                SerialCodecManager.decodePrimitiveArrayFromJsonArray(json.getArray(PARAMETERS_KEY))
+                SerialCodecManager.decodePrimitiveArrayFromAstArray(json.getArray(PARAMETERS_KEY))
         );
     }
 }

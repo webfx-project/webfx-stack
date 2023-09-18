@@ -1,6 +1,6 @@
 package dev.webfx.stack.db.query.buscall.serial;
 
-import dev.webfx.platform.ast.json.*;
+import dev.webfx.platform.ast.*;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.buscall.serial.compression.repeat.RepeatedValuesCompressor;
@@ -20,11 +20,11 @@ public final class QueryResultSerialCodec extends SerialCodecBase<QueryResult> {
     }
 
     @Override
-    public void encodeToJson(QueryResult rs, JsonObject json) {
+    public void encodeToJson(QueryResult rs, AstObject json) {
         try {
             int columnCount = rs.getColumnCount();
             // Column names serialization
-            JsonArray namesArray = json.createJsonArray();
+            AstArray namesArray = AST.createArray();
             String[] columnNames = rs.getColumnNames();
             if (columnNames != null) {
                 for (String name : columnNames)
@@ -35,9 +35,9 @@ public final class QueryResultSerialCodec extends SerialCodecBase<QueryResult> {
             json.set(COLUMN_COUNT_KEY, columnCount);
             // values packing and serialization
             if (COMPRESSION)
-                json.set(COMPRESSED_VALUES_KEY, Json.fromJavaArray(RepeatedValuesCompressor.SINGLETON.compress(rs.getValues())));
+                json.set(COMPRESSED_VALUES_KEY, AST.fromJavaArray(RepeatedValuesCompressor.SINGLETON.compress(rs.getValues())));
             else
-                json.set(VALUES_KEY, Json.fromJavaArray(rs.getValues()));
+                json.set(VALUES_KEY, AST.fromJavaArray(rs.getValues()));
             SerialCodecBase.encodeKey(VERSION_KEY, rs.getVersionNumber(), json);
         } catch (Exception e) {
             e.printStackTrace();
@@ -45,12 +45,12 @@ public final class QueryResultSerialCodec extends SerialCodecBase<QueryResult> {
     }
 
     @Override
-    public QueryResult decodeFromJson(ReadOnlyJsonObject json) {
+    public QueryResult decodeFromJson(ReadOnlyAstObject json) {
         //Logger.log("Decoding json result set: " + json);
         Integer columnCount = json.getInteger(COLUMN_COUNT_KEY);
         // Column names deserialization
         String[] names = null;
-        ReadOnlyJsonArray namesArray = json.getArray(COLUMN_NAMES_KEY);
+        ReadOnlyAstArray namesArray = json.getArray(COLUMN_NAMES_KEY);
         if (namesArray != null) {
             columnCount = namesArray.size();
             names = new String[columnCount];
@@ -59,11 +59,11 @@ public final class QueryResultSerialCodec extends SerialCodecBase<QueryResult> {
         }
         // Values deserialization
         Object[] inlineValues;
-        ReadOnlyJsonArray valuesArray = json.getArray(VALUES_KEY);
+        ReadOnlyAstArray valuesArray = json.getArray(VALUES_KEY);
         if (valuesArray != null)
-            inlineValues = Json.toJavaArray(valuesArray);
+            inlineValues = AST.toJavaArray(valuesArray);
         else
-            inlineValues = RepeatedValuesCompressor.SINGLETON.uncompress(Json.toJavaArray(json.getArray(COMPRESSED_VALUES_KEY)));
+            inlineValues = RepeatedValuesCompressor.SINGLETON.uncompress(AST.toJavaArray(json.getArray(COMPRESSED_VALUES_KEY)));
         // returning the query result with its version number (if provided)
         QueryResult rs = new QueryResult(columnCount, inlineValues, names);
         rs.setVersionNumber(json.getInteger(VERSION_KEY, 0));

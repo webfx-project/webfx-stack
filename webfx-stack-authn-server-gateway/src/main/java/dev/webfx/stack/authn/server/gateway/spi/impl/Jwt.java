@@ -1,7 +1,7 @@
 package dev.webfx.stack.authn.server.gateway.spi.impl;
 
 import dev.webfx.platform.ast.json.Json;
-import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 
 import java.util.Base64;
 
@@ -34,11 +34,11 @@ public final class Jwt {
         return decode64(encodedSignature);
     }
 
-    public ReadOnlyJsonObject getJsonHead() {
+    public ReadOnlyAstObject getJsonHead() {
         return Json.parseObject(getDecodedHead());
     }
 
-    public ReadOnlyJsonObject getJsonPayload() {
+    public ReadOnlyAstObject getJsonPayload() {
         return Json.parseObject(getDecodedPayload());
     }
 

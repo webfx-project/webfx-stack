@@ -1,7 +1,7 @@
 package dev.webfx.stack.db.query.buscall.serial;
 
-import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
-import dev.webfx.platform.ast.json.JsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
+import dev.webfx.platform.ast.AstObject;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
@@ -21,23 +21,23 @@ public final class QueryArgumentSerialCodec extends SerialCodecBase<QueryArgumen
     }
 
     @Override
-    public void encodeToJson(QueryArgument arg, JsonObject json) {
+    public void encodeToJson(QueryArgument arg, AstObject json) {
         json.set(DATA_SOURCE_ID_KEY, arg.getDataSourceId());
         json.set(DATA_SCOPE_KEY, SerialCodecManager.encodeToJson(arg.getDataScope()));
         json.set(LANGUAGE_KEY, arg.getLanguage());
         json.set(STATEMENT_KEY, arg.getStatement());
         if (!Arrays.isEmpty(arg.getParameters()))
-            json.set(PARAMETERS_KEY, SerialCodecManager.encodePrimitiveArrayToJsonArray(arg.getParameters()));
+            json.set(PARAMETERS_KEY, SerialCodecManager.encodePrimitiveArrayToAstArray(arg.getParameters()));
     }
 
     @Override
-    public QueryArgument decodeFromJson(ReadOnlyJsonObject json) {
+    public QueryArgument decodeFromJson(ReadOnlyAstObject json) {
         return new QueryArgument(null,
                 json.get(DATA_SOURCE_ID_KEY),
                 SerialCodecManager.decodeFromJson(json.getObject(DATA_SCOPE_KEY)),
                 json.getString(LANGUAGE_KEY),
                 json.getString(STATEMENT_KEY),
-                SerialCodecManager.decodePrimitiveArrayFromJsonArray(json.getArray(PARAMETERS_KEY))
+                SerialCodecManager.decodePrimitiveArrayFromAstArray(json.getArray(PARAMETERS_KEY))
         );
     }
 }

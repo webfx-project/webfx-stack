@@ -1,5 +1,6 @@
 package dev.webfx.stack.authn.login.spi.impl.server.gateway.facebook;
 
+import dev.webfx.platform.ast.AstObject;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.conf.ConfigLoader;
 import dev.webfx.platform.console.Console;
@@ -95,9 +96,10 @@ public class FacebookServerLoginGatewayProvider implements ServerLoginGatewayPro
             // SDK page for the web version), a successful login will end up here, through a call to the redirect url.
             router.route(REDIRECT_PATH).handler(rc -> {
                 // The user session id was passed using the Facebook "state" query parameter (only custom parameter allowed by FB)
-                String sessionId = rc.getParams().get("state");
+                AstObject params = rc.getParams();
+                String sessionId = params.get("state");
                 // Facebook returns a code for the login success
-                String code = rc.getParams().get("code");
+                String code = params.get("code");
 
                 // We call AuthenticationService.authenticate() which expects that code for Facebook, and it will return
                 // the final user id to be returned to the client. We make that call using ThreadLocalStateHolder with

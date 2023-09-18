@@ -4,6 +4,7 @@ module webfx.stack.ui.fxraiser.json {
 
     // Direct dependencies modules
     requires javafx.graphics;
+    requires webfx.platform.ast;
     requires webfx.platform.ast.json.plugin;
     requires webfx.platform.boot;
     requires webfx.platform.util;

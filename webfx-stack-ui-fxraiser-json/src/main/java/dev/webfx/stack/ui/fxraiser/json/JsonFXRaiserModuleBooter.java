@@ -2,7 +2,8 @@ package dev.webfx.stack.ui.fxraiser.json;
 
 import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
 import dev.webfx.platform.ast.json.Json;
-import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.AST;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.ui.fxraiser.FXValueRaiser;
 import dev.webfx.stack.ui.fxraiser.impl.ValueConverterRegistry;
 import dev.webfx.stack.ui.json.JsonSVGPath;
@@ -15,8 +16,8 @@ import static dev.webfx.platform.util.Objects.isAssignableFrom;
  */
 public class JsonFXRaiserModuleBooter implements ApplicationModuleBooter {
 
-    private final static Class<?> jsonObjectClass = Json.createObject().getClass();
-    private final static Class<?> jsonArrayClass = Json.createArray().getClass();
+    private final static Class<?> jsonObjectClass = AST.createObject().getClass();
+    private final static Class<?> jsonArrayClass = AST.createArray().getClass();
 
     @Override
     public String getModuleName() {
@@ -48,8 +49,8 @@ public class JsonFXRaiserModuleBooter implements ApplicationModuleBooter {
         ValueConverterRegistry.registerValueConverter(new FXValueRaiser() {
             @Override
             public <T> T raiseValue(Object value, Class<T> raisedClass, Object... args) {
-                if (value instanceof ReadOnlyJsonObject && isAssignableFrom(raisedClass, SVGPath.class))
-                    return (T) JsonSVGPath.createSVGPath((ReadOnlyJsonObject) value);
+                if (value instanceof ReadOnlyAstObject && isAssignableFrom(raisedClass, SVGPath.class))
+                    return (T) JsonSVGPath.createSVGPath((ReadOnlyAstObject) value);
                 return null;
             }
         });

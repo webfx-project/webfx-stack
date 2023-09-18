@@ -5,7 +5,7 @@ module webfx.stack.routing.router.vertx {
     // Direct dependencies modules
     requires io.vertx.core;
     requires io.vertx.web;
-    requires webfx.platform.ast.json.plugin;
+    requires webfx.platform.ast;
     requires webfx.platform.async;
     requires webfx.platform.vertx.common;
     requires webfx.stack.routing.router;

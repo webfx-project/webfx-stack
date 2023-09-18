@@ -17,9 +17,10 @@
  */
 package dev.webfx.stack.com.bus.spi.impl.json.client;
 
+import dev.webfx.platform.ast.AST;
+import dev.webfx.platform.ast.AstObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.ast.json.Json;
-import dev.webfx.platform.ast.json.JsonObject;
-import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
 import dev.webfx.stack.com.bus.DeliveryOptions;
 import dev.webfx.stack.com.bus.Message;
 import dev.webfx.stack.com.bus.spi.impl.client.NetworkBus;
@@ -45,20 +46,20 @@ public abstract class JsonBus extends NetworkBus implements JsonBusConstants {
 
     @Override
     protected Message<?> parseIncomingNetworkRawMessage(String rawMessage) {
-        JsonObject jsonRawMessage = parseJsonRawMessage(rawMessage);
-        ReadOnlyJsonObject headers = jsonRawMessage.getObject(HEADERS);
+        ReadOnlyAstObject jsonRawMessage = parseJsonRawMessage(rawMessage);
+        ReadOnlyAstObject headers = jsonRawMessage.getObject(HEADERS);
         Object state = headers == null ? null : StateAccessor.decodeState(headers.getString(HEADERS_STATE));
         return parseIncomingNetworkRawMessage(jsonRawMessage.getString(ADDRESS), jsonRawMessage.getString(REPLY_ADDRESS), jsonRawMessage.get(BODY), new DeliveryOptions().setState(state));
     }
 
-    protected JsonObject parseJsonRawMessage(String rawMessage) {
+    protected ReadOnlyAstObject parseJsonRawMessage(String rawMessage) {
         return Json.parseObject(rawMessage);
     }
 
     @Override
     protected String createOutgoingNetworkRawMessage(boolean send, String address, Object body, DeliveryOptions options, String replyAddress) {
         // We first create its Json raw representation.
-        JsonObject jsonRawMessage = Json.createObject()
+        AstObject jsonRawMessage = AST.createObject()
                 .set(TYPE, send ? SEND : PUBLISH)
                 .set(ADDRESS, address)
                 .set(BODY, body);
@@ -68,26 +69,27 @@ public abstract class JsonBus extends NetworkBus implements JsonBusConstants {
         return jsonToNetworkRawMessage(jsonRawMessage, options);
     }
 
-    protected String jsonToNetworkRawMessage(JsonObject jsonRawMessage) {
+    protected String jsonToNetworkRawMessage(AstObject jsonRawMessage) {
         return jsonToNetworkRawMessage(jsonRawMessage, new DeliveryOptions());
     }
 
-    protected String jsonToNetworkRawMessage(JsonObject jsonRawMessage, DeliveryOptions options) {
+    protected String jsonToNetworkRawMessage(AstObject jsonRawMessage, DeliveryOptions options) {
         // If there is a state to transmit, we encode it and put it in the message headers
         setJsonRawMessageState(jsonRawMessage, options);
-        return jsonRawMessage.toJsonString();
+        return Json.formatNode(jsonRawMessage);
     }
 
-    protected void setJsonRawMessageState(JsonObject jsonRawMessage, DeliveryOptions options) {
+    protected void setJsonRawMessageState(AstObject jsonRawMessage, DeliveryOptions options) {
         Object state = options.getState();
-        if (state != null)
-            jsonRawMessage.set(HEADERS, Json.createObject()
-                    .set(HEADERS_STATE, StateAccessor.encodeState(state)));
+        if (state != null) {
+            AstObject headers = AST.createObject().set(HEADERS_STATE, StateAccessor.encodeState(state));
+            jsonRawMessage.set(HEADERS, headers);
+        }
     }
 
     @Override
     protected String createRegisterNetworkRawMessage(String address) {
-        return jsonToNetworkRawMessage(Json.createObject()
+        return jsonToNetworkRawMessage(AST.createObject()
                 .set(TYPE, REGISTER)
                 .set(ADDRESS, address)
         );
@@ -95,7 +97,7 @@ public abstract class JsonBus extends NetworkBus implements JsonBusConstants {
 
     @Override
    protected String createUnregisterNetworkRawMessage(String address) {
-        return jsonToNetworkRawMessage(Json.createObject()
+        return jsonToNetworkRawMessage(AST.createObject()
                 .set(TYPE, UNREGISTER)
                 .set(ADDRESS, address)
         );
@@ -106,7 +108,7 @@ public abstract class JsonBus extends NetworkBus implements JsonBusConstants {
     }
 
     protected String createPingNetworkRawMessage() {
-        return jsonToNetworkRawMessage(Json.createObject()
+        return jsonToNetworkRawMessage(AST.createObject()
                 .set(TYPE, PING)
         );
     }

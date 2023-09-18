@@ -2,8 +2,8 @@ package dev.webfx.stack.com.bus.call;
 
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
-import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
-import dev.webfx.platform.ast.json.JsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
+import dev.webfx.platform.ast.AstObject;
 
 /**
  * @author Bruno Salmon
@@ -13,7 +13,7 @@ public final class BusCallResult<T> {
     private final int callNumber;
     private T targetResult;
 
-    private Object serializedTargetResult; // JsonObject or scalar
+    private Object serializedTargetResult; // AstObject or scalar
 
     /**
      * Standard constructor accepting a java representation (T) of the target result.
@@ -24,24 +24,24 @@ public final class BusCallResult<T> {
      */
 
     /**
-     * Alternative constructor accepting a json representation (JsonObject) of the target result.
+     * Alternative constructor accepting a json representation (AstObject) of the target result.
      * This is particularly useful when forwarding a result over the json bus. In this case the result has indeed already
      * been serialized into json format (because coming from the json bus) so it wouldn't be optimized to deserialize it
      * when the only usage of it will finally be to serialize it again (sending it again on the json bus). Using this
      * constructor will avoid this useless serialization/deserialization and offer an optimized performance.
-    public BusCallResult(int callNumber, JsonObject serializedTargetResult) {
+    public BusCallResult(int callNumber, AstObject serializedTargetResult) {
         this.callNumber = callNumber;
         this.serializedTargetResult = serializedTargetResult;
     }
      */
 
     /**
-     * Convenient alternative constructor accepting both representations (AsyncResult or JsonObject) of the target result.
+     * Convenient alternative constructor accepting both representations (AsyncResult or AstObject) of the target result.
      */
     public BusCallResult(int callNumber, Object object) {
         this.callNumber = callNumber;
         //Platform.log("BusCallResult constructor, class of object = " + object.getClass());
-        if (object instanceof ReadOnlyJsonObject)
+        if (object instanceof ReadOnlyAstObject)
             this.serializedTargetResult = object;
         else
             this.targetResult = (T) object;
@@ -84,13 +84,13 @@ public final class BusCallResult<T> {
         }
 
         @Override
-        public void encodeToJson(BusCallResult result, JsonObject json) {
+        public void encodeToJson(BusCallResult result, AstObject json) {
             json.set(CALL_NUMBER_KEY, result.getCallNumber())
                     .set(TARGET_RESULT_KEY, result.getSerializedTargetResult());
         }
 
         @Override
-        public BusCallResult decodeFromJson(ReadOnlyJsonObject json) {
+        public BusCallResult decodeFromJson(ReadOnlyAstObject json) {
             //Platform.log("Decoding " + json.toJsonString());
             return new BusCallResult(
                     json.getInteger(CALL_NUMBER_KEY),

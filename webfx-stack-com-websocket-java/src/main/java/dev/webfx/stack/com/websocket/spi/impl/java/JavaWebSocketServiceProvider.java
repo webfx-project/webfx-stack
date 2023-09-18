@@ -19,7 +19,7 @@ package dev.webfx.stack.com.websocket.spi.impl.java;
 
 import dev.webfx.stack.com.websocket.WebSocket;
 import dev.webfx.stack.com.websocket.spi.WebSocketServiceProvider;
-import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 
 /*
  * @author Bruno Salmon
@@ -27,7 +27,7 @@ import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
 public final class JavaWebSocketServiceProvider implements WebSocketServiceProvider {
 
     @Override
-    public WebSocket createWebSocket(String url, ReadOnlyJsonObject options) {
+    public WebSocket createWebSocket(String url, ReadOnlyAstObject options) {
         return new JavaWebSocket(url);
     }
 }

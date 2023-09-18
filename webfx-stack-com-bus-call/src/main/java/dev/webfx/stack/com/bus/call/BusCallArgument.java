@@ -1,9 +1,9 @@
 package dev.webfx.stack.com.bus.call;
 
-import dev.webfx.platform.ast.json.JsonObject;
+import dev.webfx.platform.ast.AstObject;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
-import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 
 
 /*
@@ -17,7 +17,7 @@ public final class BusCallArgument {
     private final Object targetArgument;
     private final int callNumber;
 
-    private Object jsonEncodedTargetArgument; // can be a JsonObject or simply a scalar
+    private Object jsonEncodedTargetArgument; // can be a AstObject or simply a scalar
 
     BusCallArgument(String targetAddress, Object targetArgument) {
         this(targetAddress, targetArgument, ++SEQ);
@@ -63,14 +63,14 @@ public final class BusCallArgument {
         }
 
         @Override
-        public void encodeToJson(BusCallArgument call, JsonObject json) {
+        public void encodeToJson(BusCallArgument call, AstObject json) {
             json.set(CALL_NUMBER_KEY, call.callNumber)
                     .set(TARGET_ADDRESS_KEY, call.getTargetAddress())
                     .set(TARGET_ARGUMENT_KEY, call.getJsonEncodedTargetArgument());
         }
 
         @Override
-        public BusCallArgument decodeFromJson(ReadOnlyJsonObject json) {
+        public BusCallArgument decodeFromJson(ReadOnlyAstObject json) {
             return new BusCallArgument(
                     json.getString(TARGET_ADDRESS_KEY),
                     SerialCodecManager.decodeFromJson(json.get(TARGET_ARGUMENT_KEY)),

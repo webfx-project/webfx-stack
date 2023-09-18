@@ -1,7 +1,7 @@
 package dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.spi.impl.openjfx;
 
-import dev.webfx.platform.ast.json.JsonObject;
-import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.AstObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 
 import java.net.HttpCookie;
@@ -30,7 +30,7 @@ public class HttpCookieSerialCodec extends SerialCodecBase<HttpCookie> {
     }
 
     @Override
-    public void encodeToJson(HttpCookie c, JsonObject json) {
+    public void encodeToJson(HttpCookie c, AstObject json) {
         // We need to know the cookie creation time to serialize the expiration time (see below). HttpCookie has a
         // whenCreated field for that, but we can't use it as it's a private & inaccessible field. Instead, we use an
         // alternative solution provided by FXLoginCookieStore that keeps an internal record of the cookie creation date.
@@ -53,7 +53,7 @@ public class HttpCookieSerialCodec extends SerialCodecBase<HttpCookie> {
     }
 
     @Override
-    public HttpCookie decodeFromJson(ReadOnlyJsonObject json) {
+    public HttpCookie decodeFromJson(ReadOnlyAstObject json) {
         HttpCookie cookie = new HttpCookie(json.getString(NAME_KEY), json.getString(VALUE_KEY));
         long whenCreated = FXLoginCookieStore.getWhenCreated(cookie); // will return 'now', as it's a new cookie
         cookie.setSecure(json.getBoolean(SECURE_KEY));

@@ -1,8 +1,8 @@
 package dev.webfx.stack.routing.router.spi.impl.client;
 
 import dev.webfx.platform.console.Console;
-import dev.webfx.platform.ast.json.Json;
-import dev.webfx.platform.ast.json.JsonObject;
+import dev.webfx.platform.ast.AST;
+import dev.webfx.platform.ast.AstObject;
 import dev.webfx.stack.routing.router.Route;
 import dev.webfx.stack.routing.router.RoutingContext;
 
@@ -19,13 +19,13 @@ public abstract class ClientRoutingContextBase implements RoutingContext {
     protected final Collection<ClientRoute> routes;
     protected Iterator<ClientRoute> iter;
     protected Route currentRoute;
-    private JsonObject params;
+    private AstObject params;
 
     ClientRoutingContextBase(String mountPoint, String path, Collection<ClientRoute> routes, Object state) {
         this.mountPoint = mountPoint;
         this.path = path;
         this.routes = routes;
-        this.params = (JsonObject) state; // Is merging state and params the right thing to do?
+        this.params = (AstObject) state; // Is merging state and params the right thing to do?
         iter = routes.iterator();
     }
 
@@ -103,9 +103,9 @@ public abstract class ClientRoutingContextBase implements RoutingContext {
     }
 
     @Override
-    public JsonObject getParams() {
+    public AstObject getParams() {
         if (params == null)
-            params = Json.createObject();
+            params = AST.createObject();
         return params;
     }
 

@@ -4,7 +4,7 @@ module webfx.stack.authn.server.gateway.mojoauth.plugin {
 
     // Direct dependencies modules
     requires java.sdk;
-    requires webfx.platform.ast.json.plugin;
+    requires webfx.platform.ast;
     requires webfx.platform.async;
     requires webfx.stack.authn;
     requires webfx.stack.authn.login.server.gateway.mojoauth.plugin;

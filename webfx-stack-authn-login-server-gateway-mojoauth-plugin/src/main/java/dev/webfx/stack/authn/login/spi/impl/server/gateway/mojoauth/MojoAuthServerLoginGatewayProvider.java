@@ -1,5 +1,6 @@
 package dev.webfx.stack.authn.login.spi.impl.server.gateway.mojoauth;
 
+import dev.webfx.platform.ast.AstObject;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.conf.ConfigLoader;
 import dev.webfx.platform.console.Console;
@@ -79,8 +80,9 @@ public class MojoAuthServerLoginGatewayProvider implements ServerLoginGatewayPro
             Router router = Router.create(); // Actually returns the http router (not creates a new one)
 
             router.route(REDIRECT_PATH).handler(rc -> {
-                String stateId = rc.getParams().getString("state_id");
-                String sessionId = rc.getParams().getString("sessionId");
+                AstObject params = rc.getParams();
+                String stateId = params.getString("state_id");
+                String sessionId = params.getString("sessionId");
                 AuthenticationService.authenticate(MOJO_AUTH_PREFIX + stateId)
                         .compose(userId ->
                                 SessionService.getSessionStore().get(sessionId)

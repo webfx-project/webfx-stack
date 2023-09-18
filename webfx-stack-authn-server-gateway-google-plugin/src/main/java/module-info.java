@@ -3,7 +3,7 @@
 module webfx.stack.authn.server.gateway.google.plugin {
 
     // Direct dependencies modules
-    requires webfx.platform.ast.json.plugin;
+    requires webfx.platform.ast;
     requires webfx.platform.async;
     requires webfx.stack.authn;
     requires webfx.stack.authn.server.gateway;

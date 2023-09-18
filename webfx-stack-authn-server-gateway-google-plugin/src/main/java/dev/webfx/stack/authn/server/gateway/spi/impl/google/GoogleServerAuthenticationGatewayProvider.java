@@ -1,7 +1,7 @@
 package dev.webfx.stack.authn.server.gateway.spi.impl.google;
 
 import dev.webfx.platform.async.Promise;
-import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.authn.UserClaims;
 import dev.webfx.stack.authn.server.gateway.spi.impl.Jwt;
 import dev.webfx.stack.authn.server.gateway.spi.impl.ServerAuthenticationGatewayProviderBase;
@@ -25,7 +25,7 @@ public final class GoogleServerAuthenticationGatewayProvider extends ServerAuthe
     @Override
     protected void getUserClaimsImpl(String token, Promise<UserClaims> promise) {
         Jwt jwt = new Jwt(token);
-        ReadOnlyJsonObject jsonPayload = jwt.getJsonPayload();
+        ReadOnlyAstObject jsonPayload = jwt.getJsonPayload();
         promise.complete(new UserClaims(
                 jsonPayload.getString("name"),
                 jsonPayload.getString("email"),

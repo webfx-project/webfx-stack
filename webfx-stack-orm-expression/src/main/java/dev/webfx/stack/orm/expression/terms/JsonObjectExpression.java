@@ -1,12 +1,11 @@
 package dev.webfx.stack.orm.expression.terms;
 
 import dev.webfx.extras.type.Type;
-import dev.webfx.platform.ast.json.JsonObject;
+import dev.webfx.platform.ast.AstObject;
 import dev.webfx.stack.orm.expression.CollectOptions;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.lci.DomainReader;
-import dev.webfx.platform.ast.json.Json;
-import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.AST;
 import dev.webfx.platform.ast.ReadOnlyAstArray;
 import dev.webfx.platform.ast.ReadOnlyAstObject;
 
@@ -30,8 +29,8 @@ public final class JsonObjectExpression<T> extends AbstractExpression<T> {
     }
 
     @Override
-    public ReadOnlyJsonObject evaluate(T domainObject, DomainReader<T> domainReader) {
-        JsonObject json = Json.createObject();
+    public ReadOnlyAstObject evaluate(T domainObject, DomainReader<T> domainReader) {
+        AstObject json = AST.createObject();
         ReadOnlyAstArray keys = jsonObjectExpressions.keys();
         for (int i = 0; i < keys.size(); i++) {
             String key = keys.getString(i);

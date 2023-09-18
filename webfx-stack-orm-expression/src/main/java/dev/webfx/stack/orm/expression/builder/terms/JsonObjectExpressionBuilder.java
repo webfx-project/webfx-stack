@@ -1,16 +1,16 @@
 package dev.webfx.stack.orm.expression.builder.terms;
 
-import dev.webfx.platform.ast.json.JsonObject;
-import dev.webfx.stack.orm.expression.terms.JsonObjectExpression;
+import dev.webfx.platform.ast.AST;
+import dev.webfx.platform.ast.AstObject;
 import dev.webfx.platform.ast.ReadOnlyAstArray;
-import dev.webfx.platform.ast.json.Json;
+import dev.webfx.stack.orm.expression.terms.JsonObjectExpression;
 
 /**
  * @author Bruno Salmon
  */
 public final class JsonObjectExpressionBuilder extends ExpressionBuilder {
 
-    private final JsonObject jsonObjectExpressionBuilders = Json.createObject();
+    private final AstObject jsonObjectExpressionBuilders = AST.createObject();
 
     private JsonObjectExpression jsonObjectExpression;
 
@@ -29,7 +29,7 @@ public final class JsonObjectExpressionBuilder extends ExpressionBuilder {
     public JsonObjectExpression build() {
         if (jsonObjectExpression == null) {
             propagateDomainClasses();
-            JsonObject jsonExpressions = Json.createObject();
+            AstObject jsonExpressions = AST.createObject();
             ReadOnlyAstArray keys = jsonObjectExpressionBuilders.keys();
             for (int i = 0; i < keys.size(); i++) {
                 String key = keys.getString(i);

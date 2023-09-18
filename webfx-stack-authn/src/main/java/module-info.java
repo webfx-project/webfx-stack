@@ -5,7 +5,6 @@ module webfx.stack.authn {
     // Direct dependencies modules
     requires java.base;
     requires webfx.platform.ast;
-    requires webfx.platform.ast.json.plugin;
     requires transitive webfx.platform.async;
     requires webfx.platform.util;
     requires webfx.stack.com.serial;

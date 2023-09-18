@@ -1,7 +1,7 @@
 package dev.webfx.stack.db.querypush.buscall.serial;
 
-import dev.webfx.platform.ast.json.JsonObject;
-import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.AstObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 import dev.webfx.stack.db.querypush.diff.impl.QueryResultTranslation;
@@ -21,7 +21,7 @@ public final class QueryResultTranslationSerialCodec extends SerialCodecBase<Que
     }
 
     @Override
-    public void encodeToJson(QueryResultTranslation arg, JsonObject json) {
+    public void encodeToJson(QueryResultTranslation arg, AstObject json) {
         SerialCodecBase.encodeKeyIfNotNull(ROWS_BEFORE_KEY, arg.getRowsBefore(), json);
         SerialCodecBase.encodeKey(ROW_START_KEY, arg.getRowStart(), json);
         SerialCodecBase.encodeKey(ROW_END_KEY, arg.getRowEnd(), json);
@@ -31,7 +31,7 @@ public final class QueryResultTranslationSerialCodec extends SerialCodecBase<Que
     }
 
     @Override
-    public QueryResultTranslation decodeFromJson(ReadOnlyJsonObject json) {
+    public QueryResultTranslation decodeFromJson(ReadOnlyAstObject json) {
         return new QueryResultTranslation(
                 SerialCodecManager.decodeFromJson(json.get(ROWS_BEFORE_KEY)),
                 json.getInteger(ROW_START_KEY),

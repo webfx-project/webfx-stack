@@ -4,6 +4,7 @@ module webfx.stack.com.bus.json.server {
 
     // Direct dependencies modules
     requires java.base;
+    requires webfx.platform.ast;
     requires webfx.platform.ast.json.plugin;
     requires webfx.platform.async;
     requires webfx.platform.console;

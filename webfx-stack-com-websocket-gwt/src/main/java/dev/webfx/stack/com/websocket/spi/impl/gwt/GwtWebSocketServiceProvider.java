@@ -1,6 +1,6 @@
 package dev.webfx.stack.com.websocket.spi.impl.gwt;
 
-import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.com.websocket.spi.WebSocketServiceProvider;
 
 /**
@@ -9,7 +9,7 @@ import dev.webfx.stack.com.websocket.spi.WebSocketServiceProvider;
 public final class GwtWebSocketServiceProvider implements WebSocketServiceProvider {
 
     @Override
-    public native GwtWebSocket createWebSocket(String url, ReadOnlyJsonObject options) /*-{
+    public native GwtWebSocket createWebSocket(String url, ReadOnlyAstObject options) /*-{
         // Code for the case the "sockjs-quickstart.js" script was included in index.html
         var sockJS = $wnd.quickStartSockJS;
         if (sockJS) { // Yes the script was included, so a sockJS has already been started

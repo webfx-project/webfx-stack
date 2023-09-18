@@ -1,7 +1,7 @@
 package dev.webfx.stack.authn.serial;
 
-import dev.webfx.platform.ast.json.JsonObject;
-import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.AstObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.authn.UsernamePasswordCredentials;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 
@@ -19,13 +19,13 @@ public class UsernamePasswordCredentialsSerialCodec extends SerialCodecBase<User
     }
 
     @Override
-    public void encodeToJson(UsernamePasswordCredentials arg, JsonObject json) {
+    public void encodeToJson(UsernamePasswordCredentials arg, AstObject json) {
         json.set(USERNAME_KEY, arg.getUsername());
         json.set(PASSWORD_KEY, arg.getPassword());
     }
 
     @Override
-    public UsernamePasswordCredentials decodeFromJson(ReadOnlyJsonObject json) {
+    public UsernamePasswordCredentials decodeFromJson(ReadOnlyAstObject json) {
         return new UsernamePasswordCredentials(
                 json.getString(USERNAME_KEY),
                 json.getString(PASSWORD_KEY)

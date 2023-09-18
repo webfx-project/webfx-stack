@@ -2,10 +2,10 @@ package dev.webfx.stack.routing.uirouter;
 
 import dev.webfx.platform.async.Handler;
 import dev.webfx.platform.console.Console;
-import dev.webfx.platform.ast.json.Json;
-import dev.webfx.platform.ast.json.JsonObject;
-import dev.webfx.platform.ast.json.ReadOnlyJsonArray;
-import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.AST;
+import dev.webfx.platform.ast.AstObject;
+import dev.webfx.platform.ast.ReadOnlyAstArray;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Numbers;
 import dev.webfx.platform.util.Objects;
@@ -279,17 +279,17 @@ public final class UiRouter extends HistoryRouter {
             return activityContext;
         }
 
-        private void applyRoutingContextParamsToActivityContext(ReadOnlyJsonObject routingContextParams, C activityContext) {
+        private void applyRoutingContextParamsToActivityContext(ReadOnlyAstObject routingContextParams, C activityContext) {
             // Temporary applying the parameters to the whole application context, so they can be shared between activities
             // (ex: changing :x parameter in activity1 and then pressing a navigation button in a parent container activity
             // that goes to /:x/activity2 => the parent container can get the last :x value changed by activity1)
-            JsonObject localParams = null;
+            AstObject localParams = null;
             //UiRouteActivityContext uiAppContext = ApplicationContext.get();
-            //WritableJsonObject appParams = (WritableJsonObject) uiAppContext.getParams();
-            ReadOnlyJsonArray keys = routingContextParams.keys();
+            //WritableAstObject appParams = (WritableAstObject) uiAppContext.getParams();
+            ReadOnlyAstArray keys = routingContextParams.keys();
             for (int i = 0, size = keys.size(); i < size; i++) {
                 String key = keys.getString(i);
-                Object value = routingContextParams.getNativeElement(key);
+                Object value = routingContextParams.get(key);
                 // Strings of digits (such as entities id) are converted to integers, so that they can be directly passed as DQL/SQL parameters in the application code
                 value = Objects.coalesce(Numbers.toInteger(value), value);
                 boolean localParameter = true; //"refresh".equals(key);
@@ -298,7 +298,7 @@ public final class UiRouter extends HistoryRouter {
                 else*/
                 {
                     if (localParams == null)
-                        localParams = Json.createObject();
+                        localParams = AST.createObject();
                     localParams.set(key, value);
                 }
             }

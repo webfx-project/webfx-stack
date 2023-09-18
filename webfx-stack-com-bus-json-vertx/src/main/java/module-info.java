@@ -6,7 +6,7 @@ module webfx.stack.com.bus.json.vertx {
     requires io.vertx.core;
     requires io.vertx.eventbusbridge.common;
     requires io.vertx.web;
-    requires webfx.platform.ast.json.plugin;
+    requires webfx.platform.ast;
     requires webfx.platform.async;
     requires webfx.platform.boot;
     requires webfx.platform.conf;

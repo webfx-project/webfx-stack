@@ -17,9 +17,10 @@
  */
 package dev.webfx.stack.com.bus.spi.impl.client;
 
+import dev.webfx.platform.ast.AstObject;
 import dev.webfx.platform.console.Console;
 import dev.webfx.stack.com.bus.*;
-import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.ast.AST;
 import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.platform.async.AsyncResult;
 import dev.webfx.platform.async.Future;
@@ -293,7 +294,8 @@ public class SimpleBus implements Bus {
             handler.handle(Future.succeededFuture(message));
         } catch (Throwable e) {
             Console.log("Failed to handle on address: " + address, e);
-            publish(ON_ERROR, Json.createObject().set("address", address).set("message", message).set("cause", e), DeliveryOptions.localOnlyDeliveryOptions());
+            AstObject astObject = AST.createObject();
+            publish(ON_ERROR, astObject.set("address", address).set("message", message).set("cause", e), DeliveryOptions.localOnlyDeliveryOptions());
         }
     }
 

@@ -2,7 +2,7 @@ package dev.webfx.stack.orm.reactive.dql.statement;
 
 import javafx.beans.value.ObservableValue;
 import dev.webfx.stack.orm.dql.DqlStatement;
-import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.util.function.Converter;
 
 import java.util.function.Function;
@@ -53,7 +53,7 @@ public interface ReactiveDqlStatementAPI<E, THIS> {
         return (THIS) this;
     }
 
-    default THIS always(ReadOnlyJsonObject json) {
+    default THIS always(ReadOnlyAstObject json) {
         getReactiveDqlStatement().always(json);
         return (THIS) this;
     }

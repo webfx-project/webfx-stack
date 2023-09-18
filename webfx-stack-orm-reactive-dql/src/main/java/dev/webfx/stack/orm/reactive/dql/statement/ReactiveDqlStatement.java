@@ -8,7 +8,7 @@ import dev.webfx.platform.util.function.Converter;
 import dev.webfx.stack.orm.dql.DqlStatement;
 import dev.webfx.stack.orm.dql.DqlStatementBuilder;
 import dev.webfx.stack.orm.reactive.dql.statement.conventions.*;
-import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
@@ -149,7 +149,7 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
     }
 
     @Override
-    public ReactiveDqlStatement<E> always(ReadOnlyJsonObject json) {
+    public ReactiveDqlStatement<E> always(ReadOnlyAstObject json) {
         return always(new DqlStatement(json));
     }
 

@@ -8,7 +8,7 @@ import com.mojoauth.sdk.util.ErrorResponse;
 import com.mojoauth.sdk.util.Jwks;
 import com.mojoauth.sdk.util.MojoAuthSDK;
 import dev.webfx.platform.async.Promise;
-import dev.webfx.platform.ast.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.authn.UserClaims;
 import dev.webfx.stack.authn.login.spi.impl.server.gateway.mojoauth.MojoAuthServerLoginGatewayProvider;
 import dev.webfx.stack.authn.server.gateway.spi.impl.Jwt;
@@ -60,7 +60,7 @@ public final class MojoAuthServerAuthenticationGatewayProvider extends ServerAut
                 else { // Step 2) Decoding the JWT and extracting the claims
                     try {
                         Jwt jwt = new Jwt(oAuthIdToken);
-                        ReadOnlyJsonObject payload = jwt.getJsonPayload();
+                        ReadOnlyAstObject payload = jwt.getJsonPayload();
                         UserClaims userClaims = new UserClaims(payload.getString("name"), payload.getString("email"), payload.getString("phone"), payload);
                         promise.complete(userClaims);
                     } catch (Exception e) {
@@ -96,7 +96,7 @@ public final class MojoAuthServerAuthenticationGatewayProvider extends ServerAut
                         .append("X-API-Key", API_KEY)))
                 .compose(response -> response.jsonObject()
                         .map(json -> {
-                            JsonObject user = json.getObject("user");
+                            AstObject user = json.getObject("user");
                             return new UserClaims(user.getString("name"), user.getString("email"), user.getString("phone"), user);
                         }));
 */

@@ -1,5 +1,6 @@
 package dev.webfx.stack.authn.login.spi.impl.server.gateway.google;
 
+import dev.webfx.platform.ast.AstObject;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.conf.ConfigLoader;
 import dev.webfx.platform.console.Console;
@@ -111,7 +112,8 @@ public class GoogleServerLoginGatewayProvider implements ServerLoginGatewayProvi
 
             // Google login page (will be displayed in the web view on the client)
             router.route(LOGIN_PATH).handler(rc -> {
-                String serverSessionId = rc.getParams().getString("sessionId");
+                AstObject params = rc.getParams();
+                String serverSessionId = params.getString("sessionId");
                 String RETURN_URL = REDIRECT_ORIGIN + REDIRECT_PATH;
                 String html = HTML_TEMPLATE
                         .replace("{{GOOGLE_CLIENT_ID}}", GOOGLE_CLIENT_ID)

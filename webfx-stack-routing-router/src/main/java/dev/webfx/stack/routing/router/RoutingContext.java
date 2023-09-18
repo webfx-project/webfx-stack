@@ -1,7 +1,7 @@
 package dev.webfx.stack.routing.router;
 
 import dev.webfx.stack.session.Session;
-import dev.webfx.platform.ast.json.JsonObject;
+import dev.webfx.platform.ast.AstObject;
 
 /**
  * @author Bruno Salmon
@@ -12,7 +12,7 @@ public interface RoutingContext {
 
     void next();
 
-    JsonObject getParams();
+    AstObject getParams();
 
     void fail(int statusCode);
 

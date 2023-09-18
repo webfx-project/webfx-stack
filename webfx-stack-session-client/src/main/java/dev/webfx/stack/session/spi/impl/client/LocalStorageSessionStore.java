@@ -1,9 +1,11 @@
 package dev.webfx.stack.session.spi.impl.client;
 
-import dev.webfx.platform.async.Future;
+import dev.webfx.platform.ast.AST;
+import dev.webfx.platform.ast.AstObject;
+import dev.webfx.platform.ast.ReadOnlyAstArray;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.ast.json.Json;
-import dev.webfx.platform.ast.json.JsonObject;
-import dev.webfx.platform.ast.json.ReadOnlyJsonArray;
+import dev.webfx.platform.async.Future;
 import dev.webfx.platform.storage.LocalStorage;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.session.Session;
@@ -29,9 +31,9 @@ final class LocalStorageSessionStore implements SessionStore {
         if (sessionItem == null)
             return Future.failedFuture("No such session in this store");
         try {
-            JsonObject jsonObject = Json.parseObject(sessionItem);
+            ReadOnlyAstObject jsonObject = Json.parseObject(sessionItem);
             InMemorySession session = new InMemorySession(id);
-            ReadOnlyJsonArray keys = jsonObject.keys();
+            ReadOnlyAstArray keys = jsonObject.keys();
             for (int i = 0; i < keys.size(); i++) {
                 String key = keys.getElement(i);
                 session.put(key, SerialCodecManager.decodeFromJson(jsonObject.get(key)));
@@ -51,10 +53,10 @@ final class LocalStorageSessionStore implements SessionStore {
     @Override
     public Future<Boolean> put(Session session) {
         Map<String, Object> values = ((InMemorySession) session).values;
-        JsonObject jsonObject = Json.createObject();
+        AstObject jsonObject = AST.createObject();
         for (Map.Entry<String, Object> entry : values.entrySet())
             jsonObject.set(entry.getKey(), SerialCodecManager.encodeToJson(entry.getValue()));
-        String sessionItem = jsonObject.toJsonString();
+        String sessionItem = Json.formatNode(jsonObject);
         LocalStorage.setItem(sessionIdToLocalStorageItemKey(session.id()), sessionItem);
         return Future.succeededFuture(true);
     }

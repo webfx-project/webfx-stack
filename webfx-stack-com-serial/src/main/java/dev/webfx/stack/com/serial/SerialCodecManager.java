@@ -1,6 +1,7 @@
 package dev.webfx.stack.com.serial;
 
-import dev.webfx.platform.ast.json.*;
+import dev.webfx.platform.ast.*;
+import dev.webfx.platform.ast.json.Json;
 import dev.webfx.platform.util.Dates;
 import dev.webfx.platform.util.Numbers;
 import dev.webfx.stack.com.serial.spi.SerialCodec;
@@ -75,18 +76,18 @@ public final class SerialCodecManager {
         if (instant != null)
             return INSTANT_VALUE_PREFIX + Dates.formatIso(instant);
         // Other java objects are serialized into json
-        return encodeToJsonObject(object);
+        return encodeToAstObject(object);
     }
 
-    public static ReadOnlyJsonObject encodeToJsonObject(Object object) {
+    public static ReadOnlyAstObject encodeToAstObject(Object object) {
         if (object == null)
             return null;
-        if (object instanceof ReadOnlyJsonObject)
-            return (ReadOnlyJsonObject) object;
-        return encodeJavaObjectToJsonObject(object, Json.createObject());
+        if (object instanceof ReadOnlyAstObject)
+            return (ReadOnlyAstObject) object;
+        return encodeJavaObjectToAstObject(object, AST.createObject());
     }
 
-    private static <T> JsonObject encodeJavaObjectToJsonObject(T javaObject, JsonObject json) {
+    private static <T> AstObject encodeJavaObjectToAstObject(T javaObject, AstObject json) {
         SerialCodec<T> encoder = getSerialEncoder((Class<T>) javaObject.getClass());
         if (encoder == null)
             throw new IllegalArgumentException("No SerialCodec for type: " + javaObject.getClass());
@@ -95,14 +96,14 @@ public final class SerialCodecManager {
         return json;
     }
 
-    public static <T> T decodeFromJsonObject(ReadOnlyJsonObject json) {
+    public static <T> T decodeFromAstObject(ReadOnlyAstObject json) {
         if (json == null)
             return null;
         String codecId = json.getString(CODEC_ID_KEY);
         if (codecId == null) { // Particular case where no codec is specified
             // In that case we don't map the json object to a java object, but return another json object with decoded values
-            JsonObject decodedJson = Json.createObject();
-            ReadOnlyJsonArray keys = json.keys();
+            AstObject decodedJson = AST.createObject();
+            ReadOnlyAstArray keys = json.keys();
             for (int i = 0; i < keys.size(); i++) {
                 String key = keys.getElement(i);
                 decodedJson.set(key, (Object) decodeFromJson(json.get(key)));
@@ -111,17 +112,17 @@ public final class SerialCodecManager {
         }
         SerialCodec<T> decoder = getSerialDecoder(codecId);
         if (decoder == null)
-            throw new IllegalArgumentException("No SerialCodec found for id: '" + codecId + "' when trying to decode " + json.toJsonString());
+            throw new IllegalArgumentException("No SerialCodec found for id: '" + codecId + "' when trying to decode " + Json.formatNode(json));
         return decoder.decodeFromJson(json);
     }
 
     public static <T> T decodeFromJson(Object object) {
-        // Case 1: it's a json object => we call decodeFromJsonObject(). The returned object may be any java object.
-        if (object instanceof ReadOnlyJsonObject)
-            return decodeFromJsonObject((ReadOnlyJsonObject) object);
-        // Case 2: it's a json array => we call decodePrimitiveArrayFromJsonArray(). The return object is always an Object[] array.
-        if (object instanceof ReadOnlyJsonArray)
-            return (T) decodePrimitiveArrayFromJsonArray((ReadOnlyJsonArray) object);
+        // Case 1: it's a json object => we call decodeFromAstObject(). The returned object may be any java object.
+        if (object instanceof ReadOnlyAstObject)
+            return decodeFromAstObject((ReadOnlyAstObject) object);
+        // Case 2: it's a json array => we call decodePrimitiveArrayFromAstArray(). The return object is always an Object[] array.
+        if (object instanceof ReadOnlyAstArray)
+            return (T) decodePrimitiveArrayFromAstArray((ReadOnlyAstArray) object);
         // Case 3: it's a String with instant value prefix => we decode and return the instant value
         if (object instanceof String) {
             String s = (String) object;
@@ -136,16 +137,16 @@ public final class SerialCodecManager {
         return (T) object;
     }
 
-    public static ReadOnlyJsonArray encodePrimitiveArrayToJsonArray(Object[] primArray) {
+    public static ReadOnlyAstArray encodePrimitiveArrayToAstArray(Object[] primArray) {
         if (primArray == null)
             return null;
-        JsonArray ca = Json.createArray();
+        AstArray ca = AST.createArray();
         for (Object value : primArray)
             ca.push(encodeToJson(value));
         return ca;
     }
 
-    public static Object[] decodePrimitiveArrayFromJsonArray(ReadOnlyJsonArray jsonArray) {
+    public static Object[] decodePrimitiveArrayFromAstArray(ReadOnlyAstArray jsonArray) {
         if (jsonArray == null)
             return null;
         int n = jsonArray.size();
@@ -155,16 +156,16 @@ public final class SerialCodecManager {
         return array;
     }
 
-    public static ReadOnlyJsonArray encodeToJsonArray(Object[] array) {
+    public static ReadOnlyAstArray encodeToAstArray(Object[] array) {
         if (array == null)
             return null;
-        JsonArray ca = Json.createArray();
+        AstArray ca = AST.createArray();
         for (Object object : array)
-            ca.push(encodeToJsonObject(object));
+            ca.push(encodeToAstObject(object));
         return ca;
     }
 
-    public static <T> T[] decodeFromJsonArray(ReadOnlyJsonArray ca, Class<T> expectedClass) {
+    public static <T> T[] decodeFromAstArray(ReadOnlyAstArray ca, Class<T> expectedClass) {
         if (ca == null)
             return null;
         int n = ca.size();

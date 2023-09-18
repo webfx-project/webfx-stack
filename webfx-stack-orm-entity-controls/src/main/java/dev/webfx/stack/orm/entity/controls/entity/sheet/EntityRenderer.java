@@ -11,7 +11,7 @@ import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.EntityStore;
 import dev.webfx.extras.cell.renderer.ValueRenderer;
 import dev.webfx.extras.cell.renderer.ValueRenderingContext;
-import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.ast.AST;
 import javafx.scene.layout.HBox;
 
 /**
@@ -41,7 +41,7 @@ public final class EntityRenderer implements ValueRenderer {
         // Defining the json or class object to be passed to the entity button selector
         EntityColumn foreignFieldColumn = erc.getForeignFieldColumn();
         Object jsonOrClass = foreignFieldColumn == null ? domainClassId // just the class id if there is no foreign field column defined
-            : Json.createObject() // Json object otherwise (most of the case) with both "class" and "columns" set
+            : AST.createObject() // Json object otherwise (most of the case) with both "class" and "columns" set
                 .set("class", domainClassId)
                 .set("alias", foreignFieldColumn.getForeignAlias())
                 // We prefix the columns definition with "expr:=" to ensure that the parsing - done by EntityColumns.fromJsonArrayOrExpressionsDefinition() -

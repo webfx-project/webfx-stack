@@ -6,7 +6,7 @@ module webfx.stack.orm.reactive.dql {
     requires java.base;
     requires javafx.base;
     requires webfx.kit.util;
-    requires webfx.platform.ast.json.plugin;
+    requires webfx.platform.ast;
     requires webfx.platform.console;
     requires webfx.platform.uischeduler;
     requires webfx.platform.util;

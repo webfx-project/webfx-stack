@@ -3,8 +3,9 @@ package dev.webfx.stack.com.bus.spi.impl.json.server;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.Promise;
 import dev.webfx.platform.console.Console;
+import dev.webfx.platform.ast.AST;
+import dev.webfx.platform.ast.AstObject;
 import dev.webfx.platform.ast.json.Json;
-import dev.webfx.platform.ast.json.JsonObject;
 import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.stack.com.bus.DeliveryOptions;
 import dev.webfx.stack.com.bus.spi.impl.json.JsonBusConstants;
@@ -30,8 +31,8 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
         serverJsonBus.register(JsonBusConstants.PING_STATE_ADDRESS, event -> event.reply(null, new DeliveryOptions()));
     }
 
-    public static Future<Session> manageStateOnIncomingOrOutgoingRawJsonMessage(JsonObject rawJsonMessage, Session webServerSession, boolean incoming) {
-        JsonObject headers = rawJsonMessage.getObject(JsonBusConstants.HEADERS);
+    public static Future<Session> manageStateOnIncomingOrOutgoingRawJsonMessage(AstObject rawJsonMessage, Session webServerSession, boolean incoming) {
+        AstObject headers = rawJsonMessage.getObject(JsonBusConstants.HEADERS);
         Object originalState = headers == null ? null : StateAccessor.decodeState(headers.getString(JsonBusConstants.HEADERS_STATE));
         String originalStateCapture = LOG_STATES ? "" + originalState : null;
         // Is there an application session already associated with the web session?
@@ -43,7 +44,7 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
         // Incoming message (from client to server)
         if (incoming) {
             if (LOG_RAW_MESSAGES)
-                Console.log(">> Incoming message : " + rawJsonMessage.toJsonString());
+                Console.log(">> Incoming message : " + Json.formatNode(rawJsonMessage));
             Promise<Session> promise = Promise.promise();
             // We sync the application session with the incoming state. This is at this point that the session switch
             // can happen if requested by the client, in which case a different session will be returned.
@@ -81,16 +82,16 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
         // We memorise that final state in the raw message
         setJsonRawMessageState(rawJsonMessage, headers, finalState);
         if (LOG_RAW_MESSAGES)
-            Console.log("<< Outgoing message : " + rawJsonMessage.toJsonString());
+            Console.log("<< Outgoing message : " + Json.formatNode(rawJsonMessage));
         // We tell the message delivery can now continue into the client, and return the session (not sure if the session
         // object will be useful - most important thing is the to complete this asynchronous operation so the delivery can go on)
         return Future.succeededFuture(applicationServerSession);
     }
 
-    private static void setJsonRawMessageState(JsonObject rawJsonMessage, JsonObject headers, Object state) {
+    private static void setJsonRawMessageState(AstObject rawJsonMessage, AstObject headers, Object state) {
         if (state != null) {
             if (headers == null)
-                rawJsonMessage.set(JsonBusConstants.HEADERS, headers = Json.createObject());
+                rawJsonMessage.set(JsonBusConstants.HEADERS, headers = AST.createObject());
             headers.set(JsonBusConstants.HEADERS_STATE, StateAccessor.encodeState(state));
         }
     }

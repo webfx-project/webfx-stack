@@ -7,7 +7,6 @@ module webfx.stack.orm.expression {
     requires webfx.extras.type;
     requires webfx.lib.javacupruntime;
     requires webfx.platform.ast;
-    requires webfx.platform.ast.json.plugin;
     requires webfx.platform.console;
     requires webfx.platform.util;
 
