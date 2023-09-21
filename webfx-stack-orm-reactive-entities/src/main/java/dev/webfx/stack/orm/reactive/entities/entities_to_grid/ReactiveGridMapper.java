@@ -47,12 +47,7 @@ public abstract class ReactiveGridMapper<E extends Entity> {
             // If as a result of applying the columns we have additional persistent fields to load, we include them in the final dql statement
             if (columnsPersistentFields != null)
                 dqlStatement = new DqlStatementBuilder(dqlStatement).mergeFields(columnsPersistentFields).build();
-            if (startsWithEmptyTable && reactiveEntitiesMapper.getEntities() == null)
-                Platform.runLater(() -> {
-                    if (reactiveEntitiesMapper.getEntities() == null)
-                        onEntityListChanged(null);
-                });
-
+            scheduleEmptyTable();
             return dqlStatement;
         });
         //reactiveDqlStatement.combine(persistentFieldsDqlStatementProperty);
