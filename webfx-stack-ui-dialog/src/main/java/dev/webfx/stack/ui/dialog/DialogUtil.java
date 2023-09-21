@@ -108,6 +108,7 @@ public final class DialogUtil {
 
             @Override
             public void showException(Throwable e) {
+                e.printStackTrace();
                 //UiScheduler.runInUiThread(() -> AlertUtil.showExceptionAlert(e, parent.getScene().getWindow()));
             }
 

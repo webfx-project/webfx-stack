@@ -21,8 +21,8 @@ public final class DialogContent implements DialogBuilder {
     private String cancelText = "Cancel";
 
     private Node content;
-    private Button okButton = new Button();
-    private Button cancelButton = new Button();
+    private Button okButton = new Button(); { okButton.setDefaultButton(true); }
+    private Button cancelButton = new Button(); { cancelButton.setCancelButton(true); }
 
     private DialogCallback dialogCallback;
 
