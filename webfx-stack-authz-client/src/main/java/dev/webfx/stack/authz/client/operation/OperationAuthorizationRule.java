@@ -27,9 +27,22 @@ public final class OperationAuthorizationRule<R> extends SimpleInMemoryAuthoriza
 
     @Override
     protected boolean matchRule(Object operationRequest) {
-        if (operationRequestCode != null && operationRequest instanceof HasOperationCode && operationRequestCode.equals(((HasOperationCode) operationRequest).getOperationCode()))
+        // Case when this rule has an operation code that matches this rule
+        if (operationRequestCode != null && operationRequest instanceof HasOperationCode) {
+            Object operationCode = ((HasOperationCode) operationRequest).getOperationCode();
+            // Exact match
+            if (operationRequestCode.equals(operationCode))
+                return true;
+            // Wildcard match. Note: for now superuser has 2 rules: grant operation:* and grant route:*
+            // grant operation:* shouldn't include grant route:* so we need to exclude any route operation with wildcard here
+            if ("*".equals(operationRequestCode) && !operationCode.toString().startsWith("RouteTo"))
+                return true;
+        }
+        // Case when this rule has an operation request class that is the same as the passed operation request
+        Class<?> operationRequestClass = operationRequestClass();
+        if (operationRequestClass != null && operationRequestClass.equals(operationRequest.getClass()))
             return true;
-        Class operationRequestClass = operationRequestClass();
-        return operationRequestClass != null && operationRequestClass.equals(operationRequest.getClass());
+        // Otherwise, this means that the passed operation request doesn't match this rule
+        return false;
     }
 }
