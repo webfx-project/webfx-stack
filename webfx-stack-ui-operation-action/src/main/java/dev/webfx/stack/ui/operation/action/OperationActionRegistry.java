@@ -85,13 +85,17 @@ public final class OperationActionRegistry {
     }
 
     public <A> OperationActionRegistry registerOperationGraphicalAction(Class<A> operationRequestClass, Action graphicalAction) {
-        graphicalActions.put(operationRequestClass, graphicalAction);
-        return checkPendingOperationActionGraphicalBindings();
+        synchronized (graphicalActions) {
+            graphicalActions.put(operationRequestClass, graphicalAction);
+            return checkPendingOperationActionGraphicalBindings();
+        }
     }
 
     public OperationActionRegistry registerOperationGraphicalAction(Object operationCode, Action graphicalAction) {
-        graphicalActions.put(operationCode, graphicalAction);
-        return checkPendingOperationActionGraphicalBindings();
+        synchronized (graphicalActions) {
+            graphicalActions.put(operationCode, graphicalAction);
+            return checkPendingOperationActionGraphicalBindings();
+        }
     }
 
     private OperationActionRegistry checkPendingOperationActionGraphicalBindings() {
@@ -154,19 +158,25 @@ public final class OperationActionRegistry {
     }
 
     private Action getGraphicalActionFromOperationRequestClass(Class operationRequestClass) {
-        return graphicalActions.get(operationRequestClass);
+        synchronized (graphicalActions) {
+            return graphicalActions.get(operationRequestClass);
+        }
     }
 
     private Action getGraphicalActionFromOperationCode(Object operationCode) {
-        return graphicalActions.get(operationCode);
+        synchronized (graphicalActions) {
+            return graphicalActions.get(operationCode);
+        }
     }
 
     private Object getOperationCodeFromGraphicalAction(Action graphicalAction) {
-        for (Map.Entry<Object, Action> entry : graphicalActions.entrySet()) {
-            if (entry.getValue() == graphicalAction)
-                return entry.getKey();
+        synchronized (graphicalActions) {
+            for (Map.Entry<Object, Action> entry : graphicalActions.entrySet()) {
+                if (entry.getValue() == graphicalAction)
+                    return entry.getKey();
+            }
+            return null;
         }
-        return null;
     }
 
     public void setOperationActionGraphicalPropertiesUpdater(Consumer<OperationAction> operationActionGraphicalPropertiesUpdater) {
