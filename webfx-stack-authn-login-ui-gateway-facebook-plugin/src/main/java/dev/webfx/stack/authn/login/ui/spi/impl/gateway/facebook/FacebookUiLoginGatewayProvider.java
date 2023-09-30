@@ -2,9 +2,8 @@ package dev.webfx.stack.authn.login.ui.spi.impl.gateway.facebook;
 
 import dev.webfx.platform.resource.Resource;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.WebViewBasedUiLoginGatewayProvider;
-import javafx.scene.control.Button;
+import javafx.scene.Node;
 import javafx.scene.image.ImageView;
-import javafx.scene.paint.Color;
 
 /**
  * @author Bruno Salmon
@@ -18,11 +17,11 @@ public final class FacebookUiLoginGatewayProvider extends WebViewBasedUiLoginGat
     }
 
     @Override
-    public Button createLoginButton() {
+    public Node createLoginButton() {
         ImageView fLogo = new ImageView(Resource.toUrl("F.png", getClass()));
         fLogo.setFitWidth(24);
         fLogo.setFitHeight(24);
-        return createLoginButton(fLogo, Color.WHITE, Color.web("#385399"));
+        return fLogo;
     }
 
 }

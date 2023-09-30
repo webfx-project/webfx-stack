@@ -2,13 +2,8 @@ package dev.webfx.stack.authn.login.ui.spi.impl.gateway.google;
 
 import dev.webfx.platform.resource.Resource;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.WebViewBasedUiLoginGatewayProvider;
-import javafx.geometry.Pos;
-import javafx.scene.control.Button;
+import javafx.scene.Node;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 
 /**
  * @author Bruno Salmon
@@ -17,17 +12,12 @@ public final class GoogleUiLoginGatewayProvider extends WebViewBasedUiLoginGatew
 
     private final static String GATEWAY_ID = "Google";
 
-    private final static Color googleBlue = Color.web("#3A7FFB");
-    private final static Color googleRed = Color.web("#EF3F22");
-    private final static Color googleOrange = Color.web("#FFBE01");
-    private final static Color googleGreen = Color.web("#24A84A");
-
     public GoogleUiLoginGatewayProvider() {
         super(GATEWAY_ID);
     }
 
     @Override
-    public Button createLoginButton() {
+    public Node createLoginButton() {
         /*Pane gLogo = new StackPane(
                 createSVGRegion(googleRed, "M 12.255 4.75 C 14.025 4.75 15.605 5.36 16.855 6.55 L 20.275 3.13 C 18.205 1.19 15.495 0 12.255 0 C 7.565 0 3.515 2.7 1.545 6.62 L 5.525 9.71 C 6.475 6.86 9.125 4.75 12.255 4.75 Z"),
                 createSVGRegion(googleOrange, "M 5.525 14.29 C 5.275 13.57 5.145 12.8 5.145 12 C 5.145 11.2 5.285 10.43 5.525 9.71 L 5.525 6.62 L 1.545 6.62 C 0.725 8.24 0.255 10.06 0.255 12 C 0.255 13.94 0.725 15.76 1.545 17.38 L 5.525 14.29 Z"),
@@ -37,22 +27,7 @@ public final class GoogleUiLoginGatewayProvider extends WebViewBasedUiLoginGatew
         ImageView gLogo = new ImageView(Resource.toUrl("G.png", getClass()));
         gLogo.setFitWidth(24);
         gLogo.setFitHeight(24);
-        Color[] googleLetterColors = {googleBlue, googleRed, googleOrange, googleBlue, googleGreen, googleRed};
-        HBox googleWord = new HBox(1, gLogo);
-        googleWord.setAlignment(Pos.CENTER);
-        Font font = getFont();
-        for (int i = 1; i < googleLetterColors.length; i++) {
-            Text googleLetter = new Text("" + GATEWAY_ID.charAt(i));
-            googleLetter.setFont(font);
-            googleLetter.setFill(googleLetterColors[i]);
-            googleWord.getChildren().add(googleLetter);
-        }
-        return createLoginButton(googleWord, null, Color.BLACK, Color.WHITE);
-    }
-
-    @Override
-    protected double getFontSize() {
-        return 1.2 * super.getFontSize(); // Not sure why, but the font appears smaller in Text, so applying a scaling factor
+        return gLogo;
     }
 
     /*private static Region createSVGRegion(Color fill, String content) {

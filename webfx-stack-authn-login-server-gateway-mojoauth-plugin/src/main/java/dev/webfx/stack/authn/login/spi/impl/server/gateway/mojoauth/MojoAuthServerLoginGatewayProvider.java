@@ -38,7 +38,7 @@ public class MojoAuthServerLoginGatewayProvider implements ServerLoginGatewayPro
             "    <script charset='UTF-8' src='https://cdn.mojoauth.com/js/mojoauth.min.js'>\n" +
             "    </script>\n" +
             "</head>\n" +
-            "<body>\n" +
+            "<body style='background: transparent'>\n" +
             "<div id='mojoauth-passwordless-form'></div>\n" +
             "<script>\n" +
             "\n" +

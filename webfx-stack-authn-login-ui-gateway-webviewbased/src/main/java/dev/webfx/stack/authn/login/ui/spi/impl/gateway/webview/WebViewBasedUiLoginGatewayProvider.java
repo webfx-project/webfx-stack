@@ -3,6 +3,7 @@ package dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.stack.authn.login.LoginService;
 import dev.webfx.stack.authn.login.LoginUiContext;
+import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginPortalCallback;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProviderBase;
 import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
@@ -21,19 +22,20 @@ public abstract class WebViewBasedUiLoginGatewayProvider extends UiLoginGatewayP
     }
 
     @Override
-    public Node createLoginUi() {
+    public Node createLoginUi(UiLoginPortalCallback callback) {
         WebView mainWebView = LoginWebViewService.createLoginWebView();
         StackPane mainWebViewContainer = new StackPane(mainWebView);
         WebEngine mainWebEngine = mainWebView.getEngine();
-
+        mainWebEngine.setOnError(e -> callback.notifyInitializationFailure());
         // Now that our web view is correctly set up to start a login process, we call the login service to get the UI
         // input, which - in a case of a web view - should be the either a URL to load, or directly a HTML content.
         LoginService.getLoginUiInput(new LoginUiContext(getGatewayId(), LoginWebViewService.isWebViewInIFrame()))
                 .onComplete(ar -> UiScheduler.runInUiThread(() -> {
                     String input = null;
-                    if (ar.failed())
+                    if (ar.failed()) {
                         input = ERROR_HTML_TEMPLATE.replace("{{ERROR}}", ar.cause().getMessage());
-                    else if (ar.result() instanceof String)
+                        callback.notifyInitializationFailure();
+                    } else if (ar.result() instanceof String)
                         input = (String) ar.result();
                     if (input != null) {
                         //System.out.println("WebView input = " + input);

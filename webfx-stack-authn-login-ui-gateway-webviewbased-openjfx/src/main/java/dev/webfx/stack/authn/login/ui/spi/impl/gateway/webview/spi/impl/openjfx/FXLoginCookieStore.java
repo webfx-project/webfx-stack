@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.*;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -47,7 +48,7 @@ public class FXLoginCookieStore implements CookieStore {
                         memoryStore.add(uri, httpCookie);
                 }
             }
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException | NoSuchFileException e) {
             // That's normal to happen on first time, so no trace
         } catch (IOException e) {
             e.printStackTrace();

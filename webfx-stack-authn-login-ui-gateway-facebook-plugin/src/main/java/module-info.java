@@ -3,7 +3,6 @@
 module webfx.stack.authn.login.ui.gateway.facebook.plugin {
 
     // Direct dependencies modules
-    requires javafx.controls;
     requires javafx.graphics;
     requires webfx.platform.resource;
     requires webfx.stack.authn.login.ui.gateway;

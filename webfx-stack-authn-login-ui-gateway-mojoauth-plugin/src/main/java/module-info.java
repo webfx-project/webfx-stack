@@ -3,7 +3,6 @@
 module webfx.stack.authn.login.ui.gateway.mojoauth.plugin {
 
     // Direct dependencies modules
-    requires javafx.controls;
     requires javafx.graphics;
     requires webfx.stack.authn.login.ui.gateway;
     requires webfx.stack.authn.login.ui.gateway.webviewbased;

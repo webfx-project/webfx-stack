@@ -69,6 +69,8 @@ public final class ActionBinder {
     private static Node bindNodeToAction(Node node, Action action, boolean setOnMouseClicked) {
         node.disableProperty().bind(action.disabledProperty());
         node.visibleProperty().bind(action.visibleProperty());
+        // Automatically removing the node from layout if not visible
+        node.managedProperty().bind(node.visibleProperty());
         if (setOnMouseClicked)
             node.setOnMouseClicked(e -> action.handle(new ActionEvent(e.getSource(), e.getTarget())));
         return node;

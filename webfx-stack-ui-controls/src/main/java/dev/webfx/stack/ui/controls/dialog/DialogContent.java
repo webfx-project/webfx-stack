@@ -1,10 +1,10 @@
 package dev.webfx.stack.ui.controls.dialog;
 
 import dev.webfx.stack.ui.dialog.DialogCallback;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -21,8 +21,8 @@ public final class DialogContent implements DialogBuilder {
     private String cancelText = "Cancel";
 
     private Node content;
-    private Button okButton = new Button(); { okButton.setDefaultButton(true); }
-    private Button cancelButton = new Button(); { cancelButton.setCancelButton(true); }
+    private Button okButton = new Button(); { okButton.setDefaultButton(true); okButton.setPadding(new Insets(5)); } // TODO: replace hardcoded style with CSS
+    private Button cancelButton = new Button(); { cancelButton.setCancelButton(true); cancelButton.setPadding(new Insets(5)); } // TODO: replace hardcoded style with CSS
 
     private DialogCallback dialogCallback;
 
@@ -100,7 +100,7 @@ public final class DialogContent implements DialogBuilder {
         GridPane build = builder
                 .addButtons(okText, okButton, cancelText, cancelButton)
                 .build();
-        build.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+        build.setBackground(Background.fill(Color.WHITE)); // TODO: replace hardcoded style with CSS
         return build;
     }
 }
