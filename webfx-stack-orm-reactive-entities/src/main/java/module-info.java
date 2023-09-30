@@ -11,6 +11,7 @@ module webfx.stack.orm.reactive.entities {
     requires webfx.platform.ast;
     requires webfx.platform.ast.json.plugin;
     requires webfx.stack.db.query;
+    requires webfx.stack.i18n;
     requires webfx.stack.orm.domainmodel;
     requires webfx.stack.orm.dql;
     requires webfx.stack.orm.entity;

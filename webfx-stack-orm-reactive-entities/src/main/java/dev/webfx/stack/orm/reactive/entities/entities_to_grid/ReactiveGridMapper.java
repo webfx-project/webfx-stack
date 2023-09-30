@@ -1,5 +1,7 @@
 package dev.webfx.stack.orm.reactive.entities.entities_to_grid;
 
+import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.stack.i18n.I18n;
 import dev.webfx.stack.orm.reactive.dql.query.ReactiveDqlQuery;
 import dev.webfx.stack.orm.reactive.dql.statement.ReactiveDqlStatement;
 import dev.webfx.stack.orm.reactive.entities.dql_to_entities.ReactiveEntitiesMapper;
@@ -50,6 +52,8 @@ public abstract class ReactiveGridMapper<E extends Entity> {
             scheduleEmptyTable();
             return dqlStatement;
         });
+        // Reacting to the change of i18n dictionary TODO: make this configurable without forcing i18n dependency
+        FXProperties.runOnPropertiesChange(() -> onEntityListChanged(getCurrentEntities()), I18n.dictionaryProperty());
         //reactiveDqlStatement.combine(persistentFieldsDqlStatementProperty);
     }
 
