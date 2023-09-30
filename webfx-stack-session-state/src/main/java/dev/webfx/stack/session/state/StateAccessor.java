@@ -2,6 +2,7 @@ package dev.webfx.stack.session.state;
 
 import dev.webfx.platform.ast.*;
 import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 
 /**
@@ -25,7 +26,12 @@ public final class StateAccessor {
         ReadOnlyAstArray keys = rawJson.keys();
         for (int i = 0; i < keys.size(); i++) {
             String key = keys.getString(i);
-            json.set(key, (Object) SerialCodecManager.decodeFromJson(rawJson.get(key)));
+            try {
+                Object javaObject = SerialCodecManager.decodeFromJson(rawJson.get(key));
+                json.set(key, javaObject);
+            } catch (Exception e) {
+                Console.log("⛔️ Couldn't decode session state '" + key + "':", e);
+            }
         }
         return json;
     }
