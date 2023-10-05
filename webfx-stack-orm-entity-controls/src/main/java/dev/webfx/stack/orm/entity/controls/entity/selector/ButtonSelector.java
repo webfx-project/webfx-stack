@@ -1,30 +1,31 @@
 package dev.webfx.stack.orm.entity.controls.entity.selector;
 
+import dev.webfx.extras.materialdesign.textfield.MaterialTextFieldPane;
+import dev.webfx.extras.util.border.BorderFactory;
+import dev.webfx.extras.util.layout.LayoutUtil;
+import dev.webfx.extras.util.scene.SceneUtil;
+import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.platform.scheduler.Scheduled;
+import dev.webfx.platform.scheduler.Scheduler;
+import dev.webfx.platform.uischeduler.AnimationFramePass;
+import dev.webfx.platform.uischeduler.UiScheduler;
+import dev.webfx.platform.util.function.Callable;
+import dev.webfx.stack.ui.controls.MaterialFactoryMixin;
+import dev.webfx.stack.ui.controls.button.ButtonFactory;
+import dev.webfx.stack.ui.controls.button.ButtonFactoryMixin;
+import dev.webfx.stack.ui.dialog.DialogCallback;
+import dev.webfx.stack.ui.dialog.DialogUtil;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import dev.webfx.stack.ui.controls.MaterialFactoryMixin;
-import dev.webfx.stack.ui.controls.button.ButtonFactoryMixin;
-import dev.webfx.stack.ui.controls.button.ButtonFactory;
-import dev.webfx.stack.ui.dialog.DialogCallback;
-import dev.webfx.stack.ui.dialog.DialogUtil;
-import dev.webfx.extras.util.layout.LayoutUtil;
-import dev.webfx.extras.util.scene.SceneUtil;
-import dev.webfx.extras.materialdesign.textfield.MaterialTextFieldPane;
-import dev.webfx.extras.util.border.BorderFactory;
-import dev.webfx.kit.util.properties.FXProperties;
-import dev.webfx.platform.uischeduler.AnimationFramePass;
-import dev.webfx.platform.uischeduler.UiScheduler;
-import dev.webfx.platform.scheduler.Scheduled;
-import dev.webfx.platform.scheduler.Scheduler;
-import dev.webfx.platform.util.function.Callable;
 
 import static dev.webfx.extras.util.layout.LayoutUtil.*;
 import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
@@ -350,9 +351,12 @@ public abstract class ButtonSelector<T> {
                 dialogPane.setTop(searchTextField);
                 dialogPane.setBottom(buttonBar);
                 dialogCallback = DialogUtil.showModalNodeInGoldLayout(dialogPane, parentNow, 0.95, 0.95);
-                dialogHeightProperty.bind(dialogPane.heightProperty());
+                Scene scene = button.getScene();
+                var accelerators = ButtonFactory.backupDefaultAndCancelAccelerators(scene);
+                dialogCallback.addCloseHook(() -> ButtonFactory.restoreDefaultAndCancelAccelerators(scene, accelerators));
                 // Resetting default and cancel buttons (required for JavaFX if displayed a second time)
                 ButtonFactory.resetDefaultAndCancelButtons(okButton, cancelButton);
+                dialogHeightProperty.bind(dialogPane.heightProperty());
                 dialogPane.setVisible(true);
                 break;
 
@@ -397,7 +401,7 @@ public abstract class ButtonSelector<T> {
 
     private void reset() {
         // This dialog instance could be reused in theory but for any reason (?) it has width resizing issue after having
-        // been shown in modal dialog, so we force re-creation to have a brand new instance next time with no width issue
+        // been shown in modal dialog, so we force re-creation to have a brand-new instance next time with no width issue
         if (decidedShowMode == ShowMode.MODAL_DIALOG)
             forceDialogRebuiltOnNextShow();
         decidedShowMode = null;
