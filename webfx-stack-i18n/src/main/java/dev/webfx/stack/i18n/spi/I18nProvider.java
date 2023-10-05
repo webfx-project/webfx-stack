@@ -11,7 +11,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableValue;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.ServiceLoader;
 
@@ -20,7 +19,7 @@ import java.util.ServiceLoader;
  */
 public interface I18nProvider {
 
-    default Collection<Object> getSupportedLanguages() {
+    default List<Object> getSupportedLanguages() {
         return Collections.map(getProvidedInstantiators(), i -> i.emitLanguageRequest().getLanguage());
     }
 
