@@ -1,7 +1,7 @@
 package dev.webfx.stack.authn.login.ui.spi.impl.portal;
 
-import dev.webfx.extras.flippane.FlipPane;
-import dev.webfx.extras.scalepane.ScalePane;
+import dev.webfx.extras.panes.FlipPane;
+import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;

@@ -6,7 +6,7 @@ module webfx.stack.authn.login.ui.gateway.password.plugin {
     requires javafx.base;
     requires javafx.controls;
     requires javafx.graphics;
-    requires webfx.extras.scalepane;
+    requires webfx.extras.panes;
     requires webfx.extras.util.animation;
     requires webfx.extras.util.layout;
     requires webfx.extras.util.scene;
