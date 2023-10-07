@@ -10,6 +10,6 @@ import java.util.Set;
  */
 public interface DictionaryLoader {
 
-    Future<Dictionary> loadDictionary(Object lang, Set keys);
+    Future<Dictionary> loadDictionary(Object lang, Set<Object> keys);
 
 }
