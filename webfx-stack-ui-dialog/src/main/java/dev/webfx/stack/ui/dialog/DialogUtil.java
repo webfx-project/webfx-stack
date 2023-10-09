@@ -1,5 +1,6 @@
 package dev.webfx.stack.ui.dialog;
 
+import dev.webfx.extras.util.control.ControlUtil;
 import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.FXProperties;
@@ -126,23 +127,21 @@ public final class DialogUtil {
                     buttonNode.widthProperty(),
                     buttonNode.heightProperty(),
                     resizeProperty);
-            for (ScrollPane scrollPane = LayoutUtil.findScrollPaneAncestor(buttonNode); scrollPane != null; scrollPane = LayoutUtil.findScrollPaneAncestor(scrollPane)) {
+            for (ScrollPane scrollPane = ControlUtil.findScrollPaneAncestor(buttonNode); scrollPane != null; scrollPane = ControlUtil.findScrollPaneAncestor(scrollPane)) {
                 reactingProperties.add(scrollPane.hvalueProperty());
                 reactingProperties.add(scrollPane.vvalueProperty());
             }
             setDropDialogUp(dialogNode, up);
             Runnable positionUpdater = () -> {
                 Point2D buttonSceneXY = buttonNode.localToScene(0, 0);
-                Point2D parentSceneXY = parent.localToScene(0, 0);
-                //Logger.log("Computing dialogPrefWidth...");
                 double dialogPrefWidth = dialogNode.prefWidth(-1);
-                //Logger.log("dialogPrefWidth = " + dialogPrefWidth);
                 double dialogWidth = LayoutUtil.boundedSize(dialogPrefWidth, buttonNode.getWidth(), scene.getWidth() - buttonSceneXY.getX());
                 double dialogHeight = dialogNode.prefHeight(dialogWidth);
                 boolean dropDialogUp = isDropDialogUp(dialogNode);
                 double deltaY = dropDialogUp ? -dialogHeight : buttonNode.getHeight();
-                double dialogX = buttonSceneXY.getX() - parentSceneXY.getX();
-                double dialogY = buttonSceneXY.getY() - parentSceneXY.getY() + deltaY;
+                Point2D dialogParentXY = parent.sceneToLocal(buttonSceneXY);
+                double dialogX = dialogParentXY.getX();
+                double dialogY = dialogParentXY.getY() + deltaY;
                 if (isDropDialogBounded(dialogNode)) {
                     if (dropDialogUp)
                         dialogY = Math.min(dialogY, parent.getHeight() - dialogHeight);
