@@ -6,6 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 
@@ -95,12 +96,14 @@ public final class DialogContent implements DialogBuilder {
             builder.addTextRow(headerText);
         if (contentText != null)
             builder.addTextRow(contentText);
-        if (content != null)
+        if (content != null) {
             builder.addNodeFillingRow(content);
-        GridPane build = builder
+            GridPane.setVgrow(content, Priority.ALWAYS);
+        }
+        GridPane gridPane = builder
                 .addButtons(okText, okButton, cancelText, cancelButton)
                 .build();
-        build.setBackground(Background.fill(Color.WHITE)); // TODO: replace hardcoded style with CSS
-        return build;
+        gridPane.setBackground(Background.fill(Color.WHITE)); // TODO: replace hardcoded style with CSS
+        return gridPane;
     }
 }
