@@ -22,12 +22,14 @@ public final class MojoAuthServerAuthenticationGatewayProvider extends ServerAut
     private final static String MOJO_AUTH_PREFIX = "MojoAuth.";
     //private final static String USERS_STATUS_URL = "https://api.mojoauth.com/users/status";
 
-    private final MojoAuthApi mojoAuthApi;
+    private MojoAuthApi mojoAuthApi;
 
     public MojoAuthServerAuthenticationGatewayProvider() {
         super(MOJO_AUTH_PREFIX);
-        MojoAuthSDK.Initialize.setApiKey(MojoAuthServerLoginGatewayProvider.MOJO_AUTH_API_KEY);
-        mojoAuthApi = new MojoAuthApi();
+        MojoAuthServerLoginGatewayProvider.onConfigLoaded(() -> {
+            MojoAuthSDK.Initialize.setApiKey(MojoAuthServerLoginGatewayProvider.MOJO_AUTH_API_KEY);
+            mojoAuthApi = new MojoAuthApi();
+        });
     }
 
     @Override

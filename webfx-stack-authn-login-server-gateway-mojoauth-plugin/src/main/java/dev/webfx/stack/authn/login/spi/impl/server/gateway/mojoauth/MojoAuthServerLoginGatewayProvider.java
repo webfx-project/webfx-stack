@@ -61,6 +61,15 @@ public class MojoAuthServerLoginGatewayProvider implements ServerLoginGatewayPro
             "    <p style=\"display: table-cell; text-align: center; vertical-align: middle;\">{{RESPONSE_TEXT}}</p>\n" +
             "</body></html>";
 
+    private static Runnable onConfigLoadedRunnable;
+
+    public static void onConfigLoaded(Runnable runnable) {
+        if (isConfigurationValid())
+            runnable.run();
+        else
+            onConfigLoadedRunnable = runnable;
+    }
+
     @Override
     public void boot() {
         ConfigLoader.onConfigLoaded(CONFIG_PATH, config -> {
@@ -77,6 +86,10 @@ public class MojoAuthServerLoginGatewayProvider implements ServerLoginGatewayPro
                 Console.log("❌ Invalid configuration for MojoAuth login (check " + CONFIG_PATH + ")");
                 return;
             }
+
+            if (onConfigLoadedRunnable != null)
+                onConfigLoadedRunnable.run();
+
             Router router = Router.create(); // Actually returns the http router (not creates a new one)
 
             router.route(REDIRECT_PATH).handler(rc -> {
