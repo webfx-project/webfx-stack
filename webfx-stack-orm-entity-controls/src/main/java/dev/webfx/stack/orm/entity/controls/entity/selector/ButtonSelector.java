@@ -301,7 +301,7 @@ public abstract class ButtonSelector<T> {
             decidedShowMode = ShowMode.DROP_DOWN;
         else if (!SceneUtil.isVirtualKeyboardShowing(dialogPane.getScene())) { // we don't change the decided show mode while the virtual keyboard is showing
             double spaceAboveButton = computeMaxAvailableHeightAboveButton();
-            double spaceBelowButton = computeMaxAvailableHeightBelowButton(spaceAboveButton);
+            double spaceBelowButton = computeMaxAvailableHeightBelowButton();
             double dialogHeight = dialogPane.prefHeight(-1);
             // Making the decision from the highest dialog height (we don't change decision when it shrinks, only when it grows)
             dialogHighestHeight = Math.max(dialogHighestHeight, dialogHeight);
@@ -319,7 +319,7 @@ public abstract class ButtonSelector<T> {
 
     private double computeMaxAvailableHeightForDropDialog() {
         double spaceAboveButton = computeMaxAvailableHeightAboveButton();
-        double spaceBelowButton = computeMaxAvailableHeightBelowButton(spaceAboveButton);
+        double spaceBelowButton = computeMaxAvailableHeightBelowButton();
         return Math.max(spaceAboveButton, spaceBelowButton);
     }
 
@@ -327,8 +327,8 @@ public abstract class ButtonSelector<T> {
         return button.localToScene(0, 0).getY();
     }
 
-    private double computeMaxAvailableHeightBelowButton(double spaceAboveButton) {
-        return button.getScene().getHeight() - spaceAboveButton - button.getHeight();
+    private double computeMaxAvailableHeightBelowButton() {
+        return button.getScene().getHeight() - button.localToScene(0, button.getHeight()).getY();
     }
 
     private void show() {
