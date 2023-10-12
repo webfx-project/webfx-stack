@@ -1,6 +1,5 @@
 package dev.webfx.stack.ui.controls.button;
 
-import dev.webfx.extras.imagestore.ImageStore;
 import dev.webfx.extras.util.background.BackgroundFactory;
 import dev.webfx.extras.util.border.BorderFactory;
 import dev.webfx.kit.util.properties.FXProperties;
@@ -19,6 +18,7 @@ import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.SVGPath;
 
 /**
  * @author Bruno Salmon
@@ -53,19 +53,25 @@ public final class ButtonFactory {
         Button button = new Button();
         int radius = 6;
         button.setBorder(BorderFactory.newBorder(Color.LIGHTGRAY, radius, 1));
-        button.setBackground(BackgroundFactory.newVerticalLinearGradientBackground("white", "#E0E0E0", radius));
+        //button.setBackground(BackgroundFactory.newVerticalLinearGradientBackground("white", "#E0E0E0", radius));
+        button.setBackground(BackgroundFactory.newBackground(Color.WHITE, radius));
         return decorateButtonWithDropDownArrow(button);
     }
 
     public static Button decorateButtonWithDropDownArrow(Button button) {
-        GraphicDecoration dropDownArrowDecoration = new GraphicDecoration(ImageStore.createImageView("images/s16/controls/dropDownArrow.png"), Pos.CENTER_RIGHT, 0, 0, -1, 0);
+        SVGPath downArrow = new SVGPath();
+        downArrow.setStroke(Color.web("#838788"));
+        downArrow.setStrokeWidth(0.71);
+        downArrow.setFill(null);
+        downArrow.setContent("M1 1.22998L6.325 6.55499L11.65 1.22998");
+        GraphicDecoration dropDownArrowDecoration = new GraphicDecoration(downArrow, Pos.CENTER_RIGHT, 0, 0, -1, 0);
         FXProperties.runNowAndOnPropertiesChange(() -> Platform.runLater(() ->
             Controls.onSkinReady(button, () -> dropDownArrowDecoration.applyDecoration(button))
         ), button.graphicProperty());
         button.setMinWidth(0d);
         button.setMaxWidth(Double.MAX_VALUE);
         // Adding padding for the extra right icon decoration (adding the icon width 16px + repeating the 6px standard padding)
-        button.setPadding(new Insets(3, 6 + 16 + 6, 3, 6));
+        button.setPadding(new Insets(3, 6 + 20 + 6, 3, 6));
         button.setAlignment(Pos.CENTER_LEFT);
         return button;
     }
