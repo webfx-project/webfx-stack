@@ -4,6 +4,7 @@ import dev.webfx.extras.util.control.ControlUtil;
 import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.kit.util.properties.Unregisterable;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Booleans;
 import dev.webfx.platform.util.collection.Collections;
@@ -53,15 +54,16 @@ public final class DialogUtil {
     }
 
     private static void setUpModalNodeResizeRelocate(Region modalNode, Pane parent, DialogCallback dialogCallback) {
-        SceneUtil.onSceneReady(parent, scene ->
-            dialogCallback.addCloseHook(
-                FXProperties.runNowAndOnPropertiesChange(() -> {
+        SceneUtil.onSceneReady(parent, scene -> {
+            Unregisterable modalLayout = FXProperties.runNowAndOnPropertiesChange(() -> {
                         Point2D parentSceneXY = parent.localToScene(0, 0);
                         double width = Math.min(parent.getWidth(), scene.getWidth() - parentSceneXY.getX());
                         double height = Math.min(parent.getHeight(), scene.getHeight() - parentSceneXY.getY());
                         modalNode.resizeRelocate(0, 0, width, height);
                     }, parent.widthProperty(), parent.heightProperty(), scene.widthProperty(), scene.heightProperty()
-                )::unregister));
+            );
+            dialogCallback.addCloseHook(modalLayout::unregister);
+        });
     }
 
     public static BorderPane decorate(Node content) {
@@ -150,32 +152,35 @@ public final class DialogUtil {
                 }
                 Region.layoutInArea(dialogNode, dialogX, dialogY, dialogWidth, dialogHeight, -1, null, true, false, HPos.LEFT, VPos.TOP, true);
             };
-            dialogNode.getProperties().put("positionUpdater", positionUpdater); // used by updateDropUpOrDownDialogPosition()
+            dialogNode.getProperties().put("webfx-positionUpdater", positionUpdater); // used by updateDropUpOrDownDialogPosition()
+            // We automatically close the dialog when we loose the focus (ex: when the user clicks outside the dialog)
+            Unregisterable focusLostRegistration =
+                    SceneUtil.runOnceFocusIsOutside(dialogNode, false, dialogCallback::closeDialog);
             dialogCallback
                     .addCloseHook(FXProperties.runNowAndOnPropertiesChange(positionUpdater, reactingProperties)::unregister)
                     .addCloseHook(() -> dialogNode.relocate(0, 0))
-                    .addCloseHook(SceneUtil.runOnceFocusIsOutside(dialogNode, dialogCallback::closeDialog)::unregister);
+                    .addCloseHook(focusLostRegistration::unregister);
         });
     }
 
     public static void setDropDialogUp(Region dialogNode, boolean up) {
-        dialogNode.getProperties().put("up", up);
+        dialogNode.getProperties().put("webfx-dropDialogUp", up);
     }
 
     public static boolean isDropDialogUp(Region dialogNode) {
-        return Booleans.isTrue(dialogNode.getProperties().get("up"));
+        return Booleans.isTrue(dialogNode.getProperties().get("webfx-dropDialogUp"));
     }
 
     public static void setDropDialogBounded(Region dialogNode, boolean bounded) {
-        dialogNode.getProperties().put("dropDialogBounded", bounded);
+        dialogNode.getProperties().put("webfx-dropDialogBounded", bounded);
     }
 
     public static boolean isDropDialogBounded(Region dialogNode) {
-        return Booleans.isTrue(dialogNode.getProperties().get("dropDialogBounded"));
+        return Booleans.isTrue(dialogNode.getProperties().get("webfx-dropDialogBounded"));
     }
 
     public static void updateDropUpOrDownDialogPosition(Region dialogNode) {
-        Object positionUpdater = dialogNode.getProperties().get("positionUpdater");
+        Object positionUpdater = dialogNode.getProperties().get("webfx-positionUpdater");
         if (positionUpdater instanceof Runnable)
            ((Runnable) positionUpdater).run();
     }

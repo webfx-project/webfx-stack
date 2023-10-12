@@ -3,7 +3,6 @@ package dev.webfx.stack.ui.controls.button;
 import dev.webfx.extras.util.background.BackgroundFactory;
 import dev.webfx.extras.util.border.BorderFactory;
 import dev.webfx.kit.util.properties.FXProperties;
-import dev.webfx.platform.util.tuples.Pair;
 import dev.webfx.stack.ui.action.Action;
 import dev.webfx.stack.ui.controls.Controls;
 import dev.webfx.stack.ui.validation.controlsfx.control.decoration.GraphicDecoration;
@@ -13,10 +12,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 
@@ -91,41 +87,6 @@ public final class ButtonFactory {
     public static void resetDefaultAndCancelButtons(Button defaultButton, Button cancelButton) {
         resetDefaultButton(defaultButton);
         resetCancelButton(cancelButton);
-    }
-
-    public static Runnable backupDefaultAccelerator(Scene scene) {
-        return backupAccelerator(scene, KeyCode.ENTER);
-    }
-
-    public static void restoreDefaultAccelerator(Scene scene, Runnable defaultAccelerator) {
-        restoreAccelerator(scene, KeyCode.ENTER, defaultAccelerator);
-    }
-
-    public static Runnable backupCancelAccelerator(Scene scene) {
-        return backupAccelerator(scene, KeyCode.ESCAPE);
-    }
-
-    public static void restoreCancelAccelerator(Scene scene, Runnable cancelAccelerator) {
-        restoreAccelerator(scene, KeyCode.ESCAPE, cancelAccelerator);
-    }
-
-    public static Pair<Runnable, Runnable> backupDefaultAndCancelAccelerators(Scene scene) {
-        return new Pair(backupDefaultAccelerator(scene), backupCancelAccelerator(scene));
-    }
-
-    public static void restoreDefaultAndCancelAccelerators(Scene scene, Pair<Runnable, Runnable> accelerators) {
-        restoreDefaultAccelerator(scene, accelerators.get1());
-        restoreCancelAccelerator(scene, accelerators.get2());
-    }
-
-    private static Runnable backupAccelerator(Scene scene, KeyCode keyCode) {
-        KeyCodeCombination acceleratorKeyCodeCombination = new KeyCodeCombination(keyCode);
-        return scene.getAccelerators().get(acceleratorKeyCodeCombination);
-    }
-
-    private static void restoreAccelerator(Scene scene, KeyCode keyCode, Runnable accelerator) {
-        KeyCodeCombination acceleratorKeyCodeCombination = new KeyCodeCombination(keyCode);
-        scene.getAccelerators().put(acceleratorKeyCodeCombination, accelerator);
     }
 
 }
