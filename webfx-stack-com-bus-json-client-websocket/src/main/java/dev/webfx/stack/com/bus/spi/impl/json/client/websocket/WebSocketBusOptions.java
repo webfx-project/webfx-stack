@@ -1,6 +1,7 @@
 package dev.webfx.stack.com.bus.spi.impl.json.client.websocket;
 
 import dev.webfx.platform.ast.ReadOnlyAstObject;
+import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.Objects;
 import dev.webfx.stack.com.bus.BusOptions;
 
@@ -37,12 +38,29 @@ public final class WebSocketBusOptions extends BusOptions {
     @Override
     public WebSocketBusOptions applyConfig(ReadOnlyAstObject config) {
         super.applyConfig(config);
-        String configProtocol = config.getString("protocol");
-        protocol = configProtocol != null ? Protocol.valueOf(configProtocol.toUpperCase()) : Protocol.WS;
         serverSSL = config.getBoolean("serverSSL");
         serverHost = config.getString("serverHost");
         serverPort = config.getString("serverPort");
         pingInterval = config.getInteger("pingInterval");
+        String configProtocol = config.getString("protocol");
+        if (configProtocol != null) {
+            switch (configProtocol.toLowerCase()) {
+                case "https":
+                    serverSSL = true;
+                case "http":
+                    protocol = Protocol.HTTP;
+                    break;
+                case "wss":
+                    serverSSL = true;
+                case "ws":
+                    protocol = Protocol.WS;
+                    break;
+            }
+        }
+        if (protocol == null) {
+            Console.log("⚠️ Default WS protocol will be applied for WebSocket due to unrecognized protocol configuration value: " + configProtocol);
+            protocol = Protocol.WS;
+        }
         return this;
     }
 
