@@ -61,13 +61,13 @@ public class MojoAuthServerLoginGatewayProvider implements ServerLoginGatewayPro
             "    <p style=\"display: table-cell; text-align: center; vertical-align: middle;\">{{RESPONSE_TEXT}}</p>\n" +
             "</body></html>";
 
-    private static Runnable onConfigLoadedRunnable;
+    private static Runnable onValidConfigRunnable;
 
-    public static void onConfigLoaded(Runnable runnable) {
+    public static void onValidConfig(Runnable runnable) {
         if (isConfigurationValid())
             runnable.run();
         else
-            onConfigLoadedRunnable = runnable;
+            onValidConfigRunnable = runnable;
     }
 
     @Override
@@ -87,8 +87,8 @@ public class MojoAuthServerLoginGatewayProvider implements ServerLoginGatewayPro
                 return;
             }
 
-            if (onConfigLoadedRunnable != null)
-                onConfigLoadedRunnable.run();
+            if (onValidConfigRunnable != null)
+                onValidConfigRunnable.run();
 
             Router router = Router.create(); // Actually returns the http router (not creates a new one)
 
@@ -114,7 +114,7 @@ public class MojoAuthServerLoginGatewayProvider implements ServerLoginGatewayPro
         });
     }
 
-    public static boolean isConfigurationValid() {
+    private static boolean isConfigurationValid() {
         // Quick dirty test
         return MOJO_AUTH_API_KEY != null && !MOJO_AUTH_API_KEY.contains("${{");
     }

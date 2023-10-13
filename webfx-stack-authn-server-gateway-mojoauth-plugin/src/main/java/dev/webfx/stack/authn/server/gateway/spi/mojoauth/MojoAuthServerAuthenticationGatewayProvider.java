@@ -26,7 +26,7 @@ public final class MojoAuthServerAuthenticationGatewayProvider extends ServerAut
 
     public MojoAuthServerAuthenticationGatewayProvider() {
         super(MOJO_AUTH_PREFIX);
-        MojoAuthServerLoginGatewayProvider.onConfigLoaded(() -> {
+        MojoAuthServerLoginGatewayProvider.onValidConfig(() -> {
             MojoAuthSDK.Initialize.setApiKey(MojoAuthServerLoginGatewayProvider.MOJO_AUTH_API_KEY);
             mojoAuthApi = new MojoAuthApi();
         });

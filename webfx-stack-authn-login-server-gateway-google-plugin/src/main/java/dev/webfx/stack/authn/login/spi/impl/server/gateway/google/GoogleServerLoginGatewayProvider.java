@@ -28,12 +28,12 @@ public class GoogleServerLoginGatewayProvider implements ServerLoginGatewayProvi
     private final static String REDIRECT_ORIGIN_CONF_KEY = "redirectOrigin";
     private final static String REDIRECT_PATH_CONF_KEY = "redirectPath";
 
-    static String GOOGLE_CLIENT_ID;
-    static String GOOGLE_CLIENT_SECRET;
-    static String LOGIN_ORIGIN;
-    static String LOGIN_PATH;
-    static String REDIRECT_ORIGIN;
-    static String REDIRECT_PATH;
+    private static String GOOGLE_CLIENT_ID;
+    private static String GOOGLE_CLIENT_SECRET;
+    private static String LOGIN_ORIGIN;
+    private static String LOGIN_PATH;
+    private static String REDIRECT_ORIGIN;
+    private static String REDIRECT_PATH;
 
     private final static String GATEWAY_ID = "Google";
     private final static String GOOGLE_AUTH_PREFIX = "Google."; // Must match with GoogleServerAuthenticationGatewayProvider
@@ -125,7 +125,7 @@ public class GoogleServerLoginGatewayProvider implements ServerLoginGatewayProvi
         });
     }
 
-    public static boolean isConfigurationValid() {
+    private static boolean isConfigurationValid() {
         // Quick dirty test
         return GOOGLE_CLIENT_ID != null && !GOOGLE_CLIENT_ID.contains("${{");
     }

@@ -56,6 +56,16 @@ public class FacebookServerLoginGatewayProvider implements ServerLoginGatewayPro
     private final static String HTML_RESPONSE = "<html><body style= \"width: 100%; height:62%; display: table; overflow: hidden;\">\n" +
             "    <p style=\"display: table-cell; text-align: center; vertical-align: middle;\">{{RESPONSE_TEXT}}</p>\n" +
             "</body></html>";
+
+    private static Runnable onValidConfigRunnable;
+
+    public static void onValidConfig(Runnable runnable) {
+        if (isConfigurationValid())
+            runnable.run();
+        else
+            onValidConfigRunnable = runnable;
+    }
+
     @Override
     public void boot() {
         ConfigLoader.onConfigLoaded(CONFIG_PATH, config -> {
@@ -75,6 +85,9 @@ public class FacebookServerLoginGatewayProvider implements ServerLoginGatewayPro
                 Console.log("❌ Invalid configuration for Facebook login (check " + CONFIG_PATH + ")");
                 return;
             }
+
+            if (onValidConfigRunnable != null)
+                onValidConfigRunnable.run();
 
             Router router = Router.create(); // Actually returns the http router (not creates a new one)
 
@@ -126,7 +139,7 @@ public class FacebookServerLoginGatewayProvider implements ServerLoginGatewayPro
         });
     }
 
-    public static boolean isConfigurationValid() {
+    private static boolean isConfigurationValid() {
         // Temporary dirty check
         return FACEBOOK_CLIENT_ID != null && !FACEBOOK_CLIENT_ID.contains("${{");
     }

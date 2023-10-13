@@ -1,10 +1,10 @@
 package dev.webfx.stack.authn.server.gateway.spi.impl.facebook;
 
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.Promise;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.fetch.json.JsonFetch;
-import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.authn.UserClaims;
 import dev.webfx.stack.authn.server.gateway.spi.impl.ServerAuthenticationGatewayProviderBase;
 import dev.webfx.stack.session.state.ThreadLocalStateHolder;
@@ -30,7 +30,7 @@ public final class FacebookServerAuthenticationGatewayProvider extends ServerAut
 
     @Override
     public void boot() {
-        if (isConfigurationValid())
+        onValidConfig(() -> {
             // Getting the "APP" access token (for further use in the FB API)
             fetchJson(resolveTemplateVariables(FB_JSON_API_APP_TOKEN_URL_TEMPLATE))
                     .onFailure(e -> Console.log("❌ Error while getting the Facebook application access token: " + e.getMessage()))
@@ -41,6 +41,7 @@ public final class FacebookServerAuthenticationGatewayProvider extends ServerAut
                         else
                             Console.log("✅ Successfully received Facebook application access token");
                     });
+        });
     }
 
     @Override
