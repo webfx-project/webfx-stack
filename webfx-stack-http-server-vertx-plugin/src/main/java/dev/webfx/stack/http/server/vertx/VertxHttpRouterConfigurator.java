@@ -33,7 +33,7 @@ final class VertxHttpRouterConfigurator {
         // We assume the SPA is hosted under the root / or under any path ending with / or /index.html or any path
         // including /#/ (which is used for UI routing).
         router.routeWithRegex(".*/|.*/index.html|.*/#/.*").handler(routingContext -> {
-            routingContext.response().putHeader("cache-control", "public, max-age=0");
+            routingContext.response().putHeader("cache-control", "no-cache");
             routingContext.next();
         });
 
