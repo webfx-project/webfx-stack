@@ -9,6 +9,7 @@ module webfx.stack.authn.server.portal {
     requires webfx.platform.util;
     requires webfx.stack.authn;
     requires webfx.stack.authn.server.gateway;
+    requires webfx.stack.session.state;
     requires webfx.stack.session.state.server;
 
     // Exported packages

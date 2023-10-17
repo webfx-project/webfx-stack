@@ -5,6 +5,7 @@ import dev.webfx.platform.util.serviceloader.MultipleServiceProviders;
 import dev.webfx.stack.authn.UserClaims;
 import dev.webfx.stack.authn.server.gateway.spi.ServerAuthenticationGatewayProvider;
 import dev.webfx.stack.authn.spi.AuthenticationServiceProvider;
+import dev.webfx.stack.session.state.ThreadLocalStateHolder;
 
 import java.util.List;
 import java.util.ServiceLoader;
@@ -43,7 +44,7 @@ public class ServerAuthenticationPortalProvider implements AuthenticationService
             if (accepts)
                 return gatewayProvider.verifyAuthenticated();
         }
-        return Future.failedFuture("No server authentication gateway found!");
+        return Future.failedFuture("verifyAuthenticated() failed on server authentication portal because no server gateway accepted UserId " + ThreadLocalStateHolder.getUserId());
     }
 
     @Override
@@ -53,7 +54,7 @@ public class ServerAuthenticationPortalProvider implements AuthenticationService
             if (accepts)
                 return gatewayProvider.getUserClaims();
         }
-        return Future.failedFuture("No server authentication gateway found!");
+        return Future.failedFuture("getUserClaims() failed on server authentication portal because no server gateway accepted UserId " + ThreadLocalStateHolder.getUserId());
     }
 
     @Override
@@ -63,7 +64,7 @@ public class ServerAuthenticationPortalProvider implements AuthenticationService
             if (accepts)
                 return gatewayProvider.logout();
         }
-        return Future.failedFuture("No server authentication gateway found!");
+        return Future.failedFuture("logout() failed on server authentication portal because no server gateway accepted UserId " + ThreadLocalStateHolder.getUserId());
     }
 
 }
