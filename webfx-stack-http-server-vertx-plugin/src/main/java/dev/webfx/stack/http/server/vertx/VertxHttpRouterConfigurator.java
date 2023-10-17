@@ -30,7 +30,9 @@ final class VertxHttpRouterConfigurator {
         });
 
         // SPA root page shouldn't be cached (to always return the latest version with the latest GWT compilation)
-        router.routeWithRegex(".*/#/.*").handler(routingContext -> {
+        // We assume the SPA is hosted under the root / or under any path ending with / or /index.html or any path
+        // including /#/ (which is used for UI routing).
+        router.routeWithRegex(".*/|.*/index.html|.*/#/.*").handler(routingContext -> {
             routingContext.response().putHeader("cache-control", "public, max-age=0");
             routingContext.next();
         });
