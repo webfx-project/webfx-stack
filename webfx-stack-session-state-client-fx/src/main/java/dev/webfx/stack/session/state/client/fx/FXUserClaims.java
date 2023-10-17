@@ -18,9 +18,11 @@ public final class FXUserClaims {
     static {
         FXProperties.runNowAndOnPropertiesChange(() -> {
             setUserClaims(null);
-            AuthenticationService.getUserClaims()
-                    .onFailure(Console::log)
-                    .onSuccess(userClaims -> UiScheduler.runInUiThread(() -> setUserClaims(userClaims)));
+            if (FXUserId.getUserId() != null) {
+                AuthenticationService.getUserClaims()
+                        .onFailure(Console::log)
+                        .onSuccess(userClaims -> UiScheduler.runInUiThread(() -> setUserClaims(userClaims)));
+            }
         }, FXUserId.userIdProperty());
     }
 
