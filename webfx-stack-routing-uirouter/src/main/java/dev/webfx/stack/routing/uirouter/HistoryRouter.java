@@ -59,12 +59,8 @@ public class HistoryRouter {
     }
 
     public void start() {
-        BrowsingHistoryLocation currentLocation = history.getCurrentLocation();
         history.listen(this::onNewHistoryLocation);
-        if (currentLocation != null)
-            onNewHistoryLocation(currentLocation);
-        else
-            replaceCurrentHistoryWithInitialDefaultPath();
+        refresh();
     }
 
     public void refresh() {
@@ -72,7 +68,17 @@ public class HistoryRouter {
     }
 
     protected void onNewHistoryLocation(BrowsingHistoryLocation browsingHistoryLocation) {
-        router.accept(history.getPath(browsingHistoryLocation), browsingHistoryLocation.getState());
+        String path = null;
+        Object state = null;
+        // On first call, browsingHistoryLocation might be null when not running in the browser
+        if (browsingHistoryLocation != null) {
+            path = history.getPath(browsingHistoryLocation);
+            state = browsingHistoryLocation.getState();
+        }
+        // Also on first call, the path might be empty in the browser if the location is just the domain name
+        if (path == null || path.isEmpty()) // In both cases, we route to the initial default path
+            path = defaultInitialHistoryPath;
+        router.accept(path, state);
     }
 
 }
