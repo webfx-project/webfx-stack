@@ -21,6 +21,7 @@ final class VertxHttpRouterConfigurator {
         // Logging web requests
         router.route("/*").handler(LoggerHandler.create());
 
+        // The session store to use
         router.route("/*").handler(SessionHandler.create(VertxInstance.getSessionStore()));
 
         // GWT perfect caching (xxx.cache.xxx files will never change again)
@@ -36,6 +37,9 @@ final class VertxHttpRouterConfigurator {
             routingContext.response().putHeader("cache-control", "no-cache");
             routingContext.next();
         });
+
+        // Wildcard CORS policy. This is temporary, before CORS configuration is implemented.
+        router.route("/*").handler(CorsHandler.create().addOrigin("*"));
 
         return router;
     }
