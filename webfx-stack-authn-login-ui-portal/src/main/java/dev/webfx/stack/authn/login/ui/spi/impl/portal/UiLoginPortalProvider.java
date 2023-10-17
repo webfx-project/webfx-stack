@@ -4,6 +4,7 @@ import dev.webfx.extras.panes.FlipPane;
 import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.platform.console.Console;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.serviceloader.MultipleServiceProviders;
 import dev.webfx.stack.authn.login.ui.spi.UiLoginServiceProvider;
@@ -172,8 +173,9 @@ public class UiLoginPortalProvider implements UiLoginServiceProvider, UiLoginPor
     }
 
     @Override
-    public void notifyUserLoginFailed() {
+    public void notifyUserLoginFailed(Throwable cause) {
         Animations.shake(flipPane.getFront());
+        Console.log("Authentication failed", cause);
     }
 
 }

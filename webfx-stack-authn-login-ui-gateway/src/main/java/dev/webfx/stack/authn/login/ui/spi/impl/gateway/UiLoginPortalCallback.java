@@ -9,6 +9,6 @@ public interface UiLoginPortalCallback {
 
     void notifyUserLoginSuccessful();
 
-    void notifyUserLoginFailed();
+    void notifyUserLoginFailed(Throwable cause);
 
 }

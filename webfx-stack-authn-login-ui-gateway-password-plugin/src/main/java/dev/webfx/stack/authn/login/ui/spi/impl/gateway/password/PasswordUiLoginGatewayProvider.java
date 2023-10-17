@@ -8,8 +8,8 @@ import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.stack.authn.AuthenticationRequest;
 import dev.webfx.stack.authn.UsernamePasswordCredentials;
-import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginPortalCallback;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProviderBase;
+import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginPortalCallback;
 import dev.webfx.stack.i18n.controls.I18nControls;
 import dev.webfx.stack.ui.controls.MaterialFactoryMixin;
 import dev.webfx.stack.ui.controls.button.ButtonFactory;
@@ -96,7 +96,7 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
                 new AuthenticationRequest()
                         .setUserCredentials(new UsernamePasswordCredentials(usernameField.getText(), passwordField.getText()))
                         .executeAsync()
-                        .onFailure(cause -> callback.notifyUserLoginFailed())
+                        .onFailure(callback::notifyUserLoginFailed)
                         .onSuccess(ignored -> Platform.runLater(() -> {
                             usernameField.clear();
                             passwordField.clear();
