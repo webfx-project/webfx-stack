@@ -70,11 +70,28 @@ public final class AuthorizationClientRequest<Rq, Rs> {
 
     public Future<Rs> executeAsync() {
         Promise<Rs> promise = Promise.promise();
+        // Checking if the operation is authorized
         isAuthorizedAsync().onComplete(ar -> {
-            if (ar.succeeded() && ar.result())
-                getAuthorizedOperationAsyncExecutor().apply(getOperationRequest()).onComplete(ar2 -> promise.complete(ar2.result()));
-            else
-                getUnauthorizedOperationAsyncExecutor().apply(ar.cause()).onComplete(ar2 -> promise.fail(ar.cause()));
+            if (ar.succeeded() && ar.result()) { // Yes it is authorized :)
+                // We ask the authorized operation executor
+                getAuthorizedOperationAsyncExecutor()
+                        // to execute the operation request (also an asynchronous call)
+                        .apply(getOperationRequest())
+                        // and complete the promise with the result of the operation execution
+                        .onComplete(promise);
+            } else { // No it's not authorized (or there was an exception during the authorization check)
+                // We ask the unauthorised operation executor
+                getUnauthorizedOperationAsyncExecutor()
+                        // to execute what's needed to report this non-authorization (ex: display a message to user)
+                        .apply(ar.cause()) // Note: in general ar.cause() is null, meaning that there was no error during authorization check
+                        // and we fail the promise
+                        .onComplete(ignored -> {
+                            if (ar.cause() != null) // Rare cases where an exception arose during authorization check
+                                promise.fail(ar.cause());
+                            else // General case where the authorization check was ok but result was not authorized
+                                promise.fail(new UnauthorizedOperationException());
+                        });
+            }
         });
         return promise.future();
     }
