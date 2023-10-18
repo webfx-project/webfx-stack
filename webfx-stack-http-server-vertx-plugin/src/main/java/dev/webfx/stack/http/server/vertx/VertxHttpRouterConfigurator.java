@@ -32,9 +32,18 @@ final class VertxHttpRouterConfigurator {
 
         // SPA root page shouldn't be cached (to always return the latest version with the latest GWT compilation)
         // We assume the SPA is hosted under the root / or under any path ending with / or /index.html or any path
-        // including /#/ (which is used for UI routing). This applies also to xxx.nocache.xxx GWT files.
-        router.routeWithRegex(".*/|.*/index.html|.*/#/.*|.*\\.nocache\\..*").handler(routingContext -> {
+        // including /#/ (which is used for UI routing).
+        router.routeWithRegex(".*/|.*/index.html|.*/#/.*").handler(routingContext -> {
             routingContext.response().putHeader("cache-control", "no-cache");
+            routingContext.next();
+        });
+
+        // For xxx.nocache.xxx GWT files, "no-cache" would work also in theory, but in practice it seems that now
+        // browsers - or at least Chrome - are not checking those files if index.html hasn't changed! A shame because
+        // most of the time, this is those files that change (on each new GWT compilation) and not index.html. So,
+        // to force the browser to check those files, we use "no-store" (even if it is less optimised).
+        router.routeWithRegex(".*\\.nocache\\..*").handler(routingContext -> {
+            routingContext.response().putHeader("cache-control", "no-store");
             routingContext.next();
         });
 
