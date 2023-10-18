@@ -43,6 +43,8 @@ import java.util.function.BiConsumer;
  */
 public final class VertxLocalConnectedQuerySubmitServiceProvider implements QueryServiceProvider, SubmitServiceProvider {
 
+    private final static boolean LOG_OPEN_CONNECTIONS = true;
+
     private final Pool pool;
 
     public VertxLocalConnectedQuerySubmitServiceProvider(LocalDataSource localDataSource) {
@@ -108,7 +110,11 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
                     Console.log(cause);
                     promise.fail(cause);
                 })
-                .onSuccess(connection -> executor.accept(connection, promise)); // Note: this is the responsibility of the executor to close the connection
+                .onSuccess(connection -> {
+                    if (LOG_OPEN_CONNECTIONS)
+                        Console.log("DB pool open connections = " + ++open);
+                    executor.accept(connection, promise);
+                }); // Note: this is the responsibility of the executor to close the connection
         return promise.future();
     }
 
@@ -119,14 +125,17 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
     private <T> Future<T> connectAndExecuteInTransaction(TriConsumer<SqlConnection, Transaction, Promise<T>> executor) {
         return connectAndExecute((connection, promise) ->
                 connection.begin()
-                        .onFailure(promise::fail)
+                        .onFailure(cause -> { Console.log(cause); promise.fail(cause); })
                         .onSuccess(transaction -> executor.accept(connection, transaction, promise))
         );
     }
 
+    private int open;
+
     private void closeConnection(SqlConnection connection) {
         connection.close();
-        //Logger.log("open = " + --open);
+        if (LOG_OPEN_CONNECTIONS)
+            Console.log("DB pool open connections = " + --open);
     }
 
     private static void onSuccessfulSubmit(SubmitArgument submitArgument) {
@@ -141,9 +150,10 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
         //Console.log("Single query with " + queryArgument);
         // long t0 = System.currentTimeMillis();
         executeQueryOnConnection(queryArgument.getStatement(), queryArgument.getParameters(), connection, ar -> {
-            if (ar.failed()) // Sql error
+            if (ar.failed()) { // Sql error
+                Console.log(ar.cause());
                 promise.fail(ar.cause());
-            else { // Sql succeeded
+            } else { // Sql succeeded
                 // Transforming the result set into columnNames and values arrays
                 RowSet<Row> resultSet = ar.result();
                 int columnCount = resultSet.columnsNames().size();
@@ -173,13 +183,14 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
 
     private void executeQueryOnConnection(String queryString, Object[] parameters, SqlConnection connection, Handler<AsyncResult<RowSet<Row>>> resultHandler) {
         // Calling query() or preparedQuery() depending on if parameters are provided or not
-        if (Arrays.isEmpty(parameters))
+        if (Arrays.isEmpty(parameters)) {
             connection.query(queryString)
                     .execute(resultHandler);
-        else {
-            for (int i = 0; i < parameters.length; i++)
+        } else {
+            for (int i = 0; i < parameters.length; i++) {
                 if (parameters[i] instanceof Instant)
                     parameters[i] = LocalDateTime.ofInstant((Instant) parameters[i], ZoneOffset.UTC);
+            }
             connection.preparedQuery(queryString)
                     .execute(Tuple.from(parameters), resultHandler);
         }
@@ -192,6 +203,7 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
                 // Unless from batch, closing the connection now, so it can go back to the pool
                 if (!batch)
                     closeConnection(connection);
+                Console.log(res.cause());
                 promise.fail(res.cause());
             } else { // Sql succeeded
                 RowSet<Row> result = res.result();
@@ -207,12 +219,14 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
                     promise.complete(submitResult);
                 else {
                     transaction.commit(ar -> {
-                        if (ar.failed())
+                        if (ar.failed()) {
+                            Console.log(ar.cause());
                             promise.fail(ar.cause());
-                        else
+                        } else
                             promise.complete(submitResult);
                         closeConnection(connection);
-                        onSuccessfulSubmit(submitArgument);
+                        if (ar.succeeded())
+                            onSuccessfulSubmit(submitArgument);
                     });
                 }
             }
@@ -234,6 +248,7 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
             }
             executeSubmitOnConnection(updateArgument, connection, transaction, true, Promise.promise())
                     .onFailure(cause -> {
+                        Console.log(cause);
                         statementPromise.fail(cause);
                         transaction.rollback(event -> closeConnection(connection));
                     })
@@ -246,12 +261,14 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
                             statementPromise.complete(submitResult);
                         else
                             transaction.commit(ar -> {
-                                if (ar.failed())
+                                if (ar.failed()) {
+                                    Console.log(ar.cause());
                                     statementPromise.fail(ar.cause());
-                                else
+                                } else
                                     statementPromise.complete(submitResult);
                                 closeConnection(connection);
-                                onSuccessfulSubmitBatch(batch);
+                                if (ar.succeeded())
+                                    onSuccessfulSubmitBatch(batch);
                             });
                     });
             return statementPromise.future();
