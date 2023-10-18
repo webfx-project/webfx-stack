@@ -17,8 +17,10 @@ public final class FXUserClaims {
 
     static {
         FXProperties.runNowAndOnPropertiesChange(() -> {
+            // Forgetting the previous user claims on user change
             setUserClaims(null);
-            if (FXUserId.getUserId() != null) {
+            // Asking the new user claim if the user is logged in (ignored if the user just logged out)
+            if (FXLoggedIn.isLoggedIn()) {
                 AuthenticationService.getUserClaims()
                         .onFailure(Console::log)
                         .onSuccess(userClaims -> UiScheduler.runInUiThread(() -> setUserClaims(userClaims)));
