@@ -49,7 +49,7 @@ public class VertxHttpModuleBooter implements ApplicationModuleBooter {
 
     @Override
     public int getBootLevel() {
-        return CONF_BOOT_LEVEL;
+        return COMMUNICATION_OPEN_BOOT_LEVEL;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class VertxHttpModuleBooter implements ApplicationModuleBooter {
         Router router = VertxHttpRouterConfigurator.initialiseRouter();
         VertxInstance.setHttpRouter(router);
 
-        // 1) HTTP options
+        // 1) Starting HTTP servers
         ConfigLoader.onConfigLoaded(OPTIONS_CONFIG_PATH, config -> {
 
             if (config == null) {
@@ -79,7 +79,14 @@ public class VertxHttpModuleBooter implements ApplicationModuleBooter {
             //return errors == 0 ? Future.succeededFuture() : Future.failedFuture(new ConfigurationException(errors < CONFIGURATION.getArray(HTTP_SERVERS_CONFIG_KEY).size()));
         });
 
-        // 2) HTTP routes
+        // 2) Installing Vert.x bus (should be already set by VertxBusModuleBooter)
+        Runnable bridgeInstaller = VertxInstance.getBridgeInstaller();
+        if (bridgeInstaller != null)
+            bridgeInstaller.run();
+        else
+            log("❌ Vert.x bridge installer was not set on time");
+
+        // 3) HTTP routes
         ConfigLoader.onConfigLoaded(ROUTES_CONFIG_PATH, config -> {
 
             if (config == null) {
@@ -91,7 +98,7 @@ public class VertxHttpModuleBooter implements ApplicationModuleBooter {
                 String routePattern = httpStaticRouteConfig.getString(ROUTE_PATTERN_CONFIG_KEY);
                 ReadOnlyAstArray hostnamePatterns = httpStaticRouteConfig.getArray(HOSTNAME_PATTERNS_CONFIG_KEY);
                 String pathToStaticFolder = httpStaticRouteConfig.getString(PATH_TO_STATIC_FOLDER_CONFIG_KEY);
-                Console.log("Routing '" + routePattern + "' to serve static files at " + pathToStaticFolder + (hostnamePatterns == null ? "" : " for the following hostnames: " + list(hostnamePatterns)));
+                Console.log("✓ Routing '" + routePattern + "' to serve static files at " + pathToStaticFolder + (hostnamePatterns == null ? "" : " for the following hostnames: " + list(hostnamePatterns)));
                 VertxHttpRouterConfigurator.addStaticRoute(routePattern, hostnamePatterns, pathToStaticFolder);
             });
 

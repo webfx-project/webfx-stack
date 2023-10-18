@@ -27,7 +27,7 @@ public class VertxBusModuleBooter implements ApplicationModuleBooter {
 
     @Override
     public int getBootLevel() {
-        return APPLICATION_BOOT_LEVEL;
+        return CONF_BOOT_LEVEL;
     }
 
     @Override
@@ -36,30 +36,37 @@ public class VertxBusModuleBooter implements ApplicationModuleBooter {
         ConfigLoader.onConfigLoaded(CONFIG_PATH, config -> {
 
             if (config == null) {
-                log("❌ No configuration found Vert.x bus " + CONFIG_PATH + "!");
+                log("❌ No Vert.x bus configuration was not found at " + CONFIG_PATH);
                 return;
             }
 
             String busPrefix = config.getString(BUS_PREFIX_CONFIG_KEY);
-            //String pingTimeout = config.getString(PING_TIMEOUT_KEY);
-            /*if (!ConfigurationService.areValuesNonNullAndResolved(busPrefix, pingTimeout))
-                return Future.failedFuture("Couldn't start the Vertx event bus due to invalid configuration");*/
-            VertxInstance.getHttpRouter()
-                    .route("/" + busPrefix + "/*")
-                    .subRouter(SockJSHandler.create(VertxInstance.getVertx())
-                            .bridge(new SockJSBridgeOptions()
-                                            .setPingTimeout(config.getLong(PING_TIMEOUT_KEY)) // Should be higher than client WebSocketBusOptions.pingInterval (which is set to 30_000 at the time of writing this code)
-                                            .addInboundPermitted(new PermittedOptions(new JsonObject()))
-                                            .addOutboundPermitted(new PermittedOptions(new JsonObject()))
-                                    , bridgeEvent -> { // Calling the VertxInstance bridge event handler if set
-                                        Handler<BridgeEvent> bridgeEventHandler = VertxInstance.getBridgeEventHandler();
-                                        if (bridgeEventHandler != null)
-                                            bridgeEventHandler.handle(bridgeEvent);
-                                        else
-                                            bridgeEvent.complete(true);
-                                    }
-                            )
-                    );
+            Long pingTimeout = config.getLong(PING_TIMEOUT_KEY);
+            if (busPrefix == null || pingTimeout == null) {
+                log("❌ Invalid Vert.x bus configuration at " + CONFIG_PATH);
+                return;
+            }
+
+            VertxInstance.setBridgeInstaller(() -> {
+                VertxInstance.getHttpRouter()
+                        .route("/" + busPrefix + "/*")
+                        .subRouter(SockJSHandler.create(VertxInstance.getVertx())
+                                .bridge(new SockJSBridgeOptions()
+                                                .setPingTimeout(pingTimeout) // Should be higher than client WebSocketBusOptions.pingInterval (which is set to 30_000 at the time of writing this code)
+                                                .addInboundPermitted(new PermittedOptions(new JsonObject()))
+                                                .addOutboundPermitted(new PermittedOptions(new JsonObject()))
+                                        , bridgeEvent -> { // Calling the VertxInstance bridge event handler if set
+                                            Handler<BridgeEvent> bridgeEventHandler = VertxInstance.getBridgeEventHandler();
+                                            if (bridgeEventHandler != null)
+                                                bridgeEventHandler.handle(bridgeEvent);
+                                            else
+                                                bridgeEvent.complete(true);
+                                        }
+                                )
+                        );
+                log("✓ Vert.x bus configured with prefix = '" + busPrefix + "' & timeout = " + pingTimeout + " ms");
+            });
+
         });
     }
 }

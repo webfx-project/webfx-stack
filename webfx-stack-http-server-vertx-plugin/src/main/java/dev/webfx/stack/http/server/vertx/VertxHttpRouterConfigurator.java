@@ -62,6 +62,6 @@ final class VertxHttpRouterConfigurator {
     static void finaliseRouter() {
         Router router = VertxInstance.getHttpRouter();
 
-        router.route("/*").handler(BodyHandler.create());
+        router.route().handler(BodyHandler.create());
     }
 }
