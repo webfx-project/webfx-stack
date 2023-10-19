@@ -32,6 +32,7 @@ final class VertxHttpVerticle extends AbstractVerticle {
         //Console.log("Starting " + protocol + " server on port " + port);
         // Creating the http server with the following options:
         vertx.createHttpServer(new HttpServerOptions()
+                .setTcpKeepAlive(true) // Trying to see if this has an effect on the AWS connection reset issue
                 .setMaxWebSocketFrameSize(65536 * 100) // Increasing the frame size to allow big client request
                 .setCompressionSupported(true) // enabling gzip and deflate compression
                 .setPort(port) // web port
