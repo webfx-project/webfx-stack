@@ -16,9 +16,7 @@
     <html>
         <body order="-10">
             <script type="text/javascript" charset="utf-8" src="dev/webfx/stack/com/websocket/spi/impl/gwt/sockjs.min.js"/>
-<!-- Commented as the quick start creates websocket connection resets on AWS
             <script type="text/javascript" charset="utf-8" src="dev/webfx/stack/com/websocket/spi/impl/gwt/sockjs-quickstart.js"/>
--->
         </body>
     </html>
 
