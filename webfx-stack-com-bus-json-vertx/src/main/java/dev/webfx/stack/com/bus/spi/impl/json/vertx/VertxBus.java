@@ -28,6 +28,8 @@ import io.vertx.ext.web.Session;
  */
 final class VertxBus implements Bus {
 
+    private static final boolean REPLY_PONG_TO_PING = true;
+
     private final EventBus eventBus;
     private boolean open = true;
     private BusHook busHook;
@@ -47,9 +49,11 @@ final class VertxBus implements Bus {
             boolean ping = type.equals(BridgeEventType.SOCKET_PING);
             Session vertxWebSession = bridgeEvent.socket().webSession();
             VertxSession webSession = VertxSession.create(vertxWebSession);
-            if (ping)
+            if (ping) {
                 ServerJsonBusStateManager.clientIsLive(null, webSession);
-            else if (incomingMessage || outgoingMessage) {
+                if (REPLY_PONG_TO_PING)
+                    bridgeEvent.socket().write("{\"type\":\"pong\"}");
+            } else if (incomingMessage || outgoingMessage) {
                 JsonObject rawMessage = bridgeEvent.getRawMessage();
                 if (rawMessage != null) {
                     // This is the main call for state management
