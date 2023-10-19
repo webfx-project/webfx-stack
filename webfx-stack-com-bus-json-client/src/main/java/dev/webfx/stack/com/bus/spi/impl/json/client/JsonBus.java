@@ -45,7 +45,14 @@ public abstract class JsonBus extends NetworkBus implements JsonBusConstants {
     }
 
     @Override
+    protected boolean isPongRawMessage(String rawMessage) {
+        return "{\"type\":\"pong\"}".equals(rawMessage);
+    }
+
+    @Override
     protected Message<?> parseIncomingNetworkRawMessage(String rawMessage) {
+        if (isPongRawMessage(rawMessage))
+            return null;
         ReadOnlyAstObject jsonRawMessage = parseJsonRawMessage(rawMessage);
         ReadOnlyAstObject headers = jsonRawMessage.getObject(HEADERS);
         Object state = headers == null ? null : StateAccessor.decodeState(headers.getString(HEADERS_STATE));

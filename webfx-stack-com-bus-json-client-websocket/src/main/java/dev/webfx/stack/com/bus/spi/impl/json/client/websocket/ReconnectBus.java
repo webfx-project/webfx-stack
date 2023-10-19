@@ -36,7 +36,6 @@ import java.util.Map;
  */
 public final class ReconnectBus extends WebSocketBus {
     private static final String AUTO_RECONNECT = "reconnect";
-    private FuzzingBackOffGenerator backOffGenerator;
     private BusHook hook;
     private boolean reconnect;
     private final List<String> queuedNetworkRawMessages = new ArrayList<>();
@@ -52,19 +51,19 @@ public final class ReconnectBus extends WebSocketBus {
 
         ReadOnlyAstObject socketOptions = options.getSocketOptions();
         reconnect = socketOptions == null || !socketOptions.has(AUTO_RECONNECT) || socketOptions.getBoolean(AUTO_RECONNECT);
-        backOffGenerator = new FuzzingBackOffGenerator(1000, 30 * 60 * 1000, 0.5);
 
         super.setHook(new BusHookProxy() {
             @Override
             public void handleOpened() {
-                backOffGenerator.reset();
 
                 for (Map.Entry<String, Integer> entry : handlerCount.entrySet()) {
                     String address = entry.getKey();
-                    //assert entry.getValue() > 0 : "Handlers registered on " + address + " shouldn't be empty";
-                    sendUnregister(address);
-                    sendRegister(address);
+                    if (entry.getValue() > 0) {
+                        sendUnregister(address);
+                        sendRegister(address);
+                    }
                 }
+                handlerCount.clear();
 
                 if (!queuedNetworkRawMessages.isEmpty()) {
                     List<String> copy = new ArrayList<>(queuedNetworkRawMessages);
@@ -84,7 +83,7 @@ public final class ReconnectBus extends WebSocketBus {
                         if (reconnect)
                             reconnect();
                     };
-                    Scheduler.scheduleDelay(backOffGenerator.next().targetDelay, runnable);
+                    Scheduler.scheduleDelay(1000, runnable);
                 }
                 super.handlePostClose();
             }
@@ -114,7 +113,6 @@ public final class ReconnectBus extends WebSocketBus {
     @Override
     protected void doClose() {
         reconnect = false;
-        backOffGenerator.reset();
         queuedNetworkRawMessages.clear();
         super.doClose();
     }
