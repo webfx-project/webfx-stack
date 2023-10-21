@@ -107,7 +107,7 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
         Promise<T> promise = Promise.promise();
         pool.getConnection()
                 .onFailure(cause -> {
-                    Console.log(cause);
+                    Console.log("DB pool.getConnection() failed", cause);
                     promise.fail(cause);
                 })
                 .onSuccess(connection -> {
@@ -125,7 +125,7 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
     private <T> Future<T> connectAndExecuteInTransaction(TriConsumer<SqlConnection, Transaction, Promise<T>> executor) {
         return connectAndExecute((connection, promise) ->
                 connection.begin()
-                        .onFailure(cause -> { Console.log(cause); promise.fail(cause); })
+                        .onFailure(cause -> { Console.log("DB connectAndExecuteInTransaction() failed", cause); promise.fail(cause); })
                         .onSuccess(transaction -> executor.accept(connection, transaction, promise))
         );
     }
@@ -151,7 +151,7 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
         // long t0 = System.currentTimeMillis();
         executeQueryOnConnection(queryArgument.getStatement(), queryArgument.getParameters(), connection, ar -> {
             if (ar.failed()) { // Sql error
-                Console.log(ar.cause());
+                Console.log("DB executeQueryOnConnection() failed", ar.cause());
                 promise.fail(ar.cause());
             } else { // Sql succeeded
                 // Transforming the result set into columnNames and values arrays
@@ -203,7 +203,7 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
                 // Unless from batch, closing the connection now, so it can go back to the pool
                 if (!batch)
                     closeConnection(connection);
-                Console.log(res.cause());
+                Console.log("DB executeSubmitOnConnection() failed", res.cause());
                 promise.fail(res.cause());
             } else { // Sql succeeded
                 RowSet<Row> result = res.result();
@@ -248,7 +248,7 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
             }
             executeSubmitOnConnection(updateArgument, connection, transaction, true, Promise.promise())
                     .onFailure(cause -> {
-                        Console.log(cause);
+                        Console.log("DB executeUpdateBatchOnConnection()", cause);
                         statementPromise.fail(cause);
                         transaction.rollback(event -> closeConnection(connection));
                     })
