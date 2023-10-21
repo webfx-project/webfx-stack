@@ -5,7 +5,7 @@ import dev.webfx.platform.console.Console;
 import dev.webfx.platform.windowhistory.spi.BrowsingHistory;
 import dev.webfx.platform.windowhistory.spi.BrowsingHistoryLocation;
 import dev.webfx.stack.routing.router.Router;
-import dev.webfx.stack.session.state.client.fx.FXAuthorizationsChanged;
+import dev.webfx.stack.session.state.client.fx.FXAuthorizationsWaiting;
 
 /**
  * @author Bruno Salmon
@@ -30,7 +30,7 @@ public class HistoryRouter {
             }
         });
         // Refreshing the page each time the authorizations change
-        FXAuthorizationsChanged.runOnAuthorizationsChanged(this::refresh);
+        FXAuthorizationsWaiting.runOnAuthorizationsChangedOrWaiting(this::refresh);
     }
 
     public Router getRouter() {

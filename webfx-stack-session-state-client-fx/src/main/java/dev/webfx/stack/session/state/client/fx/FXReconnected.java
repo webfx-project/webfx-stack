@@ -25,14 +25,14 @@ public final class FXReconnected {
         return reconnectedProperty.get();
     }
 
+    private static void setReconnected(boolean reconnected) {
+        reconnectedProperty.set(reconnected);
+    }
+
     // refreshValue() is called by FXConnected & FXConnectionSequence when their value changes
     static void refreshValue() {
         // A reconnection is when we are connected again after the initial connection was established (sequence 1)
         setReconnected(FXConnected.isConnected() && FXConnectionSequence.getConnectionSequence() >= 2);
-    }
-
-    private static void setReconnected(boolean reconnected) {
-        reconnectedProperty.set(reconnected);
     }
 
 }

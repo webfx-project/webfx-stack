@@ -1,5 +1,6 @@
 package dev.webfx.stack.session.state.client.fx;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
@@ -16,7 +17,7 @@ public final class FXUserPrincipal {
     }
 
     public static void setUserPrincipal(Object userPrincipal) {
-        userPrincipalProperty().setValue(userPrincipal);
+        FXProperties.setIfNotEquals(userPrincipalProperty, userPrincipal);
     }
 
     public static Object getUserPrincipal() {

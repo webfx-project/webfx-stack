@@ -1,7 +1,6 @@
 package dev.webfx.stack.session.state.client.fx;
 
 import dev.webfx.kit.util.properties.FXProperties;
-import dev.webfx.platform.console.Console;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -15,7 +14,7 @@ public final class FXAuthorizationsChanged {
     private final static BooleanProperty authorizationsChangedProperty = new SimpleBooleanProperty(false) {
         @Override
         protected void invalidated() {
-            Console.log("FXAuthorizationsChanged = " + get());
+            //Console.log("FXAuthorizationsChanged = " + get());
         }
     };
     private static boolean fireScheduled;
@@ -28,6 +27,8 @@ public final class FXAuthorizationsChanged {
         return authorizationsChangedProperty.get();
     }
 
+    static Object authorizationsUserId;
+
     /**
      * "If we haven't already scheduled a call to fire the authorizationsChangedProperty, then schedule a call to fire the
      * authorizationsChangedProperty."
@@ -39,6 +40,7 @@ public final class FXAuthorizationsChanged {
         if (!fireScheduled) {
             fireScheduled = true;
             UiScheduler.runInUiThread(() -> {
+                authorizationsUserId = FXUserId.getUserId();
                 authorizationsChangedProperty.set(true);
                 authorizationsChangedProperty.set(false);
                 fireScheduled = false;

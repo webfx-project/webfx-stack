@@ -5,7 +5,7 @@ import dev.webfx.stack.routing.router.RoutingContext;
 import dev.webfx.stack.routing.router.auth.RedirectAuthHandler;
 import dev.webfx.stack.routing.router.auth.authz.RouteRequest;
 import dev.webfx.stack.routing.router.spi.impl.client.ClientRoutingContextBase;
-import dev.webfx.stack.session.state.client.fx.FXLoggedIn;
+import dev.webfx.stack.session.state.client.fx.FXLoggedOut;
 
 /**
  * @author Bruno Salmon
@@ -34,7 +34,7 @@ public final class RedirectAuthHandlerImpl implements RedirectAuthHandler {
     }
 
     private void redirectToAuth(RoutingContext context) {
-        RoutingContext authContext = ClientRoutingContextBase.newRedirectedContext(context, FXLoggedIn.isLoggedIn() ? unauthorizedPath : loginPath);
+        RoutingContext authContext = ClientRoutingContextBase.newRedirectedContext(context, FXLoggedOut.isLoggedOut() ? loginPath : unauthorizedPath);
         authContext.next();
     }
 }

@@ -15,6 +15,18 @@ public final class FXUserClaims {
 
     private final static ObjectProperty<UserClaims> userClaimsProperty = new SimpleObjectProperty<>();
 
+    public static UserClaims getUserClaims() {
+        return userClaimsProperty.get();
+    }
+
+    public static ObjectProperty<UserClaims> userClaimsProperty() {
+        return userClaimsProperty;
+    }
+
+    private static void setUserClaims(UserClaims userClaims) {
+        FXProperties.setIfNotEquals(userClaimsProperty, userClaims);
+    }
+
     static {
         FXProperties.runNowAndOnPropertiesChange(() -> {
             // Forgetting the previous user claims on user change
@@ -28,15 +40,4 @@ public final class FXUserClaims {
         }, FXUserId.userIdProperty());
     }
 
-    public static UserClaims getUserClaims() {
-        return userClaimsProperty.get();
-    }
-
-    public static ObjectProperty<UserClaims> userClaimsProperty() {
-        return userClaimsProperty;
-    }
-
-    public static void setUserClaims(UserClaims userClaims) {
-        userClaimsProperty.set(userClaims);
-    }
 }
