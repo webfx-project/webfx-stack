@@ -29,6 +29,7 @@ import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.*;
 
+import java.net.SocketException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -107,14 +108,26 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
         Promise<T> promise = Promise.promise();
         pool.getConnection()
                 .onFailure(cause -> {
-                    Console.log("DB pool.getConnection() failed", cause);
+                    Console.log("DB connectAndExecute() failed", cause);
                     promise.fail(cause);
                 })
-                .onSuccess(connection -> {
+                .onSuccess(connection -> { // Note: this is the responsibility of the executor to close the connection
+                    Promise<T> intermediatePromise = Promise.promise(); // used to check SocketException
                     if (LOG_OPEN_CONNECTIONS)
                         Console.log("DB pool open connections = " + ++open);
-                    executor.accept(connection, promise);
-                }); // Note: this is the responsibility of the executor to close the connection
+                    executor.accept(connection, intermediatePromise);
+                    intermediatePromise.future()
+                            .onSuccess(promise::complete)
+                            .onFailure(cause -> {
+                                if (!(cause instanceof SocketException)) {
+                                    promise.fail(cause);
+                                } else {
+                                    // We retry with another connection from the pool
+                                    Console.log("Retrying with another connection from the pool");
+                                    promise.handle(connectAndExecute(executor));
+                                }
+                            });
+                });
         return promise.future();
     }
 
@@ -151,7 +164,7 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
         // long t0 = System.currentTimeMillis();
         executeQueryOnConnection(queryArgument.getStatement(), queryArgument.getParameters(), connection, ar -> {
             if (ar.failed()) { // Sql error
-                Console.log("DB executeQueryOnConnection() failed", ar.cause());
+                Console.log("DB executeSingleQueryOnConnection() failed", ar.cause());
                 promise.fail(ar.cause());
             } else { // Sql succeeded
                 // Transforming the result set into columnNames and values arrays
