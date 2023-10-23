@@ -1,0 +1,4 @@
+{
+  "Email": {"text": "Email", "prompt": "Your email address"},
+  "Password": {"text": "Password", "prompt": "Your password"}
+}

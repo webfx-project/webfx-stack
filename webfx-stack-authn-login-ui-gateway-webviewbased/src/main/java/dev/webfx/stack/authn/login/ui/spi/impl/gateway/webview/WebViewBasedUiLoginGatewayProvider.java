@@ -38,7 +38,7 @@ public abstract class WebViewBasedUiLoginGatewayProvider extends UiLoginGatewayP
                     } else if (ar.result() instanceof String)
                         input = (String) ar.result();
                     if (input != null) {
-                        //System.out.println("WebView input = " + input);
+                        dev.webfx.platform.console.Console.log("WebView input = " + input);
                         if (input.startsWith("http"))
                             mainWebEngine.load(input);
                         else

@@ -67,7 +67,7 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
                         // We tell the client is live
                         clientIsLive(finalState, requestedSession);
                         // We tell the message delivery can now continue into the server, and return the session (not
-                        // sure if the session object will be useful - most important thing is the to complete this
+                        // sure if the session object will be useful - most important thing is to complete this
                         // asynchronous operation so the delivery can go on)
                         promise.complete(requestedSession);
                     });
