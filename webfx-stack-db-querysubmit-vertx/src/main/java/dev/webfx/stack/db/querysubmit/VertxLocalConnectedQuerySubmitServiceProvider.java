@@ -44,7 +44,7 @@ import java.util.function.BiConsumer;
  */
 public final class VertxLocalConnectedQuerySubmitServiceProvider implements QueryServiceProvider, SubmitServiceProvider {
 
-    private final static boolean LOG_OPEN_CONNECTIONS = true;
+    private final static boolean LOG_OPEN_CONNECTIONS = false;
 
     private final Pool pool;
 
