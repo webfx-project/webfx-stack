@@ -124,7 +124,9 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
                                 } else {
                                     // We retry with another connection from the pool
                                     Console.log("Retrying with another connection from the pool");
-                                    promise.handle(connectAndExecute(executor));
+                                    connectAndExecute(executor) // trying again (another loop may happen if several connections are broken)
+                                            // Once complete (including the possible subsequent loops),
+                                            .onComplete(promise); // we transfer back the final result.
                                 }
                             });
                 });
