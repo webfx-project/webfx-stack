@@ -19,9 +19,27 @@ public abstract class NetworkBus extends SimpleBus {
 
     // TODO: remove that public visibility
     public final Map<String, Integer> handlerCount = new HashMap<>();
-
+    private Runnable incomingTrafficListener, outgoingTrafficListener;
 
     public NetworkBus() {
+    }
+
+    public void setIncomingTrafficListener(Runnable incomingTrafficListener) {
+        this.incomingTrafficListener = incomingTrafficListener;
+    }
+
+    public void setOutgoingTrafficListener(Runnable outgoingTrafficListener) {
+        this.outgoingTrafficListener = outgoingTrafficListener;
+    }
+
+    protected void notifyIncomingTraffic() {
+        if (incomingTrafficListener != null)
+            incomingTrafficListener.run();
+    }
+
+    protected void notifyOutgoingTraffic() {
+        if (outgoingTrafficListener != null)
+            outgoingTrafficListener.run();
     }
 
     public NetworkBus(boolean alreadyOpen) {
@@ -43,6 +61,7 @@ public abstract class NetworkBus extends SimpleBus {
         Message<?> parsedMessage = parseIncomingNetworkRawMessage(rawMessage);
         if (parsedMessage != null) // May be null if it was just a pong
             onMessage(parsedMessage);
+        notifyIncomingTraffic();
     }
 
     protected void logRawMessage(String rawMessage, boolean incoming) {

@@ -150,6 +150,7 @@ public class WebSocketBus extends JsonClientBus {
             throw new IllegalStateException("INVALID_STATE_ERR");
         logRawMessage(rawMessage, false);
         webSocket.send(rawMessage);
+        notifyOutgoingTraffic();
     }
 
     protected void sendPing() {
