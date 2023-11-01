@@ -104,10 +104,13 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
 
     public static void clientIsLive(Object state, Session session) {
         if (clientLiveListener != null) {
+            // Trying to get the client runId from the state
             String runId = StateAccessor.getRunId(state);
             if (runId == null) {
+                // If not found, trying to get it from the session
                 runId = SessionAccessor.getRunId(session);
                 if (runId == null) {
+                    // If not found, trying to get it from the application (in case the passed session was the web session)
                     session = session.get(ASSOCIATED_SESSION_KEY);
                     if (session != null)
                         runId = SessionAccessor.getRunId(session);
@@ -115,6 +118,8 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
             }
             if (runId != null)
                 clientLiveListener.accept(runId);
+            else
+                Console.log("⚠️ ServerJsonBusStateManager.clientIsLive() was called but no runId could be found");
         }
     }
 
