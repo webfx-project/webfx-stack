@@ -62,7 +62,8 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
                         .setPort(connectionDetails.getPort())
                         .setDatabase(connectionDetails.getDatabaseName())
                         .setUser(connectionDetails.getUsername())
-                        .setPassword(connectionDetails.getPassword());
+                        .setPassword(connectionDetails.getPassword())
+                        .setTcpKeepAlive(true);
                 pool = PgPool.pool(vertx, connectOptions, poolOptions);
                 break;
             }
