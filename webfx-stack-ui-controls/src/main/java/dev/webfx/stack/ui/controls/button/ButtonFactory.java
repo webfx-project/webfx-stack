@@ -14,6 +14,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.SVGPath;
 
 /**
@@ -64,6 +65,13 @@ public final class ButtonFactory {
         FXProperties.runNowAndOnPropertiesChange(() -> Platform.runLater(() ->
             Controls.onSkinReady(button, () -> dropDownArrowDecoration.applyDecoration(button))
         ), button.graphicProperty());
+        // Code to clip the content before the down arrow
+        FXProperties.runNowAndOnPropertiesChange(() -> {
+            Node graphic = button.getGraphic();
+            if (graphic != null) {
+                graphic.setClip(new Rectangle(0, 0, downArrow.getLayoutX() - graphic.getLayoutX(), button.getHeight()));
+            }
+        }, downArrow.layoutXProperty());
         button.setMinWidth(0d);
         button.setMaxWidth(Double.MAX_VALUE);
         // Adding padding for the extra right icon decoration (adding the icon width 16px + repeating the 6px standard padding)
