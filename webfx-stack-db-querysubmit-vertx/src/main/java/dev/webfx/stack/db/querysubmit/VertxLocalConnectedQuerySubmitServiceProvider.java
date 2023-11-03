@@ -52,7 +52,7 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
         // Generating the Vertx Sql config from the connection details
         ConnectionDetails connectionDetails = localDataSource.getLocalConnectionDetails();
         PoolOptions poolOptions = new PoolOptions()
-                .setMaxSize(20);
+                .setMaxSize(10);
         Vertx vertx = VertxInstance.getVertx();
         DBMS dbms = localDataSource.getDBMS();
         switch (dbms) {
@@ -79,6 +79,8 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
                 pool = JDBCPool.pool(vertx, connectOptions, poolOptions);
             }
         }
+        // Adding a shutdown hook to close the pool on server shutdown (or should we use WebFX boot API?)
+        Runtime.getRuntime().addShutdownHook(new Thread(pool::close));
     }
 
     @Override
