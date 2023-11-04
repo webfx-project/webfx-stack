@@ -71,7 +71,7 @@ public final class ButtonFactory {
             if (graphic != null) {
                 graphic.setClip(new Rectangle(0, 0, downArrow.getLayoutX() - graphic.getLayoutX(), button.getHeight()));
             }
-        }, downArrow.layoutXProperty());
+        }, downArrow.layoutXProperty(), button.graphicProperty(), button.heightProperty());
         button.setMinWidth(0d);
         button.setMaxWidth(Double.MAX_VALUE);
         // Adding padding for the extra right icon decoration (adding the icon width 16px + repeating the 6px standard padding)
