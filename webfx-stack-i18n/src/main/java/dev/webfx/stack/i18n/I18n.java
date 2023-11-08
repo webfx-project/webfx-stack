@@ -37,6 +37,10 @@ public final class I18n {
         return getProvider().getLanguage();
     }
 
+    public static Object getDefaultLanguage() {
+        return getProvider().getDefaultLanguage();
+    }
+
     public static void setLanguage(Object language) {
         getProvider().setLanguage(language);
     }
