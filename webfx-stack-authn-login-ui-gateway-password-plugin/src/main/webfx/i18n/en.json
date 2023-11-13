@@ -1,4 +1,8 @@
 {
   "Email": {"text": "Email", "prompt": "Your email address"},
-  "Password": {"text": "Password", "prompt": "Your password"}
+  "Password": {"text": "Password", "prompt": "Your password"},
+  "ForgotPassword": "Forgot password",
+  "RememberPassword": "Remember password",
+  "SignIn": "Sign In",
+  "SendLink": "Send link"
 }

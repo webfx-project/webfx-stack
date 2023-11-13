@@ -55,8 +55,8 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
 
     @Override
     public Node createLoginUi(UiLoginPortalCallback callback) {
-        BorderPane loginWindow = new BorderPane(); // SectionPanelFactory.createSectionPanel("SignInWindowTitle");
-        Hyperlink hyperLink = newHyperlink("ForgotPassword?", e -> signInMode.setValue(!signInMode.getValue()));
+        BorderPane loginWindow = new BorderPane();
+        Hyperlink hyperLink = newHyperlink(null, e -> signInMode.setValue(!signInMode.getValue()));
         GridPane.setMargin(hyperLink, new Insets(20));
         GridPane gridPane = new GridPaneBuilder()
                 .addNodeFillingRow(usernameField = newMaterialTextField("Email"))
