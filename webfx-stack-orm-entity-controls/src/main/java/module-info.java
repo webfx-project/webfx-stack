@@ -13,7 +13,6 @@ module webfx.stack.orm.entity.controls {
     requires webfx.extras.materialdesign;
     requires webfx.extras.panes;
     requires webfx.extras.type;
-    requires webfx.extras.util.border;
     requires webfx.extras.util.layout;
     requires webfx.extras.util.scene;
     requires webfx.extras.visual;

@@ -3,7 +3,6 @@ package dev.webfx.stack.orm.entity.controls.entity.selector;
 import dev.webfx.extras.materialdesign.textfield.MaterialTextFieldPane;
 import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.extras.panes.ScalePane;
-import dev.webfx.extras.util.border.BorderFactory;
 import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.FXProperties;
@@ -341,7 +340,7 @@ public abstract class ButtonSelector<T> {
         if (above) // returning the distance between the button top and the scene top in the dropParent coordinates
             return buttonPositionInParent.getY() - dropParent.sceneToLocal(0, 0).getY();
         // below => returning the distance between the button bottom and the scene height in the dropParent coordinates
-        return dropParent.sceneToLocal(0, dropParent.getScene().getHeight()).getY() - buttonPositionInParent.getY();
+        return dropParent.sceneToLocal(0, button.getScene().getHeight()).getY() - buttonPositionInParent.getY();
     }
 
 
@@ -377,7 +376,7 @@ public abstract class ButtonSelector<T> {
 
             case DROP_DOWN:
             case DROP_UP:
-                LayoutUtil.removePadding(dialogPane).setBorder(BorderFactory.newBorder(Color.LIGHTGRAY));
+                LayoutUtil.removePadding(dialogPane).setBorder(Border.stroke(Color.LIGHTGRAY));
                 setMaxPrefSize(dialogContent, USE_COMPUTED_SIZE);
                 double maxHeight = computeMaxAvailableHeightForDropDialog();
                 if (searchTextField != null)
