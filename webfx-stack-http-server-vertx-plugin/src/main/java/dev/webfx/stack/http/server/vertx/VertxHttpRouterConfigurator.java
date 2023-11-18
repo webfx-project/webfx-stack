@@ -24,8 +24,8 @@ final class VertxHttpRouterConfigurator {
         // The session store to use
         router.route().handler(SessionHandler.create(VertxInstance.getSessionStore()));
 
-        // GWT perfect caching (xxx.cache.xxx files will never change again)
-        router.routeWithRegex(".*\\.cache\\..*").handler(routingContext -> {
+        // GWT perfect caching (xxx.cache.js files will never change again)
+        router.routeWithRegex(".*\\.cache\\.js").handler(routingContext -> {
             routingContext.response().putHeader("cache-control", "public, max-age=31556926");
             routingContext.next();
         });
@@ -38,12 +38,12 @@ final class VertxHttpRouterConfigurator {
             routingContext.next();
         });
 
-        // For xxx.nocache.xxx GWT files, "no-cache" would work also in theory, but in practice it seems that now
+        // For xxx.nocache.js GWT files, "no-cache" would work also in theory, but in practice it seems that now
         // browsers - or at least Chrome - are not checking those files if index.html hasn't changed! A shame because
         // most of the time, this is those files that change (on each new GWT compilation) and not index.html. So,
         // to force the browser to check those files, we use "no-store" (even if it is less optimised).
-        router.routeWithRegex(".*\\.nocache\\..*").handler(routingContext -> {
-            routingContext.response().putHeader("cache-control", "no-store");
+        router.routeWithRegex(".*\\.nocache\\.js").handler(routingContext -> {
+            routingContext.response().putHeader("cache-control", "public, max-age=0, no-store, must-revalidate");
             routingContext.next();
         });
 
