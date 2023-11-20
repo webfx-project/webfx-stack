@@ -6,6 +6,7 @@ import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.util.function.Converter;
 
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author Bruno Salmon
@@ -70,6 +71,11 @@ public interface ReactiveDqlStatementAPI<E, THIS> {
 
     default <T> THIS ifEquals(ObservableValue<T> property, T value, DqlStatement dqlStatement) {
         getReactiveDqlStatement().ifEquals(property, value, dqlStatement);
+        return (THIS) this;
+    }
+
+    default <T> THIS ifEquals(ObservableValue<T> property, T value, Supplier<DqlStatement> dqlStatementSupplier) {
+        getReactiveDqlStatement().ifEquals(property, value, dqlStatementSupplier);
         return (THIS) this;
     }
 

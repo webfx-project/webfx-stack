@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static dev.webfx.stack.orm.dql.DqlStatement.limit;
 
@@ -179,6 +180,11 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
     @Override
     public <T> ReactiveDqlStatement<E> ifEquals(ObservableValue<T> property, T value, DqlStatement dqlStatement) {
         return always(property, v -> Objects.equals(v, value) ? dqlStatement : null);
+    }
+
+    @Override
+    public <T> ReactiveDqlStatement<E> ifEquals(ObservableValue<T> property, T value, Supplier<DqlStatement> dqlStatementSupplier) {
+        return always(property, v -> Objects.equals(v, value) ? dqlStatementSupplier.get() : null);
     }
 
     @Override

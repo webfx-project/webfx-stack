@@ -2,6 +2,7 @@ package dev.webfx.stack.orm.dql;
 
 import dev.webfx.platform.ast.json.Json;
 import dev.webfx.platform.ast.ReadOnlyAstObject;
+import dev.webfx.platform.util.Strings;
 
 import java.util.Arrays;
 
@@ -34,6 +35,11 @@ public final class DqlStatement {
     }
 
     public static DqlStatement where(CharSequence where, Object... parameterValues) {
+        return new DqlStatement(null, null, null, DqlClause.create(where, parameterValues), null, null, null, null, null);
+    }
+
+    public static DqlStatement whereFieldIn(CharSequence field, Object... parameterValues) {
+        String where = parameterValues.length == 0 ? "false" : field + " in (" + Strings.repeat("?,", parameterValues.length - 1) + "?)";
         return new DqlStatement(null, null, null, DqlClause.create(where, parameterValues), null, null, null, null, null);
     }
 
