@@ -23,7 +23,6 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
@@ -180,7 +179,11 @@ public abstract class ButtonSelector<T> {
     }
 
     private MaterialTextFieldPane newMaterialButton() {
-        return new MaterialTextFieldPane(LayoutUtil.setMaxWidthToInfinite(getButton()), selectedItemProperty());
+        return new MaterialTextFieldPane(LayoutUtil.setMaxWidthToInfinite(getButton()), materialInputProperty());
+    }
+
+    protected ObservableValue materialInputProperty() {
+        return selectedItemProperty();
     }
 
     public ButtonSelector<T> updateButtonContentOnNewSelectedItem() {
@@ -330,17 +333,16 @@ public abstract class ButtonSelector<T> {
     }
 
     private double computeMaxAvailableHeight(boolean above) {
-        Point2D buttonPositionInParent = button.localToParent(0, above ? 0 : button.getHeight());
-        Parent parent = button.getParent();
+        Point2D buttonPositionInScene = button.localToScene(0, above ? 0 : button.getHeight());
         Pane dropParent = parameters.getDropParent();
-        while (parent != dropParent && parent != null) {
-            buttonPositionInParent = parent.localToParent(buttonPositionInParent);
-            parent = parent.getParent();
+        Point2D buttonPositionInDropParent = dropParent.sceneToLocal(buttonPositionInScene);
+        if (above) { // returning the distance between the button top and the scene top in the dropParent coordinates
+            Point2D sceneLeftTopInDropParent = dropParent.sceneToLocal(0, 0);
+            return buttonPositionInDropParent.getY() - sceneLeftTopInDropParent.getY();
         }
-        if (above) // returning the distance between the button top and the scene top in the dropParent coordinates
-            return buttonPositionInParent.getY() - dropParent.sceneToLocal(0, 0).getY();
         // below => returning the distance between the button bottom and the scene height in the dropParent coordinates
-        return dropParent.sceneToLocal(0, button.getScene().getHeight()).getY() - buttonPositionInParent.getY();
+        Point2D sceneLeftBottomInDropParent = dropParent.sceneToLocal(0, button.getScene().getHeight());
+        return sceneLeftBottomInDropParent.getY() - buttonPositionInDropParent.getY();
     }
 
 

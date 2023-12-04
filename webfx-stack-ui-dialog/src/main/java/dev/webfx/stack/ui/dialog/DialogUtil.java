@@ -135,15 +135,21 @@ public final class DialogUtil {
             }
             setDropDialogUp(dialogNode, up);
             Runnable positionUpdater = () -> {
-                Point2D buttonSceneXY = buttonNode.localToScene(0, 0);
+                Point2D buttonSceneTopLeft = buttonNode.localToScene(0, 0);
+                Point2D buttonSceneBottomRight = buttonNode.localToScene(buttonNode.getWidth(), buttonNode.getHeight());
                 double dialogPrefWidth = dialogNode.prefWidth(-1);
-                double dialogWidth = LayoutUtil.boundedSize(dialogPrefWidth, buttonNode.getWidth(), scene.getWidth() - buttonSceneXY.getX());
+                double dialogWidth = LayoutUtil.boundedSize(dialogPrefWidth, buttonNode.getWidth(), scene.getWidth() - buttonSceneTopLeft.getX());
                 double dialogHeight = dialogNode.prefHeight(dialogWidth);
                 boolean dropDialogUp = isDropDialogUp(dialogNode);
-                double deltaY = dropDialogUp ? -dialogHeight : buttonNode.getHeight();
-                Point2D dialogParentXY = parent.sceneToLocal(buttonSceneXY);
-                double dialogX = dialogParentXY.getX();
-                double dialogY = dialogParentXY.getY() + deltaY;
+                Point2D buttonParentTopLeft = parent.sceneToLocal(buttonSceneTopLeft);
+                double dialogX = buttonParentTopLeft.getX();
+                double dialogY;
+                if (dropDialogUp) {
+                    dialogY = buttonSceneTopLeft.getY() - dialogHeight;
+                } else {
+                    Point2D buttonParentBottomRight = parent.sceneToLocal(buttonSceneBottomRight);
+                    dialogY = buttonParentBottomRight.getY();
+                }
                 if (isDropDialogBounded(dialogNode)) {
                     if (dropDialogUp)
                         dialogY = Math.min(dialogY, parent.getHeight() - dialogHeight);
