@@ -80,7 +80,7 @@ public abstract class ButtonSelector<T> {
     public ButtonSelector(ButtonSelectorParameters parameters) {
         parameters.checkValid();
         this.parameters = parameters;
-        FXProperties.runOnPropertiesChange(this::updateButtonContentOnNewSelectedItem, selectedItemProperty());
+        FXProperties.runOnPropertiesChange(this::updateButtonContentFromSelectedItem, selectedItemProperty());
     }
 
     public boolean isAutoOpenOnMouseEntered() {
@@ -160,7 +160,7 @@ public abstract class ButtonSelector<T> {
         button.setCursor(Cursor.HAND);
         button.setOnMouseEntered(e -> onMouseEntered());
         button.setOnMouseExited( e -> onMouseExited());
-        updateButtonContentOnNewSelectedItem();
+        updateButtonContentFromSelectedItem();
         return this;
     }
 
@@ -186,7 +186,7 @@ public abstract class ButtonSelector<T> {
         return selectedItemProperty();
     }
 
-    public ButtonSelector<T> updateButtonContentOnNewSelectedItem() {
+    public ButtonSelector<T> updateButtonContentFromSelectedItem() {
         UiScheduler.runInUiThread(() -> getButton().setGraphic(getOrCreateButtonContentFromSelectedItem()));
         return this;
     }
