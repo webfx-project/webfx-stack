@@ -258,12 +258,12 @@ public class I18nProviderImpl implements I18nProvider {
             UiScheduler.scheduleDeferred(() -> {
                 Object language = inDefaultLanguage ? getDefaultLanguage() : getLanguage();
                 Set<Object> loadingI18nKeys = getUnloadedKeys(inDefaultLanguage);
-                Set<Object> loadingMessageKeys = loadingI18nKeys.stream()
-                        .map(this::i18nKeyToDictionaryMessageKey).collect(Collectors.toSet());
+                Set<Object> loadingMessageKeys = loadingI18nKeys.stream() // Possible NPE observed!
+                        .map(this::i18nKeyToDictionaryMessageKey).collect(Collectors.toSet()); // TODO: fix possible ConcurrentModificationException
                 dictionaryLoader.loadDictionary(language, loadingMessageKeys)
                         .onSuccess(dictionary -> {
                             if (!inDefaultLanguage)
-                                dictionaryProperty.setValue(dictionary);
+                                dictionaryProperty.setValue(dictionary); // TODO: fix possible java.lang.NullPointerException: Cannot invoke "javafx.beans.value.ChangeListener.changed(javafx.beans.value.ObservableValue, Object, Object)" because "<local3>[<local7>]" is null
                             if (language.equals(getDefaultLanguage()))
                                 defaultDictionaryProperty.setValue(dictionary);
                             dictionaryLoadRequired = false;

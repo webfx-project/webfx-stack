@@ -9,19 +9,23 @@ import dev.webfx.stack.i18n.spi.impl.I18nProviderImpl;
 public class AstI18nProvider extends I18nProviderImpl {
 
     public AstI18nProvider() {
-        this("dev/webfx/stack/i18n/{lang}.properties");
+        this(new String[]{"properties", "json"});
     }
 
-    public AstI18nProvider(String resourcePathWithLangPattern) {
-        this(resourcePathWithLangPattern, null);
+    public AstI18nProvider(String... supportedFormats) {
+        this("dev/webfx/stack/i18n/{lang}.{format}", supportedFormats);
     }
 
-    public AstI18nProvider(String resourcePathWithLangPattern, Object defaultLanguage) {
-        this(resourcePathWithLangPattern, defaultLanguage, null);
+    public AstI18nProvider(String resourcePathWithLangPattern, String... supportedFormats) {
+        this(resourcePathWithLangPattern, null, supportedFormats);
     }
 
-    public AstI18nProvider(String resourcePathWithLangPattern, Object defaultLanguage, Object initialLanguage) {
-        super(new ResourceAstDictionaryLoader(resourcePathWithLangPattern), defaultLanguage, initialLanguage);
+    public AstI18nProvider(String resourcePathWithLangPattern, Object defaultLanguage, String... supportedFormats) {
+        this(resourcePathWithLangPattern, defaultLanguage, null, supportedFormats);
+    }
+
+    public AstI18nProvider(String resourcePathWithLangPattern, Object defaultLanguage, Object initialLanguage, String... supportedFormats) {
+        super(new ResourceAstDictionaryLoader(resourcePathWithLangPattern, supportedFormats), defaultLanguage, initialLanguage);
     }
 
 }
