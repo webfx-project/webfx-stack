@@ -7,6 +7,7 @@ module webfx.stack.ui.json {
     requires webfx.extras.imagestore;
     requires webfx.platform.ast;
     requires webfx.platform.ast.json.plugin;
+    requires webfx.platform.console;
     requires webfx.platform.util;
 
     // Exported packages
