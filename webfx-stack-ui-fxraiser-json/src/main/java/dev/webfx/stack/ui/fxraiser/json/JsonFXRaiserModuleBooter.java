@@ -1,12 +1,16 @@
 package dev.webfx.stack.ui.fxraiser.json;
 
-import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
-import dev.webfx.platform.ast.json.Json;
 import dev.webfx.platform.ast.AST;
+import dev.webfx.platform.ast.ReadOnlyAstArray;
 import dev.webfx.platform.ast.ReadOnlyAstObject;
+import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
+import dev.webfx.stack.ui.fxraiser.FXRaiser;
 import dev.webfx.stack.ui.fxraiser.FXValueRaiser;
 import dev.webfx.stack.ui.fxraiser.impl.ValueConverterRegistry;
 import dev.webfx.stack.ui.json.JsonSVGPath;
+import javafx.scene.Node;
+import javafx.scene.layout.StackPane;
 import javafx.scene.shape.SVGPath;
 
 import static dev.webfx.platform.util.Objects.isAssignableFrom;
@@ -49,8 +53,18 @@ public class JsonFXRaiserModuleBooter implements ApplicationModuleBooter {
         ValueConverterRegistry.registerValueConverter(new FXValueRaiser() {
             @Override
             public <T> T raiseValue(Object value, Class<T> raisedClass, Object... args) {
-                if (value instanceof ReadOnlyAstObject && isAssignableFrom(raisedClass, SVGPath.class))
+                // Converting Json object graphic to SVGPath
+                if (AST.isObject(value) && isAssignableFrom(raisedClass, SVGPath.class))
                     return (T) JsonSVGPath.createSVGPath((ReadOnlyAstObject) value);
+                // Converting Json array graphic to a StackPane with all nodes inside
+                if (AST.isArray(value) && isAssignableFrom(raisedClass, StackPane.class)) {
+                    ReadOnlyAstArray array = (ReadOnlyAstArray) value;
+                    int n = array.size();
+                    Node[] graphics = new Node[n];
+                    for (int i = 0; i < n; i++)
+                        graphics[i] = FXRaiser.raiseToNode(array.getElement(i), args);
+                    return (T) new StackPane(graphics);
+                }
                 return null;
             }
         });
