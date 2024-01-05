@@ -5,6 +5,7 @@ import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
+import dev.webfx.platform.os.OperatingSystem;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.serviceloader.MultipleServiceProviders;
 import dev.webfx.stack.authn.login.ui.spi.UiLoginServiceProvider;
@@ -88,7 +89,6 @@ public class UiLoginPortalProvider implements UiLoginServiceProvider, UiLoginPor
                 loginButton.setBorder(new Border(new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, new CornerRadii(50), BorderStroke.THIN)));
                 loginButton.setCursor(Cursor.HAND);
                 loginButton.setOnMouseClicked(e -> {
-                    BorderPane borderPane = new BorderPane(gatewayProvider.createLoginUi(this));
                     Button backButton = new Button("« Use another method to sign in");
                     /* Temporary hard-coded style for the web version */
                     backButton.setPadding(new Insets(15));
@@ -99,9 +99,22 @@ public class UiLoginPortalProvider implements UiLoginServiceProvider, UiLoginPor
                     BorderPane.setMargin(backButton, new Insets(10));
                     backButton.setCursor(Cursor.HAND);
                     backButton.setOnAction(e2 -> showLoginHome());
+                    BorderPane borderPane = new BorderPane();
                     borderPane.setBottom(backButton);
                     flipPane.setBack(borderPane);
-                    flipPane.flipToBack();
+                    Node loginUi = gatewayProvider.createLoginUi(this); // probably a web-view
+                    if (!OperatingSystem.isMobile()) {
+                        borderPane.setCenter(loginUi);
+                        flipPane.flipToBack();
+                    } else {
+                        // On mobiles, we wait the flip animation to be finished (borderPane in stable position) before
+                        // attaching the web-view (otherwise the web view is not visible).
+                        flipPane.flipToBack(() -> borderPane.setCenter(loginUi));
+                        // Now the "Sign in with Google" button appears, but it is not reacting (no popup)...
+                        // 2 possible causes:
+                        // 1) Popup is not working on the web-view (or required setup)
+                        // 2) Google doesn't allow SSO in web-view (see https://developers.googleblog.com/2016/08/modernizing-oauth-interactions-in-native-apps.html)
+                    }
                 });
                 otherLoginButtons.add(loginButton);
             }

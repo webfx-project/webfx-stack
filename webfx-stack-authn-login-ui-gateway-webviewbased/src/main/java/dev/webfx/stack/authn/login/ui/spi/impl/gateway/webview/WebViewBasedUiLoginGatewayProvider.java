@@ -1,12 +1,12 @@
 package dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview;
 
+import dev.webfx.platform.console.Console;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.stack.authn.login.LoginService;
 import dev.webfx.stack.authn.login.LoginUiContext;
-import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginPortalCallback;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProviderBase;
+import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginPortalCallback;
 import javafx.scene.Node;
-import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
@@ -23,10 +23,9 @@ public abstract class WebViewBasedUiLoginGatewayProvider extends UiLoginGatewayP
 
     @Override
     public Node createLoginUi(UiLoginPortalCallback callback) {
-        WebView mainWebView = LoginWebViewService.createLoginWebView();
-        StackPane mainWebViewContainer = new StackPane(mainWebView);
-        WebEngine mainWebEngine = mainWebView.getEngine();
-        mainWebEngine.setOnError(e -> callback.notifyInitializationFailure());
+        WebView loginWebView = LoginWebViewService.createLoginWebView();
+        WebEngine loginWebEngine = loginWebView.getEngine();
+        loginWebEngine.setOnError(e -> callback.notifyInitializationFailure());
         // Now that our web view is correctly set up to start a login process, we call the login service to get the UI
         // input, which - in a case of a web view - should be the either a URL to load, or directly a HTML content.
         LoginService.getLoginUiInput(new LoginUiContext(getGatewayId(), LoginWebViewService.isWebViewInIFrame()))
@@ -38,14 +37,14 @@ public abstract class WebViewBasedUiLoginGatewayProvider extends UiLoginGatewayP
                     } else if (ar.result() instanceof String)
                         input = (String) ar.result();
                     if (input != null) {
-                        dev.webfx.platform.console.Console.log("WebView input = " + input);
+                        Console.log("WebView input = " + input);
                         if (input.startsWith("http"))
-                            mainWebEngine.load(input);
+                            loginWebEngine.load(input);
                         else
-                            mainWebEngine.loadContent(input);
+                            loginWebEngine.loadContent(input);
                     }
                 }));
-        return mainWebViewContainer;
+        return loginWebView;
     }
 
 }
