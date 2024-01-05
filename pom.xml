@@ -78,6 +78,8 @@
         <module>webfx-stack-authn-server-portal</module>
         <module>webfx-stack-authz-client</module>
         <module>webfx-stack-authz-server</module>
+        <module>webfx-stack-cache</module>
+        <module>webfx-stack-cache-client</module>
         <module>webfx-stack-com-bus</module>
         <module>webfx-stack-com-bus-call</module>
         <module>webfx-stack-com-bus-call-job</module>
