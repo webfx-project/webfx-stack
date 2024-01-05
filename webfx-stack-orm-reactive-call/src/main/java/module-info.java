@@ -9,6 +9,7 @@ module webfx.stack.orm.reactive.call {
     requires webfx.platform.console;
     requires webfx.platform.scheduler;
     requires webfx.platform.uischeduler;
+    requires webfx.stack.cache;
     requires webfx.stack.db.query;
     requires webfx.stack.db.querypush;
     requires webfx.stack.session.state.client.fx;

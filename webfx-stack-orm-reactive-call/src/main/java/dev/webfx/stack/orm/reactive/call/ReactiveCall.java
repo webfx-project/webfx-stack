@@ -1,6 +1,7 @@
 package dev.webfx.stack.orm.reactive.call;
 
 import dev.webfx.platform.console.Console;
+import dev.webfx.stack.cache.CacheEntry;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
@@ -21,6 +22,7 @@ public class ReactiveCall<A, R> {
     private A lastCallArgument;
     private Supplier<A> argumentFetcher;
     private boolean fetchingArgument;
+    private CacheEntry<R> resultCacheEntry;
 
     private final BooleanProperty startedProperty = new SimpleBooleanProperty() {
         @Override
@@ -55,6 +57,17 @@ public class ReactiveCall<A, R> {
 
     public ReactiveCall(AsyncFunction<A, R> asyncFunction) {
         this.asyncFunction = asyncFunction;
+    }
+
+    public void setResultCacheEntry(CacheEntry<R> resultCacheEntry) {
+        this.resultCacheEntry = resultCacheEntry;
+        if (resultCacheEntry != null && isStarted()) {
+            R result = getResult();
+            if (result != null)
+                resultCacheEntry.putValue(result);
+            else
+                initResultFromCacheIfApplicable();
+        }
     }
 
     public final BooleanProperty activeProperty() {
@@ -104,7 +117,7 @@ public class ReactiveCall<A, R> {
         return resultProperty;
     }
 
-    public final Object getResult() {
+    public final R getResult() {
         return resultProperty.get();
     }
 
@@ -185,10 +198,17 @@ public class ReactiveCall<A, R> {
     public void onArgumentChanged() {
         if (!fetchingArgument)
             scheduleFireCallNowIfRequired();
+        initResultFromCacheIfApplicable();
     }
 
     protected void onResultChanged() {
-        // Can be overridden
+        if (resultCacheEntry != null && getArgument() != null)
+            resultCacheEntry.putValue(getResult());
+    }
+
+    private void initResultFromCacheIfApplicable() {
+        if (resultCacheEntry != null && getResult() == null && getArgument() != null)
+            setResult(resultCacheEntry.getValue());
     }
 
     public void refreshWhenReady(boolean force) {
@@ -268,6 +288,7 @@ public class ReactiveCall<A, R> {
     protected void onStarted() {
         scheduleFireCallNowIfRequired();
         rescheduleAutoRefresh();
+        initResultFromCacheIfApplicable();
     }
 
     protected void onStopped() {

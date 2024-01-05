@@ -10,6 +10,7 @@ module webfx.stack.orm.reactive.dql {
     requires webfx.platform.console;
     requires webfx.platform.uischeduler;
     requires webfx.platform.util;
+    requires webfx.stack.cache;
     requires webfx.stack.db.datascope;
     requires webfx.stack.db.query;
     requires webfx.stack.orm.domainmodel;

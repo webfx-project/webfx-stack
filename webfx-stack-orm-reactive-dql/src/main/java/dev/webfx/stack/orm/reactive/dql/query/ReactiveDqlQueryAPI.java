@@ -1,5 +1,6 @@
 package dev.webfx.stack.orm.reactive.dql.query;
 
+import dev.webfx.stack.cache.CacheEntry;
 import dev.webfx.stack.orm.reactive.dql.statement.ReactiveDqlStatement;
 import dev.webfx.stack.orm.reactive.dql.statement.ReactiveDqlStatementAPI;
 import javafx.beans.property.BooleanProperty;
@@ -98,6 +99,11 @@ public interface ReactiveDqlQueryAPI<E, THIS> extends HasDataSourceModel, HasAct
 
     default THIS unbindActiveProperty() {
         getReactiveDqlQuery().unbindActiveProperty();
+        return (THIS) this;
+    }
+
+    default THIS setResultCacheEntry(CacheEntry<QueryResult> resultCacheEntry) {
+        getReactiveDqlQuery().setResultCacheEntry(resultCacheEntry);
         return (THIS) this;
     }
 
