@@ -8,6 +8,7 @@ module webfx.stack.orm.entity {
     requires transitive webfx.platform.async;
     requires webfx.platform.console;
     requires webfx.platform.util;
+    requires webfx.stack.cache;
     requires transitive webfx.stack.db.datascope;
     requires transitive webfx.stack.db.query;
     requires transitive webfx.stack.db.submit;
