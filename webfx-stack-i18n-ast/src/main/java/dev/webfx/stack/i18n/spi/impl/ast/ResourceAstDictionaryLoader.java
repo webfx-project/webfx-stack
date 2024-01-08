@@ -8,6 +8,7 @@ import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.async.Future;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Bruno Salmon
@@ -32,16 +33,16 @@ final class ResourceAstDictionaryLoader implements DictionaryLoader {
     @Override
     public Future<Dictionary> loadDictionary(Object lang, Set<Object> keys) {
         Promise<Dictionary> promise = Promise.promise();
-        Throwable[] failure = { null };
+        AtomicInteger failureCounter = new AtomicInteger();
         for (String format : supportedFormats) {
             Resource.loadText(getDictionaryResourcePath(lang, format), text -> {
                 if (text != null)
                     promise.tryComplete(new AstDictionary(text, format));
-            }, e -> failure[0] = e);
+            }, e -> {
+                if (failureCounter.incrementAndGet() == supportedFormats.length)
+                    promise.fail(e);
+            });
         }
-        // Raising error if promise not complete and failure occurred TODO: improve this for real async loading
-        if (failure[0] != null)
-            promise.tryFail(failure[0]);
         return promise.future();
     }
 }
