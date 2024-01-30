@@ -1,2 +1,3 @@
 dev.webfx.stack.db.query.buscall.serial.QueryArgumentSerialCodec
 dev.webfx.stack.db.query.buscall.serial.QueryResultSerialCodec
+dev.webfx.stack.db.query.buscall.serial.PairSerialCodec

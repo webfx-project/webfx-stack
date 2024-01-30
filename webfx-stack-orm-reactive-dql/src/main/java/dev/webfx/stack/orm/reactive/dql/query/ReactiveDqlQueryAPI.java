@@ -1,19 +1,21 @@
 package dev.webfx.stack.orm.reactive.dql.query;
 
+import dev.webfx.platform.util.function.Converter;
+import dev.webfx.platform.util.tuples.Pair;
 import dev.webfx.stack.cache.CacheEntry;
-import dev.webfx.stack.orm.reactive.dql.statement.ReactiveDqlStatement;
-import dev.webfx.stack.orm.reactive.dql.statement.ReactiveDqlStatementAPI;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.value.ObservableValue;
-import dev.webfx.stack.routing.activity.impl.elementals.activeproperty.HasActiveProperty;
+import dev.webfx.stack.db.datascope.aggregate.AggregateScope;
+import dev.webfx.stack.db.query.QueryArgument;
+import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.domainmodel.HasDataSourceModel;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.SqlCompiled;
 import dev.webfx.stack.orm.expression.builder.ReferenceResolver;
-import dev.webfx.stack.db.datascope.aggregate.AggregateScope;
-import dev.webfx.stack.db.query.QueryResult;
-import dev.webfx.platform.util.function.Converter;
+import dev.webfx.stack.orm.reactive.dql.statement.ReactiveDqlStatement;
+import dev.webfx.stack.orm.reactive.dql.statement.ReactiveDqlStatementAPI;
+import dev.webfx.stack.routing.activity.impl.elementals.activeproperty.HasActiveProperty;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.value.ObservableValue;
 
 /**
  * @author Bruno Salmon
@@ -102,7 +104,7 @@ public interface ReactiveDqlQueryAPI<E, THIS> extends HasDataSourceModel, HasAct
         return (THIS) this;
     }
 
-    default THIS setResultCacheEntry(CacheEntry<QueryResult> resultCacheEntry) {
+    default THIS setResultCacheEntry(CacheEntry<Pair<QueryArgument, QueryResult>> resultCacheEntry) {
         getReactiveDqlQuery().setResultCacheEntry(resultCacheEntry);
         return (THIS) this;
     }

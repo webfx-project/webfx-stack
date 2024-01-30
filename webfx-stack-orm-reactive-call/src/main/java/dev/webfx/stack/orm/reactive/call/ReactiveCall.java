@@ -1,6 +1,7 @@
 package dev.webfx.stack.orm.reactive.call;
 
 import dev.webfx.platform.console.Console;
+import dev.webfx.platform.util.tuples.Pair;
 import dev.webfx.stack.cache.CacheEntry;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
@@ -22,7 +23,7 @@ public class ReactiveCall<A, R> {
     private A lastCallArgument;
     private Supplier<A> argumentFetcher;
     private boolean fetchingArgument;
-    private CacheEntry<R> resultCacheEntry;
+    private CacheEntry<Pair<A, R>> resultCacheEntry;
 
     private final BooleanProperty startedProperty = new SimpleBooleanProperty() {
         @Override
@@ -59,12 +60,12 @@ public class ReactiveCall<A, R> {
         this.asyncFunction = asyncFunction;
     }
 
-    public void setResultCacheEntry(CacheEntry<R> resultCacheEntry) {
+    public void setResultCacheEntry(CacheEntry<Pair<A, R>> resultCacheEntry) {
         this.resultCacheEntry = resultCacheEntry;
         if (resultCacheEntry != null && isStarted()) {
             R result = getResult();
             if (result != null)
-                resultCacheEntry.putValue(result);
+                resultCacheEntry.putValue(new Pair<>(getArgument(), result));
             else
                 initResultFromCacheIfApplicable();
         }
@@ -203,12 +204,24 @@ public class ReactiveCall<A, R> {
 
     protected void onResultChanged() {
         if (resultCacheEntry != null && getArgument() != null)
-            resultCacheEntry.putValue(getResult());
+            resultCacheEntry.putValue(new Pair<>(getArgument(), getResult()));
     }
 
     private void initResultFromCacheIfApplicable() {
-        if (resultCacheEntry != null && getResult() == null && getArgument() != null)
-            setResult(resultCacheEntry.getValue());
+        if (resultCacheEntry != null && getResult() == null && getArgument() != null) {
+            try {
+                Pair<A, R> pair = resultCacheEntry.getValue();
+                if (pair != null) {
+                    if (pair.get1().equals(getArgument())) {
+                        Console.log("Restoring cache '" + resultCacheEntry.getKey() + "'");
+                        setResult(pair.get2());
+                    } else
+                        Console.log("Cache for '" + resultCacheEntry.getKey() + "' can't be used, as its argument was different: " + pair.get1());
+                }
+            } catch (Exception e) {
+                Console.log("WARNING: Restoring '" + resultCacheEntry.getKey() + "' cache failed: " + e.getMessage());
+            }
+        }
     }
 
     public void refreshWhenReady(boolean force) {

@@ -14,6 +14,7 @@
         <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.query.buscall.ExecuteQueryBatchMethodEndpoint</provider>
         <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.query.buscall.serial.QueryArgumentSerialCodec</provider>
         <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.query.buscall.serial.QueryResultSerialCodec</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.query.buscall.serial.PairSerialCodec</provider>
     </providers>
 
 </project>

@@ -1,13 +1,13 @@
 package dev.webfx.stack.orm.reactive.dql.query;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
+import dev.webfx.platform.util.function.Converter;
+import dev.webfx.platform.util.tuples.Pair;
 import dev.webfx.stack.cache.CacheEntry;
-import dev.webfx.stack.orm.reactive.call.ReactiveCall;
-import dev.webfx.stack.orm.reactive.call.query.ReactiveQueryCall;
-import dev.webfx.stack.orm.reactive.dql.statement.ReactiveDqlStatement;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.value.ObservableValue;
-import dev.webfx.stack.routing.activity.impl.elementals.activeproperty.HasActiveProperty;
+import dev.webfx.stack.db.datascope.aggregate.AggregateScope;
+import dev.webfx.stack.db.query.QueryArgument;
+import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.domainmodel.DomainModel;
@@ -20,11 +20,12 @@ import dev.webfx.stack.orm.expression.builder.ReferenceResolver;
 import dev.webfx.stack.orm.expression.builder.ThreadLocalReferenceResolver;
 import dev.webfx.stack.orm.expression.terms.Alias;
 import dev.webfx.stack.orm.expression.terms.As;
-import dev.webfx.kit.util.properties.FXProperties;
-import dev.webfx.stack.db.datascope.aggregate.AggregateScope;
-import dev.webfx.stack.db.query.QueryArgument;
-import dev.webfx.stack.db.query.QueryResult;
-import dev.webfx.platform.util.function.Converter;
+import dev.webfx.stack.orm.reactive.call.ReactiveCall;
+import dev.webfx.stack.orm.reactive.call.query.ReactiveQueryCall;
+import dev.webfx.stack.orm.reactive.dql.statement.ReactiveDqlStatement;
+import dev.webfx.stack.routing.activity.impl.elementals.activeproperty.HasActiveProperty;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.value.ObservableValue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -103,7 +104,7 @@ public class ReactiveDqlQuery<E> implements ReactiveDqlQueryAPI<E, ReactiveDqlQu
     }
 
     @Override
-    public ReactiveDqlQuery<E> setResultCacheEntry(CacheEntry<QueryResult> resultCacheEntry) {
+    public ReactiveDqlQuery<E> setResultCacheEntry(CacheEntry<Pair<QueryArgument, QueryResult>> resultCacheEntry) {
         reactiveQueryCall.setResultCacheEntry(resultCacheEntry);
         return this;
     }

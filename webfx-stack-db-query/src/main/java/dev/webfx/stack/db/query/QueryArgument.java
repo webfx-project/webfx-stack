@@ -1,6 +1,9 @@
 package dev.webfx.stack.db.query;
 
+import dev.webfx.platform.util.Numbers;
 import dev.webfx.stack.db.datascope.DataScope;
+
+import java.util.Objects;
 
 /**
  * @author Bruno Salmon
@@ -55,11 +58,26 @@ public final class QueryArgument {
 
         QueryArgument that = (QueryArgument) o;
 
-        if (!dataSourceId.equals(that.dataSourceId)) return false;
-        if (language != null ? !language.equals(that.language) : that.language != null) return false;
-        if (statement != null ? !statement.equals(that.statement) : that.statement != null) return false;
-        // Probably incorrect - comparing Object[] arrays with Arrays.equals
-        return java.util.Arrays.equals(parameters, that.parameters);
+        if (!Objects.equals(dataSourceId, that.dataSourceId)) return false;
+        if (!Objects.equals(language, that.language)) return false;
+        if (!Objects.equals(statement, that.statement)) return false;
+
+        // We need to be quite flexible with the parameters, especially with the numbers, as they might be of different
+        // types after (de)serialisation (ex: a 5 Integer can become a 5 Short, but they should still be considered as
+        // equals). So we will use Numbers.sameValue() for the check.
+
+        // Note: it's ok to consider parameter Object[0] and null to be equals
+        int n1 = parameters == null ? 0 : parameters.length;
+        int n2 = that.parameters == null ? 0 : that.parameters.length;
+        if (n1 != n2) return false;
+        for (int i = 0; i < n1; i++) {
+            Object p1 = parameters[i], p2 = that.parameters[i];
+            if (!Objects.equals(p1, p2)) { // Not equals, but might be 2 numbers of identical value
+                if (!(p1 instanceof Number && p2 instanceof Number && Numbers.identicalValues((Number) p1, (Number) p2)))
+                    return false; // if not, they are definitely not equals
+            }
+        }
+        return true;
     }
 
     @Override
