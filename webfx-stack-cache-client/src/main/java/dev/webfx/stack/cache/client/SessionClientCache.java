@@ -10,17 +10,19 @@ import dev.webfx.stack.session.state.client.fx.FXSession;
  */
 public class SessionClientCache implements Cache {
 
-    private final Session session = FXSession.getSession();
-
     @Override
     public void put(String key, Object value) {
-        session.put(key, value);
-        SessionService.getSessionStore().put(session);
+        Session session = FXSession.getSession();
+        if (session != null) {
+            session.put(key, value);
+            SessionService.getSessionStore().put(session);
+        }
     }
 
     @Override
     public Object get(String key) {
-        return session.get(key);
+        Session session = FXSession.getSession();
+        return session == null ? null : session.get(key);
     }
 
     private static SessionClientCache INSTANCE;
