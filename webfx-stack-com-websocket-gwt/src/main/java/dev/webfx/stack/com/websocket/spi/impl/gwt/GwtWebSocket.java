@@ -1,47 +1,49 @@
 package dev.webfx.stack.com.websocket.spi.impl.gwt;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import dev.webfx.stack.com.websocket.WebSocket;
 import dev.webfx.stack.com.websocket.WebSocketListener;
 
 /**
  * @author Bruno Salmon
  */
-final class GwtWebSocket extends JavaScriptObject implements WebSocket {
+final class GwtWebSocket implements WebSocket {
 
-    protected GwtWebSocket() {}
+    private final SockJS sockJS;
+
+    public GwtWebSocket(SockJS sockJS) {
+        this.sockJS = sockJS;
+    }
+
+    @Override
+    public void send(String data) {
+        sockJS.send(data);
+    }
+
+    @Override
+    public void close() {
+        sockJS.close();
+    }
 
     @Override
     public State getReadyState() {
-        JavaScriptObject jsState = getSockJSState();
-        if (jsState == OPEN())
+        Object jsState = sockJS.readyState();
+        if (jsState == SockJS.OPEN())
             return State.OPEN;
-        if (jsState == CONNECTING())
+        if (jsState == SockJS.CONNECTING())
             return State.CONNECTING;
-        if (jsState == CLOSING())
+        if (jsState == SockJS.CLOSING())
             return State.CLOSING;
-        if (jsState == CLOSED())
+        if (jsState == SockJS.CLOSED())
             return State.CLOSED;
         throw new IllegalStateException("SockJS.readyState");
     }
 
     @Override
-    public native void send(String data) /*-{ this.send(data); }-*/;
+    public void setListener(WebSocketListener listener) {
+        sockJS.setOnOpen(e -> listener.onOpen());
+        sockJS.setOnMessage(e -> listener.onMessage(e.data));
+        sockJS.setOnClose(listener::onClose);
+        sockJS.setOnError(e -> listener.onError(e.data));
+    }
 
-    @Override
-    public native void setListener(WebSocketListener listener) /*-{
-        this.onopen =    listener.@WebSocketListener::onOpen().bind(listener);
-        this.onmessage = function(event) { listener.@WebSocketListener::onMessage(Ljava/lang/String;)(event.data)};
-        this.onerror =   function(event) { listener.@WebSocketListener::onError(Ljava/lang/String;)(event.data)};
-        this.onclose =   listener.@WebSocketListener::onClose(Ldev/webfx/platform/ast/ReadOnlyAstObject;).bind(listener);
-    }-*/;
-
-    @Override
-    public native void close() /*-{ this.close(); }-*/;
-
-    private native JavaScriptObject getSockJSState() /*-{ return this.readyState; }-*/;
-    private static native JavaScriptObject OPEN() /*-{ return $wnd.SockJS.OPEN; }-*/;
-    private static native JavaScriptObject CONNECTING() /*-{ return $wnd.SockJS.CONNECTING; }-*/;
-    private static native JavaScriptObject CLOSING() /*-{ return $wnd.SockJS.CLOSING; }-*/;
-    private static native JavaScriptObject CLOSED() /*-{ return $wnd.SockJS.CLOSED; }-*/;
 }
