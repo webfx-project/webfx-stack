@@ -1,8 +1,9 @@
 package dev.webfx.stack.com.websocket.spi.impl.gwt;
 
 import dev.webfx.platform.ast.ReadOnlyAstObject;
+import elemental2.dom.Event;
 import jsinterop.annotations.JsConstructor;
-import jsinterop.annotations.JsProperty;
+import jsinterop.annotations.JsFunction;
 import jsinterop.annotations.JsType;
 
 
@@ -12,32 +13,39 @@ import jsinterop.annotations.JsType;
 @JsType(isNative = true, namespace = "window")
 final class SockJS {
 
+    public static Object OPEN;
+    public static Object CONNECTING;
+    public static Object CLOSING;
+    public static Object CLOSED;
+
     @JsConstructor
     public SockJS(String url, Object ignored, ReadOnlyAstObject options) {}
 
     public native void send(String data);
-
     public native void close();
+    public Object readyState;
+    public OnopenFn onopen;
+    public OnmessageFn onmessage;
+    public OncloseFn onclose;
+    public OnerrorFn onerror;
 
-    @JsProperty(name = "readyState")
-    public native Object readyState();
+    @JsFunction
+    public interface OnopenFn {
+        void onInvoke(Event e);
+    }
 
-    @JsProperty(name = "onopen")
-    public native void setOnOpen(JSFunction<Void> listener);
-    @JsProperty(name = "onmessage")
-    public native void setOnMessage(JSFunction<SockJSEvent> listener);
-    @JsProperty(name = "onclose")
-    public native void setOnClose(JSFunction<ReadOnlyAstObject> listener);
-    @JsProperty(name = "onerror")
-    public native void setOnError(JSFunction<SockJSEvent> listener);
+    @JsFunction
+    public interface OnmessageFn {
+        void onInvoke(SockJSEvent e);
+    }
 
-    @JsProperty(name = "OPEN")
-    public native static Object OPEN();
-    @JsProperty(name = "CONNECTING")
-    public native static Object CONNECTING();
-    @JsProperty(name = "CLOSING")
-    public native static Object CLOSING();
-    @JsProperty(name = "CLOSED")
-    public native static Object CLOSED();
+    @JsFunction
+    public interface OncloseFn {
+        void onInvoke(SockJSEvent e);
+    }
 
+    @JsFunction
+    public interface OnerrorFn {
+        void onInvoke(SockJSEvent e);
+    }
 }

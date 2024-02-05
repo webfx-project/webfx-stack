@@ -2,6 +2,7 @@ package dev.webfx.stack.com.websocket.spi.impl.gwt;
 
 import dev.webfx.stack.com.websocket.WebSocket;
 import dev.webfx.stack.com.websocket.WebSocketListener;
+import jsinterop.base.Js;
 
 /**
  * @author Bruno Salmon
@@ -26,24 +27,24 @@ final class GwtWebSocket implements WebSocket {
 
     @Override
     public State getReadyState() {
-        Object jsState = sockJS.readyState();
-        if (jsState == SockJS.OPEN())
+        Object sockJsState = sockJS.readyState;
+        if (sockJsState == SockJS.OPEN)
             return State.OPEN;
-        if (jsState == SockJS.CONNECTING())
+        if (sockJsState == SockJS.CONNECTING)
             return State.CONNECTING;
-        if (jsState == SockJS.CLOSING())
+        if (sockJsState == SockJS.CLOSING)
             return State.CLOSING;
-        if (jsState == SockJS.CLOSED())
+        if (sockJsState == SockJS.CLOSED)
             return State.CLOSED;
-        throw new IllegalStateException("SockJS.readyState");
+        throw new IllegalStateException("Unrecognized SockJS.readyState");
     }
 
     @Override
     public void setListener(WebSocketListener listener) {
-        sockJS.setOnOpen(e -> listener.onOpen());
-        sockJS.setOnMessage(e -> listener.onMessage(e.data));
-        sockJS.setOnClose(listener::onClose);
-        sockJS.setOnError(e -> listener.onError(e.data));
+        sockJS.onopen = e -> listener.onOpen();
+        sockJS.onmessage = e -> listener.onMessage(e.data);
+        sockJS.onclose = e -> listener.onClose(Js.cast(e));
+        sockJS.onerror = e -> listener.onError(e.data);
     }
 
 }
