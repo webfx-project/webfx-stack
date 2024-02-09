@@ -1,6 +1,7 @@
 package dev.webfx.stack.orm.reactive.dql.statement;
 
 import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Numbers;
 import dev.webfx.platform.util.Strings;
@@ -35,8 +36,8 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
     private final List<ObservableValue<DqlStatement>> dqlStatementProperties = new ArrayList<>();
     // The base statement is the fist sample of dql statements giving the domain class ID
     private DqlStatement baseStatement;
-    private boolean markDqlStatementsAsChanged;
     private final ObjectProperty<DqlStatement> resultingDqlStatementProperty = new SimpleObjectProperty<>();
+    private Scheduled dqlStatementChangedScheduled;
     private final List<Function<DqlStatement, DqlStatement>> resultTransformers = new ArrayList<>();
 
     /*==================================================================================================================
@@ -82,7 +83,7 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
     }
 
     private void fetchBaseStatementAndDomainClassIdIfNecessary() {
-        if (baseStatement == null || markDqlStatementsAsChanged) {
+        if (baseStatement == null || dqlStatementChangedScheduled != null) {
             synchronized (dqlStatementProperties) { // to avoid ConcurrentModificationException if another thread wants to add another statement
                 for (ObservableValue<DqlStatement> dqlStatementProperty : dqlStatementProperties) {
                     DqlStatement dqlStatement = dqlStatementProperty.getValue();
@@ -98,14 +99,15 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
     }
 
     private void markDqlStatementsAsChanged() {
-        if (!markDqlStatementsAsChanged) {
-            markDqlStatementsAsChanged = true;
-            UiScheduler.scheduleDeferred(() -> {
-                markDqlStatementsAsChanged = false;
-                DqlStatement result = mergeDqlStatements();
-                resultingDqlStatementProperty.setValue(result);
-            });
+        if (dqlStatementChangedScheduled == null) {
+            dqlStatementChangedScheduled = UiScheduler.scheduleDeferred(this::recomputeResultingDqlStatement);
         }
+    }
+
+    private void recomputeResultingDqlStatement() {
+        dqlStatementChangedScheduled = null;
+        DqlStatement result = mergeDqlStatements();
+        resultingDqlStatementProperty.setValue(result);
     }
 
     private DqlStatement mergeDqlStatements() {

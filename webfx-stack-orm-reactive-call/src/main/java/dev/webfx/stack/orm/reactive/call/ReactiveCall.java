@@ -24,6 +24,7 @@ public class ReactiveCall<A, R> {
     private Supplier<A> argumentFetcher;
     private boolean fetchingArgument;
     private CacheEntry<Pair<A, R>> resultCacheEntry;
+    private Scheduled fireCallNowIfRequiredScheduled;
 
     private final BooleanProperty startedProperty = new SimpleBooleanProperty() {
         @Override
@@ -148,17 +149,17 @@ public class ReactiveCall<A, R> {
         this.argumentFetcher = argumentFetcher;
     }
 
-    private boolean fireCallNowIfRequiredScheduled;
-
     protected void scheduleFireCallNowIfRequired() {
-        if (!fireCallNowIfRequiredScheduled) {
-            fireCallNowIfRequiredScheduled = true;
-            UiScheduler.scheduleDeferred(this::fireCallNowIfRequired);
+        if (fireCallNowIfRequiredScheduled == null) {
+            fireCallNowIfRequiredScheduled = UiScheduler.scheduleDeferred(this::fireCallNowIfRequired);
         }
     }
 
     private void fireCallNowIfRequired() {
-        fireCallNowIfRequiredScheduled = false;
+        if (fireCallNowIfRequiredScheduled != null) {
+            fireCallNowIfRequiredScheduled.cancel();
+            fireCallNowIfRequiredScheduled = null;
+        }
         if (argumentFetcher != null) {
             fetchingArgument = true;
             A argument = argumentFetcher.get();
@@ -299,7 +300,7 @@ public class ReactiveCall<A, R> {
     }
 
     protected void onStarted() {
-        scheduleFireCallNowIfRequired();
+        fireCallNowIfRequired(); // We fire the call now (no more need for schedule). This also provider a better UX for cache restore.
         rescheduleAutoRefresh();
         initResultFromCacheIfApplicable();
     }

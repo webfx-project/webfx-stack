@@ -147,7 +147,7 @@ public class ReactiveDqlQuery<E> implements ReactiveDqlQueryAPI<E, ReactiveDqlQu
     }
 
     protected void updateQueryArgument(DqlStatement dqlStatement) {
-        //Logger.log("ReactiveDqlQuery.updateQueryArgument()");
+        //Console.log("ReactiveDqlQuery.updateQueryArgument()");
         // Shortcut: when the dql statement is inherently empty, we return an empty entity list immediately (no server call) - unless we are in push mode already registered on the server
         if (dqlStatement.isInherentlyEmpty()) {
             reactiveQueryCall.setArgument(null);
@@ -157,7 +157,7 @@ public class ReactiveDqlQuery<E> implements ReactiveDqlQueryAPI<E, ReactiveDqlQu
         QueryArgument queryArgument = createQueryArgument(dqlStatement.toDqlSelect(), dqlStatement.getSelectParameterValues());
         // Skipping the server call if there is no difference in the parameters compared to the last call
         if (isDifferentFromLastQuery(queryArgument)) {
-            //Logger.log("Setting queryArgument = " + queryArgument);
+            //Console.log("Setting queryArgument = " + queryArgument);
             reactiveQueryCall.setArgument(queryArgument);
         } else
             Console.log("No difference with previous query");
