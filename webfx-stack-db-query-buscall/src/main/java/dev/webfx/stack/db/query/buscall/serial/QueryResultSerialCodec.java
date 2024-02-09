@@ -1,6 +1,7 @@
 package dev.webfx.stack.db.query.buscall.serial;
 
 import dev.webfx.platform.ast.*;
+import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.buscall.serial.compression.repeat.RepeatedValuesCompressor;
@@ -35,9 +36,9 @@ public final class QueryResultSerialCodec extends SerialCodecBase<QueryResult> {
             json.set(COLUMN_COUNT_KEY, columnCount);
             // values packing and serialization
             if (COMPRESSION)
-                json.set(COMPRESSED_VALUES_KEY, AST.fromJavaArray(RepeatedValuesCompressor.SINGLETON.compress(rs.getValues())));
+                json.set(COMPRESSED_VALUES_KEY, SerialCodecManager.encodePrimitiveArrayToAstArray(RepeatedValuesCompressor.SINGLETON.compress(rs.getValues())));
             else
-                json.set(VALUES_KEY, AST.fromJavaArray(rs.getValues()));
+                json.set(VALUES_KEY, SerialCodecManager.encodePrimitiveArrayToAstArray(rs.getValues()));
             SerialCodecBase.encodeKey(VERSION_KEY, rs.getVersionNumber(), json);
         } catch (Exception e) {
             e.printStackTrace();
@@ -61,9 +62,9 @@ public final class QueryResultSerialCodec extends SerialCodecBase<QueryResult> {
         Object[] inlineValues;
         ReadOnlyAstArray valuesArray = json.getArray(VALUES_KEY);
         if (valuesArray != null)
-            inlineValues = AST.toJavaArray(valuesArray);
+            inlineValues = SerialCodecManager.decodePrimitiveArrayFromAstArray(valuesArray);
         else
-            inlineValues = RepeatedValuesCompressor.SINGLETON.uncompress(AST.toJavaArray(json.getArray(COMPRESSED_VALUES_KEY)));
+            inlineValues = RepeatedValuesCompressor.SINGLETON.uncompress(SerialCodecManager.decodePrimitiveArrayFromAstArray(json.getArray(COMPRESSED_VALUES_KEY)));
         // returning the query result with its version number (if provided)
         QueryResult rs = new QueryResult(columnCount, inlineValues, names);
         rs.setVersionNumber(json.getInteger(VERSION_KEY, 0));

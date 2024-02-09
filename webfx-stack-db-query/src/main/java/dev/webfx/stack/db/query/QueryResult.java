@@ -22,7 +22,7 @@ public final class QueryResult {
     /**
      * The values of the result set stored in an inline array (more efficient for compression algorithm).
      * First column, then 2nd column, etc... So inlineIndex = rowIndex + columnIndex * rowCount.
-     * (better than 1st row, 2nd row, etc.. for compression algorithm)
+     * (better than 1st row, 2nd row, etc... for compression algorithm)
      */
     private final Object[] values;
 
