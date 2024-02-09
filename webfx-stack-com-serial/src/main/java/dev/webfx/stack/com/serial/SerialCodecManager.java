@@ -2,15 +2,20 @@ package dev.webfx.stack.com.serial;
 
 import dev.webfx.platform.ast.*;
 import dev.webfx.platform.ast.json.Json;
-import dev.webfx.platform.util.Dates;
+import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.Numbers;
 import dev.webfx.stack.com.serial.spi.SerialCodec;
 import dev.webfx.stack.com.serial.spi.impl.ExceptionSerialCodec;
+import dev.webfx.stack.com.serial.spi.impl.time.InstantSerialCodec;
+import dev.webfx.stack.com.serial.spi.impl.time.LocalDateSerialCodec;
+import dev.webfx.stack.com.serial.spi.impl.time.LocalDateTimeSerialCodec;
+import dev.webfx.stack.com.serial.spi.impl.time.LocalTimeSerialCodec;
 
 import java.lang.reflect.Array;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +26,12 @@ import java.util.Map;
 public final class SerialCodecManager {
 
     public final static String CODEC_ID_KEY = "$codec";
-    private final static String INSTANT_VALUE_PREFIX = "$instant:";
+    private final static boolean ENCODE_TIME_VALUES_WITH_PREFIXED_STRING = true;
+    private final static boolean DECODE_TIME_VALUES_WITH_PREFIXED_STRING = true;
+    private final static String INSTANT_VALUE_PREFIX = "$I:";
+    private final static String LOCAL_DATE_VALUE_PREFIX = "$LD:";
+    private final static String LOCAL_DATE_TIME_VALUE_PREFIX = "$LDT:";
+    private final static String LOCAL_TIME_VALUE_PREFIX = "$LT:";
 
     private static final Map<Class<?>, SerialCodec<?>> encoders = new HashMap<>();
     private static final Map<String, SerialCodec<?>> decoders = new HashMap<>();
@@ -29,6 +39,10 @@ public final class SerialCodecManager {
 
     static {
         registerSerialCodec(new ExceptionSerialCodec());
+        registerSerialCodec(new InstantSerialCodec());
+        registerSerialCodec(new LocalDateSerialCodec());
+        registerSerialCodec(new LocalDateTimeSerialCodec());
+        registerSerialCodec(new LocalTimeSerialCodec());
     }
 
     public static void registerSerialCodec(SerialCodec<?> codec) {
@@ -64,17 +78,16 @@ public final class SerialCodecManager {
         // Keeping null and primitives as is
         if (object == null || object instanceof String || Numbers.isNumber(object) || object instanceof Boolean)
             return object;
-        // Managing date objects (Instant, LocalDate and LocalDateTime)
-        Instant instant = Dates.asInstant(object);
-        if (instant == null) {
-            LocalDateTime localDateTime = Dates.asLocalDateTime(object);
-            if (localDateTime == null)
-                localDateTime = Dates.toLocalDateTime(Dates.asLocalDate(object));
-            if (localDateTime != null)
-                instant = localDateTime.toInstant(ZoneOffset.UTC);
+        if (ENCODE_TIME_VALUES_WITH_PREFIXED_STRING) {
+            if (object instanceof Instant)
+                return INSTANT_VALUE_PREFIX + object;
+            if (object instanceof LocalDate)
+                return LOCAL_DATE_VALUE_PREFIX + object;
+            if (object instanceof LocalDateTime)
+                return LOCAL_DATE_TIME_VALUE_PREFIX + object;
+            if (object instanceof LocalTime)
+                return LOCAL_TIME_VALUE_PREFIX + object;
         }
-        if (instant != null)
-            return INSTANT_VALUE_PREFIX + Dates.formatIso(instant);
         // Other java objects are serialized into json
         return encodeToAstObject(object);
     }
@@ -120,17 +133,36 @@ public final class SerialCodecManager {
         // Case 1: it's a json object => we call decodeFromAstObject(). The returned object may be any java object.
         if (object instanceof ReadOnlyAstObject)
             return decodeFromAstObject((ReadOnlyAstObject) object);
-        // Case 2: it's a json array => we call decodePrimitiveArrayFromAstArray(). The return object is always an Object[] array.
+        // Case 2: it's a json array => we call decodePrimitiveArrayFromAstArray(). The returned object is always an Object[] array.
         if (object instanceof ReadOnlyAstArray)
             return (T) decodePrimitiveArrayFromAstArray((ReadOnlyAstArray) object);
         // Case 3: it's a String with instant value prefix => we decode and return the instant value
-        if (object instanceof String) {
+        if (object instanceof String && DECODE_TIME_VALUES_WITH_PREFIXED_STRING) {
             String s = (String) object;
             if (s.startsWith(INSTANT_VALUE_PREFIX)) {
-                s = s.substring(INSTANT_VALUE_PREFIX.length());
-                Object instant = Dates.fastToInstantIfIsoString(s);
-                if (instant != s)
-                    object = instant;
+                try {
+                    object = Instant.parse(s.substring(INSTANT_VALUE_PREFIX.length()));
+                } catch (Exception e) {
+                    Console.log("Couldn't parse Instant, keeping the string");
+                }
+            } else if (s.startsWith(LOCAL_DATE_VALUE_PREFIX)) {
+                try {
+                    object = LocalDate.parse(s.substring(LOCAL_DATE_VALUE_PREFIX.length()));
+                } catch (Exception e) {
+                    Console.log("Couldn't parse LocalDate, keeping the string");
+                }
+            } else if (s.startsWith(LOCAL_DATE_TIME_VALUE_PREFIX)) {
+                try {
+                    object = LocalDateTime.parse(s.substring(LOCAL_DATE_TIME_VALUE_PREFIX.length()));
+                } catch (Exception e) {
+                    Console.log("Couldn't parse LocalDateTime, keeping the string");
+                }
+            } else if (s.startsWith(LOCAL_TIME_VALUE_PREFIX)) {
+                try {
+                    object = LocalTime.parse(s.substring(LOCAL_TIME_VALUE_PREFIX.length()));
+                } catch (Exception e) {
+                    Console.log("Couldn't parse LocalTime, keeping the string");
+                }
             }
         }
         // Case 4: it's something else => we assume it's a value that don't need decoding and return it as is

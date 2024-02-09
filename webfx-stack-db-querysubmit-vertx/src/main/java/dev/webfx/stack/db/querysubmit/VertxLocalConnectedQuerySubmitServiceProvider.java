@@ -1,11 +1,16 @@
 package dev.webfx.stack.db.querysubmit;
 
-import dev.webfx.stack.db.submit.listener.SubmitListenerService;
+import dev.webfx.platform.async.Batch;
+import dev.webfx.platform.async.Future;
+import dev.webfx.platform.async.Promise;
+import dev.webfx.platform.console.Console;
+import dev.webfx.platform.util.Arrays;
+import dev.webfx.platform.util.tuples.Unit;
+import dev.webfx.platform.vertx.common.VertxInstance;
 import dev.webfx.stack.db.datasource.ConnectionDetails;
 import dev.webfx.stack.db.datasource.DBMS;
 import dev.webfx.stack.db.datasource.LocalDataSource;
 import dev.webfx.stack.db.datasource.jdbc.JdbcDriverInfo;
-import dev.webfx.platform.console.Console;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.QueryResultBuilder;
@@ -13,13 +18,8 @@ import dev.webfx.stack.db.query.spi.QueryServiceProvider;
 import dev.webfx.stack.db.submit.GeneratedKeyBatchIndex;
 import dev.webfx.stack.db.submit.SubmitArgument;
 import dev.webfx.stack.db.submit.SubmitResult;
+import dev.webfx.stack.db.submit.listener.SubmitListenerService;
 import dev.webfx.stack.db.submit.spi.SubmitServiceProvider;
-import dev.webfx.platform.util.Arrays;
-import dev.webfx.platform.async.Batch;
-import dev.webfx.platform.async.Future;
-import dev.webfx.platform.async.Promise;
-import dev.webfx.platform.util.tuples.Unit;
-import dev.webfx.platform.vertx.common.VertxInstance;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -31,7 +31,6 @@ import io.vertx.sqlclient.*;
 
 import java.net.SocketException;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -182,15 +181,11 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
                 for (Row row : resultSet) {
                     for (int columnIndex = 0; columnIndex < columnCount; columnIndex++) {
                         Object value = row.getValue(columnIndex);
-                        if (value instanceof LocalDate)
-                            value = ((LocalDate) value).atStartOfDay().toInstant(ZoneOffset.UTC);
-                        else if (value instanceof LocalDateTime)
-                            value = ((LocalDateTime) value).toInstant(ZoneOffset.UTC);
                         rsb.setValue(rowIndex, columnIndex, value);
                     }
                     rowIndex++;
                 }
-                // Logger.log("Sql executed in " + (System.currentTimeMillis() - t0) + " ms: " + queryArgument);
+                // Console.log("Sql executed in " + (System.currentTimeMillis() - t0) + " ms: " + queryArgument);
                 // Building and returning the final QueryResult
                 promise.complete(rsb.build());
             }
