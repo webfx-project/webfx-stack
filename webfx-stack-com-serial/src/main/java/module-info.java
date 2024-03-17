@@ -3,12 +3,12 @@
 module webfx.stack.com.serial {
 
     // Direct dependencies modules
-    requires java.base;
     requires webfx.platform.ast;
     requires webfx.platform.ast.json.plugin;
     requires webfx.platform.async;
     requires webfx.platform.boot;
     requires webfx.platform.console;
+    requires webfx.platform.reflect;
     requires webfx.platform.util;
 
     // Exported packages

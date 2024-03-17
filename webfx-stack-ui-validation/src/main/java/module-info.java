@@ -3,10 +3,11 @@
 module webfx.stack.ui.validation {
 
     // Direct dependencies modules
-    requires java.base;
     requires javafx.base;
     requires javafx.controls;
     requires javafx.graphics;
+    requires webfx.kit.util;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.stack.ui.validation.controlsfx.control.decoration;

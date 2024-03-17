@@ -3,7 +3,6 @@
 module webfx.stack.db.querypush.server.simple {
 
     // Direct dependencies modules
-    requires java.base;
     requires webfx.platform.async;
     requires webfx.platform.util;
     requires webfx.stack.db.datascope;

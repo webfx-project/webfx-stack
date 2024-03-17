@@ -6,7 +6,7 @@ import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.terms.Dot;
 import dev.webfx.stack.orm.expression.terms.ExpressionArray;
 import dev.webfx.platform.util.Booleans;
-import dev.webfx.platform.util.Dates;
+import dev.webfx.platform.util.time.Times;
 import dev.webfx.platform.util.Numbers;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.async.Future;
@@ -100,17 +100,17 @@ public interface Entity {
     /**
      * Return the field value as an Instant. If the type is not an instant, this can result in runtime errors.
      */
-    default Instant getInstantFieldValue(Object domainFieldId) { return Dates.toInstant(getFieldValue(domainFieldId)); }
+    default Instant getInstantFieldValue(Object domainFieldId) { return Times.toInstant(getFieldValue(domainFieldId)); }
 
     /**
      * Return the field value as a LocalDateTime. If the type is not an instant, this can result in runtime errors.
      */
-    default LocalDateTime getLocalDateTimeFieldValue(Object domainFieldId) { return Dates.toLocalDateTime(getFieldValue(domainFieldId)); }
+    default LocalDateTime getLocalDateTimeFieldValue(Object domainFieldId) { return Times.toLocalDateTime(getFieldValue(domainFieldId)); }
 
     /**
      * Return the field value as a LocalDate. If the type is not an instant, this can result in runtime errors.
      */
-    default LocalDate getLocalDateFieldValue(Object domainFieldId) { return Dates.toLocalDate(getFieldValue(domainFieldId)); }
+    default LocalDate getLocalDateFieldValue(Object domainFieldId) { return Times.toLocalDate(getFieldValue(domainFieldId)); }
 
     /**
      * Set the value of an entity field

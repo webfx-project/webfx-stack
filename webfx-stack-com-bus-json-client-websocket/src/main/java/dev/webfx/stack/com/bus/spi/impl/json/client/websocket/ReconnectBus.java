@@ -79,11 +79,10 @@ public final class ReconnectBus extends WebSocketBus {
             @Override
             public void handlePostClose() {
                 if (reconnect) {
-                    Runnable runnable = () -> {
+                    Scheduler.scheduleDelay(1000, () -> {
                         if (reconnect)
                             reconnect();
-                    };
-                    Scheduler.scheduleDelay(1000, runnable);
+                    });
                 }
                 super.handlePostClose();
             }

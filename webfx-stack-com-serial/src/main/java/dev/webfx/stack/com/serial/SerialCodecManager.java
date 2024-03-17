@@ -3,6 +3,7 @@ package dev.webfx.stack.com.serial;
 import dev.webfx.platform.ast.*;
 import dev.webfx.platform.ast.json.Json;
 import dev.webfx.platform.console.Console;
+import dev.webfx.platform.reflect.RArray;
 import dev.webfx.platform.util.Numbers;
 import dev.webfx.stack.com.serial.spi.SerialCodec;
 import dev.webfx.stack.com.serial.spi.impl.ExceptionSerialCodec;
@@ -11,7 +12,6 @@ import dev.webfx.stack.com.serial.spi.impl.time.LocalDateSerialCodec;
 import dev.webfx.stack.com.serial.spi.impl.time.LocalDateTimeSerialCodec;
 import dev.webfx.stack.com.serial.spi.impl.time.LocalTimeSerialCodec;
 
-import java.lang.reflect.Array;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -201,7 +201,7 @@ public final class SerialCodecManager {
         if (ca == null)
             return null;
         int n = ca.size();
-        T[] array = (T[]) Array.newInstance(expectedClass, n);
+        T[] array = (T[]) RArray.newInstance(expectedClass, n);
         for (int i = 0; i < n; i++)
             array[i] = decodeFromJson(ca.getObject(i));
         return array;

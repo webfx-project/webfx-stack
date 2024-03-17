@@ -3,7 +3,6 @@
 module webfx.stack.authn.oauth2 {
 
     // Direct dependencies modules
-    requires java.base;
     requires webfx.platform.async;
     requires webfx.platform.util;
 

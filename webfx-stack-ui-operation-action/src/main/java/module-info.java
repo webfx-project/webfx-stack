@@ -3,7 +3,6 @@
 module webfx.stack.ui.operation.action {
 
     // Direct dependencies modules
-    requires java.base;
     requires javafx.base;
     requires webfx.kit.util;
     requires webfx.platform.async;

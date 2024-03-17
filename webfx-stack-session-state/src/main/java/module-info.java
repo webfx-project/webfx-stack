@@ -3,7 +3,6 @@
 module webfx.stack.session.state {
 
     // Direct dependencies modules
-    requires java.base;
     requires webfx.platform.ast;
     requires webfx.platform.ast.json.plugin;
     requires transitive webfx.platform.async;

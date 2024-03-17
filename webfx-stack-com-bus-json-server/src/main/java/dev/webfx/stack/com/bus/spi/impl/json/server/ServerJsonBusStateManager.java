@@ -22,8 +22,8 @@ import java.util.function.Consumer;
  */
 public final class ServerJsonBusStateManager implements JsonBusConstants {
 
-    private final static boolean LOG_RAW_MESSAGES = true;
-    private final static boolean LOG_STATES = true;
+    private final static boolean LOG_RAW_MESSAGES = false;
+    private final static boolean LOG_STATES = false;
     private final static String ASSOCIATED_SESSION_KEY = "$associatedSession";
 
     public static void initialiseStateManagement(Bus serverJsonBus) {

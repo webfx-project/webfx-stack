@@ -3,7 +3,6 @@
 module webfx.stack.authz.client {
 
     // Direct dependencies modules
-    requires java.base;
     requires javafx.base;
     requires webfx.platform.async;
     requires webfx.platform.util;

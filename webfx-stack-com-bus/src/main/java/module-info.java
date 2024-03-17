@@ -3,7 +3,6 @@
 module webfx.stack.com.bus {
 
     // Direct dependencies modules
-    requires java.base;
     requires webfx.platform.ast;
     requires transitive webfx.platform.async;
     requires webfx.platform.util;

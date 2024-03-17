@@ -3,7 +3,6 @@
 module webfx.stack.orm.reactive.visual {
 
     // Direct dependencies modules
-    requires java.base;
     requires javafx.base;
     requires webfx.extras.cell;
     requires webfx.extras.label;

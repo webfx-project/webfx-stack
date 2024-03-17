@@ -94,7 +94,7 @@
         <module>webfx-stack-com-bus-simple</module>
         <module>webfx-stack-com-serial</module>
         <module>webfx-stack-com-websocket</module>
-        <module>webfx-stack-com-websocket-gwt</module>
+        <module>webfx-stack-com-websocket-gwt-j2cl</module>
         <module>webfx-stack-com-websocket-java</module>
         <module>webfx-stack-db-datascope</module>
         <module>webfx-stack-db-datasource</module>

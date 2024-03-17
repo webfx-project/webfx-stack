@@ -11,7 +11,7 @@
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>webfx-stack-com-websocket-gwt</artifactId>
+    <artifactId>webfx-stack-com-websocket-gwt-j2cl</artifactId>
 
     <dependencies>
 
@@ -34,6 +34,14 @@
             <groupId>dev.webfx</groupId>
             <artifactId>webfx-platform-ast</artifactId>
             <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>dev.webfx</groupId>
+            <artifactId>webfx-platform-javatime-emul-j2cl</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
 
         <dependency>

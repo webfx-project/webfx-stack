@@ -3,13 +3,13 @@
 module webfx.stack.orm.reactive.entities {
 
     // Direct dependencies modules
-    requires java.base;
     requires javafx.base;
     requires javafx.graphics;
     requires webfx.extras.type;
     requires webfx.kit.util;
     requires webfx.platform.ast;
     requires webfx.platform.ast.json.plugin;
+    requires webfx.platform.util;
     requires webfx.stack.db.query;
     requires webfx.stack.i18n;
     requires webfx.stack.orm.domainmodel;

@@ -1,17 +1,17 @@
-package dev.webfx.stack.com.websocket.spi.impl.gwt;
+package dev.webfx.stack.com.websocket.spi.impl.gwtj2cl;
 
+import dev.webfx.platform.ast.AST;
 import dev.webfx.stack.com.websocket.WebSocket;
 import dev.webfx.stack.com.websocket.WebSocketListener;
-import jsinterop.base.Js;
 
 /**
  * @author Bruno Salmon
  */
-final class GwtWebSocket implements WebSocket {
+final class GwtJ2clWebSocket implements WebSocket {
 
     private final SockJS sockJS;
 
-    public GwtWebSocket(SockJS sockJS) {
+    public GwtJ2clWebSocket(SockJS sockJS) {
         this.sockJS = sockJS;
     }
 
@@ -43,7 +43,7 @@ final class GwtWebSocket implements WebSocket {
     public void setListener(WebSocketListener listener) {
         sockJS.onopen = e -> listener.onOpen();
         sockJS.onmessage = e -> listener.onMessage(e.data);
-        sockJS.onclose = e -> listener.onClose(Js.cast(e));
+        sockJS.onclose = e -> listener.onClose(AST.createObject(e));
         sockJS.onerror = e -> listener.onError(e.data);
     }
 

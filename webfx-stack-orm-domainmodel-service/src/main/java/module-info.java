@@ -3,7 +3,6 @@
 module webfx.stack.orm.domainmodel.service {
 
     // Direct dependencies modules
-    requires java.base;
     requires webfx.extras.label;
     requires webfx.extras.type;
     requires webfx.platform.async;

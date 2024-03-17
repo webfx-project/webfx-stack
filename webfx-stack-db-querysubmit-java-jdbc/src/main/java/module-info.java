@@ -4,7 +4,6 @@ module webfx.stack.db.querysubmit.java.jdbc {
 
     // Direct dependencies modules
     requires static com.zaxxer.hikari;
-    requires java.base;
     requires java.sql;
     requires webfx.platform.async;
     requires webfx.platform.util;

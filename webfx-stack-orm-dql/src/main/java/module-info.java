@@ -3,11 +3,11 @@
 module webfx.stack.orm.dql {
 
     // Direct dependencies modules
-    requires java.base;
     requires webfx.extras.type;
     requires webfx.platform.ast;
     requires webfx.platform.ast.json.plugin;
     requires transitive webfx.platform.util;
+    requires webfx.platform.util.time;
     requires webfx.stack.orm.expression;
 
     // Exported packages

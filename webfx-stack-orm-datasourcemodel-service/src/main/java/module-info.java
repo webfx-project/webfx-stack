@@ -3,7 +3,6 @@
 module webfx.stack.orm.datasourcemodel.service {
 
     // Direct dependencies modules
-    requires java.base;
     requires webfx.platform.async;
     requires webfx.platform.util;
     requires webfx.stack.orm.domainmodel;

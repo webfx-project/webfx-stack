@@ -3,7 +3,6 @@
 module webfx.stack.com.websocket {
 
     // Direct dependencies modules
-    requires java.base;
     requires webfx.platform.ast;
     requires webfx.platform.util;
 

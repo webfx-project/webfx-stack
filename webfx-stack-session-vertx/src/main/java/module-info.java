@@ -5,7 +5,6 @@ module webfx.stack.session.vertx {
     // Direct dependencies modules
     requires io.vertx.core;
     requires io.vertx.web;
-    requires java.base;
     requires webfx.platform.async;
     requires webfx.platform.vertx.common;
     requires webfx.stack.session;

@@ -3,7 +3,6 @@
 module webfx.stack.push.server {
 
     // Direct dependencies modules
-    requires java.base;
     requires webfx.platform.async;
     requires webfx.platform.util;
     requires webfx.stack.com.bus;

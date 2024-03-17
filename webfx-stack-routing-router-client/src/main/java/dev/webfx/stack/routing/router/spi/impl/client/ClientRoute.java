@@ -79,7 +79,7 @@ final class ClientRoute implements Route {
                     groups.add(regex.substring(i + 3, regex.indexOf('>', i + 3)));
             }
         }
-        this.path = regex; // Not used intenally but might be used externally through getPath()
+        this.path = regex; // Not used internally but might be used externally through getPath()
     }
 
     @Override

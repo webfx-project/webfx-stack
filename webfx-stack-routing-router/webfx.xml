@@ -9,6 +9,7 @@
         <used-by-source-modules>
             <module transitive="true">webfx-stack-session</module>
             <module transitive="true">webfx-platform-ast-json-plugin</module>
+            <undetected-package>java.time</undetected-package>
         </used-by-source-modules>
     </dependencies>
 

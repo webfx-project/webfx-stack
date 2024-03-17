@@ -1,16 +1,16 @@
-package dev.webfx.stack.com.websocket.spi.impl.gwt;
+package dev.webfx.stack.com.websocket.spi.impl.gwtj2cl;
 
-import dev.webfx.platform.ast.ReadOnlyAstObject;
 import elemental2.dom.Event;
 import jsinterop.annotations.JsConstructor;
 import jsinterop.annotations.JsFunction;
+import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
 
 
 /**
  * @author Bruno Salmon
  */
-@JsType(isNative = true, namespace = "window")
+@JsType(isNative = true, namespace = JsPackage.GLOBAL)
 final class SockJS {
 
     public static Object OPEN;
@@ -19,7 +19,7 @@ final class SockJS {
     public static Object CLOSED;
 
     @JsConstructor
-    public SockJS(String url, Object ignored, ReadOnlyAstObject options) {}
+    public SockJS(String url, Object ignored, Object options) {}
 
     public native void send(String data);
     public native void close();
@@ -36,16 +36,16 @@ final class SockJS {
 
     @JsFunction
     public interface OnmessageFn {
-        void onInvoke(SockJSEvent e);
+        void onInvoke(TransportMessageEvent e);
     }
 
     @JsFunction
     public interface OncloseFn {
-        void onInvoke(SockJSEvent e);
+        void onInvoke(Event e);
     }
 
     @JsFunction
     public interface OnerrorFn {
-        void onInvoke(SockJSEvent e);
+        void onInvoke(TransportMessageEvent e);
     }
 }

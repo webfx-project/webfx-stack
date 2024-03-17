@@ -3,7 +3,6 @@
 module webfx.stack.authn.login.ui.gateway.webviewbased.openjfx {
 
     // Direct dependencies modules
-    requires java.base;
     requires java.xml;
     requires javafx.graphics;
     requires javafx.web;

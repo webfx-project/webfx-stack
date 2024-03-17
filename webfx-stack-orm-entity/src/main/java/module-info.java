@@ -3,11 +3,11 @@
 module webfx.stack.orm.entity {
 
     // Direct dependencies modules
-    requires java.base;
     requires webfx.extras.type;
     requires transitive webfx.platform.async;
     requires webfx.platform.console;
     requires webfx.platform.util;
+    requires webfx.platform.util.time;
     requires webfx.stack.cache;
     requires transitive webfx.stack.db.datascope;
     requires transitive webfx.stack.db.query;

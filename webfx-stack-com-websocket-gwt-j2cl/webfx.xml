@@ -6,11 +6,13 @@
     </exported-packages>
 
     <providers>
-        <provider interface="dev.webfx.stack.com.websocket.spi.WebSocketServiceProvider">dev.webfx.stack.com.websocket.spi.impl.gwt.GwtWebSocketServiceProvider</provider>
+        <provider interface="dev.webfx.stack.com.websocket.spi.WebSocketServiceProvider">dev.webfx.stack.com.websocket.spi.impl.gwtj2cl.GwtJ2clWebSocketServiceProvider</provider>
     </providers>
 
     <dependencies>
-        <used-by-source-modules/>
+        <used-by-source-modules>
+            <undetected-package>java.time</undetected-package>
+        </used-by-source-modules>
     </dependencies>
 
     <html>
