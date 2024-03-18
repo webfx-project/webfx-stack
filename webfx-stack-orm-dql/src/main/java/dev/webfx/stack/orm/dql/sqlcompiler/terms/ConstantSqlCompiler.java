@@ -1,7 +1,7 @@
 package dev.webfx.stack.orm.dql.sqlcompiler.terms;
 
 import dev.webfx.stack.orm.expression.terms.Constant;
-import dev.webfx.platform.util.Dates;
+import dev.webfx.platform.util.time.Times;
 import dev.webfx.platform.util.Strings;
 
 import java.time.LocalDate;
@@ -41,11 +41,11 @@ public final class ConstantSqlCompiler extends AbstractTermSqlCompiler<Constant>
     }
 
     public static String toSqlDate(LocalDate date) {
-        return Dates.format(date, "'yyyy-MM-dd'");
+        return Times.format(date, "'yyyy-MM-dd'");
     }
 
     public static String toSqlDate(LocalDateTime date) {
-        return Dates.format(date, "'yyyy-MM-dd hh:mm:ss'");
+        return Times.format(date, "'yyyy-MM-dd hh:mm:ss'");
     }
 
     private static String toSqlQuotedString(String s) {

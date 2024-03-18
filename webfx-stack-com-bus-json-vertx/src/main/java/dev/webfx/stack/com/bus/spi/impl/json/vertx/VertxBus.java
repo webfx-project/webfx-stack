@@ -1,10 +1,10 @@
 package dev.webfx.stack.com.bus.spi.impl.json.vertx;
 
+import dev.webfx.platform.ast.AST;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.async.AsyncResult;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.Handler;
-import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.spi.impl.listmap.MapBasedJsonObject;
 import dev.webfx.platform.vertx.common.VertxInstance;
 import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.stack.com.bus.BusHook;
@@ -28,6 +28,8 @@ import io.vertx.ext.web.Session;
  */
 final class VertxBus implements Bus {
 
+    private static final boolean REPLY_PONG_TO_PING = true;
+
     private final EventBus eventBus;
     private boolean open = true;
     private BusHook busHook;
@@ -47,14 +49,16 @@ final class VertxBus implements Bus {
             boolean ping = type.equals(BridgeEventType.SOCKET_PING);
             Session vertxWebSession = bridgeEvent.socket().webSession();
             VertxSession webSession = VertxSession.create(vertxWebSession);
-            if (ping)
+            if (ping) {
                 ServerJsonBusStateManager.clientIsLive(null, webSession);
-            else if (incomingMessage || outgoingMessage) {
+                if (REPLY_PONG_TO_PING)
+                    bridgeEvent.socket().write("{\"type\":\"pong\"}");
+            } else if (incomingMessage || outgoingMessage) {
                 JsonObject rawMessage = bridgeEvent.getRawMessage();
                 if (rawMessage != null) {
                     // This is the main call for state management
                     Future<?> sessionFuture = ServerJsonBusStateManager.manageStateOnIncomingOrOutgoingRawJsonMessage(
-                            Json.createObject(rawMessage), webSession, incomingMessage);
+                            AST.createObject(rawMessage), webSession, incomingMessage);
                     // If the session is not ready right now (this may happen because of a session switch), then
                     // we need to wait this operation to complete before continuing the message delivery
                     if (incomingMessage && !sessionFuture.isComplete()) {
@@ -128,18 +132,20 @@ final class VertxBus implements Bus {
 
     private static Object webfxToVertxBody(Object body) {
         if (body == null)
-            body = Json.createObject();
-        if (body instanceof MapBasedJsonObject) {
-            MapBasedJsonObject webfxBody = (MapBasedJsonObject) body;
-            body = webfxBody.getNativeElement();
+            body = AST.createObject();
+        // TODO: check if we can generify this with AST
+        if (AST.NATIVE_FACTORY != null && AST.isObject(body)) {
+            body = AST.NATIVE_FACTORY.astToNativeObject((ReadOnlyAstObject) body);
         }
         return body;
     }
 
     private static Object vertxToWebfxBody(Object body) {
         Object object = body;
-        if (object instanceof JsonObject)
-            object = Json.createObject(object);
+        // TODO: check if we can generify this with AST
+        if (AST.NATIVE_FACTORY != null && AST.NATIVE_FACTORY.acceptAsNativeObject(body)) {
+            object = AST.NATIVE_FACTORY.nativeToAstObject(body);
+        }
         return object;
     }
 

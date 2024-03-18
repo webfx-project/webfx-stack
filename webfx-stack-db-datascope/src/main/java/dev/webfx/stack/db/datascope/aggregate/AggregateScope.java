@@ -2,9 +2,9 @@ package dev.webfx.stack.db.datascope.aggregate;
 
 import dev.webfx.stack.db.datascope.KeyDataScope;
 import dev.webfx.stack.db.datascope.ScopeUtil;
-import dev.webfx.platform.json.ReadOnlyJsonArray;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
-import dev.webfx.platform.json.JsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstArray;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
+import dev.webfx.platform.ast.AstObject;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 
@@ -65,20 +65,20 @@ public final class AggregateScope implements KeyDataScope {
         }
 
         @Override
-        public void encodeToJson(AggregateScope arg, JsonObject json) {
+        public void encodeToJson(AggregateScope arg, AstObject json) {
             for (Map.Entry<Object, Object[]> entry : arg.aggregates.entrySet())
-                json.set(entry.getKey().toString(), SerialCodecManager.encodePrimitiveArrayToJsonArray(entry.getValue()));
+                json.set(entry.getKey().toString(), SerialCodecManager.encodePrimitiveArrayToAstArray(entry.getValue()));
         }
 
         @Override
-        public AggregateScope decodeFromJson(ReadOnlyJsonObject json) {
+        public AggregateScope decodeFromJson(ReadOnlyAstObject json) {
             AggregateScopeBuilder asb = AggregateScope.builder();
-            ReadOnlyJsonArray keys = json.keys();
+            ReadOnlyAstArray keys = json.keys();
             for (int i = 1; i < keys.size(); i++) { // Skipping index 0 = $codec key (quite ugly)
                 String key = keys.getString(i);
-                ReadOnlyJsonArray array = json.getArray(key);
+                ReadOnlyAstArray array = json.getArray(key);
                 for (int j = 0; j < array.size(); j++)
-                    asb.addAggregate(key, array.getNativeElement(j));
+                    asb.addAggregate(key, array.getElement(j));
             }
             return asb.build();
         }

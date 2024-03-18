@@ -1,7 +1,7 @@
 package dev.webfx.stack.routing.uirouter.activity.uiroute.impl;
 
-import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.AST;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.windowhistory.WindowHistory;
 import dev.webfx.platform.windowhistory.spi.BrowsingHistory;
 import dev.webfx.stack.routing.activity.ActivityContext;
@@ -23,7 +23,7 @@ public class UiRouteActivityContextBase
         implements UiRouteActivityContext<THIS> {
 
     private UiRouter uiRouter;
-    private ReadOnlyJsonObject params;
+    private ReadOnlyAstObject params;
     private String routingPath;
 
     protected UiRouteActivityContextBase(ActivityContext parentContext, ActivityContextFactory<THIS> contextFactory) {
@@ -59,14 +59,14 @@ public class UiRouteActivityContextBase
         return thisOrParentUiRouter.getHistory();
     }
 
-    public void setParams(ReadOnlyJsonObject params) {
+    public void setParams(ReadOnlyAstObject params) {
         this.params = params;
     }
 
     @Override
-    public ReadOnlyJsonObject getParams() {
+    public ReadOnlyAstObject getParams() {
         if (params == null)
-            params = Json.createObject();
+            params = AST.createObject();
         return params;
     }
 

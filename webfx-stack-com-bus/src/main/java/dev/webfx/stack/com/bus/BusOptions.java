@@ -2,7 +2,7 @@ package dev.webfx.stack.com.bus;
 
 
 import dev.webfx.platform.util.Objects;
-import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 
 /**
  * @author Bruno Salmon
@@ -20,38 +20,15 @@ public class BusOptions {
         return this;
     }
 
-    public BusOptions applyConfig(ReadOnlyKeyObject config) {
+    public BusOptions applyConfig(ReadOnlyAstObject config) {
         busPrefix = config.getString("busPrefix", busPrefix);
         clientBusAddressPrefix = config.getString("clientBusAddressPrefix", clientBusAddressPrefix);
         serverBusAddress = config.getString("serverBusAddress", serverBusAddress);
         return this;
     }
 
-    public BusOptions setBusPrefix(String busPrefix) {
-        this.busPrefix = busPrefix;
-        return this;
-    }
-
     public String getBusPrefix() {
         return busPrefix;
-    }
-
-    public BusOptions setClientBusAddressPrefix(String clientBusAddressPrefix) {
-        this.clientBusAddressPrefix = clientBusAddressPrefix;
-        return this;
-    }
-
-    public String getClientBusAddressPrefix() {
-        return clientBusAddressPrefix;
-    }
-
-    public BusOptions setServerBusAddress(String serverBusAddress) {
-        this.serverBusAddress = serverBusAddress;
-        return this;
-    }
-
-    public String getServerBusAddress() {
-        return serverBusAddress;
     }
 
 }

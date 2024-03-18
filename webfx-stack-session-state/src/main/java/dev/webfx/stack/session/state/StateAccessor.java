@@ -1,9 +1,8 @@
 package dev.webfx.stack.session.state;
 
-import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.ReadOnlyJsonArray;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.*;
+import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 
 /**
@@ -16,18 +15,23 @@ public final class StateAccessor {
     private final static String RUN_ID_ATTRIBUE_NAME = "runId";
 
     public static Object createEmptyState() {
-        return Json.createObject();
+        return AST.createObject();
     }
 
     public static Object decodeState(String encodedState) {
-        JsonObject rawJson = Json.parseObjectSilently(encodedState);
+        ReadOnlyAstObject rawJson = Json.parseObjectSilently(encodedState);
         if (rawJson == null)
             return encodedState;
-        JsonObject json = Json.createObject();
-        ReadOnlyJsonArray keys = rawJson.keys();
+        AstObject json = AST.createObject();
+        ReadOnlyAstArray keys = rawJson.keys();
         for (int i = 0; i < keys.size(); i++) {
             String key = keys.getString(i);
-            json.set(key, (Object) SerialCodecManager.decodeFromJson(rawJson.get(key)));
+            try {
+                Object javaObject = SerialCodecManager.decodeFromJson(rawJson.get(key));
+                json.set(key, javaObject);
+            } catch (Exception e) {
+                Console.log("⛔️ Couldn't decode session state '" + key + "':", e);
+            }
         }
         return json;
     }
@@ -35,16 +39,16 @@ public final class StateAccessor {
     public static String encodeState(Object state) {
         if (state == null)
             return null;
-        if (!(state instanceof ReadOnlyJsonObject))
+        if (!(state instanceof ReadOnlyAstObject))
             return state.toString();
-        ReadOnlyJsonObject json = (ReadOnlyJsonObject) state;
-        JsonObject rawJson = Json.createObject();
-        ReadOnlyJsonArray keys = json.keys();
+        ReadOnlyAstObject json = (ReadOnlyAstObject) state;
+        AstObject rawJson = AST.createObject();
+        ReadOnlyAstArray keys = json.keys();
         for (int i = 0; i < keys.size(); i++) {
             String key = keys.getString(i);
             rawJson.set(key, SerialCodecManager.encodeToJson(json.get(key)));
         }
-        return rawJson.toJsonString();
+        return Json.formatNode(rawJson);
     }
 
     public static String getServerSessionId(Object state) {
@@ -84,16 +88,16 @@ public final class StateAccessor {
     }
 
     private static Object getStateAttribute(Object state, String name) {
-        if (state instanceof ReadOnlyJsonObject)
-            return ((ReadOnlyJsonObject) state).get(name);
+        if (state instanceof ReadOnlyAstObject)
+            return ((ReadOnlyAstObject) state).get(name);
         return null;
     }
 
     private static Object setStateAttribute(Object state, String name, Object value, boolean override) {
         if (value != null && state == null)
             state = createEmptyState();
-        if (state instanceof JsonObject) {
-            JsonObject jsonObject = (JsonObject) state;
+        if (state instanceof AstObject) {
+            AstObject jsonObject = (AstObject) state;
             if (value != null && (!jsonObject.has(name) || override) || value == null && override && jsonObject.has(name)) {
                 //System.out.println("state." + name + " = " + value);
                 jsonObject.set(name, value);

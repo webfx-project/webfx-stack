@@ -1,6 +1,8 @@
 package dev.webfx.stack.orm.reactive.call;
 
 import dev.webfx.platform.console.Console;
+import dev.webfx.platform.util.tuples.Pair;
+import dev.webfx.stack.cache.CacheEntry;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
@@ -21,6 +23,8 @@ public class ReactiveCall<A, R> {
     private A lastCallArgument;
     private Supplier<A> argumentFetcher;
     private boolean fetchingArgument;
+    private CacheEntry<Pair<A, R>> resultCacheEntry;
+    private Scheduled fireCallNowIfRequiredScheduled;
 
     private final BooleanProperty startedProperty = new SimpleBooleanProperty() {
         @Override
@@ -55,6 +59,17 @@ public class ReactiveCall<A, R> {
 
     public ReactiveCall(AsyncFunction<A, R> asyncFunction) {
         this.asyncFunction = asyncFunction;
+    }
+
+    public void setResultCacheEntry(CacheEntry<Pair<A, R>> resultCacheEntry) {
+        this.resultCacheEntry = resultCacheEntry;
+        if (resultCacheEntry != null && isStarted()) {
+            R result = getResult();
+            if (result != null)
+                resultCacheEntry.putValue(new Pair<>(getArgument(), result));
+            else
+                initResultFromCacheIfApplicable();
+        }
     }
 
     public final BooleanProperty activeProperty() {
@@ -104,7 +119,7 @@ public class ReactiveCall<A, R> {
         return resultProperty;
     }
 
-    public final Object getResult() {
+    public final R getResult() {
         return resultProperty.get();
     }
 
@@ -134,17 +149,17 @@ public class ReactiveCall<A, R> {
         this.argumentFetcher = argumentFetcher;
     }
 
-    private boolean fireCallNowIfRequiredScheduled;
-
     protected void scheduleFireCallNowIfRequired() {
-        if (!fireCallNowIfRequiredScheduled) {
-            fireCallNowIfRequiredScheduled = true;
-            UiScheduler.scheduleDeferred(this::fireCallNowIfRequired);
+        if (fireCallNowIfRequiredScheduled == null) {
+            fireCallNowIfRequiredScheduled = UiScheduler.scheduleDeferred(this::fireCallNowIfRequired);
         }
     }
 
     private void fireCallNowIfRequired() {
-        fireCallNowIfRequiredScheduled = false;
+        if (fireCallNowIfRequiredScheduled != null) {
+            fireCallNowIfRequiredScheduled.cancel();
+            fireCallNowIfRequiredScheduled = null;
+        }
         if (argumentFetcher != null) {
             fetchingArgument = true;
             A argument = argumentFetcher.get();
@@ -185,10 +200,29 @@ public class ReactiveCall<A, R> {
     public void onArgumentChanged() {
         if (!fetchingArgument)
             scheduleFireCallNowIfRequired();
+        initResultFromCacheIfApplicable();
     }
 
     protected void onResultChanged() {
-        // Can be overridden
+        if (resultCacheEntry != null && getArgument() != null)
+            resultCacheEntry.putValue(new Pair<>(getArgument(), getResult()));
+    }
+
+    private void initResultFromCacheIfApplicable() {
+        if (resultCacheEntry != null && getResult() == null && getArgument() != null) {
+            try {
+                Pair<A, R> pair = resultCacheEntry.getValue();
+                if (pair != null) {
+                    if (pair.get1().equals(getArgument())) {
+                        Console.log("Restoring cache '" + resultCacheEntry.getKey() + "'");
+                        setResult(pair.get2());
+                    } else
+                        Console.log("Cache for '" + resultCacheEntry.getKey() + "' can't be used, as its argument was different: " + pair.get1());
+                }
+            } catch (Exception e) {
+                Console.log("WARNING: Restoring '" + resultCacheEntry.getKey() + "' cache failed: " + e.getMessage());
+            }
+        }
     }
 
     public void refreshWhenReady(boolean force) {
@@ -266,8 +300,9 @@ public class ReactiveCall<A, R> {
     }
 
     protected void onStarted() {
-        scheduleFireCallNowIfRequired();
+        fireCallNowIfRequired(); // We fire the call now (no more need for schedule). This also provider a better UX for cache restore.
         rescheduleAutoRefresh();
+        initResultFromCacheIfApplicable();
     }
 
     protected void onStopped() {

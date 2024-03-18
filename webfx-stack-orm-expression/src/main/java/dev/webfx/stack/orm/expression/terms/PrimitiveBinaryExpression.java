@@ -6,7 +6,7 @@ import dev.webfx.extras.type.PrimType;
 import dev.webfx.extras.type.Type;
 import dev.webfx.extras.type.Types;
 import dev.webfx.platform.util.Booleans;
-import dev.webfx.platform.util.Dates;
+import dev.webfx.platform.util.time.Times;
 import dev.webfx.platform.util.Numbers;
 import dev.webfx.platform.util.Strings;
 
@@ -44,7 +44,7 @@ public abstract class PrimitiveBinaryExpression<T> extends BinaryExpression<T> {
                     case STRING:
                         return evaluateString(Strings.toString(leftValue), Strings.toString(rightValue));
                     case DATE:
-                        return evaluateDate(Dates.toInstant(leftValue), Dates.toInstant(rightValue));
+                        return evaluateDate(Times.toInstant(leftValue), Times.toInstant(rightValue));
                 }
         }
         return evaluateObject(leftValue, rightValue);

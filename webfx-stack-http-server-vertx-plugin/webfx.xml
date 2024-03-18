@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <exported-packages>
+        <source-packages/>
+        <resource-packages/>
+    </exported-packages>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+    <providers>
+<!--
+        <provider interface="dev.webfx.stack.conf.spi.ConfigurationConsumer">dev.webfx.stack.http.server.vertx.VertxHttpStaticRoutesConfigurationConsumer</provider>
+        <provider interface="dev.webfx.stack.conf.spi.ConfigurationConsumer">dev.webfx.stack.http.server.vertx.VertxHttpOptionsConfigurationConsumer</provider>
+        <provider interface="dev.webfx.stack.conf.spi.ConfigurationSupplier">dev.webfx.stack.http.server.vertx.VertxHttpOptionsConfigurationSupplier</provider>
+-->
+        <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.http.server.vertx.VertxHttpModuleBooter</provider>
+        <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.http.server.vertx.VertxHttpStarterJob</provider>
+    </providers>
+
+</project>

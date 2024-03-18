@@ -3,8 +3,8 @@
 module webfx.stack.db.submit.buscall {
 
     // Direct dependencies modules
+    requires webfx.platform.ast;
     requires webfx.platform.async;
-    requires webfx.platform.json;
     requires webfx.platform.util;
     requires webfx.stack.com.bus.call;
     requires webfx.stack.com.serial;

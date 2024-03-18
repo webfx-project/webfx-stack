@@ -3,7 +3,6 @@
 module webfx.stack.db.submit {
 
     // Direct dependencies modules
-    requires java.base;
     requires transitive webfx.platform.async;
     requires webfx.platform.util;
     requires transitive webfx.stack.db.datascope;

@@ -3,17 +3,19 @@
 module webfx.stack.com.serial {
 
     // Direct dependencies modules
-    requires java.base;
+    requires webfx.platform.ast;
+    requires webfx.platform.ast.json.plugin;
     requires webfx.platform.async;
     requires webfx.platform.boot;
     requires webfx.platform.console;
-    requires webfx.platform.json;
+    requires webfx.platform.reflect;
     requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.stack.com.serial;
     exports dev.webfx.stack.com.serial.spi;
     exports dev.webfx.stack.com.serial.spi.impl;
+    exports dev.webfx.stack.com.serial.spi.impl.time;
 
     // Used services
     uses dev.webfx.stack.com.serial.spi.SerialCodec;

@@ -1,13 +1,14 @@
 package dev.webfx.stack.authn.spi.impl.server.portal;
 
 import dev.webfx.platform.async.Future;
+import dev.webfx.platform.async.FutureBroadcaster;
 import dev.webfx.platform.util.serviceloader.MultipleServiceProviders;
 import dev.webfx.stack.authn.UserClaims;
 import dev.webfx.stack.authn.server.gateway.spi.ServerAuthenticationGatewayProvider;
 import dev.webfx.stack.authn.spi.AuthenticationServiceProvider;
+import dev.webfx.stack.session.state.ThreadLocalStateHolder;
 
-import java.util.List;
-import java.util.ServiceLoader;
+import java.util.*;
 
 /**
  * @author Bruno Salmon
@@ -36,14 +37,29 @@ public class ServerAuthenticationPortalProvider implements AuthenticationService
         return Future.failedFuture("No server authentication gateway found accepting credentials " + userCredentials);
     }
 
+    private final Map<Object, FutureBroadcaster<?>> userVerificationBroadcasters = new HashMap<>();
+
     @Override
     public Future<?> verifyAuthenticated() {
+        Object userId = ThreadLocalStateHolder.getUserId();
+        FutureBroadcaster<?> userVerificationBroadcaster = userVerificationBroadcasters.get(userId);
+        if (userVerificationBroadcaster != null) {
+            dev.webfx.platform.console.Console.log("👮👮 Joining same user verification broadcaster");
+            return userVerificationBroadcaster.newClient();
+        }
         for (ServerAuthenticationGatewayProvider gatewayProvider : getGatewayProviders()) {
             boolean accepts = gatewayProvider.acceptsUserId();
-            if (accepts)
-                return gatewayProvider.verifyAuthenticated();
+            if (accepts) {
+                userVerificationBroadcaster = new FutureBroadcaster<>(() -> gatewayProvider.verifyAuthenticated()
+                        .map(uid -> {
+                            userVerificationBroadcasters.remove(userId);
+                            return uid;
+                        }));
+                userVerificationBroadcasters.put(userId, userVerificationBroadcaster);
+                return userVerificationBroadcaster.newClient();
+            }
         }
-        return Future.failedFuture("No server authentication gateway found!");
+        return Future.failedFuture("verifyAuthenticated() failed on server authentication portal because no server gateway accepted UserId " + ThreadLocalStateHolder.getUserId());
     }
 
     @Override
@@ -53,7 +69,7 @@ public class ServerAuthenticationPortalProvider implements AuthenticationService
             if (accepts)
                 return gatewayProvider.getUserClaims();
         }
-        return Future.failedFuture("No server authentication gateway found!");
+        return Future.failedFuture("getUserClaims() failed on server authentication portal because no server gateway accepted UserId " + ThreadLocalStateHolder.getUserId());
     }
 
     @Override
@@ -63,7 +79,7 @@ public class ServerAuthenticationPortalProvider implements AuthenticationService
             if (accepts)
                 return gatewayProvider.logout();
         }
-        return Future.failedFuture("No server authentication gateway found!");
+        return Future.failedFuture("logout() failed on server authentication portal because no server gateway accepted UserId " + ThreadLocalStateHolder.getUserId());
     }
 
 }

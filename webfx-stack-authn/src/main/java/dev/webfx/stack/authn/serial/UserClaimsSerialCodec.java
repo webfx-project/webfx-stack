@@ -1,7 +1,7 @@
 package dev.webfx.stack.authn.serial;
 
-import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.AstObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.authn.UserClaims;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 
@@ -21,7 +21,7 @@ public class UserClaimsSerialCodec extends SerialCodecBase<UserClaims> {
     }
 
     @Override
-    public void encodeToJson(UserClaims arg, JsonObject json) {
+    public void encodeToJson(UserClaims arg, AstObject json) {
         json.set(USERNAME_KEY, arg.getUsername());
         json.set(EMAIL_KEY, arg.getEmail());
         json.set(PHONE_KEY, arg.getPhone());
@@ -29,7 +29,7 @@ public class UserClaimsSerialCodec extends SerialCodecBase<UserClaims> {
     }
 
     @Override
-    public UserClaims decodeFromJson(ReadOnlyJsonObject json) {
+    public UserClaims decodeFromJson(ReadOnlyAstObject json) {
         return new UserClaims(
                 json.getString(USERNAME_KEY),
                 json.getString(EMAIL_KEY),

@@ -1,7 +1,7 @@
 package dev.webfx.stack.session.state.client.fx;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
-import dev.webfx.platform.util.Objects;
 import dev.webfx.stack.session.state.client.ClientSideStateSession;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -30,8 +30,7 @@ public final class FXRunId {
 
     // TODO remove that public visibility
     public static void setRunId(Object runId) {
-        if (!Objects.areEquals(runId, getRunId()))
-            runIdProperty.set(runId);
+        FXProperties.setIfNotEquals(runIdProperty, runId);
     }
 
     static {

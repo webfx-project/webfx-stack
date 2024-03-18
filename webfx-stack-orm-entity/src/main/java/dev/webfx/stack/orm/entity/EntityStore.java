@@ -1,21 +1,27 @@
 package dev.webfx.stack.orm.entity;
 
-import dev.webfx.stack.orm.dql.sqlcompiler.mapping.QueryRowToEntityMapping;
-import dev.webfx.stack.orm.entity.query_result_to_entities.QueryResultToEntitiesMapper;
-import dev.webfx.stack.orm.expression.Expression;
-import dev.webfx.stack.orm.dql.sqlcompiler.sql.SqlCompiled;
-import dev.webfx.stack.orm.domainmodel.DataSourceModel;
-import dev.webfx.stack.orm.domainmodel.DomainClass;
-import dev.webfx.stack.orm.domainmodel.HasDataSourceModel;
-import dev.webfx.stack.orm.entity.impl.DynamicEntity;
-import dev.webfx.stack.orm.entity.impl.EntityStoreImpl;
-import dev.webfx.stack.orm.entity.lciimpl.EntityDomainWriter;
+import dev.webfx.platform.async.Batch;
+import dev.webfx.platform.async.Future;
+import dev.webfx.platform.console.Console;
+import dev.webfx.platform.util.Arrays;
+import dev.webfx.platform.util.tuples.Pair;
+import dev.webfx.stack.cache.CacheEntry;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.QueryService;
-import dev.webfx.platform.util.Arrays;
-import dev.webfx.platform.async.Batch;
-import dev.webfx.platform.async.Future;
+import dev.webfx.stack.orm.domainmodel.DataSourceModel;
+import dev.webfx.stack.orm.domainmodel.DomainClass;
+import dev.webfx.stack.orm.domainmodel.HasDataSourceModel;
+import dev.webfx.stack.orm.dql.sqlcompiler.mapping.QueryRowToEntityMapping;
+import dev.webfx.stack.orm.dql.sqlcompiler.sql.SqlCompiled;
+import dev.webfx.stack.orm.entity.impl.DynamicEntity;
+import dev.webfx.stack.orm.entity.impl.EntityStoreImpl;
+import dev.webfx.stack.orm.entity.lciimpl.EntityDomainWriter;
+import dev.webfx.stack.orm.entity.query_result_to_entities.QueryResultToEntitiesMapper;
+import dev.webfx.stack.orm.expression.Expression;
+
+import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * A store for entities that are transactionally coherent.
@@ -156,10 +162,40 @@ public interface EntityStore extends HasDataSourceModel {
         return executeListQuery(dqlQuery, dqlQuery, parameters);
     }
 
+    default <E extends Entity> Future<EntityList<E>> executeCachedQuery(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, Consumer<EntityList<E>> cacheListConsumer, String dqlQuery, Object... parameters) {
+        return executeCachedListQuery(cacheEntry, cacheListConsumer, dqlQuery, dqlQuery, parameters);
+    }
+
     default <E extends Entity> Future<EntityList<E>> executeListQuery(Object listId, String dqlQuery, Object... parameters) {
-        Future<QueryResult> future = QueryService.executeQuery(createQueryArgument(dqlQuery, parameters));
+        return executeCachedListQuery(null, null, listId, dqlQuery, parameters);
+    }
+
+    default <E extends Entity> Future<EntityList<E>> executeCachedListQuery(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, Consumer<EntityList<E>> cacheListConsumer, Object listId, String dqlQuery, Object... parameters) {
+        QueryArgument queryArgument = createQueryArgument(dqlQuery, parameters);
+        Future<QueryResult> future = QueryService.executeQuery(queryArgument);
         QueryRowToEntityMapping queryMapping = getDataSourceModel().parseAndCompileSelect(dqlQuery).getQueryMapping();
-        return future.map(rs -> QueryResultToEntitiesMapper.mapQueryResultToEntities(rs, queryMapping, this, listId));
+        if (cacheEntry != null && cacheListConsumer != null) {
+            try {
+                Pair<QueryArgument, QueryResult> pair = cacheEntry.getValue();
+                if (Objects.equals(queryArgument, pair.get1())) {
+                    QueryResult rs = pair.get2();
+                    if (rs != null) {
+                        Console.log("Restoring cache '" + cacheEntry.getKey() + "'");
+                        EntityList<E> entities = QueryResultToEntitiesMapper.mapQueryResultToEntities(rs, queryMapping, this, listId);
+                        cacheListConsumer.accept(entities);
+                    }
+                } else
+                    Console.log("Cache for '" + cacheEntry.getKey() + "' can't be used, as its argument was different: " + pair.get1());
+            } catch (Exception e) {
+                Console.log("WARNING: Restoring '" + cacheEntry.getKey() + "' cache failed: " + e.getMessage());
+            }
+        }
+        return future.map(rs -> {
+            EntityList<E> entities = QueryResultToEntitiesMapper.mapQueryResultToEntities(rs, queryMapping, this, listId);
+            if (cacheEntry != null)
+                cacheEntry.putValue(new Pair<>(queryArgument, rs));
+            return entities;
+        });
     }
 
     default <E extends Entity> Future<EntityList<E>> executeQuery(EntityStoreQuery query) {

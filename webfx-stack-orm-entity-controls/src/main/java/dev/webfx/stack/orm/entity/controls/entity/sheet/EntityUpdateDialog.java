@@ -10,7 +10,7 @@ import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.ui.controls.MaterialFactoryMixin;
 import dev.webfx.stack.ui.controls.button.ButtonFactoryMixin;
 import dev.webfx.stack.ui.controls.dialog.DialogContent;
-import dev.webfx.stack.ui.controls.dialog.DialogUtil;
+import dev.webfx.stack.ui.controls.dialog.DialogBuilderUtil;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
@@ -73,8 +73,8 @@ abstract class EntityUpdateDialog<E extends Entity> implements MaterialFactoryMi
                         updateEntity = updateStore.updateEntity(entity);
                     }
                     dialogContent = new DialogContent().setContent(getNode());
-                    DialogUtil.showModalNodeInGoldLayout(dialogContent, parent);
-                    DialogUtil.armDialogContentButtons(dialogContent, dialogCallback -> {
+                    DialogBuilderUtil.showModalNodeInGoldLayout(dialogContent, parent);
+                    DialogBuilderUtil.armDialogContentButtons(dialogContent, dialogCallback -> {
                         if (!updateStore.hasChanges())
                             dialogCallback.closeDialog();
                         else {

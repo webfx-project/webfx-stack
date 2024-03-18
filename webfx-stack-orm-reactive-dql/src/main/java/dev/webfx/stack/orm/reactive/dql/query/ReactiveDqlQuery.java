@@ -1,12 +1,13 @@
 package dev.webfx.stack.orm.reactive.dql.query;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
-import dev.webfx.stack.orm.reactive.call.ReactiveCall;
-import dev.webfx.stack.orm.reactive.call.query.ReactiveQueryCall;
-import dev.webfx.stack.orm.reactive.dql.statement.ReactiveDqlStatement;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.value.ObservableValue;
-import dev.webfx.stack.routing.activity.impl.elementals.activeproperty.HasActiveProperty;
+import dev.webfx.platform.util.function.Converter;
+import dev.webfx.platform.util.tuples.Pair;
+import dev.webfx.stack.cache.CacheEntry;
+import dev.webfx.stack.db.datascope.aggregate.AggregateScope;
+import dev.webfx.stack.db.query.QueryArgument;
+import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.domainmodel.DomainModel;
@@ -19,11 +20,12 @@ import dev.webfx.stack.orm.expression.builder.ReferenceResolver;
 import dev.webfx.stack.orm.expression.builder.ThreadLocalReferenceResolver;
 import dev.webfx.stack.orm.expression.terms.Alias;
 import dev.webfx.stack.orm.expression.terms.As;
-import dev.webfx.kit.util.properties.FXProperties;
-import dev.webfx.stack.db.datascope.aggregate.AggregateScope;
-import dev.webfx.stack.db.query.QueryArgument;
-import dev.webfx.stack.db.query.QueryResult;
-import dev.webfx.platform.util.function.Converter;
+import dev.webfx.stack.orm.reactive.call.ReactiveCall;
+import dev.webfx.stack.orm.reactive.call.query.ReactiveQueryCall;
+import dev.webfx.stack.orm.reactive.dql.statement.ReactiveDqlStatement;
+import dev.webfx.stack.routing.activity.impl.elementals.activeproperty.HasActiveProperty;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.value.ObservableValue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -102,6 +104,12 @@ public class ReactiveDqlQuery<E> implements ReactiveDqlQueryAPI<E, ReactiveDqlQu
     }
 
     @Override
+    public ReactiveDqlQuery<E> setResultCacheEntry(CacheEntry<Pair<QueryArgument, QueryResult>> resultCacheEntry) {
+        reactiveQueryCall.setResultCacheEntry(resultCacheEntry);
+        return this;
+    }
+
+    @Override
     public ReactiveDqlQuery<E> start() {
         reactiveQueryCall.start();
         return this;
@@ -139,7 +147,7 @@ public class ReactiveDqlQuery<E> implements ReactiveDqlQueryAPI<E, ReactiveDqlQu
     }
 
     protected void updateQueryArgument(DqlStatement dqlStatement) {
-        //Logger.log("ReactiveDqlQuery.updateQueryArgument()");
+        //Console.log("ReactiveDqlQuery.updateQueryArgument()");
         // Shortcut: when the dql statement is inherently empty, we return an empty entity list immediately (no server call) - unless we are in push mode already registered on the server
         if (dqlStatement.isInherentlyEmpty()) {
             reactiveQueryCall.setArgument(null);
@@ -149,7 +157,7 @@ public class ReactiveDqlQuery<E> implements ReactiveDqlQueryAPI<E, ReactiveDqlQu
         QueryArgument queryArgument = createQueryArgument(dqlStatement.toDqlSelect(), dqlStatement.getSelectParameterValues());
         // Skipping the server call if there is no difference in the parameters compared to the last call
         if (isDifferentFromLastQuery(queryArgument)) {
-            //Logger.log("Setting queryArgument = " + queryArgument);
+            //Console.log("Setting queryArgument = " + queryArgument);
             reactiveQueryCall.setArgument(queryArgument);
         } else
             Console.log("No difference with previous query");

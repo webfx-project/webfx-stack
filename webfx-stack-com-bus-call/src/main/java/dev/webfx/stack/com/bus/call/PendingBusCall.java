@@ -38,7 +38,7 @@ public final class PendingBusCall<T> {
         }
         // Now the result object is either the successful result or the exception whatever the nature of the operation (asynchronous or synchronous)
         if (result instanceof Throwable) // if it is an exception
-            promise.fail((Throwable) result); // we finally mark the pending call as failed and return that exception
+            promise.tryFail((Throwable) result); // we finally mark the pending call as failed and return that exception (if not already failed)
         else // otherwise it is as successful result
             promise.complete((T) result); // so we finally mark the pending call as complete and return that result (in the expected class result)
         // Updating the pending calls property

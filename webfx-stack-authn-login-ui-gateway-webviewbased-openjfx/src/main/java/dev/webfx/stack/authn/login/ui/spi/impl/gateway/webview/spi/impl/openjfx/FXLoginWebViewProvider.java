@@ -1,8 +1,8 @@
 package dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.spi.impl.openjfx;
 
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.spi.LoginWebViewProvider;
-import dev.webfx.stack.ui.controls.dialog.DialogCallback;
-import dev.webfx.stack.ui.controls.dialog.DialogUtil;
+import dev.webfx.stack.ui.dialog.DialogCallback;
+import dev.webfx.stack.ui.dialog.DialogUtil;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebEngine;

@@ -3,12 +3,13 @@
 module webfx.stack.com.bus.json.client {
 
     // Direct dependencies modules
-    requires java.base;
+    requires webfx.platform.ast;
+    requires webfx.platform.ast.json.plugin;
     requires webfx.platform.async;
     requires webfx.platform.boot;
     requires webfx.platform.console;
-    requires webfx.platform.json;
     requires webfx.stack.com.bus;
+    requires webfx.stack.com.bus.client;
     requires webfx.stack.com.bus.json;
     requires webfx.stack.session.state;
     requires webfx.stack.session.state.client;

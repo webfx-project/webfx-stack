@@ -1,6 +1,6 @@
 package dev.webfx.stack.routing.uirouter.activity.uiroute;
 
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.windowhistory.spi.BrowsingHistory;
 import dev.webfx.stack.routing.activity.impl.elementals.activeproperty.ActivePropertyActivityContext;
 import dev.webfx.stack.routing.uirouter.UiRouter;
@@ -19,7 +19,7 @@ public interface UiRouteActivityContext
         return getUiRouter().getHistory();
     }
 
-    ReadOnlyJsonObject getParams();
+    ReadOnlyAstObject getParams();
 
     default <T> T getParameter(String key) { return getParams().get(key); }
 

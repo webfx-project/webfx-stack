@@ -1,7 +1,8 @@
 package dev.webfx.stack.orm.dql;
 
-import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
+import dev.webfx.platform.util.Strings;
 
 import java.util.Arrays;
 
@@ -37,6 +38,11 @@ public final class DqlStatement {
         return new DqlStatement(null, null, null, DqlClause.create(where, parameterValues), null, null, null, null, null);
     }
 
+    public static DqlStatement whereFieldIn(CharSequence field, Object... parameterValues) {
+        String where = parameterValues.length == 0 ? "false" : field + " in (" + Strings.repeat("?,", parameterValues.length - 1) + "?)";
+        return new DqlStatement(null, null, null, DqlClause.create(where, parameterValues), null, null, null, null, null);
+    }
+
     public static DqlStatement limit(CharSequence limit, Object... parameterValues) {
         return new DqlStatement(null, null, null, null, null, null, null, DqlClause.create(limit, parameterValues), null);
     }
@@ -57,7 +63,7 @@ public final class DqlStatement {
         this.columns = columns;
     }
 
-    public DqlStatement(ReadOnlyJsonObject json) {
+    public DqlStatement(ReadOnlyAstObject json) {
         domainClassId = json.get("class");
         alias = json.getString("alias");
         fields = getPossibleArrayAsString(json, "fields");
@@ -180,8 +186,8 @@ public final class DqlStatement {
         return result;
     }
 
-    static String getPossibleArrayAsString(ReadOnlyJsonObject json, String key) {
-        Object nativeElement = json.getNativeElement(key);
-        return nativeElement == null ? null : nativeElement instanceof String ? (String) nativeElement : Json.toJsonString(nativeElement);
+    static String getPossibleArrayAsString(ReadOnlyAstObject json, String key) {
+        Object nativeElement = json.get(key);
+        return nativeElement == null ? null : nativeElement instanceof String ? (String) nativeElement : Json.formatAny(nativeElement);
     }
 }

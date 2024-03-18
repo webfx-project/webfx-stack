@@ -9,7 +9,7 @@ import javafx.beans.value.ObservableStringValue;
 import javafx.scene.Node;
 import javafx.scene.text.Text;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.ServiceLoader;
 
 /**
@@ -25,7 +25,7 @@ public final class I18n {
         return SingleServiceProvider.getProvider(I18nProvider.class);
     }
 
-    public static Collection<Object> getSupportedLanguages() {
+    public static List<Object> getSupportedLanguages() {
         return getProvider().getSupportedLanguages();
     }
 
@@ -35,6 +35,10 @@ public final class I18n {
 
     public static Object getLanguage() {
         return getProvider().getLanguage();
+    }
+
+    public static Object getDefaultLanguage() {
+        return getProvider().getDefaultLanguage();
     }
 
     public static void setLanguage(Object language) {

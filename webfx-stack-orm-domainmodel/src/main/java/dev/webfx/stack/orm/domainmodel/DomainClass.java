@@ -113,6 +113,13 @@ public final class DomainClass implements HasLabel, HasDomainModel {
     }
 
     public DomainField getField(Object id) {
+        DomainField field = getFieldSilently(id);
+        if (field == null)
+            throw new IllegalArgumentException("Domain field '" + id + "' not found in domain class '" + getName() + "'");
+        return field;
+    }
+
+    public DomainField getFieldSilently(Object id) {
         return fieldMap.get(id);
     }
 

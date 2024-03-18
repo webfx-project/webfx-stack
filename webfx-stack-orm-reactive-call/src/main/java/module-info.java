@@ -3,12 +3,13 @@
 module webfx.stack.orm.reactive.call {
 
     // Direct dependencies modules
-    requires java.base;
     requires javafx.base;
     requires webfx.platform.async;
     requires webfx.platform.console;
     requires webfx.platform.scheduler;
     requires webfx.platform.uischeduler;
+    requires webfx.platform.util;
+    requires webfx.stack.cache;
     requires webfx.stack.db.query;
     requires webfx.stack.db.querypush;
     requires webfx.stack.session.state.client.fx;

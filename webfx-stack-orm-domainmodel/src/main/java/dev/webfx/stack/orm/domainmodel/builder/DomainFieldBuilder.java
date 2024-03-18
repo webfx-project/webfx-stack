@@ -45,8 +45,6 @@ public final class DomainFieldBuilder {
                 id = name;
             if (modelId == null)
                 modelId = id;
-            if (domainClass != null)
-                field = domainClass.getField(id);
             if (expression == null && expressionBuilder != null) {
                 expressionBuilder.buildingClass = domainClass;
                 expression = expressionBuilder.build();

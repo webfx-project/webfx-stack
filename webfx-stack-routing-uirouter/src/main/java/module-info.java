@@ -3,13 +3,12 @@
 module webfx.stack.routing.uirouter {
 
     // Direct dependencies modules
-    requires java.base;
     requires javafx.base;
     requires javafx.graphics;
     requires webfx.kit.launcher;
+    requires webfx.platform.ast;
     requires webfx.platform.async;
     requires webfx.platform.console;
-    requires webfx.platform.json;
     requires webfx.platform.uischeduler;
     requires transitive webfx.platform.util;
     requires transitive webfx.platform.windowhistory;

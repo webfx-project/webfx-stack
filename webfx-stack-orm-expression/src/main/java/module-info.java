@@ -3,12 +3,12 @@
 module webfx.stack.orm.expression {
 
     // Direct dependencies modules
-    requires java.base;
     requires webfx.extras.type;
     requires webfx.lib.javacupruntime;
+    requires webfx.platform.ast;
     requires webfx.platform.console;
-    requires webfx.platform.json;
     requires webfx.platform.util;
+    requires webfx.platform.util.time;
 
     // Exported packages
     exports dev.webfx.stack.orm.expression;

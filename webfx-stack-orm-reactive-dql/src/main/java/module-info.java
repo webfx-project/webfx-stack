@@ -3,13 +3,14 @@
 module webfx.stack.orm.reactive.dql {
 
     // Direct dependencies modules
-    requires java.base;
     requires javafx.base;
     requires webfx.kit.util;
+    requires webfx.platform.ast;
     requires webfx.platform.console;
-    requires webfx.platform.json;
+    requires webfx.platform.scheduler;
     requires webfx.platform.uischeduler;
     requires webfx.platform.util;
+    requires webfx.stack.cache;
     requires webfx.stack.db.datascope;
     requires webfx.stack.db.query;
     requires webfx.stack.orm.domainmodel;

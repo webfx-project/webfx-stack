@@ -18,13 +18,13 @@
 package dev.webfx.stack.com.websocket.spi;
 
 import dev.webfx.stack.com.websocket.WebSocket;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 
 /*
  * @author Bruno Salmon
  */
 public interface WebSocketServiceProvider {
 
-    WebSocket createWebSocket(String url, ReadOnlyJsonObject options);
+    WebSocket createWebSocket(String url, ReadOnlyAstObject options);
 
 }

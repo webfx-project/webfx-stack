@@ -1,10 +1,12 @@
 package dev.webfx.stack.ui.controls.dialog;
 
+import dev.webfx.stack.ui.dialog.DialogCallback;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 
@@ -20,8 +22,8 @@ public final class DialogContent implements DialogBuilder {
     private String cancelText = "Cancel";
 
     private Node content;
-    private Button okButton = new Button();
-    private Button cancelButton = new Button();
+    private Button okButton = new Button(); { okButton.setDefaultButton(true); okButton.setPadding(new Insets(5)); } // TODO: replace hardcoded style with CSS
+    private Button cancelButton = new Button(); { cancelButton.setCancelButton(true); cancelButton.setPadding(new Insets(5)); } // TODO: replace hardcoded style with CSS
 
     private DialogCallback dialogCallback;
 
@@ -94,12 +96,14 @@ public final class DialogContent implements DialogBuilder {
             builder.addTextRow(headerText);
         if (contentText != null)
             builder.addTextRow(contentText);
-        if (content != null)
+        if (content != null) {
             builder.addNodeFillingRow(content);
-        GridPane build = builder
+            GridPane.setVgrow(content, Priority.ALWAYS);
+        }
+        GridPane gridPane = builder
                 .addButtons(okText, okButton, cancelText, cancelButton)
                 .build();
-        build.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
-        return build;
+        gridPane.setBackground(Background.fill(Color.WHITE)); // TODO: replace hardcoded style with CSS
+        return gridPane;
     }
 }

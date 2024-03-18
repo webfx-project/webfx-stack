@@ -2,10 +2,11 @@ package dev.webfx.stack.orm.reactive.dql.statement;
 
 import javafx.beans.value.ObservableValue;
 import dev.webfx.stack.orm.dql.DqlStatement;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.util.function.Converter;
 
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author Bruno Salmon
@@ -53,7 +54,7 @@ public interface ReactiveDqlStatementAPI<E, THIS> {
         return (THIS) this;
     }
 
-    default THIS always(ReadOnlyJsonObject json) {
+    default THIS always(ReadOnlyAstObject json) {
         getReactiveDqlStatement().always(json);
         return (THIS) this;
     }
@@ -70,6 +71,11 @@ public interface ReactiveDqlStatementAPI<E, THIS> {
 
     default <T> THIS ifEquals(ObservableValue<T> property, T value, DqlStatement dqlStatement) {
         getReactiveDqlStatement().ifEquals(property, value, dqlStatement);
+        return (THIS) this;
+    }
+
+    default <T> THIS ifEquals(ObservableValue<T> property, T value, Supplier<DqlStatement> dqlStatementSupplier) {
+        getReactiveDqlStatement().ifEquals(property, value, dqlStatementSupplier);
         return (THIS) this;
     }
 

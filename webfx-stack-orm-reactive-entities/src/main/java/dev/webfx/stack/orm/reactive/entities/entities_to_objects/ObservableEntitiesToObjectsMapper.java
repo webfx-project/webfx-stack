@@ -12,12 +12,12 @@ import java.util.function.Function;
 /**
  * @author Bruno Salmon
  */
-final class ObservableEntitiesToObjectsMapper<E, T> {
+public final class ObservableEntitiesToObjectsMapper<E, T> {
 
     private final ObservableList<E> observableEntities;
     private final OptimizedObservableListWrapper<T> mappedObjects = new OptimizedObservableListWrapper<>();
 
-    ObservableEntitiesToObjectsMapper(ObservableList<E> observableEntities, Function<E, T> mappedObjectCreator, BiConsumer<E, T> mappedObjectUpdater, BiConsumer<E, T> mappedObjectDeleter) {
+    public ObservableEntitiesToObjectsMapper(ObservableList<E> observableEntities, Function<E, T> mappedObjectCreator, BiConsumer<E, T> mappedObjectUpdater, BiConsumer<E, T> mappedObjectDeleter) {
         this.observableEntities = observableEntities;
         observableEntities.addListener((ListChangeListener<E>) change -> mappedObjects.runInTransaction(() -> {
             while (change.next()) {
@@ -69,11 +69,11 @@ final class ObservableEntitiesToObjectsMapper<E, T> {
         }));
     }
 
-    ObservableList<E> getObservableEntities() {
+    public ObservableList<E> getObservableEntities() {
         return observableEntities;
     }
 
-    ObservableList<T> getMappedObjects() {
+    public ObservableList<T> getMappedObjects() {
         return mappedObjects;
     }
 

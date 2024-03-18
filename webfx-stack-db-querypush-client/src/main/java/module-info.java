@@ -3,7 +3,6 @@
 module webfx.stack.db.querypush.client {
 
     // Direct dependencies modules
-    requires java.base;
     requires webfx.stack.com.bus;
     requires webfx.stack.db.querypush;
     requires webfx.stack.db.querypush.buscall;

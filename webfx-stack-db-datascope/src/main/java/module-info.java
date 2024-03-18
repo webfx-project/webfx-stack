@@ -3,8 +3,7 @@
 module webfx.stack.db.datascope {
 
     // Direct dependencies modules
-    requires java.base;
-    requires webfx.platform.json;
+    requires webfx.platform.ast;
     requires webfx.stack.com.serial;
 
     // Exported packages

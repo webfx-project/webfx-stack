@@ -8,9 +8,9 @@ import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.terms.ExpressionArray;
 import dev.webfx.stack.orm.domainmodel.formatter.ValueFormatter;
 import dev.webfx.stack.orm.domainmodel.formatter.FormatterRegistry;
-import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.ReadOnlyJsonArray;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.ast.ReadOnlyAstArray;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -26,7 +26,7 @@ public interface EntityColumnFactory {
         return DEFAULT;
     }
 
-    default <E extends Entity> EntityColumn<E> create(String expressionDefinition, Expression<E> expression, Object label, ValueFormatter displayFormatter, ReadOnlyJsonObject json) {
+    default <E extends Entity> EntityColumn<E> create(String expressionDefinition, Expression<E> expression, Object label, ValueFormatter displayFormatter, ReadOnlyAstObject json) {
         return new EntityColumnImpl<>(expressionDefinition, expression, label, displayFormatter, json);
     }
 
@@ -36,7 +36,7 @@ public interface EntityColumnFactory {
         return create(jsonOrExpressionDefinition, (ValueFormatter) null);
     }
 
-    default <E extends Entity> EntityColumn<E> create(ReadOnlyJsonObject json) {
+    default <E extends Entity> EntityColumn<E> create(ReadOnlyAstObject json) {
         return create(json.getString("expression"), json);
     }
 
@@ -44,7 +44,7 @@ public interface EntityColumnFactory {
         return create(expressionDefinition, Json.parseObject(jsonOptions));
     }
 
-    default <E extends Entity> EntityColumn<E> create(String expressionDefinition, ReadOnlyJsonObject options) {
+    default <E extends Entity> EntityColumn<E> create(String expressionDefinition, ReadOnlyAstObject options) {
         return create(expressionDefinition, null, options.get("label"), FormatterRegistry.getFormatter(options.getString("format")), options);
     }
 
@@ -71,12 +71,12 @@ public interface EntityColumnFactory {
         return fromJsonArray(Json.parseArray(array));
     }
 
-    default <E extends Entity>  EntityColumn<E>[] fromJsonArray(ReadOnlyJsonArray array) {
+    default <E extends Entity>  EntityColumn<E>[] fromJsonArray(ReadOnlyAstArray array) {
         int n = array.size();
         EntityColumn<E>[] entityColumns = createArray(n);
         for (int i = 0; i < n; i++) {
             Object element = array.getElement(i);
-            entityColumns[i] = element instanceof ReadOnlyJsonObject ? create((ReadOnlyJsonObject) element) : create(element.toString());
+            entityColumns[i] = element instanceof ReadOnlyAstObject ? create((ReadOnlyAstObject) element) : create(element.toString());
         }
         return entityColumns;
     }

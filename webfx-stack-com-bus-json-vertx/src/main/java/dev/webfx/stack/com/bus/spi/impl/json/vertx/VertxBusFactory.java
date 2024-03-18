@@ -17,7 +17,7 @@ final class VertxBusFactory implements BusFactory {
     }
 
     @Override
-    public Bus createBus(BusOptions options) {
+    public Bus createBus() {
         return bus;
     }
 }

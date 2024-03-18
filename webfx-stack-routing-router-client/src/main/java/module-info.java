@@ -3,10 +3,9 @@
 module webfx.stack.routing.router.client {
 
     // Direct dependencies modules
-    requires java.base;
+    requires webfx.platform.ast;
     requires webfx.platform.async;
     requires webfx.platform.console;
-    requires webfx.platform.json;
     requires webfx.platform.util;
     requires webfx.stack.authz.client;
     requires webfx.stack.routing.router;

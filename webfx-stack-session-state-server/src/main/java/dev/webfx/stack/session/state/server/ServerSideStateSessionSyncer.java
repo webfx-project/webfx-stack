@@ -60,6 +60,7 @@ public final class ServerSideStateSessionSyncer {
                 .onComplete(ar -> {
                     // Setting the new user id (should be the same as the passed on if valid, or something like "INVALID" if not)
                     Object finalUserId = ar.result();
+                    Console.log("️🛡🛡🛡🛡🛡 UserIdCheck: userId=" + userId + " => finalUserId = " + finalUserId);
                     // If the user identity check failed, we log out the user
                     if (finalUserId == null)
                         finalUserId = LogoutUserId.LOGOUT_USER_ID;

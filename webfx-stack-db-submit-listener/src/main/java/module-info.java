@@ -3,7 +3,6 @@
 module webfx.stack.db.submit.listener {
 
     // Direct dependencies modules
-    requires java.base;
     requires webfx.platform.boot;
     requires webfx.platform.util;
     requires webfx.stack.db.submit;

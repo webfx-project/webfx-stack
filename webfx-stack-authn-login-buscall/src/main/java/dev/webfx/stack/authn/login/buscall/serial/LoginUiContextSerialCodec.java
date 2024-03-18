@@ -1,6 +1,7 @@
 package dev.webfx.stack.authn.login.buscall.serial;
 
-import dev.webfx.platform.json.*;
+import dev.webfx.platform.ast.AstObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.authn.login.LoginUiContext;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 
@@ -15,14 +16,14 @@ public final class LoginUiContextSerialCodec extends SerialCodecBase<LoginUiCont
     }
 
     @Override
-    public void encodeToJson(LoginUiContext loginUiContext, JsonObject json) {
+    public void encodeToJson(LoginUiContext loginUiContext, AstObject json) {
         json
                 .set(GATEWAY_ID_KEY, loginUiContext.getGatewayId())
                 .set(GATEWAY_CONTEXT_KEY, loginUiContext.getGatewayContext());
     }
 
     @Override
-    public LoginUiContext decodeFromJson(ReadOnlyJsonObject json) {
+    public LoginUiContext decodeFromJson(ReadOnlyAstObject json) {
         return new LoginUiContext(
                 json.get(GATEWAY_ID_KEY),
                 json.get(GATEWAY_CONTEXT_KEY)

@@ -3,7 +3,6 @@
 module webfx.stack.authn.login.server.portal {
 
     // Direct dependencies modules
-    requires java.base;
     requires webfx.platform.async;
     requires webfx.platform.util;
     requires webfx.stack.authn.login;

@@ -1,7 +1,9 @@
 package dev.webfx.stack.ui.json;
 
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
+import dev.webfx.platform.console.Console;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.FillRule;
 import javafx.scene.shape.SVGPath;
@@ -11,7 +13,7 @@ import javafx.scene.shape.SVGPath;
  */
 public final class JsonSVGPath {
 
-    public static SVGPath createSVGPath(ReadOnlyJsonObject json) {
+    public static SVGPath createSVGPath(ReadOnlyAstObject json) {
         String content = json.getString("svgPath");
         SVGPath svgPath = new SVGPath();
         svgPath.setContent(content);
@@ -24,12 +26,16 @@ public final class JsonSVGPath {
 
     private static Paint toPaint(String paintText, Paint defaultPaint) {
         Paint result = defaultPaint;
-        if (paintText != null)
+        if (paintText != null) {
             try {
-                result = Color.web(paintText);
+                if (paintText.startsWith("linear-gradient"))
+                    result = LinearGradient.valueOf(paintText);
+                else
+                    result = Color.web(paintText);
             } catch (Exception e) {
-                e.printStackTrace();
+                Console.log(e);
             }
+        }
         return result;
     }
 

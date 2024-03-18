@@ -2,6 +2,8 @@ package dev.webfx.stack.orm.entity.controls.entity.selector;
 
 import dev.webfx.extras.cell.renderer.ValueRenderer;
 import dev.webfx.extras.cell.renderer.ValueRendererFactory;
+import dev.webfx.extras.panes.ScaleMode;
+import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.visual.VisualResult;
 import dev.webfx.extras.visual.controls.grid.SkinnedVisualGrid;
 import dev.webfx.extras.visual.controls.grid.VisualGrid;
@@ -29,6 +31,7 @@ import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -59,6 +62,8 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
     private ReactiveVisualMapper<E> entityDialogMapper;
     private List<E> restrictedFilterList;
     private VisualGrid dialogVisualGrid;
+    private ScalePane scalePane;
+
     private String searchCondition;
     // Named parameters within the search condition (extracted after expression parsing)
     private Parameter[] searchConditionNamedParameters; // Ex:
@@ -75,7 +80,11 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
     }
 
     protected EntityButtonSelector(Object jsonOrClass, ButtonFactoryMixin buttonFactory, Callable<Pane> parentGetter, Pane parent, DataSourceModel dataSourceModel) {
-        super(buttonFactory, parentGetter, parent);
+        this(jsonOrClass, dataSourceModel, new ButtonSelectorParameters().setButtonFactory(buttonFactory).setDropParentGetter(parentGetter).setDropParent(parent));
+    }
+
+    protected EntityButtonSelector(Object jsonOrClass, DataSourceModel dataSourceModel, ButtonSelectorParameters buttonSelectorParameters) {
+        super(buttonSelectorParameters);
         this.dataSourceModel = dataSourceModel;
         setJsonOrClass(jsonOrClass);
         setLoadedContentProperty(deferredVisualResult);
@@ -174,8 +183,29 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
                         })
                         .always(dialogHeightProperty(), height -> limit("?", updateAdaptiveLimit(height)));
             //dialogDataGrid.setOnMouseClicked(e -> {if (e.isPrimaryButtonDown() && e.getClickCount() == 1) onDialogOk(); });
+            // Embedding the visual grid in a ScalePane that can only grow (up to 3x times) to avoid small rows on big screens
+            scalePane = new ScalePane(dialogVisualGrid);
+            scalePane.setCanShrink(false);
+            scalePane.setMaxScale(3); // Should this value be parameterized?
+            scalePane.setScaleRegion(true);  // Otherwise stretch the region without scaling it
+            scalePane.setStretchWidth(true); // Actually shrinks the grid width back to fit again in the dialog
+            scalePane.setVAlignment(VPos.TOP); // We want the scaled grid be aligned on top
+            scalePane.setScaleMode(ScaleMode.FIT_WIDTH); // The scale depends on the dialog width
+            // Setting a quite arbitrary pref width value (otherwise the scale with vary depending on the data displayed)
+            dialogVisualGrid.setPrefWidth(300); // Should this value be parameterized?
+            // Now that scalePane is set up, we set up the searchPane (also a ScalePane) to give it the same scale.
+            searchPane.setStretchWidth(true); // Actually shrinks the grid width back to fit again in the dialog
+            searchPane.setScaleMode(ScaleMode.FIT_HEIGHT); // We will manually stretch the height to control the scale
+            // We multiply the height by the same scale factor as the one applied on the visual grid to get the same scale
+            dialogVisualGrid.scaleYProperty().addListener((observable, oldValue, visualGridScaleY) -> {
+                // First we compute the searchPane normal height (with no scale).
+                searchPane.setPrefHeight(Region.USE_COMPUTED_SIZE); // Necessary to force the computation
+                double prefHeight = searchPane.prefHeight(searchPane.getWidth());
+                // Now we stretch the searchPane height with the visual grid scale factor
+                searchPane.setPrefHeight(prefHeight * visualGridScaleY.doubleValue()); // will scale the content (search text field + icon)
+            });
         }
-        return dialogVisualGrid;
+        return scalePane;
     }
 
     private int updateAdaptiveLimit(Number height) {
@@ -236,7 +266,13 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
 
     @Override
     protected void onDialogOk() {
-        setSelectedItem(getReactiveVisualMapper().getSelectedEntity());
+        ReactiveVisualMapper<E> reactiveVisualMapper = getReactiveVisualMapper();
+        E selectedEntity = reactiveVisualMapper.getSelectedEntity();
+        if (selectedEntity == null && reactiveVisualMapper.getEntities().size() == 1)
+            selectedEntity = reactiveVisualMapper.getEntities().get(0);
+        boolean nullAllowed = reactiveVisualMapper.isNullEntityAppended();
+        if (selectedEntity != null || nullAllowed)
+            setSelectedItem(selectedEntity);
         super.onDialogOk();
     }
 

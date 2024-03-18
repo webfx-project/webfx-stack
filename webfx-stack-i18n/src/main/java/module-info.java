@@ -3,7 +3,6 @@
 module webfx.stack.i18n {
 
     // Direct dependencies modules
-    requires java.base;
     requires javafx.base;
     requires javafx.graphics;
     requires webfx.platform.async;

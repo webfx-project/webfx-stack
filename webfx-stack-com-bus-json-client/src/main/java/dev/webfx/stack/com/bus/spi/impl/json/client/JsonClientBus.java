@@ -25,8 +25,8 @@ public abstract class JsonClientBus extends JsonBus {
 
     @Override
     protected void onOpen() {
-        ClientSideStateSessionSyncer.setClientConnected(true);
         super.onOpen();
+        ClientSideStateSessionSyncer.setClientConnected(true);
     }
 
     @Override

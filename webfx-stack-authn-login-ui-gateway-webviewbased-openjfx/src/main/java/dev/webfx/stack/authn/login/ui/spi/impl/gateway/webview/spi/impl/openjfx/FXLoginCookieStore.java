@@ -1,16 +1,18 @@
 package dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.spi.impl.openjfx;
 
 import dev.webfx.platform.storagelocation.StorageLocation;
-import dev.webfx.platform.json.Json;
-import dev.webfx.platform.json.JsonObject;
-import dev.webfx.platform.json.ReadOnlyJsonArray;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.ast.AST;
+import dev.webfx.platform.ast.AstObject;
+import dev.webfx.platform.ast.ReadOnlyAstArray;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.*;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -30,9 +32,9 @@ public class FXLoginCookieStore implements CookieStore {
             // Reading the json file as text
             String jsonText = new String(Files.readAllBytes(cookieFilePath));
             // Parsing it to get a json object
-            ReadOnlyJsonObject json = Json.parseObject(jsonText);
+            ReadOnlyAstObject json = Json.parseObject(jsonText);
             // Getting all its keys (each key correspond to an uri)
-            ReadOnlyJsonArray keys = json.keys();
+            ReadOnlyAstArray keys = json.keys();
             // Iterating all keys
             for (int i = 0; i < keys.size(); i++) {
                 String key = keys.getElement(i); // Getting the key as a string
@@ -46,7 +48,7 @@ public class FXLoginCookieStore implements CookieStore {
                         memoryStore.add(uri, httpCookie);
                 }
             }
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException | NoSuchFileException e) {
             // That's normal to happen on first time, so no trace
         } catch (IOException e) {
             e.printStackTrace();
@@ -55,12 +57,12 @@ public class FXLoginCookieStore implements CookieStore {
 
     private void save() {
         try {
-            JsonObject json = Json.createObject();
+            AstObject json = AST.createObject();
             // For each effective uri, we put a json array of all serialized cookies
             getURIs().stream().map(this::getEffectiveURI).forEach(uri ->
-                    json.setArray(uri.toASCIIString(), SerialCodecManager.encodeToJsonArray(get(uri).toArray())));
+                    json.setArray(uri.toASCIIString(), SerialCodecManager.encodeToAstArray(get(uri).toArray())));
             // We store that into the json file
-            Files.writeString(cookieFilePath, json.toJsonString());
+            Files.writeString(cookieFilePath, Json.formatNode(json));
         } catch (IOException e) {
             e.printStackTrace();
         }

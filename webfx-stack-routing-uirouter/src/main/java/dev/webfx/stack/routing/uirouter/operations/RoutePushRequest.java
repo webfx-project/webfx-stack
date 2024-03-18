@@ -1,7 +1,7 @@
 package dev.webfx.stack.routing.uirouter.operations;
 
 import dev.webfx.platform.windowhistory.spi.BrowsingHistory;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.async.AsyncFunction;
 
 /**
@@ -9,23 +9,23 @@ import dev.webfx.platform.async.AsyncFunction;
  */
 public class RoutePushRequest extends RouteRequestBase<RoutePushRequest> {
 
-    private ReadOnlyJsonObject state;
+    private ReadOnlyAstObject state;
     private boolean replace; // flag asking a replace the current url instead of pushing a new entry in the browser history
 
     public RoutePushRequest(String routePath, BrowsingHistory browsingHistory) {
         this(routePath, browsingHistory, null);
     }
 
-    public RoutePushRequest(String routePath, BrowsingHistory history, ReadOnlyJsonObject state) {
+    public RoutePushRequest(String routePath, BrowsingHistory history, ReadOnlyAstObject state) {
         super(routePath, history);
         this.state = state;
     }
 
-    public ReadOnlyJsonObject getState() {
+    public ReadOnlyAstObject getState() {
         return state;
     }
 
-    public RoutePushRequest setState(ReadOnlyJsonObject state) {
+    public RoutePushRequest setState(ReadOnlyAstObject state) {
         this.state = state;
         return this;
     }

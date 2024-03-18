@@ -8,7 +8,7 @@ import dev.webfx.stack.orm.entity.EntityStore;
 import dev.webfx.stack.orm.dql.sqlcompiler.mapping.QueryColumnToEntityFieldMapping;
 import dev.webfx.stack.orm.dql.sqlcompiler.mapping.QueryRowToEntityMapping;
 import dev.webfx.stack.db.query.QueryResult;
-import dev.webfx.platform.util.Dates;
+import dev.webfx.platform.util.time.Times;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -58,11 +58,11 @@ public final class QueryResultToEntitiesMapper {
                     fieldId = domainField.getId();
                     // And second, converting the dates possibly returned as String by the QueryService into LocalDate or LocalDateTime objects
                     if (value != null && domainField.getType() == PrimType.DATE && value instanceof String) {
-                        LocalDateTime localDateTime = Dates.toLocalDateTime((String) value);
+                        LocalDateTime localDateTime = Times.toLocalDateTime((String) value);
                         if (localDateTime != null)
                             value = localDateTime;
                         else {
-                            LocalDate localDate = Dates.toLocalDate((String) value);
+                            LocalDate localDate = Times.toLocalDate((String) value);
                             if (localDate != null)
                                 value = localDate;
                         }

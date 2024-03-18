@@ -11,6 +11,7 @@
             <module transitive="true">webfx-stack-routing-router-client</module>
             <module transitive="true">webfx-platform-util</module>
             <module transitive="true">webfx-platform-windowhistory</module>
+            <undetected-package>java.time</undetected-package>
         </used-by-source-modules>
     </dependencies>
 

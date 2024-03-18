@@ -1,5 +1,0 @@
-{
-  "apiKey": "${{ MOJO_AUTH_API_KEY }}",
-  "redirectOrigin": "${{ MOJO_AUTH_REDIRECT_ORIGIN | HTTP_SERVER_ORIGIN }}",
-  "redirectPath":   "${{ MOJO_AUTH_REDIRECT_PATH | '/login/mojoAuth/callback/:sessionId' }}"
-}

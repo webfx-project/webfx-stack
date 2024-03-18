@@ -1,6 +1,7 @@
 package dev.webfx.stack.orm.reactive.dql.statement;
 
 import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Numbers;
 import dev.webfx.platform.util.Strings;
@@ -8,7 +9,7 @@ import dev.webfx.platform.util.function.Converter;
 import dev.webfx.stack.orm.dql.DqlStatement;
 import dev.webfx.stack.orm.dql.DqlStatementBuilder;
 import dev.webfx.stack.orm.reactive.dql.statement.conventions.*;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static dev.webfx.stack.orm.dql.DqlStatement.limit;
 
@@ -34,8 +36,8 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
     private final List<ObservableValue<DqlStatement>> dqlStatementProperties = new ArrayList<>();
     // The base statement is the fist sample of dql statements giving the domain class ID
     private DqlStatement baseStatement;
-    private boolean markDqlStatementsAsChanged;
     private final ObjectProperty<DqlStatement> resultingDqlStatementProperty = new SimpleObjectProperty<>();
+    private Scheduled dqlStatementChangedScheduled;
     private final List<Function<DqlStatement, DqlStatement>> resultTransformers = new ArrayList<>();
 
     /*==================================================================================================================
@@ -81,7 +83,7 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
     }
 
     private void fetchBaseStatementAndDomainClassIdIfNecessary() {
-        if (baseStatement == null || markDqlStatementsAsChanged) {
+        if (baseStatement == null || dqlStatementChangedScheduled != null) {
             synchronized (dqlStatementProperties) { // to avoid ConcurrentModificationException if another thread wants to add another statement
                 for (ObservableValue<DqlStatement> dqlStatementProperty : dqlStatementProperties) {
                     DqlStatement dqlStatement = dqlStatementProperty.getValue();
@@ -97,14 +99,15 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
     }
 
     private void markDqlStatementsAsChanged() {
-        if (!markDqlStatementsAsChanged) {
-            markDqlStatementsAsChanged = true;
-            UiScheduler.scheduleDeferred(() -> {
-                markDqlStatementsAsChanged = false;
-                DqlStatement result = mergeDqlStatements();
-                resultingDqlStatementProperty.setValue(result);
-            });
+        if (dqlStatementChangedScheduled == null) {
+            dqlStatementChangedScheduled = UiScheduler.scheduleDeferred(this::recomputeResultingDqlStatement);
         }
+    }
+
+    private void recomputeResultingDqlStatement() {
+        dqlStatementChangedScheduled = null;
+        DqlStatement result = mergeDqlStatements();
+        resultingDqlStatementProperty.setValue(result);
     }
 
     private DqlStatement mergeDqlStatements() {
@@ -149,7 +152,7 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
     }
 
     @Override
-    public ReactiveDqlStatement<E> always(ReadOnlyJsonObject json) {
+    public ReactiveDqlStatement<E> always(ReadOnlyAstObject json) {
         return always(new DqlStatement(json));
     }
 
@@ -179,6 +182,11 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
     @Override
     public <T> ReactiveDqlStatement<E> ifEquals(ObservableValue<T> property, T value, DqlStatement dqlStatement) {
         return always(property, v -> Objects.equals(v, value) ? dqlStatement : null);
+    }
+
+    @Override
+    public <T> ReactiveDqlStatement<E> ifEquals(ObservableValue<T> property, T value, Supplier<DqlStatement> dqlStatementSupplier) {
+        return always(property, v -> Objects.equals(v, value) ? dqlStatementSupplier.get() : null);
     }
 
     @Override

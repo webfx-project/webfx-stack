@@ -20,27 +20,27 @@ public interface ActionFactory extends StandardActionKeys {
     }
 
     default Action newAction(Object actionKey, EventHandler<ActionEvent> actionHandler) {
-        return newAuthAction(actionKey, actionHandler, null);
+        return newAuthAction(actionKey, actionHandler, null, false);
     }
 
     default Action newAction(Object actionKey, Object graphicUrlOrJson, EventHandler<ActionEvent> actionHandler) {
-        return newAuthAction(actionKey, graphicUrlOrJson, actionHandler, null);
+        return newAuthAction(actionKey, graphicUrlOrJson, actionHandler, null, false);
     }
 
-    default Action newAuthAction(Object actionKey, ObservableBooleanValue authorizedProperty) {
-        return newAuthAction(actionKey, (EventHandler<ActionEvent>) null, authorizedProperty);
+    default Action newAuthAction(Object actionKey, ObservableBooleanValue authorizedProperty, boolean hideWhenUnauthorized) {
+        return newAuthAction(actionKey, (EventHandler<ActionEvent>) null, authorizedProperty, hideWhenUnauthorized);
     }
 
-    default Action newAuthAction(Object actionKey, Object graphicUrlOrJson, ObservableBooleanValue authorizedProperty) {
-        return newAuthAction(actionKey, graphicUrlOrJson, null, authorizedProperty);
+    default Action newAuthAction(Object actionKey, Object graphicUrlOrJson, ObservableBooleanValue authorizedProperty,  boolean hideWhenUnauthorized) {
+        return newAuthAction(actionKey, graphicUrlOrJson, null, authorizedProperty, hideWhenUnauthorized);
     }
 
-    default Action newAuthAction(Object actionKey, EventHandler<ActionEvent> actionHandler, ObservableBooleanValue authorizedProperty) {
-        return newActionBuilder(actionKey).setActionHandler(actionHandler).setAuthorizedProperty(authorizedProperty).build();
+    default Action newAuthAction(Object actionKey, EventHandler<ActionEvent> actionHandler, ObservableBooleanValue authorizedProperty,  boolean hideWhenUnauthorized) {
+        return newActionBuilder(actionKey).setActionHandler(actionHandler).setAuthorizedProperty(authorizedProperty).setHiddenWhenDisabled(hideWhenUnauthorized).build();
     }
 
-    default Action newAuthAction(Object actionKey, Object graphicUrlOrJson, EventHandler<ActionEvent> actionHandler, ObservableBooleanValue authorizedProperty) {
-        return newActionBuilder(actionKey).setGraphicUrlOrJson(graphicUrlOrJson).setActionHandler(actionHandler).setAuthorizedProperty(authorizedProperty).build();
+    default Action newAuthAction(Object actionKey, Object graphicUrlOrJson, EventHandler<ActionEvent> actionHandler, ObservableBooleanValue authorizedProperty,  boolean hideWhenUnauthorized) {
+        return newActionBuilder(actionKey).setGraphicUrlOrJson(graphicUrlOrJson).setActionHandler(actionHandler).setAuthorizedProperty(authorizedProperty).setHiddenWhenDisabled(hideWhenUnauthorized).build();
     }
 
     // Same API but with Runnable
@@ -53,8 +53,8 @@ public interface ActionFactory extends StandardActionKeys {
         return newAction(actionKey, graphicUrlOrJson, e -> actionHandler.run());
     }
 
-    default Action newAuthAction(Object actionKey, Runnable actionHandler, ObservableBooleanValue authorizedProperty) {
-        return newAuthAction(actionKey, e -> actionHandler.run(), authorizedProperty);
+    default Action newAuthAction(Object actionKey, Runnable actionHandler, ObservableBooleanValue authorizedProperty, boolean hideWhenUnauthorized) {
+        return newAuthAction(actionKey, e -> actionHandler.run(), authorizedProperty, hideWhenUnauthorized);
     }
 
     // Standard actions factories

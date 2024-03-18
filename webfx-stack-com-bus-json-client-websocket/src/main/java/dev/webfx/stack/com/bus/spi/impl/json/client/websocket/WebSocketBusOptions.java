@@ -1,8 +1,8 @@
 package dev.webfx.stack.com.bus.spi.impl.json.client.websocket;
 
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
+import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.Objects;
-import dev.webfx.platform.util.keyobject.ReadOnlyKeyObject;
 import dev.webfx.stack.com.bus.BusOptions;
 
 /**
@@ -22,7 +22,7 @@ public final class WebSocketBusOptions extends BusOptions {
 
     private Integer pingInterval;
 
-    private ReadOnlyJsonObject socketOptions;
+    private ReadOnlyAstObject socketOptions;
 
     @Override
     public WebSocketBusOptions turnUnsetPropertiesToDefault() {
@@ -36,13 +36,31 @@ public final class WebSocketBusOptions extends BusOptions {
     }
 
     @Override
-    public WebSocketBusOptions applyConfig(ReadOnlyKeyObject config) {
+    public WebSocketBusOptions applyConfig(ReadOnlyAstObject config) {
         super.applyConfig(config);
-        protocol = Protocol.valueOf(config.getString("protocol", protocol.name()));
-        serverSSL = config.getBoolean("serverSSL", serverSSL);
-        serverHost = config.getString("serverHost", serverHost);
-        serverPort = config.getString("serverPort", serverPort);
-        pingInterval = config.getInteger("pingInterval", pingInterval);
+        serverSSL = config.getBoolean("serverSSL");
+        serverHost = config.getString("serverHost");
+        serverPort = config.getString("serverPort");
+        pingInterval = config.getInteger("pingInterval");
+        String configProtocol = config.getString("protocol");
+        if (configProtocol != null) {
+            switch (configProtocol.toLowerCase()) {
+                case "https":
+                    serverSSL = true;
+                case "http":
+                    protocol = Protocol.HTTP;
+                    break;
+                case "wss":
+                    serverSSL = true;
+                case "ws":
+                    protocol = Protocol.WS;
+                    break;
+            }
+        }
+        if (protocol == null) {
+            Console.log("⚠️ Default WS protocol will be applied for WebSocket due to unrecognized protocol configuration value: " + configProtocol);
+            protocol = Protocol.WS;
+        }
         return this;
     }
 
@@ -91,13 +109,8 @@ public final class WebSocketBusOptions extends BusOptions {
         return this;
     }
 
-    public ReadOnlyJsonObject getSocketOptions() {
+    public ReadOnlyAstObject getSocketOptions() {
         return socketOptions;
-    }
-
-    public WebSocketBusOptions setSocketOptions(ReadOnlyJsonObject socketOptions) {
-        this.socketOptions = socketOptions;
-        return this;
     }
 
 }

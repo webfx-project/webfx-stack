@@ -1,7 +1,7 @@
 package dev.webfx.stack.com.websocket;
 
 import dev.webfx.stack.com.websocket.spi.WebSocketServiceProvider;
-import dev.webfx.platform.json.ReadOnlyJsonObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;
@@ -15,7 +15,7 @@ public final class WebSocketService {
         return SingleServiceProvider.getProvider(WebSocketServiceProvider.class, () -> ServiceLoader.load(WebSocketServiceProvider.class));
     }
 
-    public static WebSocket createWebSocket(String url, ReadOnlyJsonObject options) {
+    public static WebSocket createWebSocket(String url, ReadOnlyAstObject options) {
         return getProvider().createWebSocket(url, options);
     }
 

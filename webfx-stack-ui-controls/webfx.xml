@@ -9,6 +9,7 @@
     <dependencies>
         <used-by-source-modules>
             <module transitive="true">webfx-stack-ui-action</module>
+            <module transitive="true">webfx-stack-ui-dialog</module>
         </used-by-source-modules>
     </dependencies>
 

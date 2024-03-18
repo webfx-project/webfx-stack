@@ -7,7 +7,6 @@ module webfx.stack.db.querysubmit.vertx {
     requires io.vertx.client.sql;
     requires io.vertx.client.sql.pg;
     requires io.vertx.core;
-    requires java.base;
     requires java.sql;
     requires webfx.platform.async;
     requires webfx.platform.console;

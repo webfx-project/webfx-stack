@@ -30,7 +30,7 @@ public final class ParserDomainModelReaderImpl implements ParserDomainModelReade
 
     @Override
     public Symbol getDomainFieldSymbol(Object domainClass, String fieldName) {
-        return toDomainClass(domainClass).getField(fieldName);
+        return toDomainClass(domainClass).getFieldSilently(fieldName);
     }
 
     @Override

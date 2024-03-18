@@ -52,16 +52,16 @@
         <module>webfx-stack-authn-login-buscall</module>
         <module>webfx-stack-authn-login-remote</module>
         <module>webfx-stack-authn-login-server-gateway</module>
-        <module>webfx-stack-authn-login-server-gateway-facebook</module>
-        <module>webfx-stack-authn-login-server-gateway-google</module>
-        <module>webfx-stack-authn-login-server-gateway-mojoauth</module>
+        <module>webfx-stack-authn-login-server-gateway-facebook-plugin</module>
+        <module>webfx-stack-authn-login-server-gateway-google-plugin</module>
+        <module>webfx-stack-authn-login-server-gateway-mojoauth-plugin</module>
         <module>webfx-stack-authn-login-server-portal</module>
         <module>webfx-stack-authn-login-ui</module>
         <module>webfx-stack-authn-login-ui-gateway</module>
-        <module>webfx-stack-authn-login-ui-gateway-facebook</module>
-        <module>webfx-stack-authn-login-ui-gateway-google</module>
-        <module>webfx-stack-authn-login-ui-gateway-mojoauth</module>
-        <module>webfx-stack-authn-login-ui-gateway-password</module>
+        <module>webfx-stack-authn-login-ui-gateway-facebook-plugin</module>
+        <module>webfx-stack-authn-login-ui-gateway-google-plugin</module>
+        <module>webfx-stack-authn-login-ui-gateway-mojoauth-plugin</module>
+        <module>webfx-stack-authn-login-ui-gateway-password-plugin</module>
         <module>webfx-stack-authn-login-ui-gateway-webviewbased</module>
         <module>webfx-stack-authn-login-ui-gateway-webviewbased-gwt</module>
         <module>webfx-stack-authn-login-ui-gateway-webviewbased-openjfx</module>
@@ -72,15 +72,18 @@
         <module>webfx-stack-authn-oauth2-vertx</module>
         <module>webfx-stack-authn-remote</module>
         <module>webfx-stack-authn-server-gateway</module>
-        <module>webfx-stack-authn-server-gateway-facebook</module>
-        <module>webfx-stack-authn-server-gateway-google</module>
-        <module>webfx-stack-authn-server-gateway-mojoauth</module>
+        <module>webfx-stack-authn-server-gateway-facebook-plugin</module>
+        <module>webfx-stack-authn-server-gateway-google-plugin</module>
+        <module>webfx-stack-authn-server-gateway-mojoauth-plugin</module>
         <module>webfx-stack-authn-server-portal</module>
         <module>webfx-stack-authz-client</module>
         <module>webfx-stack-authz-server</module>
+        <module>webfx-stack-cache</module>
+        <module>webfx-stack-cache-client</module>
         <module>webfx-stack-com-bus</module>
         <module>webfx-stack-com-bus-call</module>
         <module>webfx-stack-com-bus-call-job</module>
+        <module>webfx-stack-com-bus-client</module>
         <module>webfx-stack-com-bus-json</module>
         <module>webfx-stack-com-bus-json-client</module>
         <module>webfx-stack-com-bus-json-client-websocket</module>
@@ -91,15 +94,8 @@
         <module>webfx-stack-com-bus-simple</module>
         <module>webfx-stack-com-serial</module>
         <module>webfx-stack-com-websocket</module>
-        <module>webfx-stack-com-websocket-gwt</module>
+        <module>webfx-stack-com-websocket-gwt-j2cl</module>
         <module>webfx-stack-com-websocket-java</module>
-        <module>webfx-stack-conf</module>
-        <module>webfx-stack-conf-env-java</module>
-        <module>webfx-stack-conf-file-java</module>
-        <module>webfx-stack-conf-format-json</module>
-        <module>webfx-stack-conf-localstorage</module>
-        <module>webfx-stack-conf-resource</module>
-        <module>webfx-stack-conf-windowlocation</module>
         <module>webfx-stack-db-datascope</module>
         <module>webfx-stack-db-datasource</module>
         <module>webfx-stack-db-query</module>
@@ -118,10 +114,10 @@
         <module>webfx-stack-db-submit-buscall</module>
         <module>webfx-stack-db-submit-listener</module>
         <module>webfx-stack-db-submit-remote</module>
-        <module>webfx-stack-http-server-vertx</module>
+        <module>webfx-stack-http-server-vertx-plugin</module>
         <module>webfx-stack-i18n</module>
+        <module>webfx-stack-i18n-ast</module>
         <module>webfx-stack-i18n-controls</module>
-        <module>webfx-stack-i18n-json</module>
         <module>webfx-stack-orm-datasourcemodel-service</module>
         <module>webfx-stack-orm-domainmodel</module>
         <module>webfx-stack-orm-domainmodel-activity</module>
@@ -157,6 +153,7 @@
         <module>webfx-stack-session-vertx</module>
         <module>webfx-stack-ui-action</module>
         <module>webfx-stack-ui-controls</module>
+        <module>webfx-stack-ui-dialog</module>
         <module>webfx-stack-ui-fxraiser</module>
         <module>webfx-stack-ui-fxraiser-json</module>
         <module>webfx-stack-ui-json</module>

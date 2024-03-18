@@ -3,10 +3,14 @@
 module webfx.stack.authn.login.ui.portal {
 
     // Direct dependencies modules
-    requires java.base;
     requires javafx.controls;
     requires javafx.graphics;
-    requires webfx.extras.util.layout;
+    requires webfx.extras.panes;
+    requires webfx.extras.util.animation;
+    requires webfx.kit.util;
+    requires webfx.platform.console;
+    requires webfx.platform.os;
+    requires webfx.platform.uischeduler;
     requires webfx.platform.util;
     requires webfx.stack.authn.login.ui;
     requires webfx.stack.authn.login.ui.gateway;
