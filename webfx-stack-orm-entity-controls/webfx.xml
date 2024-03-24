@@ -8,7 +8,6 @@
     <dependencies>
         <used-by-source-modules>
             <module transitive="true">webfx-stack-ui-controls</module>
-            <undetected-package>java.time</undetected-package>
         </used-by-source-modules>
     </dependencies>
 
