@@ -1,14 +1,15 @@
 package dev.webfx.stack.orm.entity;
 
+import dev.webfx.platform.async.Batch;
+import dev.webfx.platform.async.Future;
+import dev.webfx.stack.db.datascope.DataScope;
+import dev.webfx.stack.db.submit.SubmitArgument;
+import dev.webfx.stack.db.submit.SubmitResult;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.entity.impl.UpdateStoreImpl;
 import dev.webfx.stack.orm.entity.result.EntityChanges;
-import dev.webfx.stack.db.datascope.DataScope;
-import dev.webfx.stack.db.submit.SubmitArgument;
-import dev.webfx.stack.db.submit.SubmitResult;
-import dev.webfx.platform.async.Batch;
-import dev.webfx.platform.async.Future;
+import javafx.beans.value.ObservableValue;
 
 /**
  * @author Bruno Salmon
@@ -41,6 +42,8 @@ public interface UpdateStore extends EntityStore {
     EntityChanges getEntityChanges();
 
     boolean hasChanges();
+
+    ObservableValue<Boolean> hasChangesProperty();
 
     void cancelChanges();
 

@@ -3,6 +3,7 @@
 module webfx.stack.orm.entity {
 
     // Direct dependencies modules
+    requires javafx.base;
     requires webfx.extras.type;
     requires transitive webfx.platform.async;
     requires webfx.platform.console;
