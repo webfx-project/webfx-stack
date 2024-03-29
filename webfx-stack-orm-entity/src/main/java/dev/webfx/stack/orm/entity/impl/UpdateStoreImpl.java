@@ -16,7 +16,7 @@ import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.EntityStore;
 import dev.webfx.stack.orm.entity.UpdateStore;
 import dev.webfx.stack.orm.entity.result.*;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.value.ObservableBooleanValue;
 
 /**
  * @author Bruno Salmon
@@ -122,7 +122,7 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
     }
 
     @Override
-    public ObservableValue<Boolean> hasChangesProperty() {
+    public ObservableBooleanValue hasChangesProperty() {
         return changesBuilder.hasChangesProperty();
     }
 

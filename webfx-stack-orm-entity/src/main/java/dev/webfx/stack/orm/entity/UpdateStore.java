@@ -9,7 +9,7 @@ import dev.webfx.stack.orm.domainmodel.DataSourceModel;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.entity.impl.UpdateStoreImpl;
 import dev.webfx.stack.orm.entity.result.EntityChanges;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.value.ObservableBooleanValue;
 
 /**
  * @author Bruno Salmon
@@ -43,7 +43,7 @@ public interface UpdateStore extends EntityStore {
 
     boolean hasChanges();
 
-    ObservableValue<Boolean> hasChangesProperty();
+    ObservableBooleanValue hasChangesProperty();
 
     void cancelChanges();
 

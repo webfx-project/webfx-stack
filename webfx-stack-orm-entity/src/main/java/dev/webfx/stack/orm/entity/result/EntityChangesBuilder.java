@@ -4,7 +4,7 @@ import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.result.impl.EntityChangesImpl;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.value.ObservableBooleanValue;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -69,7 +69,7 @@ public final class EntityChangesBuilder {
         return deletedEntities != null || rsb != null && !rsb.isEmpty();
     }
 
-    public ObservableValue<Boolean> hasChangesProperty() {
+    public ObservableBooleanValue hasChangesProperty() {
         if (hasChangesProperty == null)
             hasChangesProperty = new SimpleBooleanProperty(hasChanges());
         return hasChangesProperty;
