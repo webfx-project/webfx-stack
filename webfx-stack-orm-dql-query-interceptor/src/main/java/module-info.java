@@ -6,7 +6,7 @@ module webfx.stack.orm.dql.query.interceptor {
     requires webfx.platform.async;
     requires webfx.platform.boot;
     requires webfx.platform.console;
-    requires webfx.platform.util;
+    requires webfx.platform.service;
     requires webfx.stack.db.datasource;
     requires webfx.stack.db.query;
     requires webfx.stack.orm.datasourcemodel.service;

@@ -7,6 +7,7 @@ module webfx.stack.orm.entity {
     requires webfx.extras.type;
     requires transitive webfx.platform.async;
     requires webfx.platform.console;
+    requires webfx.platform.service;
     requires webfx.platform.util;
     requires webfx.platform.util.time;
     requires webfx.stack.cache;

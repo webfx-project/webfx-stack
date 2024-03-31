@@ -1,7 +1,7 @@
 package dev.webfx.stack.authn.login.spi.impl.server.portal;
 
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.util.serviceloader.MultipleServiceProviders;
+import dev.webfx.platform.service.MultipleServiceProviders;
 import dev.webfx.stack.authn.login.LoginUiContext;
 import dev.webfx.stack.authn.login.spi.LoginServiceProvider;
 import dev.webfx.stack.authn.login.spi.impl.server.gateway.ServerLoginGatewayProvider;

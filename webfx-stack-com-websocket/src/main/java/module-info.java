@@ -4,7 +4,7 @@ module webfx.stack.com.websocket {
 
     // Direct dependencies modules
     requires webfx.platform.ast;
-    requires webfx.platform.util;
+    requires webfx.platform.service;
 
     // Exported packages
     exports dev.webfx.stack.com.websocket;

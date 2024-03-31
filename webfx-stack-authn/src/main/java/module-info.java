@@ -5,7 +5,7 @@ module webfx.stack.authn {
     // Direct dependencies modules
     requires webfx.platform.ast;
     requires transitive webfx.platform.async;
-    requires webfx.platform.util;
+    requires webfx.platform.service;
     requires webfx.stack.com.serial;
 
     // Exported packages

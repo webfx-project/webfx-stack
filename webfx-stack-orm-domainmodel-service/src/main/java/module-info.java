@@ -7,6 +7,7 @@ module webfx.stack.orm.domainmodel.service {
     requires webfx.extras.type;
     requires webfx.platform.async;
     requires webfx.platform.console;
+    requires webfx.platform.service;
     requires webfx.platform.util;
     requires webfx.stack.db.query;
     requires webfx.stack.orm.domainmodel;

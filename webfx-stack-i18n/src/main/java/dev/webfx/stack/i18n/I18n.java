@@ -1,6 +1,6 @@
 package dev.webfx.stack.i18n;
 
-import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.service.SingleServiceProvider;
 import dev.webfx.stack.i18n.spi.I18nProvider;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;

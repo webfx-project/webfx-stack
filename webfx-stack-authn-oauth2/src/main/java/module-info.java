@@ -4,7 +4,7 @@ module webfx.stack.authn.oauth2 {
 
     // Direct dependencies modules
     requires webfx.platform.async;
-    requires webfx.platform.util;
+    requires webfx.platform.service;
 
     // Exported packages
     exports dev.webfx.stack.authn.oauth2;

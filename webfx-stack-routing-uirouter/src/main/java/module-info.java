@@ -9,6 +9,7 @@ module webfx.stack.routing.uirouter {
     requires webfx.platform.ast;
     requires webfx.platform.async;
     requires webfx.platform.console;
+    requires webfx.platform.service;
     requires webfx.platform.uischeduler;
     requires transitive webfx.platform.util;
     requires transitive webfx.platform.windowhistory;

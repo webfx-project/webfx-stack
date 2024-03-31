@@ -10,8 +10,8 @@ module webfx.stack.authn.login.ui.portal {
     requires webfx.kit.util;
     requires webfx.platform.console;
     requires webfx.platform.os;
+    requires webfx.platform.service;
     requires webfx.platform.uischeduler;
-    requires webfx.platform.util;
     requires webfx.stack.authn.login.ui;
     requires webfx.stack.authn.login.ui.gateway;
 

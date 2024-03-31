@@ -7,7 +7,7 @@ import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.os.OperatingSystem;
 import dev.webfx.platform.uischeduler.UiScheduler;
-import dev.webfx.platform.util.serviceloader.MultipleServiceProviders;
+import dev.webfx.platform.service.MultipleServiceProviders;
 import dev.webfx.stack.authn.login.ui.spi.UiLoginServiceProvider;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginPortalCallback;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProvider;

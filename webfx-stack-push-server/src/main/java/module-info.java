@@ -4,7 +4,7 @@ module webfx.stack.push.server {
 
     // Direct dependencies modules
     requires webfx.platform.async;
-    requires webfx.platform.util;
+    requires webfx.platform.service;
     requires webfx.stack.com.bus;
     requires webfx.stack.push;
 

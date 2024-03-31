@@ -4,7 +4,7 @@ module webfx.stack.orm.datasourcemodel.service {
 
     // Direct dependencies modules
     requires webfx.platform.async;
-    requires webfx.platform.util;
+    requires webfx.platform.service;
     requires webfx.stack.orm.domainmodel;
 
     // Exported packages

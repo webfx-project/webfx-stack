@@ -6,7 +6,7 @@ module webfx.stack.authz.server {
     requires webfx.platform.async;
     requires webfx.platform.boot;
     requires webfx.platform.console;
-    requires webfx.platform.util;
+    requires webfx.platform.service;
     requires webfx.stack.session.state.server;
 
     // Exported packages

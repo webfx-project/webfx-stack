@@ -3,6 +3,7 @@
 module webfx.stack.db.datasource {
 
     // Direct dependencies modules
+    requires webfx.platform.service;
     requires webfx.platform.util;
 
     // Exported packages

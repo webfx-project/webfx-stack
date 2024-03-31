@@ -1,7 +1,7 @@
 package dev.webfx.stack.orm.push.client;
 
 import dev.webfx.platform.console.Console;
-import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.service.SingleServiceProvider;
 import dev.webfx.stack.com.bus.Registration;
 import dev.webfx.stack.com.bus.call.BusCallService;
 import dev.webfx.stack.orm.push.client.spi.PushClientServiceProvider;

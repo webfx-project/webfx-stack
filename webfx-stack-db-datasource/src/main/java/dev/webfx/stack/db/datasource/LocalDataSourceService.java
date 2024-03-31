@@ -1,7 +1,7 @@
 package dev.webfx.stack.db.datasource;
 
 import dev.webfx.stack.db.datasource.spi.LocalDataSourceProvider;
-import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.service.SingleServiceProvider;
 
 import java.util.ServiceLoader;
 

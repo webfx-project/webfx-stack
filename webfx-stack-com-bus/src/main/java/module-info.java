@@ -5,6 +5,7 @@ module webfx.stack.com.bus {
     // Direct dependencies modules
     requires webfx.platform.ast;
     requires transitive webfx.platform.async;
+    requires webfx.platform.service;
     requires webfx.platform.util;
 
     // Exported packages

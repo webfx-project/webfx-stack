@@ -1,6 +1,6 @@
 package dev.webfx.stack.i18n.operations;
 
-import dev.webfx.platform.util.serviceloader.MultipleServiceProviders;
+import dev.webfx.platform.service.MultipleServiceProviders;
 
 import java.util.Collection;
 import java.util.ServiceLoader;

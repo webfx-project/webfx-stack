@@ -16,7 +16,7 @@ import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
 import dev.webfx.stack.db.datasource.LocalDataSourceService;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.service.SingleServiceProvider;
 
 /**
  * @author Bruno Salmon
