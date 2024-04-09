@@ -80,9 +80,8 @@
         <module>webfx-stack-authz-server</module>
         <module>webfx-stack-cache</module>
         <module>webfx-stack-cache-client</module>
-        <module>webfx-stack-cloud-cloudinary</module>
-        <module>webfx-stack-cloud-cloudinary-gwt-j2cl</module>
-        <module>webfx-stack-cloud-cloudinary-java</module>
+        <module>webfx-stack-cloud-image</module>
+        <module>webfx-stack-cloud-image-cloudinary</module>
         <module>webfx-stack-com-bus</module>
         <module>webfx-stack-com-bus-call</module>
         <module>webfx-stack-com-bus-call-job</module>
