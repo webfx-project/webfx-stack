@@ -4,7 +4,7 @@ import dev.webfx.stack.com.bus.DeliveryOptions;
 import dev.webfx.stack.push.server.spi.PushServerServiceProvider;
 import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.service.SingleServiceProvider;
 
 import java.util.ServiceLoader;
 

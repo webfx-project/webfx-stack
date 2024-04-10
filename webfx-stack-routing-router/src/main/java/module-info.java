@@ -6,7 +6,7 @@ module webfx.stack.routing.router {
     requires webfx.platform.ast;
     requires transitive webfx.platform.ast.json.plugin;
     requires webfx.platform.async;
-    requires webfx.platform.util;
+    requires webfx.platform.service;
     requires transitive webfx.stack.session;
 
     // Exported packages

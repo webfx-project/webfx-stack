@@ -1,6 +1,6 @@
 package dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview;
 
-import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.service.SingleServiceProvider;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.spi.LoginWebViewProvider;
 import javafx.scene.web.WebView;
 

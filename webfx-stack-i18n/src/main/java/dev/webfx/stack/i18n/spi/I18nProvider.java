@@ -1,7 +1,7 @@
 package dev.webfx.stack.i18n.spi;
 
 import dev.webfx.platform.util.collection.Collections;
-import dev.webfx.platform.util.serviceloader.MultipleServiceProviders;
+import dev.webfx.platform.service.MultipleServiceProviders;
 import dev.webfx.stack.i18n.Dictionary;
 import dev.webfx.stack.i18n.TokenKey;
 import dev.webfx.stack.i18n.operations.ChangeLanguageRequestEmitter;

@@ -1,7 +1,7 @@
 package dev.webfx.stack.authn.login;
 
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.service.SingleServiceProvider;
 import dev.webfx.stack.authn.login.spi.LoginServiceProvider;
 
 import java.util.ServiceLoader;

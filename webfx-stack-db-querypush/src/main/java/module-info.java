@@ -4,7 +4,7 @@ module webfx.stack.db.querypush {
 
     // Direct dependencies modules
     requires transitive webfx.platform.async;
-    requires webfx.platform.util;
+    requires webfx.platform.service;
     requires webfx.stack.db.datascope;
     requires transitive webfx.stack.db.query;
 

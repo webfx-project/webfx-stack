@@ -19,7 +19,7 @@ import dev.webfx.stack.db.submit.SubmitResult;
 import dev.webfx.stack.db.submit.spi.SubmitServiceProvider;
 import dev.webfx.platform.async.Batch;
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.service.SingleServiceProvider;
 import dev.webfx.stack.orm.expression.terms.*;
 
 import java.util.Arrays;

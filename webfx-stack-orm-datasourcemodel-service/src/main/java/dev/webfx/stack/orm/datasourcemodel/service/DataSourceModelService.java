@@ -3,7 +3,7 @@ package dev.webfx.stack.orm.datasourcemodel.service;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
 import dev.webfx.stack.orm.datasourcemodel.service.spi.DataSourceModelProvider;
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.service.SingleServiceProvider;
 
 import java.util.ServiceLoader;
 

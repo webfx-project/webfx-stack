@@ -1,6 +1,6 @@
 package dev.webfx.stack.session;
 
-import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.service.SingleServiceProvider;
 import dev.webfx.stack.session.spi.SessionServiceProvider;
 
 import java.util.ServiceLoader;

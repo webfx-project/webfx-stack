@@ -1,6 +1,6 @@
 package dev.webfx.stack.authn.login.ui;
 
-import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.service.SingleServiceProvider;
 import dev.webfx.stack.authn.login.ui.spi.UiLoginServiceProvider;
 import javafx.scene.Node;
 

@@ -1,6 +1,6 @@
 package dev.webfx.stack.orm.entity;
 
-import dev.webfx.platform.util.serviceloader.MultipleServiceProviders;
+import dev.webfx.platform.service.MultipleServiceProviders;
 
 import java.util.Collection;
 import java.util.ServiceLoader;

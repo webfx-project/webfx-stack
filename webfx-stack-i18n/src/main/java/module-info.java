@@ -6,6 +6,7 @@ module webfx.stack.i18n {
     requires javafx.base;
     requires javafx.graphics;
     requires webfx.platform.async;
+    requires webfx.platform.service;
     requires webfx.platform.uischeduler;
     requires transitive webfx.platform.util;
     requires webfx.stack.ui.fxraiser;

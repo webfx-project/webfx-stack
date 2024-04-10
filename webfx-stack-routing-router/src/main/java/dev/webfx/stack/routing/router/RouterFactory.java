@@ -1,6 +1,6 @@
 package dev.webfx.stack.routing.router;
 
-import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.service.SingleServiceProvider;
 import dev.webfx.stack.routing.router.spi.RouterFactoryProvider;
 
 import java.util.ServiceLoader;

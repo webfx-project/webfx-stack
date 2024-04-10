@@ -1,10 +1,10 @@
 package dev.webfx.stack.orm.entity.impl;
 
+import dev.webfx.platform.async.Batch;
+import dev.webfx.platform.async.Future;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.util.Objects;
-import dev.webfx.platform.async.Batch;
-import dev.webfx.platform.async.Future;
 import dev.webfx.stack.db.datascope.DataScope;
 import dev.webfx.stack.db.submit.SubmitArgument;
 import dev.webfx.stack.db.submit.SubmitResult;
@@ -16,6 +16,7 @@ import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.EntityStore;
 import dev.webfx.stack.orm.entity.UpdateStore;
 import dev.webfx.stack.orm.entity.result.*;
+import javafx.beans.binding.BooleanExpression;
 
 /**
  * @author Bruno Salmon
@@ -117,7 +118,12 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
 
     @Override
     public boolean hasChanges() {
-        return !changesBuilder.isEmpty();
+        return changesBuilder.hasChanges();
+    }
+
+    @Override
+    public BooleanExpression hasChangesProperty() {
+        return changesBuilder.hasChangesProperty();
     }
 
     @Override

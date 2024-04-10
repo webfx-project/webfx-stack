@@ -1,6 +1,6 @@
 package dev.webfx.stack.routing.uirouter.operations;
 
-import dev.webfx.platform.util.serviceloader.MultipleServiceProviders;
+import dev.webfx.platform.service.MultipleServiceProviders;
 import dev.webfx.stack.routing.router.auth.authz.RouteRequest;
 import dev.webfx.stack.routing.uirouter.activity.uiroute.UiRouteActivityContext;
 

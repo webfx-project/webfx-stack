@@ -6,7 +6,7 @@ module webfx.stack.authn.server.portal {
     requires webfx.platform.async;
     requires webfx.platform.boot;
     requires webfx.platform.console;
-    requires webfx.platform.util;
+    requires webfx.platform.service;
     requires webfx.stack.authn;
     requires webfx.stack.authn.server.gateway;
     requires webfx.stack.session.state;
