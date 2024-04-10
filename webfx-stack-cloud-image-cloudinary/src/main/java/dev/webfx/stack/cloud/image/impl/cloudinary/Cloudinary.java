@@ -49,7 +49,7 @@ public class Cloudinary extends FetchBasedCloudImageService {
     }
 
     public Future<Map> upload(File file, String publicId, boolean overwrite) {
-        return fetchAndConvertJsonObject(
+        return fetchAndConvertJsonObjectToMap(
                 "https://api.cloudinary.com/v1_1/" + cloudName + "/image/upload",
                 Method.POST,
                 new FetchOptions().setBody(
@@ -57,13 +57,12 @@ public class Cloudinary extends FetchBasedCloudImageService {
                             .append("public_id", publicId)
                             .append("overwrite", overwrite)
                         ).append("file", file, publicId)
-                ),
-                FetchBasedCloudImageService::astObjectToMap
+                )
         );
     }
 
     public Future<Map> destroy(String publicId, boolean invalidate) {
-        return fetchAndConvertJsonObject(
+        return fetchAndConvertJsonObjectToMap(
                 "https://api.cloudinary.com/v1_1/" + cloudName + "/image/destroy",
                 Method.POST,
                 new FetchOptions().setBody(
@@ -71,10 +70,8 @@ public class Cloudinary extends FetchBasedCloudImageService {
                                 .append("public_id", publicId)
                                 .append("invalidate", invalidate)
                         )
-                ),
-                FetchBasedCloudImageService::astObjectToMap
+                )
         );
-
     }
 
     public String url(String source, int width, int height) {
