@@ -1,6 +1,7 @@
 package dev.webfx.stack.orm.reactive.mapping.entities_to_visual;
 
 import dev.webfx.extras.cell.renderer.ValueRenderer;
+import dev.webfx.extras.cell.renderer.ValueRendererRegistry;
 import dev.webfx.extras.type.Type;
 import dev.webfx.extras.type.Types;
 import dev.webfx.extras.visual.VisualColumn;
@@ -75,8 +76,11 @@ public class VisualEntityColumnImpl<E extends Entity> extends EntityColumnImpl<E
             String role = null;
             if (json != null) {
                 textAlign = json.getString("textAlign");
+                String renderer = json.getString("renderer");
+                if (renderer != null)
+                    fxValueRenderer = ValueRendererRegistry.getValueRenderer(renderer);
                 String collator = json.getString("collator");
-                if (collator != null)
+                if (collator != null && fxValueRenderer == null)
                     fxValueRenderer = ValueRenderer.create(displayType, collator);
                 role = json.getString("role");
                 if (json.has("prefWidth"))
