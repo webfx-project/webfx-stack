@@ -1,6 +1,7 @@
 package dev.webfx.stack.orm.entity.result;
 
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
+import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.domainmodel.DomainField;
 import dev.webfx.stack.orm.dql.sqlcompiler.ExpressionSqlCompiler;
 import dev.webfx.stack.orm.dql.sqlcompiler.lci.CompilerDomainModelReader;
@@ -139,19 +140,15 @@ public final class EntityChangesToSubmitBatchGenerator {
         void generateDeletes() {
             Collection<EntityId> deletedEntities = changes.getDeletedEntityIds();
             if (deletedEntities != null && !deletedEntities.isEmpty()) {
+                /* Commented delete sort (not working), so for now the application code is reponsible for sequencing deletes
                 List<EntityId> deletedList = new ArrayList<>(deletedEntities);
                 // Sorting according to classes references
-                // Doesn't work on Android: Collections.sort(deletedList, Comparator.comparing(id -> id.getDomainClass().getName()));
                 deletedList.sort(comparing(id -> id.getDomainClass().getName()));
                 for (EntityId deletedId : deletedList) // java 8 forEach doesn't compile with GWT
                     generateDelete(deletedId);
+                */
+                deletedEntities.forEach(this::generateDelete);
             }
-        }
-
-        private static <T, U extends Comparable<? super U>> Comparator<T> comparing(Function<? super T, ? extends U> keyExtractor) {
-            //Objects.requireNonNull(keyExtractor);
-            return (Comparator<T> & Serializable)
-                    (c1, c2) -> keyExtractor.apply(c1).compareTo(keyExtractor.apply(c2));
         }
 
         void generateDelete(EntityId id) {
