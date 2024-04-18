@@ -101,7 +101,7 @@ public abstract class ButtonSelector<T> {
         return this;
     }
 
-    private TextField getSearchTextField() {
+    protected TextField getSearchTextField() {
         return isSearchEnabled() ? getOrCreateSearchTextField() : null;
     }
 
