@@ -1,10 +1,9 @@
 package dev.webfx.stack.orm.dql.submit.interceptor;
 
-import dev.webfx.stack.orm.domainmodel.DataSourceModel;
-import dev.webfx.stack.orm.domainmodel.DomainClass;
-import dev.webfx.stack.orm.domainmodel.DomainField;
-import dev.webfx.stack.orm.expression.Expression;
-import dev.webfx.stack.orm.datasourcemodel.service.DataSourceModelService;
+import dev.webfx.platform.async.Batch;
+import dev.webfx.platform.async.Future;
+import dev.webfx.platform.boot.spi.ApplicationJob;
+import dev.webfx.platform.service.SingleServiceProvider;
 import dev.webfx.stack.db.datascope.DataScope;
 import dev.webfx.stack.db.datascope.KeyDataScope;
 import dev.webfx.stack.db.datascope.MultiKeyDataScope;
@@ -12,14 +11,15 @@ import dev.webfx.stack.db.datascope.aggregate.AggregateScope;
 import dev.webfx.stack.db.datascope.aggregate.AggregateScopeBuilder;
 import dev.webfx.stack.db.datascope.schema.SchemaScope;
 import dev.webfx.stack.db.datascope.schema.SchemaScopeBuilder;
-import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
 import dev.webfx.stack.db.datasource.LocalDataSourceService;
 import dev.webfx.stack.db.submit.SubmitArgument;
 import dev.webfx.stack.db.submit.SubmitResult;
 import dev.webfx.stack.db.submit.spi.SubmitServiceProvider;
-import dev.webfx.platform.async.Batch;
-import dev.webfx.platform.async.Future;
-import dev.webfx.platform.service.SingleServiceProvider;
+import dev.webfx.stack.orm.datasourcemodel.service.DataSourceModelService;
+import dev.webfx.stack.orm.domainmodel.DataSourceModel;
+import dev.webfx.stack.orm.domainmodel.DomainClass;
+import dev.webfx.stack.orm.domainmodel.DomainField;
+import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.terms.*;
 
 import java.util.Arrays;
@@ -27,20 +27,10 @@ import java.util.Arrays;
 /**
  * @author Bruno Salmon
  */
-public class DqlSubmitInterceptorModuleBooter implements ApplicationModuleBooter {
+public class DqlSubmitInterceptorInitializer implements ApplicationJob {
 
     @Override
-    public String getModuleName() {
-        return "webfx-stack-orm-dql-submit-interceptor";
-    }
-
-    @Override
-    public int getBootLevel() {
-        return APPLICATION_BOOT_LEVEL;
-    }
-
-    @Override
-    public void bootModule() {
+    public void onInit() {
         // The purpose of this interceptor is to automatically translate DQL to SQL and compute the schema scope when
         // the submit reaches its local data source (works only with DQL)
         SingleServiceProvider.registerServiceInterceptor(SubmitServiceProvider.class, targetProvider ->
@@ -85,7 +75,7 @@ public class DqlSubmitInterceptorModuleBooter implements ApplicationModuleBooter
     }
 
     private static Batch<SubmitArgument> translateBatch(Batch<SubmitArgument> batch) {
-        return new Batch<>(Arrays.stream(batch.getArray()).map(DqlSubmitInterceptorModuleBooter::translateSubmit).toArray(SubmitArgument[]::new));
+        return new Batch<>(Arrays.stream(batch.getArray()).map(DqlSubmitInterceptorInitializer::translateSubmit).toArray(SubmitArgument[]::new));
     }
 
     private static DataScope createDataScope(String dqlSubmitStatement, DataSourceModel dataSourceModel, Object[] parameters) {

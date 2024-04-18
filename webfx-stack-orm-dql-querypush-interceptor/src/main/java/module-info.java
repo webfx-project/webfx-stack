@@ -18,6 +18,6 @@ module webfx.stack.orm.dql.querypush.interceptor {
     exports dev.webfx.stack.orm.dql.querypush.interceptor;
 
     // Provided services
-    provides dev.webfx.platform.boot.spi.ApplicationModuleBooter with dev.webfx.stack.orm.dql.querypush.interceptor.DqlQueryPushInterceptorModuleBooter;
+    provides dev.webfx.platform.boot.spi.ApplicationJob with dev.webfx.stack.orm.dql.querypush.interceptor.DqlQueryPushInterceptorInitializer;
 
 }

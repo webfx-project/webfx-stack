@@ -16,6 +16,6 @@ module webfx.stack.orm.dql.query.interceptor {
     exports dev.webfx.stack.orm.dql.query.interceptor;
 
     // Provided services
-    provides dev.webfx.platform.boot.spi.ApplicationModuleBooter with dev.webfx.stack.orm.dql.query.interceptor.DqlQueryInterceptorModuleBooter;
+    provides dev.webfx.platform.boot.spi.ApplicationJob with dev.webfx.stack.orm.dql.query.interceptor.DqlQueryInterceptorInitializer;
 
 }
