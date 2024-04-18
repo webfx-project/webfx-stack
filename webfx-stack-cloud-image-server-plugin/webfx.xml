@@ -8,8 +8,12 @@
 
     <dependencies>
         <used-by-source-modules>
-            <module transitive="true">webfx-platform-ast</module>
+            <undetected-module>webfx-platform-async</undetected-module>
         </used-by-source-modules>
     </dependencies>
+
+    <providers>
+        <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.cloud.image.impl.server.ServerCloudinaryModuleBooter</provider>
+    </providers>
 
 </project>

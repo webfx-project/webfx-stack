@@ -1,18 +1,16 @@
 // File managed by WebFX (DO NOT EDIT MANUALLY)
 
-module webfx.stack.cloud.image.cloudinary {
+module webfx.stack.cloud.image.client {
 
     // Direct dependencies modules
     requires webfx.platform.async;
     requires webfx.platform.conf;
     requires webfx.platform.fetch;
     requires webfx.platform.file;
-    requires webfx.platform.util;
     requires webfx.platform.util.http;
     requires webfx.stack.cloud.image;
-    requires webfx.stack.hash.sha1;
 
     // Exported packages
-    exports dev.webfx.stack.cloud.image.impl.cloudinary;
+    exports dev.webfx.stack.cloud.image.impl.client;
 
 }

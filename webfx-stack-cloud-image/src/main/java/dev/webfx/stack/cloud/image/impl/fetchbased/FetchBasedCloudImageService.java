@@ -1,6 +1,5 @@
 package dev.webfx.stack.cloud.image.impl.fetchbased;
 
-import dev.webfx.platform.ast.AST;
 import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.Promise;
@@ -11,8 +10,7 @@ import dev.webfx.platform.fetch.Headers;
 import dev.webfx.platform.fetch.json.JsonFetch;
 import dev.webfx.stack.cloud.image.CloudImageService;
 
-import java.util.Map;
-import java.util.function.Function;
+import static dev.webfx.platform.util.http.HttpHeaders.*;
 
 /**
  * @author Bruno Salmon
@@ -21,33 +19,26 @@ public abstract class FetchBasedCloudImageService implements CloudImageService {
 
     protected Headers createHeaders() {
         return Fetch.createHeaders()
-                .set("Content-Type", "application/json")
-                .set("charset", "UTF-8")
+                .set(CONTENT_TYPE, APPLICATION_JSON_UTF8)
                 ;
     }
 
-    protected <T> Future<T> fetchAndConvertJsonObject(String url, String method, FetchOptions options, Function<ReadOnlyAstObject, T> converter) {
-        Promise<T> promise = Promise.promise();
-        Headers headers = createHeaders();
-        options.setHeaders(headers)
+    protected Future<ReadOnlyAstObject> fetchJsonObject(String url, String method, FetchOptions options) {
+        Promise<ReadOnlyAstObject> promise = Promise.promise();
+        options.setHeaders(createHeaders())
                .setMethod(method)
-               .setMode(CorsMode.CORS);
+               .setMode(CorsMode.NO_CORS);
         JsonFetch.fetchJsonObject(url, options)
                 .onFailure(promise::fail)
-                .onSuccess(o -> {
-                    String error = getJsonErrorMessage(o);
+                .onSuccess(json -> {
+                    String error = getJsonErrorMessage(json);
                     if (error != null) {
                         promise.fail(error);
                         return;
                     }
-                    T result = converter.apply(o);
-                    promise.complete(result);
+                    promise.complete(json);
                 });
         return promise.future();
-    }
-
-    protected Future<Map> fetchAndConvertJsonObjectToMap(String url, String method, FetchOptions options) {
-        return fetchAndConvertJsonObject(url, method, options, AST::astObjectToMap);
     }
 
     protected String getJsonErrorMessage(ReadOnlyAstObject jsonObject) {

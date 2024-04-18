@@ -1,21 +1,33 @@
 package dev.webfx.stack.cloud.image;
 
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.file.File;
-
-import java.util.Map;
 
 /**
  * @author Bruno Salmon
  */
 public interface CloudImageService {
 
-    Future<Boolean> exists(String publicId);
+    Future<Boolean> exists(String id);
 
-    Future<Map> upload(File file, String publicId, boolean overwrite);
+    Future<Void> upload(File file, String id, boolean overwrite);
 
-    Future<Map> destroy(String publicId, boolean invalidate);
+    Future<Void> delete(String id, boolean invalidate);
 
-    String url(String source, int width, int height);
+    default String url(String source, int width, int height) {
+        String url = urlPattern().replace(":source", source);
+        if (width > 0)
+            url = url.replace(":width", "" + width);
+        else
+            url = url.replace("/w_:width", ""); // temporary
+        if (height > 0)
+            url = url.replace(":height", "" + height);
+        else
+            url = url.replace("/h_:height", ""); // temporary
+        return url;
+    }
+
+    String urlPattern();
 
 }
