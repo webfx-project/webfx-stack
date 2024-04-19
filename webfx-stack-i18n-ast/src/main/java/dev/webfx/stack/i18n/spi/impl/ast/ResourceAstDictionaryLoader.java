@@ -7,6 +7,7 @@ import dev.webfx.platform.util.Strings;
 import dev.webfx.stack.i18n.Dictionary;
 import dev.webfx.stack.i18n.spi.impl.DictionaryLoader;
 
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -52,14 +53,24 @@ final class ResourceAstDictionaryLoader implements DictionaryLoader {
         Promise<Dictionary> promise = Promise.promise();
         AtomicInteger failureCounter = new AtomicInteger();
         for (String format : supportedFormats) {
-            Resource.loadText(getDictionaryResourcePath(lang, format), text -> {
-                AstDictionary dictionary = new AstDictionary(text, format);
-                if (CACHE_DICTIONARIES)
-                    dictionaryCache.put(lang, dictionary);
-                promise.tryComplete(dictionary);
+            String dictionaryResourcePath = getDictionaryResourcePath(lang, format);
+            Resource.loadText(dictionaryResourcePath, text -> {
+                if (text != null) { // null happens on JRE when resource doesn't exist
+                    try {
+                        AstDictionary dictionary = new AstDictionary(text, format);
+                        if (CACHE_DICTIONARIES)
+                            dictionaryCache.put(lang, dictionary);
+                        promise.tryComplete(dictionary);
+                    } catch (Exception e) { // Can happen while parsing the text in the format
+                        promise.tryFail(new RuntimeException("⛔️ Format error in i18n dictionary " + dictionaryResourcePath + " - error: " + e.getMessage()));
+                    }
+                } else { // null = resource not found
+                    if (failureCounter.incrementAndGet() == supportedFormats.length)
+                        promise.tryFail("No dictionary found for language " + lang);
+                }
             }, e -> {
                 if (failureCounter.incrementAndGet() == supportedFormats.length)
-                    promise.fail(e);
+                    promise.tryFail(e);
             });
         }
         return promise.future();
