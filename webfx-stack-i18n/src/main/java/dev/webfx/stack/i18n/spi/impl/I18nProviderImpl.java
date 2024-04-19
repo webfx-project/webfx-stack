@@ -1,5 +1,7 @@
 package dev.webfx.stack.i18n.spi.impl;
 
+import dev.webfx.platform.console.Console;
+import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.stack.i18n.DefaultTokenKey;
@@ -61,7 +63,8 @@ public class I18nProviderImpl implements I18nProvider {
     private final Object defaultLanguage; // The language to find message parts (such as graphic) when missing in the current language
     private boolean dictionaryLoadRequired;
     private final DictionaryLoader dictionaryLoader;
-    private Set<Object> unloadedKeys, unloadedDefaultKeys;
+    private Scheduled dictionaryLoadingScheduled;
+    private final Set<Object> keysToLoad = new HashSet<>(), defaultKeysToLoad = new HashSet<>();
 
     public I18nProviderImpl(DictionaryLoader dictionaryLoader, Object defaultLanguage, Object initialLanguage) {
         this.dictionaryLoader = dictionaryLoader;
@@ -249,41 +252,46 @@ public class I18nProviderImpl implements I18nProvider {
 
     @Override
     public void scheduleMessageLoading(Object i18nKey, boolean inDefaultLanguage) {
-        Set<Object> unloadedI18nKeys = getUnloadedKeys(inDefaultLanguage);
-        if (unloadedI18nKeys != null)
-            unloadedI18nKeys.add(i18nKey);
-        else {
-            setUnloadedKeys(unloadedI18nKeys = new HashSet<>(), inDefaultLanguage);
-            unloadedI18nKeys.add(i18nKey);
-            UiScheduler.scheduleDeferred(() -> {
-                Object language = inDefaultLanguage ? getDefaultLanguage() : getLanguage();
-                Set<Object> loadingI18nKeys = getUnloadedKeys(inDefaultLanguage);
-                Set<Object> loadingMessageKeys = loadingI18nKeys.stream() // Possible NPE observed!
-                        .map(this::i18nKeyToDictionaryMessageKey).collect(Collectors.toSet()); // TODO: fix possible ConcurrentModificationException
-                dictionaryLoader.loadDictionary(language, loadingMessageKeys)
+        // Adding the key to the keys to load
+        Set<Object> keysToLoad = getKeysToLoad(inDefaultLanguage);
+        keysToLoad.add(i18nKey);
+        // Scheduling the dictionay loading if not already done
+        if (dictionaryLoadingScheduled == null || dictionaryLoadingScheduled.isFinished()) {
+            // Capturing the requested language (either current of default)
+            Object language = inDefaultLanguage ? getDefaultLanguage() : getLanguage();
+            // We schedule the load but defer it because we will probably have many successive calls to this method while
+            // the application code is building the user interface. Only after collecting all the keys during these calls
+            // (presumably in the same animation frame) we do the actual load of these keys.
+            dictionaryLoadingScheduled = UiScheduler.scheduleDeferred(() -> {
+                // Making a copy of the keys before clearing it for the next possible schedule
+                Set<Object> loadingKeys = new HashSet<>(keysToLoad);
+                keysToLoad.clear();
+                // Extracting the message keys to load from them (in case they are different)
+                Set<Object> messageKeysToLoad = loadingKeys.stream()
+                        .map(this::i18nKeyToDictionaryMessageKey).collect(Collectors.toSet());
+                // Asking the dictionary loader to load these messages in that language
+                dictionaryLoader.loadDictionary(language, messageKeysToLoad)
+                        .onFailure(Console::log)
                         .onSuccess(dictionary -> {
-                            if (!inDefaultLanguage)
-                                dictionaryProperty.setValue(dictionary); // TODO: fix possible java.lang.NullPointerException: Cannot invoke "javafx.beans.value.ChangeListener.changed(javafx.beans.value.ObservableValue, Object, Object)" because "<local3>[<local7>]" is null
+                            // Once the dictionary is loaded, we take it as the current dictionay if it's in the current language
+                            if (!inDefaultLanguage) // // unless the load was a fallback to the default language
+                            //if (language.equals(getLanguage())) // I think this should be the correct condition, but this makes the reactive visual mapper reset the selection in tables <= TODO: fix that
+                                dictionaryProperty.setValue(dictionary);
+                            // Also taking it as the default dictionary if it's in the default language
                             if (language.equals(getDefaultLanguage()))
                                 defaultDictionaryProperty.setValue(dictionary);
+                            // Turning off dictionaryLoadRequired
                             dictionaryLoadRequired = false;
-                            for (Object key : loadingI18nKeys)
+                            // Refreshing all loaded keys in the user interface
+                            for (Object key : loadingKeys)
                                 refreshMessageTokenProperties(key);
                         });
-                setUnloadedKeys(null, inDefaultLanguage);
             });
         }
     }
 
-    private Set<Object> getUnloadedKeys(boolean inDefaultLanguage) {
-        return inDefaultLanguage ? unloadedDefaultKeys : unloadedKeys;
-    }
-
-    private void setUnloadedKeys(Set<Object> unloadedKeys, boolean inDefaultLanguage) {
-        if (inDefaultLanguage)
-            unloadedDefaultKeys = unloadedKeys;
-        else
-            this.unloadedKeys = unloadedKeys;
+    private Set<Object> getKeysToLoad(boolean inDefaultLanguage) {
+        return inDefaultLanguage ? defaultKeysToLoad : keysToLoad;
     }
 
     private void refreshMessageTokenSnapshots(Map<TokenKey, Reference<Property<TokenSnapshot>>> messageMap) {
