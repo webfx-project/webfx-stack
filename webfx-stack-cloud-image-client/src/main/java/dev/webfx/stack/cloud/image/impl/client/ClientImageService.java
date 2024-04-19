@@ -2,7 +2,11 @@ package dev.webfx.stack.cloud.image.impl.client;
 
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.conf.ConfigLoader;
-import dev.webfx.platform.fetch.*;
+import dev.webfx.platform.console.Console;
+import dev.webfx.platform.fetch.CorsMode;
+import dev.webfx.platform.fetch.Fetch;
+import dev.webfx.platform.fetch.FetchOptions;
+import dev.webfx.platform.fetch.FormData;
 import dev.webfx.platform.file.File;
 import dev.webfx.platform.util.http.HttpMethod;
 import dev.webfx.platform.util.http.HttpResponseStatus;
@@ -29,7 +33,9 @@ public class ClientImageService implements CloudImageService {
             Fetch.fetchText(urlPatternUrl, new FetchOptions()
                     .setMethod(HttpMethod.GET)
                     .setMode(CorsMode.NO_CORS)
-            ).onSuccess(text -> urlPattern = text);
+            )
+                    .onFailure(Console::log)
+                    .onSuccess(text -> urlPattern = text);
         });
     }
 
