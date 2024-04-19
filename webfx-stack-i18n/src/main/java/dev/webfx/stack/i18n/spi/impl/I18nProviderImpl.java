@@ -4,6 +4,7 @@ import dev.webfx.platform.console.Console;
 import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Strings;
+import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.stack.i18n.DefaultTokenKey;
 import dev.webfx.stack.i18n.Dictionary;
 import dev.webfx.stack.i18n.TokenKey;
@@ -64,7 +65,9 @@ public class I18nProviderImpl implements I18nProvider {
     private boolean dictionaryLoadRequired;
     private final DictionaryLoader dictionaryLoader;
     private Scheduled dictionaryLoadingScheduled;
-    private final Set<Object> keysToLoad = new HashSet<>(), defaultKeysToLoad = new HashSet<>();
+    private final Set<Object> keysToLoad = new HashSet<>();
+    private final Set<Object> defaultKeysToLoad = new HashSet<>();
+    private final Set<Object> blacklistedKeys = new HashSet<>();
 
     public I18nProviderImpl(DictionaryLoader dictionaryLoader, Object defaultLanguage, Object initialLanguage) {
         this.dictionaryLoader = dictionaryLoader;
@@ -246,12 +249,16 @@ public class I18nProviderImpl implements I18nProvider {
         return dictionaryTokenProperty;
     }
 
-    public void refreshMessageTokenProperties(Object i18nKey) {
-        refreshMessageTokenSnapshots(liveDictionaryTokenProperties.get(i18nKey));
+    public boolean refreshMessageTokenProperties(Object i18nKey) {
+        Map<TokenKey, Reference<Property<TokenSnapshot>>> messageMap = liveDictionaryTokenProperties.get(i18nKey);
+        refreshMessageTokenSnapshots(messageMap);
+        return messageMap != null;
     }
 
     @Override
     public void scheduleMessageLoading(Object i18nKey, boolean inDefaultLanguage) {
+        if (blacklistedKeys.contains(i18nKey))
+            return;
         // Adding the key to the keys to load
         Set<Object> keysToLoad = getKeysToLoad(inDefaultLanguage);
         keysToLoad.add(i18nKey);
@@ -283,8 +290,19 @@ public class I18nProviderImpl implements I18nProvider {
                             // Turning off dictionaryLoadRequired
                             dictionaryLoadRequired = false;
                             // Refreshing all loaded keys in the user interface
-                            for (Object key : loadingKeys)
-                                refreshMessageTokenProperties(key);
+                            Set<Object> unfoundKeys = null;
+                            for (Object key : loadingKeys) {
+                                boolean found = refreshMessageTokenProperties(key);
+                                if (!found) {
+                                    if (unfoundKeys == null)
+                                        unfoundKeys = new HashSet<>();
+                                    unfoundKeys.add(key);
+                                }
+                            }
+                            if (unfoundKeys != null) {
+                                blacklistedKeys.addAll(unfoundKeys);
+                                Console.log("⚠️ I18n keys not found (now blacklisted): " + Collections.toString(unfoundKeys, false, false));
+                            }
                         });
             });
         }

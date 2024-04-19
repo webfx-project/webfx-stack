@@ -77,7 +77,7 @@ public interface I18nProvider {
         return null;
     }
 
-    void refreshMessageTokenProperties(Object i18nKey);
+    boolean refreshMessageTokenProperties(Object i18nKey);
 
     void scheduleMessageLoading(Object i18nKey, boolean inDefaultLanguage);
 
