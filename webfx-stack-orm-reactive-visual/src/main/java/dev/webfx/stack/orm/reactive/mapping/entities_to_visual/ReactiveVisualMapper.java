@@ -77,6 +77,17 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
         return getCurrentEntities().get(row);
     }
 
+    public ReactiveVisualMapper<E> setSelectedEntity(E selectedEntity) {
+        if (selectedEntity == null)
+            visualSelectionProperty.set(null);
+        else {
+            int row = getSelectedEntities().indexOf(selectedEntity);
+            if (row != -1)
+                visualSelectionProperty.set(VisualSelection.createSingleRowSelection(row));
+        }
+        return this;
+    }
+
     @Override
     public Property<VisualResult> visualResultProperty() {
         return visualResultProperty;
