@@ -2,6 +2,7 @@ package dev.webfx.stack.orm.reactive.mapping.entities_to_visual;
 
 import dev.webfx.extras.type.PrimType;
 import dev.webfx.extras.visual.*;
+import dev.webfx.stack.orm.entity.Entities;
 import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.entity.EntityList;
 import dev.webfx.stack.orm.expression.terms.ExpressionArray;
@@ -18,6 +19,7 @@ import javafx.beans.property.SimpleObjectProperty;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -78,13 +80,20 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
     }
 
     public ReactiveVisualMapper<E> setSelectedEntity(E selectedEntity) {
-        if (selectedEntity == null)
-            visualSelectionProperty.set(null);
-        else {
-            int row = getSelectedEntities().indexOf(selectedEntity);
-            if (row != -1)
-                visualSelectionProperty.set(VisualSelection.createSingleRowSelection(row));
+        int row = -1;
+        if (selectedEntity != null) {
+            EntityList<E> currentEntities = getCurrentEntities();
+            row = currentEntities.indexOf(selectedEntity); // works if they are both from the same store
+            if (row == -1) { // otherwise, we need to compare the ids
+                for (int i = 0; i < currentEntities.size(); i++) {
+                    if (Entities.sameId(selectedEntity, currentEntities.get(i))) {
+                        row = i;
+                        break;
+                    }
+                }
+            }
         }
+        visualSelectionProperty.set(row == -1 ? null : VisualSelection.createSingleRowSelection(row));
         return this;
     }
 
