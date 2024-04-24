@@ -40,7 +40,7 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
         @Override
         protected void invalidated() {
             VisualSelection visualSelection = get();
-            if (selectedEntityHandler != null && visualSelection != null && visualSelection.isSingle())
+            if (selectedEntityHandler != null && VisualSelection.isEmptyOrSingleSelection(visualSelection))
                 selectedEntityHandler.accept(getSelectedEntity());
         }
     };
