@@ -93,7 +93,15 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
                 }
             }
         }
-        visualSelectionProperty.set(row == -1 ? null : VisualSelection.createSingleRowSelection(row));
+        // We set the selection to null if row == -1, or to row otherwise, but we prevent firing a selection event
+        // if this is not a change compared to the current selection
+        VisualSelection visualSelection = visualSelectionProperty.get();
+        if (row == -1) {
+            if (visualSelection != null)
+                visualSelectionProperty.set(null); // will fire selection event
+        } else if (visualSelection == null || row != visualSelection.getSelectedRow()) {
+            VisualSelection.createSingleRowSelection(row); // will fire selection event
+        }
         return this;
     }
 
