@@ -2,6 +2,7 @@ package dev.webfx.stack.orm.reactive.mapping.entities_to_visual;
 
 import dev.webfx.extras.type.PrimType;
 import dev.webfx.extras.visual.*;
+import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.stack.orm.entity.Entities;
 import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.entity.EntityList;
@@ -181,11 +182,14 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
     }
 
     void setVisualResult(VisualResult rs) {
+        List<E> previousSelection = getSelectedEntities();
         //System.out.println("ReactiveVisualMapper.setVisualResult()"); // + " result = " + rs);
         visualResultProperty.setValue(rs);
         if (autoSelectSingleRow && rs.getRowCount() == 1 || selectFirstRowOnFirstDisplay && rs.getRowCount() > 0) {
             selectFirstRowOnFirstDisplay = false;
             visualSelectionProperty.setValue(VisualSelection.createSingleRowSelection(0));
+        } else if (previousSelection != null && previousSelection.size() == 1) {
+            setSelectedEntity(previousSelection.get(0));
         }
     }
 
