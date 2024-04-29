@@ -29,6 +29,8 @@ import java.util.function.Consumer;
 public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMapper<E>
     implements ReactiveVisualMapperAPI<E, ReactiveVisualMapper<E>> {
 
+    private boolean skipSelectedEntityHandlerCall;
+
     private final ObjectProperty<VisualResult> visualResultProperty = new SimpleObjectProperty<VisualResult/*GWT*/>() {
         @Override
         protected void invalidated() {
@@ -40,9 +42,7 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
     private final ObjectProperty<VisualSelection> visualSelectionProperty = new SimpleObjectProperty<VisualSelection/*GWT*/>() {
         @Override
         protected void invalidated() {
-            VisualSelection visualSelection = get();
-            if (selectedEntityHandler != null && VisualSelection.isEmptyOrSingleSelection(visualSelection))
-                selectedEntityHandler.accept(getSelectedEntity());
+            callSelectedEntityHandlerIfApplicable();
         }
     };
 
@@ -55,6 +55,18 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
     @Override
     public ReactiveVisualMapper<E> getReactiveVisualMapper() {
         return this;
+    }
+
+    private VisualSelection getVisualSelection() {
+        return visualSelectionProperty.get();
+    }
+
+    private void callSelectedEntityHandlerIfApplicable() {
+        if (skipSelectedEntityHandlerCall)
+            return;
+        VisualSelection visualSelection = getVisualSelection();
+        if (selectedEntityHandler != null && VisualSelection.isEmptyOrSingleSelection(visualSelection))
+            selectedEntityHandler.accept(getSelectedEntity());
     }
 
     @Override
@@ -103,6 +115,12 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
         } else if (visualSelection == null || row != visualSelection.getSelectedRow()) {
              visualSelectionProperty.set(VisualSelection.createSingleRowSelection(row)); // will fire selection event
         }
+        return this;
+    }
+
+    public ReactiveVisualMapper<E> setSelectedEntities(List<E> selectedEntities) {
+        // Draft version that works only for empty or single selection
+        setSelectedEntity(Collections.first(selectedEntities));
         return this;
     }
 
@@ -182,15 +200,25 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
     }
 
     void setVisualResult(VisualResult rs) {
-        List<E> previousSelection = getSelectedEntities();
-        //System.out.println("ReactiveVisualMapper.setVisualResult()"); // + " result = " + rs);
+        // Before applying the result set, we capture the current selection, because the behaviour of the visual grid
+        // for example is to clear the selection when we change the content of the grid.
+        List<E> oldSelectedEntities = getSelectedEntities();
+        // Applying the new visual result (will clear the selection in visual grid)
+        skipSelectedEntityHandlerCall = true;
         visualResultProperty.setValue(rs);
+        // Now we try to reset the selection. First case is to manage the possible auto selection modes that result in
+        // selecting the first row
         if (autoSelectSingleRow && rs.getRowCount() == 1 || selectFirstRowOnFirstDisplay && rs.getRowCount() > 0) {
             selectFirstRowOnFirstDisplay = false;
             visualSelectionProperty.setValue(VisualSelection.createSingleRowSelection(0));
-        } else if (previousSelection != null && previousSelection.size() == 1) {
-            setSelectedEntity(previousSelection.get(0));
+        } else if (oldSelectedEntities != null) { // second case = trying reestablishing the previous selection (if any)
+            // This call will
+            setSelectedEntities(oldSelectedEntities);
         }
+        skipSelectedEntityHandlerCall = false;
+        List<E> newSelectedEntities = getSelectedEntities();
+        if (!Objects.equals(oldSelectedEntities, newSelectedEntities))
+            callSelectedEntityHandlerIfApplicable();
     }
 
     VisualResult entitiesToVisualResult(List<E> entities) {
