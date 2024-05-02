@@ -8,7 +8,7 @@ import javafx.beans.property.SimpleObjectProperty;
 /**
  * @author Bruno Salmon
  */
-public class MasterSlaveEntityController<E extends Entity> {
+public class MasterSlaveLinker<E extends Entity> {
 
     private boolean internalMasterChange;
 
@@ -24,14 +24,14 @@ public class MasterSlaveEntityController<E extends Entity> {
             // Otherwise we check for approval if this master entity change can be applied to the slave editor
             checkSlaveEntityChangeApproval(false, () -> {
                 // If it has been approved, we ask the slave editor to edit the master entity
-                slaveEntityEditor.setEditingEntity(getMasterEntity());
+                slaveEntityEditor.setSlave(getMasterEntity());
             });
         }
     };
 
-    private final SlaveEntityEditor<E> slaveEntityEditor;
+    private final SlaveEditor<E> slaveEntityEditor;
 
-    public MasterSlaveEntityController(SlaveEntityEditor<E> slaveEntityEditor) {
+    public MasterSlaveLinker(SlaveEditor<E> slaveEntityEditor) {
         this.slaveEntityEditor = slaveEntityEditor;
     }
 
@@ -48,7 +48,7 @@ public class MasterSlaveEntityController<E extends Entity> {
     }
 
     private E getSlaveEntity() {
-        return slaveEntityEditor.getEditingEntity();
+        return slaveEntityEditor.getSlave();
     }
 
     public void checkSlaveEntityChangeApproval(boolean clearMasterEntityOnAproval, Runnable onApprovalCallback) {
@@ -57,7 +57,7 @@ public class MasterSlaveEntityController<E extends Entity> {
             callOnApprovalCallback(clearMasterEntityOnAproval, onApprovalCallback);
         else {
             // Otherwise we need to ask the user for approval
-            slaveEntityEditor.showEntityChangeApprovalDialog(() -> callOnApprovalCallback(clearMasterEntityOnAproval, onApprovalCallback));
+            slaveEntityEditor.showChangeApprovalDialog(() -> callOnApprovalCallback(clearMasterEntityOnAproval, onApprovalCallback));
         }
     }
 
