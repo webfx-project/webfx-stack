@@ -62,7 +62,13 @@ public abstract class ButtonSelector<T> {
     private ShowMode decidedShowMode;
 
     private final Property<ShowMode> showModeProperty = new SimpleObjectProperty<>(ShowMode.AUTO);
-    private final Property<T> selectedItemProperty = new SimpleObjectProperty<>();
+    private final Property<T> selectedItemProperty = new SimpleObjectProperty<>() {
+        @Override
+        protected void invalidated() {
+            // Updating the content of the button when selected item changes
+            updateButtonContentFromSelectedItem();
+        }
+    };
     private final DoubleProperty dialogHeightProperty = new SimpleDoubleProperty();
 
     public ButtonSelector(ButtonFactoryMixin buttonFactory, Callable<Pane> parentGetter) {
@@ -80,7 +86,6 @@ public abstract class ButtonSelector<T> {
     public ButtonSelector(ButtonSelectorParameters parameters) {
         parameters.checkValid();
         this.parameters = parameters;
-        FXProperties.runOnPropertiesChange(this::updateButtonContentFromSelectedItem, selectedItemProperty());
     }
 
     public boolean isAutoOpenOnMouseEntered() {
