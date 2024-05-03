@@ -14,7 +14,6 @@ import dev.webfx.stack.orm.reactive.entities.entities_to_grid.EntityColumn;
 import dev.webfx.stack.orm.reactive.entities.entities_to_grid.ReactiveGridMapper;
 import dev.webfx.stack.orm.reactive.mapping.entities_to_visual.conventions.*;
 import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
@@ -43,7 +42,7 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
     // An always up-to-date observable list that represents the selected entities. As this is a list, this is the object
     // to work with when the application code is dealing with multiple selection. But if it is dealing with mono
     // selection only, then it will be more convenient to work with selectedEntityProperty instead.
-    // This list is synced in a bidrectional manner with the visual selection. So when the user changes the visual
+    // This list is synced in a bidirectional manner with the visual selection. So when the user changes the visual
     // selection, this updates this list. But if this is the application code that changes this list (exposed as public),
     // the visual selection will be synced to reflect that new selection. Also ReactiveVisualMapper will ensure that
     // selectedEntities is always a sublist of the loaded entities. If the application code tries to add entities that
@@ -60,7 +59,7 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
     private final ObjectProperty<E> selectedEntityProperty = new SimpleObjectProperty<>() {
         @Override
         protected void invalidated() {
-            //System.out.println("syncingFromSelectedEntity = " + syncingFromSelectedEntity + ", selectedEntity = " + getSelectedEntity());
+            // System.out.println("selectedEntity = " + get());
             // Preventing reentrant calls from internal operations
             if (syncingFromSelectedEntity)
                 return;
@@ -100,6 +99,7 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
     private final ObjectProperty<E> requestedSelectedEntityProperty = new SimpleObjectProperty<>() {
         @Override
         protected void invalidated() {
+            //System.out.println("requestedSelectedEntity = " + get());
             // Preventing reentrant calls from internal operations
             if (syncingFromSelectedEntity)
                 return;
@@ -132,9 +132,10 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
         }
     };
 
-    private final ObjectProperty<VisualSelection> visualSelectionProperty = new SimpleObjectProperty<VisualSelection/*GWT*/>() {
+    private final ObjectProperty<VisualSelection> visualSelectionProperty = new SimpleObjectProperty<>() {
         @Override
         protected void invalidated() {
+            //System.out.println("visualSelection = " + (get() == null ? "null" : get().getSelectedRow()));
             syncFromVisualSelection();
         }
     };
@@ -159,12 +160,8 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
 
     public ReactiveVisualMapper(ReactiveEntitiesMapper<E> reactiveEntitiesMapper) {
         super(reactiveEntitiesMapper);
-        selectedEntities.addListener(new InvalidationListener() {
-            @Override
-            public void invalidated(Observable observable) {
-                syncFromSelectedEntities();
-            }
-        });
+        selectedEntities.addListener((InvalidationListener) observable ->
+                syncFromSelectedEntities());
     }
 
     // Exposing selectedEntities and selectedEntityProperty in public methods
@@ -218,7 +215,7 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
         // First, because selectedEntities is meant to be a subset of the loaded entities only, we reduce the
         // list to the entities already loaded only (we remove those that are not found in the loaded entities).
         if (!syncingFromVisualSelection) {
-            List<Integer> indexes = selectedEntities.stream().mapToInt(e -> findEntityIndex(e)).boxed().collect(Collectors.toList());
+            List<Integer> indexes = selectedEntities.stream().mapToInt(this::findEntityIndex).boxed().collect(Collectors.toList());
             List<E> absentEntities = null;
             for (int i = 0; i < indexes.size(); i++) {
                 if (indexes.get(i) == -1) {
