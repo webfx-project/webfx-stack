@@ -104,15 +104,19 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
             if (syncingFromSelectedEntity)
                 return;
 
-            // We attempt to apply the requested selected entity as the selected entity. If that entity is not part
-            // of the loaded entity, this will be refused and selected entity will be set to null instead. However,
-            // requestedSelectedEntityProperty value will not be set to null. This behaviour is mainly to allow binding
-            // requestedSelectedEntityProperty with another property that shouldn't be set back to null in that case.
-            syncingFromRequestedSelectedEntity = true;
-            setSelectedEntity(getRequestedSelectedEntity());
-            syncingFromRequestedSelectedEntity = false;
+            syncFromRequestedSelectedEntity();
         }
     };
+
+    private void syncFromRequestedSelectedEntity() {
+        // We attempt to apply the requested selected entity as the selected entity. If that entity is not part
+        // of the loaded entity, this will be refused and selected entity will be set to null instead. However,
+        // requestedSelectedEntityProperty value will not be set to null. This behaviour is mainly to allow binding
+        // requestedSelectedEntityProperty with another property that shouldn't be set back to null in that case.
+        syncingFromRequestedSelectedEntity = true;
+        setSelectedEntity(getRequestedSelectedEntity());
+        syncingFromRequestedSelectedEntity = false;
+    }
 
     private final ObjectProperty<VisualResult> visualResultProperty = new SimpleObjectProperty<VisualResult/*GWT*/>() {
         @Override
@@ -126,6 +130,8 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
                 clearAutoSelectSingleRowOnNextResultSet = true;
             } else if (clearAutoSelectSingleRowOnNextResultSet) {
                 setVisualSelection(null);
+            } else if (selectedEntities.isEmpty() && getRequestedSelectedEntity() != null) {
+                syncFromRequestedSelectedEntity();
             } else {
                 syncFromSelectedEntities();
             }
