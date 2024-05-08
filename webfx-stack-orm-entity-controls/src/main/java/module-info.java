@@ -33,7 +33,6 @@ module webfx.stack.orm.entity.controls {
     requires webfx.stack.ui.dialog;
 
     // Exported packages
-    exports dev.webfx.stack.orm.entity.controls.entity.masterslave;
     exports dev.webfx.stack.orm.entity.controls.entity.selector;
     exports dev.webfx.stack.orm.entity.controls.entity.sheet;
 
