@@ -1,17 +1,17 @@
 package dev.webfx.stack.orm.entity.controls.entity.masterslave;
 
-import dev.webfx.stack.orm.entity.Entity;
+import java.util.function.Consumer;
 
 /**
  * @author Bruno Salmon
  */
-public interface SlaveEditor<E extends Entity> {
+public interface SlaveEditor<T> {
 
-    void showChangeApprovalDialog(Runnable onApprovalCallback);
+    void showSlaveSwitchApprovalDialog(Consumer<Boolean> approvalCallback);
 
-    void setSlave(E approvedSlave);
+    void setSlave(T approvedSlave);
 
-    E getSlave();
+    T getSlave();
 
     boolean hasChanges();
 }
