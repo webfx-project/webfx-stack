@@ -2,6 +2,7 @@ package dev.webfx.stack.orm.reactive.mapping.entities_to_visual;
 
 import dev.webfx.extras.type.PrimType;
 import dev.webfx.extras.visual.*;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.entity.EntityList;
@@ -22,6 +23,7 @@ import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -44,7 +46,7 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
     // selection only, then it will be more convenient to work with selectedEntityProperty instead.
     // This list is synced in a bidirectional manner with the visual selection. So when the user changes the visual
     // selection, this updates this list. But if this is the application code that changes this list (exposed as public),
-    // the visual selection will be synced to reflect that new selection. Also ReactiveVisualMapper will ensure that
+    // the visual selection will be synced to reflect that new selection. Also, ReactiveVisualMapper will ensure that
     // selectedEntities is always a sublist of the loaded entities. If the application code tries to add entities that
     // are not from the loaded entities, they will be automatically be removed from that observable list.
     private final ObservableList<E> selectedEntities = FXCollections.observableArrayList();
@@ -75,9 +77,9 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
                 else // If it's not null, we apply it as a single element to selectedEntities
                     selectedEntities.setAll(selectedEntity);
                 // Note: this code above has triggered the selectedEntities listener that did the sync in the opposite
-                // direction (selectedEntities -> selectedEntityProperty) but the reentrant call will has been prevented.
-                // However, it's possible that the value of selectedEntityPropery has changed if the entity asked by the
-                // application was not valid (ie. not present in the loaded entities). So we refresh the value.
+                // direction (selectedEntities -> selectedEntityProperty) but the reentrant call will be prevented.
+                // However, it's possible that the value of selectedEntityProperty has changed if the entity asked by the
+                // application was not valid (i.e. not present in the loaded entities). So we refresh the value.
                 selectedEntity = getSelectedEntity();
             }
 
@@ -103,19 +105,28 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
             // Preventing reentrant calls from internal operations
             if (syncingFromSelectedEntity)
                 return;
-
+            // Syncing selected entity from the requested selected entity (if appropriate at this time)
             syncFromRequestedSelectedEntity();
         }
     };
 
     private void syncFromRequestedSelectedEntity() {
+        // We don't do anything if the reactive visual mapper is not active (which happens when its associated activity
+        // is not displayed at that time), because if a MasterSlaveLinker is associated with this reactive visual mapper
+        // we don't want it to display a confirm dialog at this stage (if the slave entity being edited has changes).
+        // The appropriate time to display the dialog is when this reactive visual mapper is active again (which happens
+        // when the users go back to this activity).
+        if (!isActive())
+            return;
         // We attempt to apply the requested selected entity as the selected entity. If that entity is not part
         // of the loaded entity, this will be refused and selected entity will be set to null instead. However,
         // requestedSelectedEntityProperty value will not be set to null. This behaviour is mainly to allow binding
         // requestedSelectedEntityProperty with another property that shouldn't be set back to null in that case.
-        syncingFromRequestedSelectedEntity = true;
-        setSelectedEntity(getRequestedSelectedEntity());
-        syncingFromRequestedSelectedEntity = false;
+        if (!Objects.equals(getSelectedEntity(), getRequestedSelectedEntity())) { // not necessary to sync if already equals
+            syncingFromRequestedSelectedEntity = true;
+            setSelectedEntity(getRequestedSelectedEntity());
+            syncingFromRequestedSelectedEntity = false;
+        }
     }
 
     private final ObjectProperty<VisualResult> visualResultProperty = new SimpleObjectProperty<VisualResult/*GWT*/>() {
@@ -166,8 +177,11 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
 
     public ReactiveVisualMapper(ReactiveEntitiesMapper<E> reactiveEntitiesMapper) {
         super(reactiveEntitiesMapper);
+        // Calling syncFromSelectedEntities() on selected entities changes
         selectedEntities.addListener((InvalidationListener) observable ->
                 syncFromSelectedEntities());
+        // Calling syncFromRequestedSelectedEntity() on active changes (to possibly show the confirm dialog on activity resume)
+        FXProperties.runOnPropertiesChange(this::syncFromRequestedSelectedEntity, activeProperty());
     }
 
     // Exposing selectedEntities and selectedEntityProperty in public methods
