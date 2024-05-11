@@ -299,8 +299,7 @@ public class I18nProviderImpl implements I18nProvider {
                         .onFailure(Console::log)
                         .onSuccess(dictionary -> {
                             // Once the dictionary is loaded, we take it as the current dictionary if it's in the current language
-                            if (!inDefaultLanguage) // // unless the load was a fallback to the default language
-                            //if (language.equals(getLanguage())) // I think this should be the correct condition, but this makes the reactive visual mapper reset the selection in tables <= TODO: fix that
+                            if (language.equals(getLanguage())) // unless the load was a fallback to the default language
                                 dictionaryProperty.setValue(dictionary);
                             // Also taking it as the default dictionary if it's in the default language
                             if (language.equals(getDefaultLanguage()))
