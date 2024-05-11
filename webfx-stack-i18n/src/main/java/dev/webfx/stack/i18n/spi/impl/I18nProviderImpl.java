@@ -29,11 +29,12 @@ import static dev.webfx.platform.util.Objects.isAssignableFrom;
  */
 public class I18nProviderImpl implements I18nProvider {
 
-    private static class TokenSnapshot {
+    private class TokenSnapshot {
         private final Dictionary dictionary;
         private final Object i18nKey;
         private final TokenKey tokenKey;
         private final Object tokenValue;
+        private final I18nProviderImpl i18nProvider = I18nProviderImpl.this;
 
         public TokenSnapshot(Dictionary dictionary, Object i18nKey, TokenKey tokenKey, Object tokenValue) {
             this.dictionary = dictionary;
@@ -49,7 +50,15 @@ public class I18nProviderImpl implements I18nProvider {
             public <T> T raiseValue(Object value, Class<T> raisedClass, Object... args) {
                 if (value instanceof TokenSnapshot) {
                     TokenSnapshot tokenSnapshot = (TokenSnapshot) value;
-                    value = tokenSnapshot.tokenValue;
+                    // value = tokenSnapshot.tokenValue; // this value may be deprecated (see explanation below)
+                    // Although args are not handled here (they will be later), it's possible that the i18nKey internal
+                    // state has changed. This happens for example in BookEventActivity (Modality front-office) with
+                    // new I18nSubKey("expression: venue.address", FXEvent.eventProperty()), loadedProperty)
+                    // where parentI18nKey = FX.eventProperty() is an entity that may not be completely loaded on first
+                    // i18n evaluation. The argument loadedProperty is actually not used in the evaluation itself, its
+                    // purpose is just to trigger a new i18n evaluation once the entity is completely loaded. At this
+                    // point, we need to refresh the value with a new i18n evaluation.
+                    value = tokenSnapshot.i18nProvider.getFreshTokenValueFromSnapshot(tokenSnapshot);
                     if (value == null)
                         return null; // TODO: find a way to tell the ValueConverterRegistry that null is the actual final value
                     if (isAssignableFrom(raisedClass, value.getClass()))
@@ -241,12 +250,21 @@ public class I18nProviderImpl implements I18nProvider {
             scheduleMessageLoading(i18nKey, false);
         else {
             Dictionary dictionary = getDictionary();
-            TokenKey tokenKey = tokenSnapshot.tokenKey;
-            Object freshTokenValue = getDictionaryTokenValueImpl(i18nKey, (Enum<?> & TokenKey) tokenKey, dictionary, false, false, true);
+            Object freshTokenValue = getFreshTokenValueFromSnapshot(tokenSnapshot, dictionary);
             if (!Objects.equals(tokenSnapshot.tokenValue, freshTokenValue) || tokenSnapshot.dictionary != dictionary)
-                dictionaryTokenProperty.setValue(new TokenSnapshot(dictionary, i18nKey, tokenKey, freshTokenValue));
+                dictionaryTokenProperty.setValue(new TokenSnapshot(dictionary, i18nKey, tokenSnapshot.tokenKey, freshTokenValue));
         }
         return dictionaryTokenProperty;
+    }
+
+    private Object getFreshTokenValueFromSnapshot(TokenSnapshot tokenSnapshot) {
+        return getFreshTokenValueFromSnapshot(tokenSnapshot, tokenSnapshot.dictionary);
+    }
+
+    private Object getFreshTokenValueFromSnapshot(TokenSnapshot tokenSnapshot, Dictionary dictionary) {
+        Object i18nKey = tokenSnapshot.i18nKey;
+        TokenKey tokenKey = tokenSnapshot.tokenKey;
+        return getDictionaryTokenValueImpl(i18nKey, (Enum<?> & TokenKey) tokenKey, dictionary, false, false, true);
     }
 
     public boolean refreshMessageTokenProperties(Object i18nKey) {
@@ -262,7 +280,7 @@ public class I18nProviderImpl implements I18nProvider {
         // Adding the key to the keys to load
         Set<Object> keysToLoad = getKeysToLoad(inDefaultLanguage);
         keysToLoad.add(i18nKey);
-        // Scheduling the dictionay loading if not already done
+        // Scheduling the dictionary loading if not already done
         if (dictionaryLoadingScheduled == null || dictionaryLoadingScheduled.isFinished()) {
             // Capturing the requested language (either current of default)
             Object language = inDefaultLanguage ? getDefaultLanguage() : getLanguage();
@@ -280,7 +298,7 @@ public class I18nProviderImpl implements I18nProvider {
                 dictionaryLoader.loadDictionary(language, messageKeysToLoad)
                         .onFailure(Console::log)
                         .onSuccess(dictionary -> {
-                            // Once the dictionary is loaded, we take it as the current dictionay if it's in the current language
+                            // Once the dictionary is loaded, we take it as the current dictionary if it's in the current language
                             if (!inDefaultLanguage) // // unless the load was a fallback to the default language
                             //if (language.equals(getLanguage())) // I think this should be the correct condition, but this makes the reactive visual mapper reset the selection in tables <= TODO: fix that
                                 dictionaryProperty.setValue(dictionary);
