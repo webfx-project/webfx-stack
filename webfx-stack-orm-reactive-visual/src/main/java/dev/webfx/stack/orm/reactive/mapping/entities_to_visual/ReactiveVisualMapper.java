@@ -119,12 +119,24 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
         if (!isActive())
             return;
         // We attempt to apply the requested selected entity as the selected entity. If that entity is not part
-        // of the loaded entity, this will be refused and selected entity will be set to null instead. However,
+        // of the loaded entities, this will be refused and selected entity will be set to null instead. However,
         // requestedSelectedEntityProperty value will not be set to null. This behaviour is mainly to allow binding
         // requestedSelectedEntityProperty with another property that shouldn't be set back to null in that case.
-        if (!Objects.equals(getSelectedEntity(), getRequestedSelectedEntity())) { // not necessary to sync if already equals
+        E requestedSelectedEntity = getRequestedSelectedEntity();
+        if (!Objects.equals(getSelectedEntity(), requestedSelectedEntity)) { // not necessary to sync if already equals
+            // We check if the requested selected entity is part of loaded entities
+            if (requestedSelectedEntity != null) {
+                int entityIndex = findEntityIndex(requestedSelectedEntity);
+                // if no, we will set the selected entity to null
+                if (entityIndex < 0)
+                    requestedSelectedEntity = null;
+                else // if yes, we get that loaded entity (which can be a different instance if requestedSelectedEntity
+                     // come from another entity store.
+                    requestedSelectedEntity = getEntityAt(entityIndex);
+            }
+            // We apply the new selection
             syncingFromRequestedSelectedEntity = true;
-            setSelectedEntity(getRequestedSelectedEntity());
+            setSelectedEntity(requestedSelectedEntity);
             syncingFromRequestedSelectedEntity = false;
         }
     }
