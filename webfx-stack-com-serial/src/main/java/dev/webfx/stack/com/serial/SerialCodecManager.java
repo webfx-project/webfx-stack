@@ -5,6 +5,7 @@ import dev.webfx.platform.ast.json.Json;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.reflect.RArray;
 import dev.webfx.platform.util.Numbers;
+import dev.webfx.platform.util.Strings;
 import dev.webfx.stack.com.serial.spi.SerialCodec;
 import dev.webfx.stack.com.serial.spi.impl.ExceptionSerialCodec;
 import dev.webfx.stack.com.serial.spi.impl.time.InstantSerialCodec;
@@ -89,35 +90,35 @@ public final class SerialCodecManager {
     }
 
     public static String encodePrefixedInstant(Instant instant) {
-        return INSTANT_VALUE_PREFIX + instant;
+        return instant == null ? null : INSTANT_VALUE_PREFIX + instant;
     }
 
     public static String encodePrefixedLocalDate(LocalDate localDate) {
-        return LOCAL_DATE_VALUE_PREFIX + localDate;
+        return localDate == null ? null : LOCAL_DATE_VALUE_PREFIX + localDate;
     }
 
     public static String encodePrefixedLocalDateTime(LocalDateTime localDateTime) {
-        return LOCAL_DATE_TIME_VALUE_PREFIX + localDateTime;
+        return localDateTime == null ? null : LOCAL_DATE_TIME_VALUE_PREFIX + localDateTime;
     }
 
     public static String encodePrefixedLocalTime(LocalTime localTime) {
-        return LOCAL_TIME_VALUE_PREFIX + localTime;
+        return localTime == null ? null : LOCAL_TIME_VALUE_PREFIX + localTime;
     }
 
     public static String encodeInstant(Instant instant) {
-        return "" + instant;
+        return Strings.toString(instant);
     }
 
     public static String encodeLocalDate(LocalDate localDate) {
-        return "" + localDate;
+        return Strings.toString(localDate);
     }
 
     public static String encodeLocalDateTime(LocalDateTime localDateTime) {
-        return "" + localDateTime;
+        return Strings.toString(localDateTime);
     }
 
     public static String encodeLocalTime(LocalTime localTime) {
-        return "" + localTime;
+        return Strings.toString(localTime);
     }
 
     public static ReadOnlyAstObject encodeToAstObject(Object object) {
@@ -198,19 +199,19 @@ public final class SerialCodecManager {
     }
 
     public static Instant decodePrefixedInstant(String encodedInstant) {
-        return decodeInstant(encodedInstant.substring(INSTANT_VALUE_PREFIX.length()));
+        return encodedInstant == null ? null : decodeInstant(encodedInstant.substring(INSTANT_VALUE_PREFIX.length()));
     }
 
     public static Instant decodeInstant(String encodedInstant) {
-        return Instant.parse(encodedInstant);
+        return encodedInstant == null ? null : Instant.parse(encodedInstant);
     }
 
     public static LocalDate decodePrefixedLocalDate(String encodedLocalDate) {
-        return decodeLocalDate(encodedLocalDate.substring(LOCAL_DATE_VALUE_PREFIX.length()));
+        return encodedLocalDate == null ? null : decodeLocalDate(encodedLocalDate.substring(LOCAL_DATE_VALUE_PREFIX.length()));
     }
 
     public static LocalDate decodeLocalDate(String encodedLocalDate) {
-        return LocalDate.parse(encodedLocalDate);
+        return encodedLocalDate == null ? null : LocalDate.parse(encodedLocalDate);
     }
 
     public static LocalDateTime decodePrefixedLocalDateTime(String encodedLocalDateTime) {
@@ -218,15 +219,15 @@ public final class SerialCodecManager {
     }
 
     public static LocalDateTime decodeLocalDateTime(String encodedLocalDateTime) {
-        return LocalDateTime.parse(encodedLocalDateTime);
+        return encodedLocalDateTime == null ? null : LocalDateTime.parse(encodedLocalDateTime);
     }
 
     public static LocalTime decodePrefixedLocalTime(String encodedLocalTime) {
-        return decodeLocalTime(encodedLocalTime.substring(LOCAL_TIME_VALUE_PREFIX.length()));
+        return encodedLocalTime == null ? null : decodeLocalTime(encodedLocalTime.substring(LOCAL_TIME_VALUE_PREFIX.length()));
     }
 
     public static LocalTime decodeLocalTime(String encodedLocalTime) {
-        return LocalTime.parse(encodedLocalTime);
+        return encodedLocalTime == null ? null : LocalTime.parse(encodedLocalTime);
     }
 
     public static ReadOnlyAstArray encodePrimitiveArrayToAstArray(Object[] primArray) {
