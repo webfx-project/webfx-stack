@@ -16,17 +16,16 @@ public final class LoginUiContextSerialCodec extends SerialCodecBase<LoginUiCont
     }
 
     @Override
-    public void encodeToJson(LoginUiContext loginUiContext, AstObject json) {
-        json
-                .set(GATEWAY_ID_KEY, loginUiContext.getGatewayId())
-                .set(GATEWAY_CONTEXT_KEY, loginUiContext.getGatewayContext());
+    public void encode(LoginUiContext loginUiContext, AstObject serial) {
+        encodeObject(serial, GATEWAY_ID_KEY,      loginUiContext.getGatewayId());
+        encodeObject(serial, GATEWAY_CONTEXT_KEY, loginUiContext.getGatewayContext());
     }
 
     @Override
-    public LoginUiContext decodeFromJson(ReadOnlyAstObject json) {
+    public LoginUiContext decode(ReadOnlyAstObject serial) {
         return new LoginUiContext(
-                json.get(GATEWAY_ID_KEY),
-                json.get(GATEWAY_CONTEXT_KEY)
+                decodeObject(serial, GATEWAY_ID_KEY),
+                decodeObject(serial, GATEWAY_CONTEXT_KEY)
         );
     }
 }

@@ -1,9 +1,8 @@
 package dev.webfx.stack.db.submit.buscall.serial;
 
-import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.ast.AstObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.util.Arrays;
-import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 import dev.webfx.stack.db.submit.SubmitResult;
 
@@ -18,17 +17,17 @@ public final class SubmitResultSerialCodec extends SerialCodecBase<SubmitResult>
     }
 
     @Override
-    public void encodeToJson(SubmitResult arg, AstObject json) {
-        json.set(ROW_COUNT_KEY, arg.getRowCount());
+    public void encode(SubmitResult arg, AstObject serial) {
+        encodeInteger(        serial, ROW_COUNT_KEY,     arg.getRowCount());
         if (!Arrays.isEmpty(arg.getGeneratedKeys()))
-            json.set(GENERATED_KEYS_KEY, SerialCodecManager.encodePrimitiveArrayToAstArray(arg.getGeneratedKeys()));
+            encodeObjectArray(serial, GENERATED_KEYS_KEY, arg.getGeneratedKeys());
     }
 
     @Override
-    public SubmitResult decodeFromJson(ReadOnlyAstObject json) {
+    public SubmitResult decode(ReadOnlyAstObject serial) {
         return new SubmitResult(
-                json.getInteger(ROW_COUNT_KEY),
-                SerialCodecManager.decodePrimitiveArrayFromAstArray(json.getArray(GENERATED_KEYS_KEY))
+                decodeInteger(    serial, ROW_COUNT_KEY),
+                decodeObjectArray(serial, GENERATED_KEYS_KEY)
         );
     }
 }

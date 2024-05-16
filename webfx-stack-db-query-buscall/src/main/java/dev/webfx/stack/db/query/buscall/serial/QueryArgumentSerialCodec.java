@@ -1,9 +1,8 @@
 package dev.webfx.stack.db.query.buscall.serial;
 
-import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.ast.AstObject;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.util.Arrays;
-import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 import dev.webfx.stack.db.query.QueryArgument;
 
@@ -21,23 +20,23 @@ public final class QueryArgumentSerialCodec extends SerialCodecBase<QueryArgumen
     }
 
     @Override
-    public void encodeToJson(QueryArgument arg, AstObject json) {
-        json.set(DATA_SOURCE_ID_KEY, arg.getDataSourceId());
-        json.set(DATA_SCOPE_KEY, SerialCodecManager.encodeToJson(arg.getDataScope()));
-        json.set(LANGUAGE_KEY, arg.getLanguage());
-        json.set(STATEMENT_KEY, arg.getStatement());
+    public void encode(QueryArgument arg, AstObject serial) {
+        encodeObject(         serial, DATA_SOURCE_ID_KEY, arg.getDataSourceId());
+        encodeObject(         serial, DATA_SCOPE_KEY,     arg.getDataScope());
+        encodeString(         serial, LANGUAGE_KEY,       arg.getLanguage());
+        encodeString(         serial, STATEMENT_KEY,      arg.getStatement());
         if (!Arrays.isEmpty(arg.getParameters()))
-            json.set(PARAMETERS_KEY, SerialCodecManager.encodePrimitiveArrayToAstArray(arg.getParameters()));
+            encodeObjectArray(serial, PARAMETERS_KEY,     arg.getParameters());
     }
 
     @Override
-    public QueryArgument decodeFromJson(ReadOnlyAstObject json) {
+    public QueryArgument decode(ReadOnlyAstObject serial) {
         return new QueryArgument(null,
-                json.get(DATA_SOURCE_ID_KEY),
-                SerialCodecManager.decodeFromJson(json.getObject(DATA_SCOPE_KEY)),
-                json.getString(LANGUAGE_KEY),
-                json.getString(STATEMENT_KEY),
-                SerialCodecManager.decodePrimitiveArrayFromAstArray(json.getArray(PARAMETERS_KEY))
+                decodeObject(     serial, DATA_SOURCE_ID_KEY),
+                decodeObject(     serial, DATA_SCOPE_KEY),
+                decodeString(     serial, LANGUAGE_KEY),
+                decodeString(     serial, STATEMENT_KEY),
+                decodeObjectArray(serial, PARAMETERS_KEY)
         );
     }
 }

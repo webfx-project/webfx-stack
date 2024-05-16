@@ -30,43 +30,43 @@ public class HttpCookieSerialCodec extends SerialCodecBase<HttpCookie> {
     }
 
     @Override
-    public void encodeToJson(HttpCookie c, AstObject json) {
+    public void encode(HttpCookie c, AstObject serial) {
         // We need to know the cookie creation time to serialize the expiration time (see below). HttpCookie has a
         // whenCreated field for that, but we can't use it as it's a private & inaccessible field. Instead, we use an
         // alternative solution provided by FXLoginCookieStore that keeps an internal record of the cookie creation date.
         long whenCreated = FXLoginCookieStore.getWhenCreated(c); // cookie creation time in millis
-        json
-                .set(NAME_KEY, c.getName())
-                .set(VALUE_KEY, c.getValue())
-                .set(SECURE_KEY, c.getSecure())
-                .set(DOMAIN_KEY, c.getDomain())
-                // We don't serialize maxAge because it's relative. We serialize the absolute expiration time instead.
-                .set(EXPIRES_KEY, whenCreated + 1000L * c.getMaxAge()) // maxAge is in seconds, so x1000 to get millis
-                .set(PATH_KEY, c.getPath())
-                .set(HTTP_ONLY_KEY, c.isHttpOnly())
-                .set(PORT_LIST_KEY, c.getPortlist())
-                .set(DISCARD_KEY, c.getDiscard())
-                .set(VERSION_KEY, c.getVersion())
-                .set(COMMENT_KEY, c.getComment())
-                .set(COMMENT_URL_KEY, c.getCommentURL())
-        ;
+        encodeString( serial, NAME_KEY,       c.getName(), NullEncoding.NULL_VALUE_NOT_ALLOWED);
+        encodeString( serial, VALUE_KEY,      c.getValue());
+        encodeBoolean(serial, SECURE_KEY,     c.getSecure());
+        encodeString( serial, DOMAIN_KEY,     c.getDomain());
+        // We don't serialize maxAge because it's relative. We serialize the absolute expiration time instead.
+        encodeLong(   serial, EXPIRES_KEY, whenCreated + 1000L * c.getMaxAge()); // maxAge is in seconds, so x1000 to get millis
+        encodeString( serial, PATH_KEY,        c.getPath());
+        encodeBoolean(serial, HTTP_ONLY_KEY,   c.isHttpOnly());
+        encodeString( serial, PORT_LIST_KEY,   c.getPortlist());
+        encodeBoolean(serial, DISCARD_KEY,     c.getDiscard());
+        encodeInteger(serial, VERSION_KEY,     c.getVersion());
+        encodeString( serial, COMMENT_KEY,     c.getComment());
+        encodeString( serial, COMMENT_URL_KEY, c.getCommentURL());
     }
 
     @Override
-    public HttpCookie decodeFromJson(ReadOnlyAstObject json) {
-        HttpCookie cookie = new HttpCookie(json.getString(NAME_KEY), json.getString(VALUE_KEY));
+    public HttpCookie decode(ReadOnlyAstObject serial) {
+        HttpCookie cookie = new HttpCookie(
+                decodeString(serial, NAME_KEY, NullEncoding.NULL_VALUE_NOT_ALLOWED),
+                decodeString(serial, VALUE_KEY));
         long whenCreated = FXLoginCookieStore.getWhenCreated(cookie); // will return 'now', as it's a new cookie
-        cookie.setSecure(json.getBoolean(SECURE_KEY));
-        cookie.setDomain(json.getString(DOMAIN_KEY));
+        cookie.setSecure(    decodeBoolean(serial, SECURE_KEY));
+        cookie.setDomain(    decodeString( serial, DOMAIN_KEY));
         // We recalculate maxAge, which is the difference between the expiration and the creation time
-        cookie.setMaxAge((json.getLong(EXPIRES_KEY) - whenCreated) / 1000); // maxAge is in seconds, so /1000
-        cookie.setPath(json.getString(PATH_KEY));
-        cookie.setHttpOnly(json.getBoolean(HTTP_ONLY_KEY));
-        cookie.setPortlist(json.getString(PORT_LIST_KEY));
-        cookie.setDiscard(json.getBoolean(DISCARD_KEY));
-        cookie.setVersion(json.getInteger(VERSION_KEY));
-        cookie.setComment(json.getString(COMMENT_KEY));
-        cookie.setCommentURL(json.getString(COMMENT_URL_KEY));
+        cookie.setMaxAge((   decodeLong(   serial, EXPIRES_KEY) - whenCreated) / 1000); // maxAge is in seconds, so /1000
+        cookie.setPath(      decodeString( serial, PATH_KEY));
+        cookie.setHttpOnly(  decodeBoolean(serial, HTTP_ONLY_KEY));
+        cookie.setPortlist(  decodeString( serial, PORT_LIST_KEY));
+        cookie.setDiscard(   decodeBoolean(serial, DISCARD_KEY));
+        cookie.setVersion(   decodeInteger(serial, VERSION_KEY));
+        cookie.setComment(   decodeString( serial, COMMENT_KEY));
+        cookie.setCommentURL(decodeString( serial, COMMENT_URL_KEY));
         return cookie;
     }
 }

@@ -15,14 +15,14 @@ public final class GeneratedKeyBatchIndexSerialCodec extends SerialCodecBase<Gen
     }
 
     @Override
-    public void encodeToJson(GeneratedKeyBatchIndex arg, AstObject json) {
-        json.set(BATCH_INDEX_KEY, arg.getBatchIndex());
+    public void encode(GeneratedKeyBatchIndex arg, AstObject serial) {
+        encodeInteger(serial, BATCH_INDEX_KEY, arg.getBatchIndex());
     }
 
     @Override
-    public GeneratedKeyBatchIndex decodeFromJson(ReadOnlyAstObject json) {
+    public GeneratedKeyBatchIndex decode(ReadOnlyAstObject serial) {
         return new GeneratedKeyBatchIndex(
-                json.getInteger(BATCH_INDEX_KEY)
+                decodeInteger(serial, BATCH_INDEX_KEY)
         );
     }
 }

@@ -19,12 +19,12 @@ public final class LocalDateSerialCodec extends SerialCodecBase<LocalDate> {
     }
 
     @Override
-    public void encodeToJson(LocalDate value, AstObject json) {
-        json.set(VALUE_KEY, value.toString());
+    public void encode(LocalDate value, AstObject serial) {
+        encodeLocalDate(serial, VALUE_KEY, value);
     }
 
     @Override
-    public LocalDate decodeFromJson(ReadOnlyAstObject json) {
-        return LocalDate.parse(json.get(VALUE_KEY));
+    public LocalDate decode(ReadOnlyAstObject serial) {
+        return decodeLocalDate(serial, VALUE_KEY);
     }
 }

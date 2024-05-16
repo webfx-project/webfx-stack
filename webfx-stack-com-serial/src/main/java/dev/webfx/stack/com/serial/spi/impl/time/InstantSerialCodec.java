@@ -19,12 +19,12 @@ public final class InstantSerialCodec extends SerialCodecBase<Instant> {
     }
 
     @Override
-    public void encodeToJson(Instant value, AstObject json) {
-        json.set(VALUE_KEY, value.toString());
+    public void encode(Instant value, AstObject serial) {
+        encodeInstant(serial, VALUE_KEY, value);
     }
 
     @Override
-    public Instant decodeFromJson(ReadOnlyAstObject json) {
-        return Instant.parse(json.get(VALUE_KEY));
+    public Instant decode(ReadOnlyAstObject serial) {
+        return decodeInstant(serial, VALUE_KEY);
     }
 }

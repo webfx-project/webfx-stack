@@ -1,11 +1,10 @@
 package dev.webfx.stack.com.bus.call;
 
-import dev.webfx.platform.async.impl.NoStackTraceThrowable;
-import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.ast.AstObject;
-import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
-import dev.webfx.stack.com.serial.SerialCodecManager;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.async.AsyncResult;
+import dev.webfx.platform.async.impl.NoStackTraceThrowable;
+import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 
 /**
  * @author Bruno Salmon
@@ -65,18 +64,18 @@ public final class SerializableAsyncResult<T> implements AsyncResult<T> {
         }
 
         @Override
-        public void encodeToJson(SerializableAsyncResult result, AstObject json) {
+        public void encode(SerializableAsyncResult result, AstObject serial) {
             if (result.cause() != null)
-                json.set(ERROR_KEY, result.cause().getMessage());
+                encodeString(serial, ERROR_KEY, result.cause().getMessage());
             if (result.result() != null)
-                json.set(RESULT_KEY, SerialCodecManager.encodeToJson(result.result()));
+                encodeObject(serial, RESULT_KEY, result.result());
         }
 
         @Override
-        public SerializableAsyncResult decodeFromJson(ReadOnlyAstObject json) {
-            String errorMessage = json.getString(ERROR_KEY);
+        public SerializableAsyncResult decode(ReadOnlyAstObject serial) {
+            String errorMessage = decodeString(serial, ERROR_KEY);
             return new SerializableAsyncResult<>(
-                    SerialCodecManager.decodeFromJson(json.get(RESULT_KEY)),
+                    decodeObject(serial, RESULT_KEY),
                     errorMessage == null ? null : new NoStackTraceThrowable(errorMessage)
             );
         }

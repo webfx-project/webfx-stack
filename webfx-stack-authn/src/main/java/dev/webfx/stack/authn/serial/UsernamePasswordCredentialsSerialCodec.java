@@ -19,16 +19,16 @@ public class UsernamePasswordCredentialsSerialCodec extends SerialCodecBase<User
     }
 
     @Override
-    public void encodeToJson(UsernamePasswordCredentials arg, AstObject json) {
-        json.set(USERNAME_KEY, arg.getUsername());
-        json.set(PASSWORD_KEY, arg.getPassword());
+    public void encode(UsernamePasswordCredentials arg, AstObject serial) {
+        encodeString(serial, USERNAME_KEY, arg.getUsername());
+        encodeString(serial, PASSWORD_KEY, arg.getPassword());
     }
 
     @Override
-    public UsernamePasswordCredentials decodeFromJson(ReadOnlyAstObject json) {
+    public UsernamePasswordCredentials decode(ReadOnlyAstObject serial) {
         return new UsernamePasswordCredentials(
-                json.getString(USERNAME_KEY),
-                json.getString(PASSWORD_KEY)
+                decodeString(serial, USERNAME_KEY),
+                decodeString(serial, PASSWORD_KEY)
         );
     }
 }

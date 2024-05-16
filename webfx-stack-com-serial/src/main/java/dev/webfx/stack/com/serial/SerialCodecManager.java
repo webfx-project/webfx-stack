@@ -26,7 +26,7 @@ import java.util.Map;
 
 public final class SerialCodecManager {
 
-    public final static String CODEC_ID_KEY = "$codec";
+    public  final static String CODEC_ID_KEY = "$codec";
     private final static String INSTANT_VALUE_PREFIX = "$I:";
     private final static String LOCAL_DATE_VALUE_PREFIX = "$LD:";
     private final static String LOCAL_DATE_TIME_VALUE_PREFIX = "$LDT:";
@@ -134,7 +134,7 @@ public final class SerialCodecManager {
         if (encoder == null)
             throw new IllegalArgumentException("No SerialCodec for type: " + javaObject.getClass());
         json.set(CODEC_ID_KEY, encoder.getCodecId());
-        encoder.encodeToJson(javaObject, json);
+        encoder.encode(javaObject, json);
         return json;
     }
 
@@ -155,7 +155,7 @@ public final class SerialCodecManager {
         SerialCodec<T> decoder = getSerialDecoder(codecId);
         if (decoder == null)
             throw new IllegalArgumentException("No SerialCodec found for id: '" + codecId + "' when trying to decode " + Json.formatNode(json));
-        return decoder.decodeFromJson(json);
+        return decoder.decode(json);
     }
 
     public static <T> T decodeFromJson(Object object) {
@@ -164,7 +164,7 @@ public final class SerialCodecManager {
             return decodeFromAstObject((ReadOnlyAstObject) object);
         // Case 2: it's a json array => we call decodePrimitiveArrayFromAstArray(). The returned object is always an Object[] array.
         if (object instanceof ReadOnlyAstArray)
-            return (T) decodePrimitiveArrayFromAstArray((ReadOnlyAstArray) object);
+            return (T) decodeAstArrayToJavaArray((ReadOnlyAstArray) object, Object.class);
         // Case 3: it's a String with instant value prefix => we decode and return the instant value
         if (object instanceof String) {
             String s = (String) object;
@@ -230,41 +230,29 @@ public final class SerialCodecManager {
         return encodedLocalTime == null ? null : LocalTime.parse(encodedLocalTime);
     }
 
-    public static ReadOnlyAstArray encodePrimitiveArrayToAstArray(Object[] primArray) {
-        if (primArray == null)
+    public static <T> ReadOnlyAstArray encodeJavaArrayToAstArray(T[] javaArray) {
+        if (javaArray == null)
             return null;
         AstArray ca = AST.createArray();
-        for (Object value : primArray)
+        for (Object value : javaArray)
             ca.push(encodeToJson(value));
         return ca;
     }
 
-    public static Object[] decodePrimitiveArrayFromAstArray(ReadOnlyAstArray jsonArray) {
+    public static <T> T[] decodeAstArrayToJavaArray(ReadOnlyAstArray jsonArray, Class<T> expectedClass) {
         if (jsonArray == null)
             return null;
         int n = jsonArray.size();
-        Object[] array = new Object[n];
+        if (expectedClass == null) {
+            if (n == 0)
+                expectedClass = (Class<T>) Object.class;
+            else
+                expectedClass = (Class<T>) getJavaClass(jsonArray.getObject(0).getString(SerialCodecManager.CODEC_ID_KEY));
+        }
+        T[] array = (T[]) RArray.newInstance(expectedClass, n);
         for (int i = 0; i < n; i++)
             array[i] = decodeFromJson(jsonArray.getElement(i));
         return array;
     }
 
-    public static ReadOnlyAstArray encodeToAstArray(Object[] array) {
-        if (array == null)
-            return null;
-        AstArray ca = AST.createArray();
-        for (Object object : array)
-            ca.push(encodeToAstObject(object));
-        return ca;
-    }
-
-    public static <T> T[] decodeFromAstArray(ReadOnlyAstArray ca, Class<T> expectedClass) {
-        if (ca == null)
-            return null;
-        int n = ca.size();
-        T[] array = (T[]) RArray.newInstance(expectedClass, n);
-        for (int i = 0; i < n; i++)
-            array[i] = decodeFromJson(ca.getObject(i));
-        return array;
-    }
 }
