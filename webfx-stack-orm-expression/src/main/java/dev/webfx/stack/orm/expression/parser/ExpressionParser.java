@@ -2,16 +2,16 @@ package dev.webfx.stack.orm.expression.parser;
 
 import dev.webfx.platform.console.Console;
 import dev.webfx.stack.orm.expression.Expression;
-import dev.webfx.stack.orm.expression.parser.lci.ParserDomainModelReader;
-import dev.webfx.stack.orm.expression.terms.DqlStatement;
-import dev.webfx.stack.orm.expression.terms.ExpressionArray;
-import dev.webfx.stack.orm.expression.terms.Select;
-import java_cup.runtime.Symbol;
 import dev.webfx.stack.orm.expression.builder.BuilderThreadContext;
 import dev.webfx.stack.orm.expression.builder.terms.DqlOrderBuilder;
 import dev.webfx.stack.orm.expression.builder.terms.ExpressionBuilder;
 import dev.webfx.stack.orm.expression.parser.javacup.JavaCupExpressionParser;
 import dev.webfx.stack.orm.expression.parser.jflex.ExpressionLexer;
+import dev.webfx.stack.orm.expression.parser.lci.ParserDomainModelReader;
+import dev.webfx.stack.orm.expression.terms.DqlStatement;
+import dev.webfx.stack.orm.expression.terms.ExpressionArray;
+import dev.webfx.stack.orm.expression.terms.Select;
+import java_cup.runtime.Symbol;
 
 import java.io.StringReader;
 
@@ -43,8 +43,8 @@ public final class ExpressionParser {
             }
             return expression;
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            Console.log("⛔️ Error while parsing expression: '" + definition + "'", e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -59,8 +59,8 @@ public final class ExpressionParser {
             builder.definition = definition;
             return builder.build();
         } catch (Exception e) {
-            Console.log("Error while parsing: \"" + definition + '"', e);
-            return null;
+            Console.log("⛔️ Error while parsing expression: '" + definition + "'", e);
+            throw new RuntimeException(e);
         }
     }
 
