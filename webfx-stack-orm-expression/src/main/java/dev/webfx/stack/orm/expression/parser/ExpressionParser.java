@@ -59,7 +59,7 @@ public final class ExpressionParser {
             builder.definition = definition;
             return builder.build();
         } catch (Exception e) {
-            Console.log("⛔️ Error while parsing expression: '" + definition + "'", e);
+            Console.log("⛔️ Error while parsing statement: '" + definition + "'", e);
             throw new RuntimeException(e);
         }
     }
