@@ -128,13 +128,14 @@ public final class OperationActionRegistry {
         // If this is not the case, we return false (can't do the binding now)
         if (graphicalAction == null)
             return false;
-        if (operationActionProperties != null) {
+        Map<Object, ObjectProperty<OperationAction>> properties = operationActionProperties;
+        if (properties != null) {
             Object code = getOperationCodeFromGraphicalAction(graphicalAction);
             if (code != null) {
-                ObjectProperty<OperationAction> operationActionProperty = operationActionProperties.remove(code);
+                ObjectProperty<OperationAction> operationActionProperty = properties.remove(code);
                 if (operationActionProperty != null)
                     operationActionProperty.set(operationAction);
-                if (operationActionProperties.isEmpty())
+                if (properties.isEmpty())
                     operationActionProperties = null;
             }
         }
