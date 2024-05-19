@@ -86,11 +86,13 @@ public final class EntityChangesToSubmitBatchGenerator {
         }
 
         public void applyGeneratedKeys(Batch<SubmitResult> ar, EntityStore store) {
+            // Updating the Ids of the entities newly created with the generated keys returned by the database
             for (Map.Entry<EntityId, Integer> entry : newEntityIdIndexInBatch.entrySet()) {
-                EntityId entityId = entry.getKey();
-                Integer index = entry.getValue();
-                Object generatedKey = ar.getArray()[index].getGeneratedKeys()[0];
-                store.applyEntityIdRefactor(entityId, EntityId.create(entityId.getDomainClass(), generatedKey));
+                EntityId newEntityId = entry.getKey();
+                Integer indexInBatch = entry.getValue();
+                SubmitResult submitResult = ar.get(indexInBatch);
+                Object generatedKey = submitResult.getGeneratedKeys()[0];
+                store.applyEntityIdRefactor(newEntityId, generatedKey);
             }
         }
 
@@ -100,6 +102,7 @@ public final class EntityChangesToSubmitBatchGenerator {
             List<SubmitArgument> sortedList  = new ArrayList<>(Collections.nCopies(size, null)); // correct size already, but initially filled with null
             // This second list will memorize the index translation of the SubmitArguments (index in initial list => index in the sorted list)
             List<Integer> newEntityIndexTranslationAfterSort = new ArrayList<>(Collections.nCopies(size, null)); // correct size already, but initially filled with null
+            boolean indexChanged = false; // flag to skip the final index update loop if not necessary (optimization)
             int sortedIndex = 0; // Index of future sorted statement
             while (sortedIndex < size) { // means the sort is not finished
                 // We are looking for the next statements with parameters resolved (i.e. value = literal or a newly
@@ -139,6 +142,8 @@ public final class EntityChangesToSubmitBatchGenerator {
                         sortedList.set(sortedIndex, arg); // to the sorted list
                         // and memorising the index translation between the 2 lists
                         newEntityIndexTranslationAfterSort.set(index, sortedIndex);
+                        if (sortedIndex != index)
+                            indexChanged = true;
                         // Indicating that we found at least one statement that was resolved
                         someResolved = true;
                         // Preparing for the next iteration
@@ -149,14 +154,16 @@ public final class EntityChangesToSubmitBatchGenerator {
                 if (!someResolved) // this happens when there are cyclic references, which we complain about
                     throw new IllegalStateException("Cyclic references detected");
             }
-            // Applying the result of the sort to the list
+            // Applying the result of the sort to the original list
             for (int i = 0; i < size; i++)
                 submitArguments.set(i, sortedList.get(i));
-            // And to the indexes
-            for (Map.Entry<EntityId, Integer> entry : newEntityIdIndexInBatch.entrySet()) {
-                Integer initialIndex = entry.getValue();
-                Integer finalIndex = newEntityIndexTranslationAfterSort.get(initialIndex);
-                entry.setValue(finalIndex);
+            // And to the indexes (if they have changed)
+            if (indexChanged) {
+                for (Map.Entry<EntityId, Integer> entry : newEntityIdIndexInBatch.entrySet()) {
+                    Integer initialIndex = entry.getValue();
+                    Integer finalIndex = newEntityIndexTranslationAfterSort.get(initialIndex);
+                    entry.setValue(finalIndex);
+                }
             }
         }
 
