@@ -54,8 +54,7 @@ public final class EntityChangesToSubmitBatchGenerator {
         private final DbmsSqlSyntax dbmsSyntax;
         private final CompilerDomainModelReader compilerModelReader;
         private final List<SubmitArgument> submitArguments;
-        private final Map<EntityId, Integer> newEntityIdInitialIndexInBatchBeforeSort = new IdentityHashMap<>();
-        private List<Integer> newEntityIndexTranslationAfterSort;
+        private final Map<EntityId, Integer> newEntityIdIndexInBatch = new IdentityHashMap<>();
 
         BatchGenerator(EntityChanges changes, Object dataSourceId, DataScope dataScope, DbmsSqlSyntax dbmsSyntax, CompilerDomainModelReader compilerModelReader, SubmitArgument... initialUpdates) {
             submitArguments = initialUpdates == null ? new ArrayList<>() : new ArrayList<>(Arrays.asList(initialUpdates));
@@ -87,21 +86,21 @@ public final class EntityChangesToSubmitBatchGenerator {
         }
 
         public void applyGeneratedKeys(Batch<SubmitResult> ar, EntityStore store) {
-            for (Map.Entry<EntityId, Integer> entry : newEntityIdInitialIndexInBatchBeforeSort.entrySet()) {
+            for (Map.Entry<EntityId, Integer> entry : newEntityIdIndexInBatch.entrySet()) {
                 EntityId entityId = entry.getKey();
-                Integer initialIndex = entry.getValue();
-                Integer finalIndex = newEntityIndexTranslationAfterSort.get(initialIndex);
-                store.applyEntityIdRefactor(entityId, EntityId.create(entityId.getDomainClass(), ar.getArray()[finalIndex].getGeneratedKeys()[0]));
+                Integer index = entry.getValue();
+                Object generatedKey = ar.getArray()[index].getGeneratedKeys()[0];
+                store.applyEntityIdRefactor(entityId, EntityId.create(entityId.getDomainClass(), generatedKey));
             }
         }
 
         void sortStatementsByCreationOrder() {
             int size = submitArguments.size();
             // sortedList will be temporarily used to sort the SubmitArguments, and once finished, will be copied back to submitArguments
-            List<SubmitArgument> sortedList  = new ArrayList<>(Collections.nCopies(size, null)); // correct size already, but filled with null
-            //
-            newEntityIndexTranslationAfterSort = new ArrayList<>(Collections.nCopies(size, null)); // correct size already, but filled with null
-            int sortedIndex = 0; // number of sorted statements (used also as index)
+            List<SubmitArgument> sortedList  = new ArrayList<>(Collections.nCopies(size, null)); // correct size already, but initially filled with null
+            // This second list will memorize the index translation of the SubmitArguments (index in initial list => index in the sorted list)
+            List<Integer> newEntityIndexTranslationAfterSort = new ArrayList<>(Collections.nCopies(size, null)); // correct size already, but initially filled with null
+            int sortedIndex = 0; // Index of future sorted statement
             while (sortedIndex < size) { // means the sort is not finished
                 // We are looking for the next statements with parameters resolved (i.e. value = literal or a newly
                 // generated id that is coming from a previous statement already sorted)
@@ -115,7 +114,7 @@ public final class EntityChangesToSubmitBatchGenerator {
                         for (int parameterIndex = 0, length = Arrays.length(parameters); parameterIndex < length; parameterIndex++) {
                             Object value = parameters[parameterIndex];
                             if (value instanceof EntityId) { // means it's a reference to another entity (and not a literal value)
-                                // In the process, we also replace EntityIds with primary keys (preparing for SQL)
+                                // In the process, we also replace EntityIds with primary keys (preparing for SQL parameters)
                                 EntityId entityId = (EntityId) value;
                                 if (!entityId.isNew()) // means the pk already exists in the database, so we can use it
                                     parameters[parameterIndex] = entityId.getPrimaryKey(); // straightaway
@@ -124,7 +123,7 @@ public final class EntityChangesToSubmitBatchGenerator {
                                     // which will indicate the index of the previous statement in the batch that the
                                     // server will need to take the value from (which will be generated at this time).
                                     // To do that, we first get its initial index (before this sort).
-                                    Integer initialIndex = newEntityIdInitialIndexInBatchBeforeSort.get(entityId);
+                                    Integer initialIndex = newEntityIdIndexInBatch.get(entityId);
                                     // Then we get its new index in the sorted list (will be null if not yet resolved)
                                     Integer finalIndex = initialIndex == null ? null : newEntityIndexTranslationAfterSort.get(initialIndex);
                                     if (finalIndex == null) // means that this parameter value is not yet resolved
@@ -150,9 +149,15 @@ public final class EntityChangesToSubmitBatchGenerator {
                 if (!someResolved) // this happens when there are cyclic references, which we complain about
                     throw new IllegalStateException("Cyclic references detected");
             }
-            // Applying the result
+            // Applying the result of the sort to the list
             for (int i = 0; i < size; i++)
                 submitArguments.set(i, sortedList.get(i));
+            // And to the indexes
+            for (Map.Entry<EntityId, Integer> entry : newEntityIdIndexInBatch.entrySet()) {
+                Integer initialIndex = entry.getValue();
+                Integer finalIndex = newEntityIndexTranslationAfterSort.get(initialIndex);
+                entry.setValue(finalIndex);
+            }
         }
 
         void groupStatementsByBatch() {
@@ -193,7 +198,7 @@ public final class EntityChangesToSubmitBatchGenerator {
                         continue;
                     ExpressionArray<?> setClause = new ExpressionArray(assignments);
                     if (id.isNew()) { // insert statement
-                        newEntityIdInitialIndexInBatchBeforeSort.put(id, submitArguments.size());
+                        newEntityIdIndexInBatch.put(id, submitArguments.size());
                         Insert<?> insert = new Insert(id.getDomainClass(), setClause);
                         addToBatch(insert, values.isEmpty() ? null : values.toArray());
                     } else { // update statement
