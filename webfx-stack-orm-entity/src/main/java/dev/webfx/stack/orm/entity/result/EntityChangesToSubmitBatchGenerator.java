@@ -1,7 +1,12 @@
 package dev.webfx.stack.orm.entity.result;
 
+import dev.webfx.platform.async.Batch;
+import dev.webfx.platform.util.Arrays;
+import dev.webfx.stack.db.datascope.DataScope;
+import dev.webfx.stack.db.submit.GeneratedKeyBatchIndex;
+import dev.webfx.stack.db.submit.SubmitArgument;
+import dev.webfx.stack.db.submit.SubmitResult;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
-import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.domainmodel.DomainField;
 import dev.webfx.stack.orm.dql.sqlcompiler.ExpressionSqlCompiler;
 import dev.webfx.stack.orm.dql.sqlcompiler.lci.CompilerDomainModelReader;
@@ -11,17 +16,9 @@ import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.EntityStore;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.parser.lci.ParserDomainModelReader;
-import dev.webfx.stack.db.datascope.DataScope;
-import dev.webfx.stack.db.submit.GeneratedKeyBatchIndex;
-import dev.webfx.stack.db.submit.SubmitArgument;
-import dev.webfx.stack.db.submit.SubmitResult;
-import dev.webfx.platform.util.Arrays;
-import dev.webfx.platform.async.Batch;
 import dev.webfx.stack.orm.expression.terms.*;
 
-import java.io.Serializable;
 import java.util.*;
-import java.util.function.Function;
 
 /**
  * @author Bruno Salmon
@@ -57,8 +54,8 @@ public final class EntityChangesToSubmitBatchGenerator {
         private final DbmsSqlSyntax dbmsSyntax;
         private final CompilerDomainModelReader compilerModelReader;
         private final List<SubmitArgument> submitArguments;
-        private final Map<EntityId, Integer> newEntityIdInitialInsertBatchIndexes = new IdentityHashMap<>();
-        private List<Integer> newEntityFinalInsertBatchIndexes;
+        private final Map<EntityId, Integer> newEntityIdInitialIndexInBatchBeforeSort = new IdentityHashMap<>();
+        private List<Integer> newEntityIndexTranslationAfterSort;
 
         BatchGenerator(EntityChanges changes, Object dataSourceId, DataScope dataScope, DbmsSqlSyntax dbmsSyntax, CompilerDomainModelReader compilerModelReader, SubmitArgument... initialUpdates) {
             submitArguments = initialUpdates == null ? new ArrayList<>() : new ArrayList<>(Arrays.asList(initialUpdates));
@@ -83,69 +80,93 @@ public final class EntityChangesToSubmitBatchGenerator {
             // This sorting method also replaces all other (not new) EntityId with their primary key in the parameter
             // values so that they can be used as is without any transformation by the SubmitService.
             sortStatementsByCreationOrder();
+            // Grouping by batch
+            groupStatementsByBatch();
             // Returning the batch
             return new Batch<>(submitArguments.toArray(new SubmitArgument[0]));
         }
 
         public void applyGeneratedKeys(Batch<SubmitResult> ar, EntityStore store) {
-            for (Map.Entry<EntityId, Integer> entry : newEntityIdInitialInsertBatchIndexes.entrySet())
-                store.applyEntityIdRefactor(entry.getKey(), EntityId.create(entry.getKey().getDomainClass(), ar.getArray()[newEntityFinalInsertBatchIndexes.get(entry.getValue())].getGeneratedKeys()[0]));
+            for (Map.Entry<EntityId, Integer> entry : newEntityIdInitialIndexInBatchBeforeSort.entrySet()) {
+                EntityId entityId = entry.getKey();
+                Integer initialIndex = entry.getValue();
+                Integer finalIndex = newEntityIndexTranslationAfterSort.get(initialIndex);
+                store.applyEntityIdRefactor(entityId, EntityId.create(entityId.getDomainClass(), ar.getArray()[finalIndex].getGeneratedKeys()[0]));
+            }
         }
 
         void sortStatementsByCreationOrder() {
             int size = submitArguments.size();
-            int sorted = 0;
-            newEntityFinalInsertBatchIndexes = new ArrayList<>(size);
-            List<SubmitArgument> sortedList = new ArrayList<>(size);
-            for (int i = 0; i < size; i++) {
-                newEntityFinalInsertBatchIndexes.add(null);
-                sortedList.add(null);
-            }
-            while (sorted < size) {
-                boolean someResolved = false;
-                loop:
-                for (int batchIndex = 0; batchIndex < size; batchIndex++) {
-                    SubmitArgument arg = submitArguments.get(batchIndex);
-                    if (arg != null) {
-                        Object[] parameters = arg.getParameters();
+            // sortedList will be temporarily used to sort the SubmitArguments, and once finished, will be copied back to submitArguments
+            List<SubmitArgument> sortedList  = new ArrayList<>(Collections.nCopies(size, null)); // correct size already, but filled with null
+            //
+            newEntityIndexTranslationAfterSort = new ArrayList<>(Collections.nCopies(size, null)); // correct size already, but filled with null
+            int sortedIndex = 0; // number of sorted statements (used also as index)
+            while (sortedIndex < size) { // means the sort is not finished
+                // We are looking for the next statements with parameters resolved (i.e. value = literal or a newly
+                // generated id that is coming from a previous statement already sorted)
+                boolean someResolved = false; // will be set to true once we found one, which should happen unless cyclic references are present
+                loop: // iterating over all submitArguments not yet sorted
+                for (int index = 0; index < size; index++) {
+                    SubmitArgument arg = submitArguments.get(index);
+                    if (arg != null) { // a null value means it has been sorted already
+                        Object[] parameters = arg.getParameters(); // the parameters to check if they are resolved or not
+                        // We iterate over these parameters
                         for (int parameterIndex = 0, length = Arrays.length(parameters); parameterIndex < length; parameterIndex++) {
                             Object value = parameters[parameterIndex];
-                            if (value instanceof EntityId) {
+                            if (value instanceof EntityId) { // means it's a reference to another entity (and not a literal value)
+                                // In the process, we also replace EntityIds with primary keys (preparing for SQL)
                                 EntityId entityId = (EntityId) value;
-                                if (!entityId.isNew())
-                                    parameters[parameterIndex] = entityId.getPrimaryKey();
-                                else {
-                                    Integer initialIndex = newEntityIdInitialInsertBatchIndexes.get(entityId);
-                                    Integer finalIndex = initialIndex == null ? null : newEntityFinalInsertBatchIndexes.get(initialIndex);
-                                    if (finalIndex == null)
-                                        continue loop;
+                                if (!entityId.isNew()) // means the pk already exists in the database, so we can use it
+                                    parameters[parameterIndex] = entityId.getPrimaryKey(); // straightaway
+                                else { // otherwise, we don't know in advance the value before the database generates it
+                                    // (generated key). In that case, we replace it with a GeneratedKeyBatchIndex instance
+                                    // which will indicate the index of the previous statement in the batch that the
+                                    // server will need to take the value from (which will be generated at this time).
+                                    // To do that, we first get its initial index (before this sort).
+                                    Integer initialIndex = newEntityIdInitialIndexInBatchBeforeSort.get(entityId);
+                                    // Then we get its new index in the sorted list (will be null if not yet resolved)
+                                    Integer finalIndex = initialIndex == null ? null : newEntityIndexTranslationAfterSort.get(initialIndex);
+                                    if (finalIndex == null) // means that this parameter value is not yet resolved
+                                        continue loop; // therefore, we go to the next statement (this one can't be processed right now)
+                                    // If we get the final index, we record it inside a GeneratedKeyBatchIndex instance
                                     parameters[parameterIndex] = new GeneratedKeyBatchIndex(finalIndex);
                                 }
                             }
                         }
-                        newEntityFinalInsertBatchIndexes.set(batchIndex, sorted);
-                        sortedList.set(sorted++, arg);
-                        submitArguments.set(batchIndex, null);
+                        // If we reach this point, it means that there are no unresolved parameters for this
+                        // submitArgument and therefore, it is suitable to be executed as next in the sorted list.
+                        submitArguments.set(index, null); // Moving the submitArgument from the original list
+                        sortedList.set(sortedIndex, arg); // to the sorted list
+                        // and memorising the index translation between the 2 lists
+                        newEntityIndexTranslationAfterSort.set(index, sortedIndex);
+                        // Indicating that we found at least one statement that was resolved
                         someResolved = true;
+                        // Preparing for the next iteration
+                        sortedIndex++;
                     }
                 }
-                if (!someResolved)
+                // If none of the submitArgument could be resolved, we are stuck and can't sort the list anymore
+                if (!someResolved) // this happens when there are cyclic references, which we complain about
                     throw new IllegalStateException("Cyclic references detected");
             }
+            // Applying the result
             for (int i = 0; i < size; i++)
                 submitArguments.set(i, sortedList.get(i));
+        }
+
+        void groupStatementsByBatch() {
+
         }
 
 
         void generateDeletes() {
             Collection<EntityId> deletedEntities = changes.getDeletedEntityIds();
             if (deletedEntities != null && !deletedEntities.isEmpty()) {
-                /* Commented delete sort (not working), so for now the application code is reponsible for sequencing deletes
+                /* Commented delete sort (not working), so for now the application code is responsible for sequencing deletes
                 List<EntityId> deletedList = new ArrayList<>(deletedEntities);
                 // Sorting according to classes references
                 deletedList.sort(comparing(id -> id.getDomainClass().getName()));
-                for (EntityId deletedId : deletedList) // java 8 forEach doesn't compile with GWT
-                    generateDelete(deletedId);
                 */
                 deletedEntities.forEach(this::generateDelete);
             }
@@ -165,14 +186,14 @@ public final class EntityChangesToSubmitBatchGenerator {
                     for (Object fieldId : rs.getFieldIds(id))
                         if (fieldId != null) {
                             DomainField field = id.getDomainClass().getField(fieldId);
-                            assignments.add(new Equals<>(field, Parameter.UNNAMED_PARAMETER));
+                            assignments.add(new Equals(field, Parameter.UNNAMED_PARAMETER));
                             values.add(rs.getFieldValue(id, fieldId));
                         }
                     if (assignments.isEmpty() && !id.isNew())
                         continue;
                     ExpressionArray<?> setClause = new ExpressionArray(assignments);
                     if (id.isNew()) { // insert statement
-                        newEntityIdInitialInsertBatchIndexes.put(id, submitArguments.size());
+                        newEntityIdInitialIndexInBatchBeforeSort.put(id, submitArguments.size());
                         Insert<?> insert = new Insert(id.getDomainClass(), setClause);
                         addToBatch(insert, values.isEmpty() ? null : values.toArray());
                     } else { // update statement
@@ -181,7 +202,6 @@ public final class EntityChangesToSubmitBatchGenerator {
                         addToBatch(update, values.toArray());
                     }
                 }
-                // TODO: sort sql statements
             }
         }
 
