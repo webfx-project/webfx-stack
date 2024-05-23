@@ -15,7 +15,9 @@ public final class VertxLocalSubmitServiceProvider extends LocalSubmitServicePro
     @Override
     protected SubmitServiceProvider createLocalConnectedSubmitService(LocalDataSource localDataSource) {
         if (localDataSource.getDBMS() == DBMS.POSTGRES)
-            return new VertxLocalPostgresQuerySubmitServiceProvider(localDataSource);
+            return new RetryOnSocketExceptionSubmitServiceProvider(
+                    new VertxLocalPostgresQuerySubmitServiceProvider(localDataSource)
+            );
         return new VertxLocalQuerySubmitServiceProvider(localDataSource);
     }
 

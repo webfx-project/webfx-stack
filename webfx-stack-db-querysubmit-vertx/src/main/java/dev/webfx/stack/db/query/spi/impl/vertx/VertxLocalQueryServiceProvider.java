@@ -15,7 +15,9 @@ public final class VertxLocalQueryServiceProvider extends LocalQueryServiceProvi
     @Override
     protected QueryServiceProvider createLocalConnectedProvider(LocalDataSource localDataSource) {
         if (localDataSource.getDBMS() == DBMS.POSTGRES)
-            return new VertxLocalPostgresQuerySubmitServiceProvider(localDataSource);
+            return new RetryOnSocketExceptionQueryServiceProvider(
+                    new VertxLocalPostgresQuerySubmitServiceProvider(localDataSource)
+            );
         return new VertxLocalQuerySubmitServiceProvider(localDataSource);
     }
 

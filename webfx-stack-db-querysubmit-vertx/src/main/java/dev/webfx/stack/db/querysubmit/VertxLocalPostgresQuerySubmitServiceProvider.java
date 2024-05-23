@@ -116,14 +116,14 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
             // contains the parameters of that row (so it's also an array of Object[])
             Object[] parametersRows = ((Batch) parameters[0]).getArray();
             // For each row, we replace the GeneratedKeyReference instances with their actual generated keys (should be known as this stage)
-            Arrays.forEach(parametersRows, row -> replaceGeneratedKeyReferenceParameters((Object[]) row, batchIndexGeneratedKeys));
+            Arrays.forEach(parametersRows, row -> replaceGeneratedKeyReferencesWithActualGeneratedKeys((Object[]) row, batchIndexGeneratedKeys));
             // We map the rows array into a Vert.x Tuple array
             Tuple[] tuples = Arrays.map(parametersRows, params -> VertxSqlUtil.tupleFromArguments((Object[]) params), Tuple[]::new);
             // And finally execute that batch (passing the Tuples as a list)
             queryExecutionFuture = preparedQuery.executeBatch(Arrays.asList(tuples));
         } else { // Case a single row of parameters
             // We replace the GeneratedKeyReference instances with their actual generated keys (should be known as this stage)
-            replaceGeneratedKeyReferenceParameters(parameters, batchIndexGeneratedKeys);
+            replaceGeneratedKeyReferencesWithActualGeneratedKeys(parameters, batchIndexGeneratedKeys);
             // We execute that query (passing the arguments as a Vert.x Tuple)
             queryExecutionFuture = preparedQuery.execute(VertxSqlUtil.tupleFromArguments(parameters));
         }
@@ -138,14 +138,18 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
                 });
     }
 
-    private static void replaceGeneratedKeyReferenceParameters(Object[] parameters, List<Object[]> batchIndexGeneratedKeys) {
+    private static void replaceGeneratedKeyReferencesWithActualGeneratedKeys(Object[] parameters, List<Object[]> batchIndexGeneratedKeys) {
         if (batchIndexGeneratedKeys != null) {
             for (int i = 0, length = Arrays.length(parameters); i < length; i++) {
                 Object value = parameters[i];
                 if (value instanceof GeneratedKeyReference) {
-                    GeneratedKeyReference generatedKeyReference = (GeneratedKeyReference) value;
-                    Object[] generatedKeys = batchIndexGeneratedKeys.get(generatedKeyReference.getStatementBatchIndex());
-                    parameters[i] = generatedKeys[generatedKeyReference.getGeneratedKeyIndex()];
+                    GeneratedKeyReference ref = (GeneratedKeyReference) value;
+                    // Getting the indexes (should normally refer to a previous batch already executed at this point)
+                    int batchIndex = ref.getStatementBatchIndex();
+                    int generatedKeyIndex = ref.getGeneratedKeyIndex();
+                    // We get the actual generated key that ref was referring to, and replace the parameter value with it
+                    Object[] generatedKeys = batchIndexGeneratedKeys.get(batchIndex);
+                    parameters[i] = generatedKeys[generatedKeyIndex];
                 }
             }
         }
