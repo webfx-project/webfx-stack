@@ -1,1 +1,1 @@
-dev.webfx.stack.db.query.spi.impl.vertx.VertxQueryServiceProvider
+dev.webfx.stack.db.query.spi.impl.vertx.VertxLocalQueryServiceProvider

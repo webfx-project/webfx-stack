@@ -67,6 +67,7 @@
                 <artifactId>vertx-sql-client</artifactId>
                 <exported-packages>
                     <package>io.vertx.sqlclient</package>
+                    <package>io.vertx.sqlclient.impl</package>
                 </exported-packages>
             </library>
 

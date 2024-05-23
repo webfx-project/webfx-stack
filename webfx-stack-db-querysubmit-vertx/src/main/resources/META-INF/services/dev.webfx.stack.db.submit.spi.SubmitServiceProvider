@@ -1,1 +1,1 @@
-dev.webfx.stack.db.submit.spi.impl.vertx.VertxSubmitServiceProvider
+dev.webfx.stack.db.submit.spi.impl.vertx.VertxLocalSubmitServiceProvider

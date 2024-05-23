@@ -13,9 +13,8 @@ import dev.webfx.stack.db.datasource.LocalDataSource;
 import dev.webfx.stack.db.datasource.jdbc.JdbcDriverInfo;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
-import dev.webfx.stack.db.query.QueryResultBuilder;
 import dev.webfx.stack.db.query.spi.QueryServiceProvider;
-import dev.webfx.stack.db.submit.GeneratedKeyBatchIndex;
+import dev.webfx.stack.db.submit.GeneratedKeyReference;
 import dev.webfx.stack.db.submit.SubmitArgument;
 import dev.webfx.stack.db.submit.SubmitResult;
 import dev.webfx.stack.db.submit.listener.SubmitListenerService;
@@ -41,13 +40,13 @@ import java.util.function.BiConsumer;
 /**
  * @author Bruno Salmon
  */
-public final class VertxLocalConnectedQuerySubmitServiceProvider implements QueryServiceProvider, SubmitServiceProvider {
+public final class VertxLocalQuerySubmitServiceProvider implements QueryServiceProvider, SubmitServiceProvider {
 
     private final static boolean LOG_OPEN_CONNECTIONS = false;
 
     private final Pool pool;
 
-    public VertxLocalConnectedQuerySubmitServiceProvider(LocalDataSource localDataSource) {
+    public VertxLocalQuerySubmitServiceProvider(LocalDataSource localDataSource) {
         // Generating the Vertx Sql config from the connection details
         ConnectionDetails connectionDetails = localDataSource.getLocalConnectionDetails();
         PoolOptions poolOptions = new PoolOptions()
@@ -168,26 +167,12 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
         // long t0 = System.currentTimeMillis();
         executeQueryOnConnection(queryArgument.getStatement(), queryArgument.getParameters(), connection, ar -> {
             if (ar.failed()) { // Sql error
-                Console.log("DB executeSingleQueryOnConnection() failed", ar.cause());
+                Console.log("DB executeSingleQueryOnConnection() failed when executing: " + queryArgument.getStatement(), ar.cause());
                 promise.fail(ar.cause());
             } else { // Sql succeeded
                 // Transforming the result set into columnNames and values arrays
-                RowSet<Row> resultSet = ar.result();
-                int columnCount = resultSet.columnsNames().size();
-                int rowCount = resultSet.size();
-                QueryResultBuilder rsb = QueryResultBuilder.create(rowCount, columnCount);
-                // deactivated column names serialization - rsb.setColumnNames(resultSet.getColumnNames().toArray(new String[columnCount]));
-                int rowIndex = 0;
-                for (Row row : resultSet) {
-                    for (int columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-                        Object value = row.getValue(columnIndex);
-                        rsb.setValue(rowIndex, columnIndex, value);
-                    }
-                    rowIndex++;
-                }
-                // Console.log("Sql executed in " + (System.currentTimeMillis() - t0) + " ms: " + queryArgument);
-                // Building and returning the final QueryResult
-                promise.complete(rsb.build());
+                QueryResult rs = VertxSqlUtil.toWebFxQueryResult(ar.result());
+                promise.complete(rs);
             }
             // Closing the connection, so it can go back to the pool
             closeConnection(connection);
@@ -219,15 +204,7 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
                 Console.log("DB executeSubmitOnConnection() failed", res.cause());
                 promise.fail(res.cause());
             } else { // Sql succeeded
-                RowSet<Row> result = res.result();
-                Object[] generatedKeys = null;
-                if (submitArgument.returnGeneratedKeys() || submitArgument.getStatement().contains(" returning ")) {
-                    generatedKeys = new Object[result.size()];
-                    int rowIndex = 0;
-                    for (Row row : result)
-                        generatedKeys[rowIndex++] = row.getValue(0);
-                }
-                SubmitResult submitResult = new SubmitResult(result.rowCount(), generatedKeys);
+                SubmitResult submitResult = VertxSqlUtil.toWebFxSubmitResult(res.result(), submitArgument);
                 if (batch)
                     promise.complete(submitResult);
                 else {
@@ -256,9 +233,10 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
             Object[] parameters = updateArgument.getParameters();
             for (int i = 0, length = Arrays.length(parameters); i < length; i++) {
                 Object value = parameters[i];
-                if (value instanceof GeneratedKeyBatchIndex)
-                    parameters[i] = batchIndexGeneratedKeys.get(((GeneratedKeyBatchIndex) value).getBatchIndex());
+                if (value instanceof GeneratedKeyReference)
+                    parameters[i] = batchIndexGeneratedKeys.get(((GeneratedKeyReference) value).getStatementBatchIndex());
             }
+            long t0 = System.currentTimeMillis();
             executeSubmitOnConnection(updateArgument, connection, transaction, true, Promise.promise())
                     .onFailure(cause -> {
                         Console.log("DB executeUpdateBatchOnConnection()", cause);
@@ -266,6 +244,8 @@ public final class VertxLocalConnectedQuerySubmitServiceProvider implements Quer
                         transaction.rollback(event -> closeConnection(connection));
                     })
                     .onSuccess(submitResult -> {
+                        long t1 = System.currentTimeMillis();
+                        Console.log("DB query batch executed in " + (t1 - t0) + "ms");
                         Object[] generatedKeys = submitResult.getGeneratedKeys();
                         if (!Arrays.isEmpty(generatedKeys))
                             batchIndexGeneratedKeys.set(batchIndex.get(), generatedKeys[0]);
