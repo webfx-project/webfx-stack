@@ -7,6 +7,7 @@ package dev.webfx.stack.com.serial.spi.impl;
 import dev.webfx.platform.ast.AstObject;
 import dev.webfx.platform.ast.ReadOnlyAstArray;
 import dev.webfx.platform.ast.ReadOnlyAstObject;
+import dev.webfx.platform.util.Objects;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.SerialCodec;
 
@@ -99,6 +100,11 @@ public abstract class SerialCodecBase<T> implements SerialCodec<T> {
 
     protected void encodeInteger(AstObject serial, String key, Integer value) {
         encodeInteger(serial, key, value, NullEncoding.NULL_VALUE_IGNORED);
+    }
+
+    protected void encodeInteger(AstObject serial, String key, Integer value, Integer defaultValue) {
+        if (!Objects.areEquals(value, defaultValue))
+            encodeInteger(serial, key, value);
     }
 
     protected void encodeInteger(AstObject serial, String key, Integer value, NullEncoding nullEncoding) {
