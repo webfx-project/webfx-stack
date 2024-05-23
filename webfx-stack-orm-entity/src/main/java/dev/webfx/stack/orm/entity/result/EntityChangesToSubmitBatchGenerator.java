@@ -3,7 +3,7 @@ package dev.webfx.stack.orm.entity.result;
 import dev.webfx.platform.async.Batch;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.stack.db.datascope.DataScope;
-import dev.webfx.stack.db.submit.GeneratedKeyBatchIndex;
+import dev.webfx.stack.db.submit.GeneratedKeyReference;
 import dev.webfx.stack.db.submit.SubmitArgument;
 import dev.webfx.stack.db.submit.SubmitResult;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
@@ -55,6 +55,7 @@ public final class EntityChangesToSubmitBatchGenerator {
         private final CompilerDomainModelReader compilerModelReader;
         private final List<SubmitArgument> submitArguments;
         private final Map<EntityId, Integer> newEntityIdIndexInBatch = new IdentityHashMap<>();
+        private final Map<EntityId, Integer> newEntityIdIndexInGeneratedKeys = new IdentityHashMap<>();
 
         BatchGenerator(EntityChanges changes, Object dataSourceId, DataScope dataScope, DbmsSqlSyntax dbmsSyntax, CompilerDomainModelReader compilerModelReader, SubmitArgument... initialUpdates) {
             submitArguments = initialUpdates == null ? new ArrayList<>() : new ArrayList<>(Arrays.asList(initialUpdates));
@@ -73,15 +74,19 @@ public final class EntityChangesToSubmitBatchGenerator {
             generateInsertUpdates();
             // Finally sorting the statements so that any statement (insert or update) that is referring to a new entity
             // will be executed after that entity has been inserted into the database. For such statements, the parameter
-            // value referring to the new entity is replaced with a GeneratedKeyBatchIndex object that contains the index
+            // value referring to the new entity is replaced with a GeneratedKeyReference object that contains the index
             // of the insert statement in the batch. The SubmitService must replace that value with the generated key
             // returned by that insert statement (which will be already executed at this stage thanks to the sort).
             // This sorting method also replaces all other (not new) EntityId with their primary key in the parameter
             // values so that they can be used as is without any transformation by the SubmitService.
-            sortStatementsByCreationOrder();
-            // Grouping by batch
-            groupStatementsByBatch();
-            // Returning the batch
+            sortStatementsByDependencyOrder();
+            // Grouping identical statements. Ex:
+            // update X set f=? where id=? [p1, p2]
+            // update X set f=? where id=? [p3, p4]
+            // ...
+            // => update X set f=? where id=? [Batch([p1, p2], [p3, p4], ...] (=> single call to database)
+            groupIdenticalStatements();
+            // Returning the batch of SubmitArguments
             return new Batch<>(submitArguments.toArray(new SubmitArgument[0]));
         }
 
@@ -89,17 +94,21 @@ public final class EntityChangesToSubmitBatchGenerator {
             // Updating the Ids of the entities newly created with the generated keys returned by the database
             for (Map.Entry<EntityId, Integer> entry : newEntityIdIndexInBatch.entrySet()) {
                 EntityId newEntityId = entry.getKey();
-                Integer indexInBatch = entry.getValue();
+                int indexInBatch = entry.getValue();
                 SubmitResult submitResult = ar.get(indexInBatch);
-                Object generatedKey = submitResult.getGeneratedKeys()[0];
-                store.applyEntityIdRefactor(newEntityId, generatedKey);
+                int generatedKeyIndex = newEntityIdIndexInGeneratedKeys.getOrDefault(newEntityId, 0);
+                if (generatedKeyIndex == 0) { // We ignore index > 0 for now due to a Vert.x bug that returns only 1 row
+                    Object generatedKey = submitResult.getGeneratedKeys()[generatedKeyIndex];
+                    store.applyEntityIdRefactor(newEntityId, generatedKey);
+                }
             }
         }
 
-        void sortStatementsByCreationOrder() {
+        void sortStatementsByDependencyOrder() {
+            // TODO: make an initial sort by statement here to optimize the chance of grouping after the dependency sort
             int size = submitArguments.size();
             // sortedList will be temporarily used to sort the SubmitArguments, and once finished, will be copied back to submitArguments
-            List<SubmitArgument> sortedList  = new ArrayList<>(Collections.nCopies(size, null)); // correct size already, but initially filled with null
+            List<SubmitArgument> sortedList = new ArrayList<>(Collections.nCopies(size, null)); // correct size already, but initially filled with null
             // This second list will memorize the index translation of the SubmitArguments (index in initial list => index in the sorted list)
             List<Integer> newEntityIndexTranslationAfterSort = new ArrayList<>(Collections.nCopies(size, null)); // correct size already, but initially filled with null
             boolean indexChanged = false; // flag to skip the final index update loop if not necessary (optimization)
@@ -132,7 +141,7 @@ public final class EntityChangesToSubmitBatchGenerator {
                                     if (finalIndex == null) // means that this parameter value is not yet resolved
                                         continue loop; // therefore, we go to the next statement (this one can't be processed right now)
                                     // If we get the final index, we record it inside a GeneratedKeyBatchIndex instance
-                                    parameters[parameterIndex] = new GeneratedKeyBatchIndex(finalIndex);
+                                    parameters[parameterIndex] = new GeneratedKeyReference(finalIndex);
                                 }
                             }
                         }
@@ -167,10 +176,96 @@ public final class EntityChangesToSubmitBatchGenerator {
             }
         }
 
-        void groupStatementsByBatch() {
-
+        void groupIdenticalStatements() {
+            // We create a list that will group all identical SubmitArgument (parameters will be grouped in a Batch)
+            List<SubmitArgument> groupList = new ArrayList<>(submitArguments.size());
+            List<Integer> batchIndexTranslations = new ArrayList<>(submitArguments.size());
+            // Initial empty group (no sample) that will be seen as a group break with the first SubmitArgument in the loop
+            SubmitArgument groupSample = null;
+            List<Object[]> groupParameters = null;
+            // We iterate over all submitArguments and try to group them
+            for (SubmitArgument submitArgument : submitArguments) {
+                // We try to add the submitArgument in the existing group (won't work with initial empty group)
+                boolean added = addToExistingStatementGroup(submitArgument, groupSample, groupParameters);
+                if (!added) { // => group break
+                    // We record the possible existing group into the groupList (initial null will be skipped)
+                    recordExistingStatementGroup(groupSample, groupParameters, groupList, batchIndexTranslations);
+                    // and start a new group with this submitArgument as sample
+                    groupSample = submitArgument;
+                    groupParameters = new ArrayList<>();
+                }
+            }
+            // We record the possible last existing group into the groupList
+            recordExistingStatementGroup(groupSample, groupParameters, groupList, batchIndexTranslations); // Final group break
+            // We correct newEntityIdIndexInBatch & newEntityIdIndexInGeneratedKeys
+            for (Map.Entry<EntityId, Integer> entry : newEntityIdIndexInBatch.entrySet()) {
+                EntityId newEntityId = entry.getKey();
+                int batchIndex = entry.getValue();
+                // Correcting index in batch
+                int newBatchIndex = batchIndexTranslations.get(batchIndex);
+                entry.setValue(newBatchIndex);
+                // Correcting index in generated keys
+                int newGeneratedKeyIndex = getGeneratedKeyIndexShift(batchIndex, batchIndexTranslations);
+                newEntityIdIndexInGeneratedKeys.put(newEntityId, newGeneratedKeyIndex);
+            }
+            // We apply the resulting groupList into our submitArguments
+            submitArguments.clear();
+            submitArguments.addAll(groupList);
         }
 
+        private boolean addToExistingStatementGroup(SubmitArgument submitArgument, SubmitArgument groupSample, List<Object[]> groupParameters) {
+            String statement = submitArgument.getStatement();
+            Object[] parameters = submitArgument.getParameters();
+            if (parameters != null && groupSample != null && Objects.equals(statement, groupSample.getStatement())) {
+                if (groupParameters.isEmpty()) {
+                    groupParameters.add(groupSample.getParameters());
+                }
+                groupParameters.add(parameters);
+                return true;
+            }
+            return false;
+        }
+
+        private void recordExistingStatementGroup(SubmitArgument groupSample, List<Object[]> groupParameters, List<SubmitArgument> groupList, List<Integer> batchIndexTranslations) {
+            if (groupSample != null) {
+                if (groupParameters == null || groupParameters.isEmpty()) { // means it was the only one in the group
+                    groupList.add(groupSample); // so we just reinsert it as is
+                    batchIndexTranslations.add(groupList.size() - 1);
+                    translateParametersKeyReferences(groupSample.getParameters(), batchIndexTranslations, groupList);
+                } else { // means there were several statements in the group
+                    Batch<Object> parametersBatch = new Batch<>(groupParameters.toArray());
+                    groupList.add(newSubmitArgument(groupSample.getLanguage(), groupSample.getStatement(), parametersBatch));
+                    for (Object[] parameters : groupParameters) {
+                        batchIndexTranslations.add(groupList.size() - 1);
+                        translateParametersKeyReferences(parameters, batchIndexTranslations, groupList);
+                    }
+                }
+            }
+        }
+
+        private void translateParametersKeyReferences(Object[] parameters, List<Integer> batchIndexTranslations, List<SubmitArgument> groupList) {
+            for (int parameterIndex = 0, length = Arrays.length(parameters); parameterIndex < length; parameterIndex++) {
+                Object value = parameters[parameterIndex];
+                if (value instanceof GeneratedKeyReference) {
+                    GeneratedKeyReference ref = (GeneratedKeyReference) value;
+                    int batchIndex = ref.getStatementBatchIndex();
+                    int generatedKeyIndex = ref.getGeneratedKeyIndex();
+                    int newBatchIndex = batchIndexTranslations.get(batchIndex); // may be shorter than batchIndex if some earlier statements were grouped
+                    int newGeneratedKeyIndex = generatedKeyIndex + getGeneratedKeyIndexShift(batchIndex, batchIndexTranslations);
+                    if (newBatchIndex != batchIndex || newGeneratedKeyIndex != generatedKeyIndex)
+                        parameters[parameterIndex] = new GeneratedKeyReference(newBatchIndex, newGeneratedKeyIndex);
+                }
+            }
+        }
+
+        private int getGeneratedKeyIndexShift(int batchIndex, List<Integer> batchIndexTranslations) {
+            int newBatchIndex = batchIndexTranslations.get(batchIndex); // may be shorter than batchIndex if some earlier statements were grouped
+            int shift = 0;
+            for (int previousBatchIndex = batchIndex - 1; previousBatchIndex >= 0 && batchIndexTranslations.get(previousBatchIndex) == newBatchIndex; previousBatchIndex--) {
+                shift++;
+            }
+            return shift;
+        }
 
         void generateDeletes() {
             Collection<EntityId> deletedEntities = changes.getDeletedEntityIds();
@@ -230,14 +325,18 @@ public final class EntityChangesToSubmitBatchGenerator {
             addToBatch(null, sqlcompiled.getSql(), parameters);
         }
 
-        void addToBatch(String submitLang, String submitString, Object... parameters) {
-            submitArguments.add(SubmitArgument.builder()
+        void addToBatch(String language, String statement, Object... parameters) {
+            submitArguments.add(newSubmitArgument(language, statement, parameters));
+        }
+
+        SubmitArgument newSubmitArgument(String language, String statement, Object... parameters) {
+            return SubmitArgument.builder()
                     .setDataSourceId(dataSourceId)
                     .setDataScope(dataScope)
-                    .setLanguage(submitLang)
-                    .setStatement(submitString)
+                    .setLanguage(language)
+                    .setStatement(statement)
                     .setParameters(parameters)
-                    .build());
+                    .build();
         }
     }
 }
