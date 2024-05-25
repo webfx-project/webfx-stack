@@ -4,10 +4,13 @@ import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.QueryResultBuilder;
 import dev.webfx.stack.db.submit.SubmitArgument;
 import dev.webfx.stack.db.submit.SubmitResult;
-import io.vertx.sqlclient.Row;
-import io.vertx.sqlclient.RowSet;
-import io.vertx.sqlclient.Tuple;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.sqlclient.*;
 import io.vertx.sqlclient.impl.ArrayTuple;
+
+import java.net.SocketException;
+import java.util.function.Function;
 
 /**
  * @author Bruno Salmon
@@ -48,5 +51,43 @@ final class VertxSqlUtil {
         if (parameters == null)
             return new ArrayTuple(0);
         return Tuple.from(parameters);
+    }
+
+    static <T> Future<T> withConnection(Pool pool, Function<SqlConnection, Future<T>> function) {
+        //return pool.withConnection(function); // The issue is that it always returns the connection to the pool even if it's broken
+        return pool.getConnection()
+                .compose( connection -> function
+                        .apply(connection)
+                        .onComplete(ar -> returnConnectionToPoolIfNotBroken(ar, connection)));
+    }
+
+    static <T> Future<T> withTransaction(Pool pool, Function<SqlConnection, Future<T>> function) {
+        //return pool.withTransaction(function); // The issue is that it always returns the connection to the pool even if it's broken
+        return pool.getConnection()
+                .flatMap(conn -> conn
+                        .begin()
+                        .flatMap(tx -> function
+                                .apply(conn)
+                                .compose(
+                                        res -> tx
+                                                .commit()
+                                                .flatMap(v -> Future.succeededFuture(res)),
+                                        err -> {
+                                            if (err instanceof TransactionRollbackException) {
+                                                return Future.failedFuture(err);
+                                            } else {
+                                                return tx
+                                                        .rollback()
+                                                        .compose(v -> Future.failedFuture(err), failure -> Future.failedFuture(err));
+                                            }
+                                        }))
+                        //.onComplete(ar -> conn.close()));
+                        .onComplete(ar -> returnConnectionToPoolIfNotBroken(ar, conn)));
+    }
+
+    private static <T> void returnConnectionToPoolIfNotBroken(AsyncResult<T> ar, SqlConnection connection) {
+        // Returning to the pool, unless it's broken (i.e. SocketException, typically "Connection reset")
+        if (ar.succeeded() || !(ar.cause() instanceof SocketException))
+            connection.close();
     }
 }

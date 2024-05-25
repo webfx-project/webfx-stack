@@ -18,13 +18,11 @@ import io.vertx.pgclient.PgBuilder;
 import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.sqlclient.*;
 
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
-import static dev.webfx.platform.vertx.common.VertxFutureUtil.toVertxFuture;
-import static dev.webfx.platform.vertx.common.VertxFutureUtil.toWebFxFuture;
+import static dev.webfx.platform.vertx.common.VertxFutureUtil.*;
+import static dev.webfx.stack.db.querysubmit.VertxSqlUtil.*;
 
 /**
  * @author Bruno Salmon
@@ -55,12 +53,12 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
 
     @Override
     public Future<QueryResult> executeQuery(QueryArgument argument) {
-        return toWebFxFuture( withConnection(connection -> executeConnectionQuery(connection, argument)) );
+        return toWebFxFuture( withConnection(pool, connection -> executeConnectionQuery(connection, argument)) );
     }
 
     @Override
     public Future<Batch<QueryResult>> executeQueryBatch(Batch<QueryArgument> batch) {
-        return toWebFxFuture( withConnection(connection ->
+        return toWebFxFuture( withConnection(pool, connection ->
             toVertxFuture( batch.executeSerial(QueryResult[]::new, arg ->
                     toWebFxFuture( executeConnectionQuery(connection, arg))))
         ));
@@ -69,13 +67,13 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
     private io.vertx.core.Future<QueryResult> executeConnectionQuery(SqlConnection connection, QueryArgument argument) {
         return connection
                 .preparedQuery(argument.getStatement())
-                .execute(VertxSqlUtil.tupleFromArguments(argument.getParameters()))
+                .execute(tupleFromArguments(argument.getParameters()))
                 .map(VertxSqlUtil::toWebFxQueryResult);
     }
 
     @Override
     public Future<SubmitResult> executeSubmit(SubmitArgument argument) {
-        return toWebFxFuture( withConnection(connection -> executeIndividualSubmitWithConnection(argument, connection, null)) );
+        return toWebFxFuture( withConnection(pool, connection -> executeIndividualSubmitWithConnection(argument, connection, null)) );
     }
 
     @Override
@@ -87,7 +85,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
         List<Object[]> batchIndexGeneratedKeys = new ArrayList<>(batch.getArray().length);
         long t0 = System.currentTimeMillis();
         // We embed the batch execution inside a transaction using Vert.x API (and convert the return Vert.x Future<SubmitResult> into WebFX Future<SubmitResult>)
-        return toWebFxFuture( withTransaction(connection ->
+        return toWebFxFuture( withTransaction(pool, connection ->
             // We execute the batch in a serial order (we need a couple of Vert.x <-> WebFX Future for that)
             toVertxFuture( batch.executeSerial(SubmitResult[]::new, arg -> toWebFxFuture(
                     // We execute each individual submit, passing batchIndexGeneratedKeys (for GeneratedKeyReference resolution)
@@ -120,14 +118,14 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
             // For each row, we replace the GeneratedKeyReference instances with their actual generated keys (should be known as this stage)
             Arrays.forEach(parametersRows, row -> replaceGeneratedKeyReferencesWithActualGeneratedKeys((Object[]) row, batchIndexGeneratedKeys));
             // We map the rows array into a Vert.x Tuple array
-            Tuple[] tuples = Arrays.map(parametersRows, params -> VertxSqlUtil.tupleFromArguments((Object[]) params), Tuple[]::new);
+            Tuple[] tuples = Arrays.map(parametersRows, params -> tupleFromArguments((Object[]) params), Tuple[]::new);
             // And finally execute that batch (passing the Tuples as a list)
             queryExecutionFuture = preparedQuery.executeBatch(Arrays.asList(tuples));
         } else { // Case a single row of parameters
             // We replace the GeneratedKeyReference instances with their actual generated keys (should be known as this stage)
             replaceGeneratedKeyReferencesWithActualGeneratedKeys(parameters, batchIndexGeneratedKeys);
             // We execute that query (passing the arguments as a Vert.x Tuple)
-            queryExecutionFuture = preparedQuery.execute(VertxSqlUtil.tupleFromArguments(parameters));
+            queryExecutionFuture = preparedQuery.execute(tupleFromArguments(parameters));
         }
         // Waiting the completion of the previous query execution
         long t0 = System.currentTimeMillis();
@@ -136,7 +134,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
                     long t1 = System.currentTimeMillis();
                     Console.log("DB query executed in " + (t1 - t0) + "ms (" + argument.getStatement() + ")");
                     // We convert that Vert.x RowSet into a WebFX SubmitResult
-                    return VertxSqlUtil.toWebFxSubmitResult(rs, argument);
+                    return toWebFxSubmitResult(rs, argument);
                 });
     }
 
@@ -156,46 +154,5 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
             }
         }
     }
-
-    private <T> io.vertx.core.Future<T> withConnection(Function<SqlConnection, io.vertx.core.Future<T>> function) {
-        //return pool.withConnection(function); // The issue is that it always returns the connection to the pool even if it's broken
-        return pool.getConnection()
-                .compose( connection -> function
-                        .apply(connection)
-                        .onComplete(ar -> {
-                            // Returning to the pool, unless it's broken (i.e. SocketException, typically "Connection reset")
-                            if (ar.succeeded() || !(ar.cause() instanceof SocketException))
-                                connection.close();
-                        }));
-    }
-
-    private <T> io.vertx.core.Future<T> withTransaction(Function<SqlConnection, io.vertx.core.Future<T>> function) {
-        //return pool.withTransaction(function); // The issue is that it always returns the connection to the pool even if it's broken
-        return pool.getConnection()
-                .flatMap(conn -> conn
-                        .begin()
-                        .flatMap(tx -> function
-                                .apply(conn)
-                                .compose(
-                                        res -> tx
-                                                .commit()
-                                                .flatMap(v -> io.vertx.core.Future.succeededFuture(res)),
-                                        err -> {
-                                            if (err instanceof TransactionRollbackException) {
-                                                return io.vertx.core.Future.failedFuture(err);
-                                            } else {
-                                                return tx
-                                                        .rollback()
-                                                        .compose(v -> io.vertx.core.Future.failedFuture(err), failure -> io.vertx.core.Future.failedFuture(err));
-                                            }
-                                        }))
-                        //.onComplete(ar -> conn.close()));
-                        .onComplete(ar -> {
-                            // Returning to the pool, unless it's broken (i.e. SocketException, typically "Connection reset")
-                            if (ar.succeeded() || !(ar.cause() instanceof SocketException))
-                                conn.close();
-                        }));
-    }
-
 
 }
