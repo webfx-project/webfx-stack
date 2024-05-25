@@ -1,5 +1,6 @@
 package dev.webfx.stack.db.querysubmit;
 
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.QueryResultBuilder;
 import dev.webfx.stack.db.submit.SubmitArgument;
@@ -11,11 +12,14 @@ import io.vertx.sqlclient.impl.ArrayTuple;
 
 import java.net.SocketException;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author Bruno Salmon
  */
 final class VertxSqlUtil {
+
+    private static final int MAX_RETRY_COUNT = 20;
 
     static QueryResult toWebFxQueryResult(RowSet<Row> rs) {
         int columnCount = rs.columnsNames().size();
@@ -55,15 +59,16 @@ final class VertxSqlUtil {
 
     static <T> Future<T> withConnection(Pool pool, Function<SqlConnection, Future<T>> function) {
         //return pool.withConnection(function); // The issue is that it always returns the connection to the pool even if it's broken
-        return pool.getConnection()
+        return tryAndRetryOnBrokenConnection(0, () -> pool.getConnection()
                 .compose( connection -> function
                         .apply(connection)
-                        .onComplete(ar -> returnConnectionToPoolIfNotBroken(ar, connection)));
+                        .onComplete(ar -> returnConnectionToPoolIfNotBroken(ar, connection)))
+        );
     }
 
     static <T> Future<T> withTransaction(Pool pool, Function<SqlConnection, Future<T>> function) {
         //return pool.withTransaction(function); // The issue is that it always returns the connection to the pool even if it's broken
-        return pool.getConnection()
+        return tryAndRetryOnBrokenConnection(0, () -> pool.getConnection()
                 .flatMap(conn -> conn
                         .begin()
                         .flatMap(tx -> function
@@ -82,12 +87,29 @@ final class VertxSqlUtil {
                                             }
                                         }))
                         //.onComplete(ar -> conn.close()));
-                        .onComplete(ar -> returnConnectionToPoolIfNotBroken(ar, conn)));
+                        .onComplete(ar -> returnConnectionToPoolIfNotBroken(ar, conn)))
+        );
     }
 
     private static <T> void returnConnectionToPoolIfNotBroken(AsyncResult<T> ar, SqlConnection connection) {
         // Returning to the pool, unless it's broken (i.e. SocketException, typically "Connection reset")
-        if (ar.succeeded() || !(ar.cause() instanceof SocketException))
+        if (!isBrokenConnectionCause(ar.cause()))
             connection.close();
+    }
+
+    private static boolean isBrokenConnectionCause(Throwable cause) {
+        // We consider the connection broken when we get a SocketException (typically "Connection reset")
+        return cause instanceof SocketException;
+    }
+
+    private static <T> Future<T> tryAndRetryOnBrokenConnection(int retryCount, Supplier<Future<T>> connectionMethod) {
+        return connectionMethod.get()
+                .recover(cause -> {
+                    if (isBrokenConnectionCause(cause) && retryCount <= MAX_RETRY_COUNT) {
+                        Console.log("Detected broken database connection, retrying with another connection (retryCount = " + (retryCount + 1) + ")");
+                        return tryAndRetryOnBrokenConnection(retryCount + 1, connectionMethod);
+                    }
+                    return Future.failedFuture(cause);
+                });
     }
 }
