@@ -11,6 +11,8 @@ import io.vertx.sqlclient.*;
 import io.vertx.sqlclient.impl.ArrayTuple;
 
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -40,15 +42,17 @@ final class VertxSqlUtil {
     }
 
     static SubmitResult toWebFxSubmitResult(RowSet<Row> rows, SubmitArgument submitArgument) {
-        Object[] generatedKeys = null;
-        if (submitArgument.returnGeneratedKeys() || submitArgument.getStatement().contains(" returning ")) {
-            generatedKeys = new Object[rows.size()];
-            int rowIndex = 0;
-            for (Row row : rows) {
-                generatedKeys[rowIndex++] = row.getValue(0);
+        int rowCount = 0;
+        List<Object> generatedKeys = null;
+        if (submitArgument.returnGeneratedKeys() || submitArgument.getStatement().contains(" returning "))
+            generatedKeys = new ArrayList<>();
+        for (; rows != null; rows = rows.next(), rowCount++) {
+            if (generatedKeys != null) {
+                Row row = rows.iterator().next();
+                generatedKeys.add(row.getValue(0));
             }
         }
-        return new SubmitResult(rows.rowCount(), generatedKeys);
+        return new SubmitResult(rowCount, generatedKeys == null ? null : generatedKeys.toArray());
     }
 
     static Tuple tupleFromArguments(Object[] parameters) {

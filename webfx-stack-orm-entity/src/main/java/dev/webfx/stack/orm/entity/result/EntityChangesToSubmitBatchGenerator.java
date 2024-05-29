@@ -97,10 +97,8 @@ public final class EntityChangesToSubmitBatchGenerator {
                 int indexInBatch = entry.getValue();
                 SubmitResult submitResult = ar.get(indexInBatch);
                 int generatedKeyIndex = newEntityIdIndexInGeneratedKeys.getOrDefault(newEntityId, 0);
-                if (generatedKeyIndex == 0) { // We ignore index > 0 for now due to a Vert.x bug that returns only 1 row
-                    Object generatedKey = submitResult.getGeneratedKeys()[generatedKeyIndex];
-                    store.applyEntityIdRefactor(newEntityId, generatedKey);
-                }
+                Object generatedKey = submitResult.getGeneratedKeys()[generatedKeyIndex];
+                store.applyEntityIdRefactor(newEntityId, generatedKey);
             }
         }
 
