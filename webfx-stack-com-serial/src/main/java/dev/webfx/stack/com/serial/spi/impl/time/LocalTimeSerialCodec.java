@@ -19,12 +19,12 @@ public final class LocalTimeSerialCodec extends SerialCodecBase<LocalTime> {
     }
 
     @Override
-    public void encodeToJson(LocalTime value, AstObject json) {
-        json.set(VALUE_KEY, value.toString());
+    public void encode(LocalTime value, AstObject serial) {
+        encodeLocalTime(serial, VALUE_KEY, value);
     }
 
     @Override
-    public LocalTime decodeFromJson(ReadOnlyAstObject json) {
-        return LocalTime.parse(json.get(VALUE_KEY));
+    public LocalTime decode(ReadOnlyAstObject serial) {
+        return decodeLocalTime(serial, VALUE_KEY);
     }
 }

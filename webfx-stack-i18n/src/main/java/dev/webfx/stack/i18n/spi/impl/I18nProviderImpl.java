@@ -1,7 +1,10 @@
 package dev.webfx.stack.i18n.spi.impl;
 
+import dev.webfx.platform.console.Console;
+import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Strings;
+import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.stack.i18n.DefaultTokenKey;
 import dev.webfx.stack.i18n.Dictionary;
 import dev.webfx.stack.i18n.TokenKey;
@@ -26,11 +29,12 @@ import static dev.webfx.platform.util.Objects.isAssignableFrom;
  */
 public class I18nProviderImpl implements I18nProvider {
 
-    private static class TokenSnapshot {
+    private class TokenSnapshot {
         private final Dictionary dictionary;
         private final Object i18nKey;
         private final TokenKey tokenKey;
         private final Object tokenValue;
+        private final I18nProviderImpl i18nProvider = I18nProviderImpl.this;
 
         public TokenSnapshot(Dictionary dictionary, Object i18nKey, TokenKey tokenKey, Object tokenValue) {
             this.dictionary = dictionary;
@@ -46,7 +50,15 @@ public class I18nProviderImpl implements I18nProvider {
             public <T> T raiseValue(Object value, Class<T> raisedClass, Object... args) {
                 if (value instanceof TokenSnapshot) {
                     TokenSnapshot tokenSnapshot = (TokenSnapshot) value;
-                    value = tokenSnapshot.tokenValue;
+                    // value = tokenSnapshot.tokenValue; // this value may be deprecated (see explanation below)
+                    // Although args are not handled here (they will be later), it's possible that the i18nKey internal
+                    // state has changed. This happens for example in BookEventActivity (Modality front-office) with
+                    // new I18nSubKey("expression: venue.address", FXEvent.eventProperty()), loadedProperty)
+                    // where parentI18nKey = FX.eventProperty() is an entity that may not be completely loaded on first
+                    // i18n evaluation. The argument loadedProperty is actually not used in the evaluation itself, its
+                    // purpose is just to trigger a new i18n evaluation once the entity is completely loaded. At this
+                    // point, we need to refresh the value with a new i18n evaluation.
+                    value = tokenSnapshot.i18nProvider.getFreshTokenValueFromSnapshot(tokenSnapshot);
                     if (value == null)
                         return null; // TODO: find a way to tell the ValueConverterRegistry that null is the actual final value
                     if (isAssignableFrom(raisedClass, value.getClass()))
@@ -61,7 +73,10 @@ public class I18nProviderImpl implements I18nProvider {
     private final Object defaultLanguage; // The language to find message parts (such as graphic) when missing in the current language
     private boolean dictionaryLoadRequired;
     private final DictionaryLoader dictionaryLoader;
-    private Set<Object> unloadedKeys, unloadedDefaultKeys;
+    private Scheduled dictionaryLoadingScheduled;
+    private final Set<Object> keysToLoad = new HashSet<>();
+    private final Set<Object> defaultKeysToLoad = new HashSet<>();
+    private final Set<Object> blacklistedKeys = new HashSet<>();
 
     public I18nProviderImpl(DictionaryLoader dictionaryLoader, Object defaultLanguage, Object initialLanguage) {
         this.dictionaryLoader = dictionaryLoader;
@@ -235,55 +250,83 @@ public class I18nProviderImpl implements I18nProvider {
             scheduleMessageLoading(i18nKey, false);
         else {
             Dictionary dictionary = getDictionary();
-            TokenKey tokenKey = tokenSnapshot.tokenKey;
-            Object freshTokenValue = getDictionaryTokenValueImpl(i18nKey, (Enum<?> & TokenKey) tokenKey, dictionary, false, false, true);
+            Object freshTokenValue = getFreshTokenValueFromSnapshot(tokenSnapshot, dictionary);
             if (!Objects.equals(tokenSnapshot.tokenValue, freshTokenValue) || tokenSnapshot.dictionary != dictionary)
-                dictionaryTokenProperty.setValue(new TokenSnapshot(dictionary, i18nKey, tokenKey, freshTokenValue));
+                dictionaryTokenProperty.setValue(new TokenSnapshot(dictionary, i18nKey, tokenSnapshot.tokenKey, freshTokenValue));
         }
         return dictionaryTokenProperty;
     }
 
-    public void refreshMessageTokenProperties(Object i18nKey) {
-        refreshMessageTokenSnapshots(liveDictionaryTokenProperties.get(i18nKey));
+    private Object getFreshTokenValueFromSnapshot(TokenSnapshot tokenSnapshot) {
+        return getFreshTokenValueFromSnapshot(tokenSnapshot, tokenSnapshot.dictionary);
+    }
+
+    private Object getFreshTokenValueFromSnapshot(TokenSnapshot tokenSnapshot, Dictionary dictionary) {
+        Object i18nKey = tokenSnapshot.i18nKey;
+        TokenKey tokenKey = tokenSnapshot.tokenKey;
+        return getDictionaryTokenValueImpl(i18nKey, (Enum<?> & TokenKey) tokenKey, dictionary, false, false, true);
+    }
+
+    public boolean refreshMessageTokenProperties(Object i18nKey) {
+        Map<TokenKey, Reference<Property<TokenSnapshot>>> messageMap = liveDictionaryTokenProperties.get(i18nKey);
+        refreshMessageTokenSnapshots(messageMap);
+        return messageMap != null;
     }
 
     @Override
     public void scheduleMessageLoading(Object i18nKey, boolean inDefaultLanguage) {
-        Set<Object> unloadedI18nKeys = getUnloadedKeys(inDefaultLanguage);
-        if (unloadedI18nKeys != null)
-            unloadedI18nKeys.add(i18nKey);
-        else {
-            setUnloadedKeys(unloadedI18nKeys = new HashSet<>(), inDefaultLanguage);
-            unloadedI18nKeys.add(i18nKey);
-            UiScheduler.scheduleDeferred(() -> {
-                Object language = inDefaultLanguage ? getDefaultLanguage() : getLanguage();
-                Set<Object> loadingI18nKeys = getUnloadedKeys(inDefaultLanguage);
-                Set<Object> loadingMessageKeys = loadingI18nKeys.stream() // Possible NPE observed!
-                        .map(this::i18nKeyToDictionaryMessageKey).collect(Collectors.toSet()); // TODO: fix possible ConcurrentModificationException
-                dictionaryLoader.loadDictionary(language, loadingMessageKeys)
+        if (blacklistedKeys.contains(i18nKey))
+            return;
+        // Adding the key to the keys to load
+        Set<Object> keysToLoad = getKeysToLoad(inDefaultLanguage);
+        keysToLoad.add(i18nKey);
+        // Scheduling the dictionary loading if not already done
+        if (dictionaryLoadingScheduled == null || dictionaryLoadingScheduled.isFinished()) {
+            // Capturing the requested language (either current of default)
+            Object language = inDefaultLanguage ? getDefaultLanguage() : getLanguage();
+            // We schedule the load but defer it because we will probably have many successive calls to this method while
+            // the application code is building the user interface. Only after collecting all the keys during these calls
+            // (presumably in the same animation frame) we do the actual load of these keys.
+            dictionaryLoadingScheduled = UiScheduler.scheduleDeferred(() -> {
+                // Making a copy of the keys before clearing it for the next possible schedule
+                Set<Object> loadingKeys = new HashSet<>(keysToLoad);
+                keysToLoad.clear();
+                // Extracting the message keys to load from them (in case they are different)
+                Set<Object> messageKeysToLoad = loadingKeys.stream()
+                        .map(this::i18nKeyToDictionaryMessageKey).collect(Collectors.toSet());
+                // Asking the dictionary loader to load these messages in that language
+                dictionaryLoader.loadDictionary(language, messageKeysToLoad)
+                        .onFailure(Console::log)
                         .onSuccess(dictionary -> {
-                            if (!inDefaultLanguage)
-                                dictionaryProperty.setValue(dictionary); // TODO: fix possible java.lang.NullPointerException: Cannot invoke "javafx.beans.value.ChangeListener.changed(javafx.beans.value.ObservableValue, Object, Object)" because "<local3>[<local7>]" is null
+                            // Once the dictionary is loaded, we take it as the current dictionary if it's in the current language
+                            if (language.equals(getLanguage())) // unless the load was a fallback to the default language
+                                dictionaryProperty.setValue(dictionary);
+                            // Also taking it as the default dictionary if it's in the default language
                             if (language.equals(getDefaultLanguage()))
                                 defaultDictionaryProperty.setValue(dictionary);
+                            // Turning off dictionaryLoadRequired
                             dictionaryLoadRequired = false;
-                            for (Object key : loadingI18nKeys)
-                                refreshMessageTokenProperties(key);
+                            // Refreshing all loaded keys in the user interface
+                            Set<Object> unfoundKeys = null;
+                            for (Object key : loadingKeys) {
+                                boolean found = refreshMessageTokenProperties(key);
+                                if (!found) {
+                                    if (unfoundKeys == null)
+                                        unfoundKeys = new HashSet<>();
+                                    unfoundKeys.add(key);
+                                }
+                            }
+                            if (unfoundKeys != null) {
+                                blacklistedKeys.addAll(unfoundKeys);
+                                Console.log("⚠️ I18n keys not found (now blacklisted): " + Collections.toString(unfoundKeys, false, false));
+                            }
                         });
-                setUnloadedKeys(null, inDefaultLanguage);
             });
         }
     }
 
-    private Set<Object> getUnloadedKeys(boolean inDefaultLanguage) {
-        return inDefaultLanguage ? unloadedDefaultKeys : unloadedKeys;
-    }
-
-    private void setUnloadedKeys(Set<Object> unloadedKeys, boolean inDefaultLanguage) {
-        if (inDefaultLanguage)
-            unloadedDefaultKeys = unloadedKeys;
-        else
-            this.unloadedKeys = unloadedKeys;
+    private Set<Object> getKeysToLoad(boolean inDefaultLanguage) {
+        return inDefaultLanguage ? defaultKeysToLoad : keysToLoad;
     }
 
     private void refreshMessageTokenSnapshots(Map<TokenKey, Reference<Property<TokenSnapshot>>> messageMap) {

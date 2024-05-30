@@ -23,7 +23,7 @@ module webfx.stack.db.querysubmit.vertx {
     exports dev.webfx.stack.db.submit.spi.impl.vertx;
 
     // Provided services
-    provides dev.webfx.stack.db.query.spi.QueryServiceProvider with dev.webfx.stack.db.query.spi.impl.vertx.VertxQueryServiceProvider;
-    provides dev.webfx.stack.db.submit.spi.SubmitServiceProvider with dev.webfx.stack.db.submit.spi.impl.vertx.VertxSubmitServiceProvider;
+    provides dev.webfx.stack.db.query.spi.QueryServiceProvider with dev.webfx.stack.db.query.spi.impl.vertx.VertxLocalQueryServiceProvider;
+    provides dev.webfx.stack.db.submit.spi.SubmitServiceProvider with dev.webfx.stack.db.submit.spi.impl.vertx.VertxLocalSubmitServiceProvider;
 
 }

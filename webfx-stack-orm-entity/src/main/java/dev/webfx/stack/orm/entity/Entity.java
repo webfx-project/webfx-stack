@@ -134,7 +134,11 @@ public interface Entity {
     }
 
     default Future<Void> onExpressionLoaded(String expression) {
-        return onExpressionLoaded(parseExpression(expression));
+        try {
+            return onExpressionLoaded(parseExpression(expression));
+        } catch (Exception e) {
+            return Future.failedFuture(e);
+        }
     }
 
     default <E extends Entity> Future<Void> onExpressionLoaded(Expression<E> expression) {
@@ -168,8 +172,8 @@ public interface Entity {
         return evaluate(persistentTerm) != null;
     }
 
-    default <E extends Entity> Future<Object> evaluateOnceLoaded(String expression) {
-        return evaluateOnceLoaded(parseExpression(expression));
+    default Future<Object> evaluateOnceLoaded(String expression) {
+        return onExpressionLoaded(expression).map(ignored -> evaluate(expression));
     }
 
     default <E extends Entity> Future<Object> evaluateOnceLoaded(Expression<E> expression) {

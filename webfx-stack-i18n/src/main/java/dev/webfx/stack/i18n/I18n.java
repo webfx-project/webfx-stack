@@ -129,8 +129,8 @@ public final class I18n {
 
     // Controls API
 
-    public static <T extends Text> T bindI18nProperties(T text, Object i18nKey) {
-        bindI18nTextProperty(text.textProperty(), i18nKey);
+    public static <T extends Text> T bindI18nProperties(T text, Object i18nKey, Object... args) {
+        bindI18nTextProperty(text.textProperty(), i18nKey, args);
         return text;
     }
 

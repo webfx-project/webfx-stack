@@ -1,5 +1,6 @@
 package dev.webfx.stack.orm.dql.querypush.interceptor;
 
+import dev.webfx.platform.boot.spi.ApplicationJob;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
 import dev.webfx.stack.orm.domainmodel.DomainField;
 import dev.webfx.stack.orm.expression.CollectOptions;
@@ -21,20 +22,10 @@ import dev.webfx.platform.service.SingleServiceProvider;
 /**
  * @author Bruno Salmon
  */
-public class DqlQueryPushInterceptorModuleBooter implements ApplicationModuleBooter {
+public class DqlQueryPushInterceptorInitializer implements ApplicationJob {
 
     @Override
-    public String getModuleName() {
-        return "webfx-stack-orm-dql-querypush-interceptor";
-    }
-
-    @Override
-    public int getBootLevel() {
-        return APPLICATION_BOOT_LEVEL;
-    }
-
-    @Override
-    public void bootModule() {
+    public void onInit() {
         // The purpose of this interceptor is to automatically set the query schema scope if not set (works only with
         // DQL select)
         SingleServiceProvider.registerServiceInterceptor(QueryPushServiceProvider.class, targetProvider ->

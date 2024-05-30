@@ -6,8 +6,8 @@
     </exported-packages>
 
     <providers>
-        <provider interface="dev.webfx.stack.db.query.spi.QueryServiceProvider">dev.webfx.stack.db.query.spi.impl.vertx.VertxQueryServiceProvider</provider>
-        <provider interface="dev.webfx.stack.db.submit.spi.SubmitServiceProvider">dev.webfx.stack.db.submit.spi.impl.vertx.VertxSubmitServiceProvider</provider>
+        <provider interface="dev.webfx.stack.db.query.spi.QueryServiceProvider">dev.webfx.stack.db.query.spi.impl.vertx.VertxLocalQueryServiceProvider</provider>
+        <provider interface="dev.webfx.stack.db.submit.spi.SubmitServiceProvider">dev.webfx.stack.db.submit.spi.impl.vertx.VertxLocalSubmitServiceProvider</provider>
     </providers>
 
     <dependencies>

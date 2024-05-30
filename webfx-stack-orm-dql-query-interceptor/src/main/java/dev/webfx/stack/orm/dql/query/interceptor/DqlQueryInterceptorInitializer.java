@@ -1,33 +1,23 @@
 package dev.webfx.stack.orm.dql.query.interceptor;
 
+import dev.webfx.platform.async.Future;
+import dev.webfx.platform.boot.spi.ApplicationJob;
 import dev.webfx.platform.console.Console;
-import dev.webfx.stack.orm.domainmodel.DataSourceModel;
-import dev.webfx.stack.orm.datasourcemodel.service.DataSourceModelService;
-import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
+import dev.webfx.platform.service.SingleServiceProvider;
 import dev.webfx.stack.db.datasource.LocalDataSourceService;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.spi.QueryServiceProvider;
-import dev.webfx.platform.async.Future;
-import dev.webfx.platform.service.SingleServiceProvider;
+import dev.webfx.stack.orm.datasourcemodel.service.DataSourceModelService;
+import dev.webfx.stack.orm.domainmodel.DataSourceModel;
 
 /**
  * @author Bruno Salmon
  */
-public class DqlQueryInterceptorModuleBooter implements ApplicationModuleBooter {
+public class DqlQueryInterceptorInitializer implements ApplicationJob {
 
     @Override
-    public String getModuleName() {
-        return "webfx-stack-orm-dql-query-interceptor";
-    }
-
-    @Override
-    public int getBootLevel() {
-        return APPLICATION_BOOT_LEVEL;
-    }
-
-    @Override
-    public void bootModule() {
+    public void onInit() {
         // The purpose of this interceptor is to automatically translate DQL to SQL when the query reaches its local data source
         SingleServiceProvider.registerServiceInterceptor(QueryServiceProvider.class, targetProvider ->
                 argument -> interceptAndExecuteQuery(argument, targetProvider)

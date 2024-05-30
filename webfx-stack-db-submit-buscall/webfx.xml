@@ -14,7 +14,7 @@
         <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.db.submit.buscall.ExecuteSubmitBatchMethodEndpoint</provider>
         <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.submit.buscall.serial.SubmitArgumentSerialCodec</provider>
         <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.submit.buscall.serial.SubmitResultSerialCodec</provider>
-        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.submit.buscall.serial.GeneratedKeyBatchIndexSerialCodec</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.submit.buscall.serial.GeneratedKeyReferenceSerialCodec</provider>
     </providers>
 
 </project>

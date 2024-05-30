@@ -54,27 +54,27 @@ public final class BusCallArgument {
     public static final class ProvidedSerialCodec extends SerialCodecBase<BusCallArgument> {
 
         private static final String CODEC_ID = "call";
-        private static final String CALL_NUMBER_KEY = "seq";
         private static final String TARGET_ADDRESS_KEY = "addr";
         private static final String TARGET_ARGUMENT_KEY = "arg";
+        private static final String CALL_NUMBER_KEY = "seq";
 
         public ProvidedSerialCodec() {
             super(BusCallArgument.class, CODEC_ID);
         }
 
         @Override
-        public void encodeToJson(BusCallArgument call, AstObject json) {
-            json.set(CALL_NUMBER_KEY, call.callNumber)
-                    .set(TARGET_ADDRESS_KEY, call.getTargetAddress())
-                    .set(TARGET_ARGUMENT_KEY, call.getJsonEncodedTargetArgument());
+        public void encode(BusCallArgument call, AstObject serial) {
+            encodeString( serial, TARGET_ADDRESS_KEY,  call.getTargetAddress());
+            encodeObject( serial, TARGET_ARGUMENT_KEY, call.getJsonEncodedTargetArgument());
+            encodeInteger(serial, CALL_NUMBER_KEY,     call.callNumber);
         }
 
         @Override
-        public BusCallArgument decodeFromJson(ReadOnlyAstObject json) {
+        public BusCallArgument decode(ReadOnlyAstObject serial) {
             return new BusCallArgument(
-                    json.getString(TARGET_ADDRESS_KEY),
-                    SerialCodecManager.decodeFromJson(json.get(TARGET_ARGUMENT_KEY)),
-                    json.getInteger(CALL_NUMBER_KEY)
+                    decodeString( serial, TARGET_ADDRESS_KEY),
+                    decodeObject( serial, TARGET_ARGUMENT_KEY),
+                    decodeInteger(serial, CALL_NUMBER_KEY)
             );
         }
     }

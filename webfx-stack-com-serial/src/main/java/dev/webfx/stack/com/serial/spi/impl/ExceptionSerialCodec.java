@@ -17,12 +17,14 @@ public class ExceptionSerialCodec extends SerialCodecBase<Exception> {
     }
 
     @Override
-    public void encodeToJson(Exception exception, AstObject json) {
-        json.set(MESSAGE_KEY, exception.getClass().getName() + ": " + exception.getMessage() + "\n" + Console.captureStackTrace(exception));
+    public void encode(Exception exception, AstObject serial) {
+        encodeString(serial, MESSAGE_KEY, exception.getClass().getName() + ": " + exception.getMessage() + "\n" + Console.captureStackTrace(exception));
     }
 
     @Override
-    public Exception decodeFromJson(ReadOnlyAstObject json) {
-        return new Exception(json.getString(MESSAGE_KEY));
+    public Exception decode(ReadOnlyAstObject serial) {
+        return new Exception(
+                decodeString(serial, MESSAGE_KEY)
+        );
     }
 }

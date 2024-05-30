@@ -5,6 +5,7 @@ import dev.webfx.platform.ast.json.Json;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.reflect.RArray;
 import dev.webfx.platform.util.Numbers;
+import dev.webfx.platform.util.Strings;
 import dev.webfx.stack.com.serial.spi.SerialCodec;
 import dev.webfx.stack.com.serial.spi.impl.ExceptionSerialCodec;
 import dev.webfx.stack.com.serial.spi.impl.time.InstantSerialCodec;
@@ -25,9 +26,7 @@ import java.util.Map;
 
 public final class SerialCodecManager {
 
-    public final static String CODEC_ID_KEY = "$codec";
-    private final static boolean ENCODE_TIME_VALUES_WITH_PREFIXED_STRING = true;
-    private final static boolean DECODE_TIME_VALUES_WITH_PREFIXED_STRING = true;
+    public  final static String CODEC_ID_KEY = "$codec";
     private final static String INSTANT_VALUE_PREFIX = "$I:";
     private final static String LOCAL_DATE_VALUE_PREFIX = "$LD:";
     private final static String LOCAL_DATE_TIME_VALUE_PREFIX = "$LDT:";
@@ -78,18 +77,48 @@ public final class SerialCodecManager {
         // Keeping null and primitives as is
         if (object == null || object instanceof String || Numbers.isNumber(object) || object instanceof Boolean)
             return object;
-        if (ENCODE_TIME_VALUES_WITH_PREFIXED_STRING) {
-            if (object instanceof Instant)
-                return INSTANT_VALUE_PREFIX + object;
-            if (object instanceof LocalDate)
-                return LOCAL_DATE_VALUE_PREFIX + object;
-            if (object instanceof LocalDateTime)
-                return LOCAL_DATE_TIME_VALUE_PREFIX + object;
-            if (object instanceof LocalTime)
-                return LOCAL_TIME_VALUE_PREFIX + object;
-        }
+        if (object instanceof Instant)
+            return encodePrefixedInstant((Instant) object);
+        if (object instanceof LocalDate)
+            return encodePrefixedLocalDate((LocalDate) object);
+        if (object instanceof LocalDateTime)
+            return encodePrefixedLocalDateTime((LocalDateTime) object);
+        if (object instanceof LocalTime)
+            return encodePrefixedLocalTime((LocalTime) object);
         // Other java objects are serialized into json
         return encodeToAstObject(object);
+    }
+
+    public static String encodePrefixedInstant(Instant instant) {
+        return instant == null ? null : INSTANT_VALUE_PREFIX + instant;
+    }
+
+    public static String encodePrefixedLocalDate(LocalDate localDate) {
+        return localDate == null ? null : LOCAL_DATE_VALUE_PREFIX + localDate;
+    }
+
+    public static String encodePrefixedLocalDateTime(LocalDateTime localDateTime) {
+        return localDateTime == null ? null : LOCAL_DATE_TIME_VALUE_PREFIX + localDateTime;
+    }
+
+    public static String encodePrefixedLocalTime(LocalTime localTime) {
+        return localTime == null ? null : LOCAL_TIME_VALUE_PREFIX + localTime;
+    }
+
+    public static String encodeInstant(Instant instant) {
+        return Strings.toString(instant);
+    }
+
+    public static String encodeLocalDate(LocalDate localDate) {
+        return Strings.toString(localDate);
+    }
+
+    public static String encodeLocalDateTime(LocalDateTime localDateTime) {
+        return Strings.toString(localDateTime);
+    }
+
+    public static String encodeLocalTime(LocalTime localTime) {
+        return Strings.toString(localTime);
     }
 
     public static ReadOnlyAstObject encodeToAstObject(Object object) {
@@ -105,7 +134,7 @@ public final class SerialCodecManager {
         if (encoder == null)
             throw new IllegalArgumentException("No SerialCodec for type: " + javaObject.getClass());
         json.set(CODEC_ID_KEY, encoder.getCodecId());
-        encoder.encodeToJson(javaObject, json);
+        encoder.encode(javaObject, json);
         return json;
     }
 
@@ -126,7 +155,7 @@ public final class SerialCodecManager {
         SerialCodec<T> decoder = getSerialDecoder(codecId);
         if (decoder == null)
             throw new IllegalArgumentException("No SerialCodec found for id: '" + codecId + "' when trying to decode " + Json.formatNode(json));
-        return decoder.decodeFromJson(json);
+        return decoder.decode(json);
     }
 
     public static <T> T decodeFromJson(Object object) {
@@ -135,31 +164,31 @@ public final class SerialCodecManager {
             return decodeFromAstObject((ReadOnlyAstObject) object);
         // Case 2: it's a json array => we call decodePrimitiveArrayFromAstArray(). The returned object is always an Object[] array.
         if (object instanceof ReadOnlyAstArray)
-            return (T) decodePrimitiveArrayFromAstArray((ReadOnlyAstArray) object);
+            return (T) decodeAstArrayToJavaArray((ReadOnlyAstArray) object, Object.class);
         // Case 3: it's a String with instant value prefix => we decode and return the instant value
-        if (object instanceof String && DECODE_TIME_VALUES_WITH_PREFIXED_STRING) {
+        if (object instanceof String) {
             String s = (String) object;
             if (s.startsWith(INSTANT_VALUE_PREFIX)) {
                 try {
-                    object = Instant.parse(s.substring(INSTANT_VALUE_PREFIX.length()));
+                    object = decodePrefixedInstant(s);
                 } catch (Exception e) {
                     Console.log("Couldn't parse Instant, keeping the string");
                 }
             } else if (s.startsWith(LOCAL_DATE_VALUE_PREFIX)) {
                 try {
-                    object = LocalDate.parse(s.substring(LOCAL_DATE_VALUE_PREFIX.length()));
+                    object = decodePrefixedLocalDate(s);
                 } catch (Exception e) {
                     Console.log("Couldn't parse LocalDate, keeping the string");
                 }
             } else if (s.startsWith(LOCAL_DATE_TIME_VALUE_PREFIX)) {
                 try {
-                    object = LocalDateTime.parse(s.substring(LOCAL_DATE_TIME_VALUE_PREFIX.length()));
+                    object = decodePrefixedLocalDateTime(s);
                 } catch (Exception e) {
                     Console.log("Couldn't parse LocalDateTime, keeping the string");
                 }
             } else if (s.startsWith(LOCAL_TIME_VALUE_PREFIX)) {
                 try {
-                    object = LocalTime.parse(s.substring(LOCAL_TIME_VALUE_PREFIX.length()));
+                    object = decodePrefixedLocalTime(s);
                 } catch (Exception e) {
                     Console.log("Couldn't parse LocalTime, keeping the string");
                 }
@@ -169,41 +198,61 @@ public final class SerialCodecManager {
         return (T) object;
     }
 
-    public static ReadOnlyAstArray encodePrimitiveArrayToAstArray(Object[] primArray) {
-        if (primArray == null)
+    public static Instant decodePrefixedInstant(String encodedInstant) {
+        return encodedInstant == null ? null : decodeInstant(encodedInstant.substring(INSTANT_VALUE_PREFIX.length()));
+    }
+
+    public static Instant decodeInstant(String encodedInstant) {
+        return encodedInstant == null ? null : Instant.parse(encodedInstant);
+    }
+
+    public static LocalDate decodePrefixedLocalDate(String encodedLocalDate) {
+        return encodedLocalDate == null ? null : decodeLocalDate(encodedLocalDate.substring(LOCAL_DATE_VALUE_PREFIX.length()));
+    }
+
+    public static LocalDate decodeLocalDate(String encodedLocalDate) {
+        return encodedLocalDate == null ? null : LocalDate.parse(encodedLocalDate);
+    }
+
+    public static LocalDateTime decodePrefixedLocalDateTime(String encodedLocalDateTime) {
+        return decodeLocalDateTime(encodedLocalDateTime.substring(LOCAL_DATE_TIME_VALUE_PREFIX.length()));
+    }
+
+    public static LocalDateTime decodeLocalDateTime(String encodedLocalDateTime) {
+        return encodedLocalDateTime == null ? null : LocalDateTime.parse(encodedLocalDateTime);
+    }
+
+    public static LocalTime decodePrefixedLocalTime(String encodedLocalTime) {
+        return encodedLocalTime == null ? null : decodeLocalTime(encodedLocalTime.substring(LOCAL_TIME_VALUE_PREFIX.length()));
+    }
+
+    public static LocalTime decodeLocalTime(String encodedLocalTime) {
+        return encodedLocalTime == null ? null : LocalTime.parse(encodedLocalTime);
+    }
+
+    public static <T> ReadOnlyAstArray encodeJavaArrayToAstArray(T[] javaArray) {
+        if (javaArray == null)
             return null;
         AstArray ca = AST.createArray();
-        for (Object value : primArray)
+        for (Object value : javaArray)
             ca.push(encodeToJson(value));
         return ca;
     }
 
-    public static Object[] decodePrimitiveArrayFromAstArray(ReadOnlyAstArray jsonArray) {
+    public static <T> T[] decodeAstArrayToJavaArray(ReadOnlyAstArray jsonArray, Class<T> expectedClass) {
         if (jsonArray == null)
             return null;
         int n = jsonArray.size();
-        Object[] array = new Object[n];
+        if (expectedClass == null) {
+            if (n == 0)
+                expectedClass = (Class<T>) Object.class;
+            else
+                expectedClass = (Class<T>) getJavaClass(jsonArray.getObject(0).getString(SerialCodecManager.CODEC_ID_KEY));
+        }
+        T[] array = (T[]) RArray.newInstance(expectedClass, n);
         for (int i = 0; i < n; i++)
             array[i] = decodeFromJson(jsonArray.getElement(i));
         return array;
     }
 
-    public static ReadOnlyAstArray encodeToAstArray(Object[] array) {
-        if (array == null)
-            return null;
-        AstArray ca = AST.createArray();
-        for (Object object : array)
-            ca.push(encodeToAstObject(object));
-        return ca;
-    }
-
-    public static <T> T[] decodeFromAstArray(ReadOnlyAstArray ca, Class<T> expectedClass) {
-        if (ca == null)
-            return null;
-        int n = ca.size();
-        T[] array = (T[]) RArray.newInstance(expectedClass, n);
-        for (int i = 0; i < n; i++)
-            array[i] = decodeFromJson(ca.getObject(i));
-        return array;
-    }
 }

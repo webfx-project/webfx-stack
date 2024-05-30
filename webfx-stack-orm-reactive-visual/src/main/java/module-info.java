@@ -8,6 +8,7 @@ module webfx.stack.orm.reactive.visual {
     requires webfx.extras.label;
     requires webfx.extras.type;
     requires webfx.extras.visual;
+    requires webfx.kit.util;
     requires webfx.platform.ast;
     requires webfx.platform.util;
     requires webfx.stack.i18n;

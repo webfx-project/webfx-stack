@@ -11,7 +11,7 @@
     </exported-packages>
 
     <providers>
-        <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.orm.dql.querypush.interceptor.DqlQueryPushInterceptorModuleBooter</provider>
+        <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.orm.dql.querypush.interceptor.DqlQueryPushInterceptorInitializer</provider>
     </providers>
 
     <dependencies>

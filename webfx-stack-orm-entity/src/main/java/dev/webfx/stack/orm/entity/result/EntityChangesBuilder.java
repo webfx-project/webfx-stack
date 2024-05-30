@@ -26,7 +26,7 @@ public final class EntityChangesBuilder {
             cancelEntityChanges(id);
         } else {
             if (deletedEntities == null)
-                deletedEntities = new HashSet<>();
+                deletedEntities = new HashList<>(); // Hash for uniqueness and List for keeping sequence order
             deletedEntities.add(id);
         }
         updateHasChangesProperty();

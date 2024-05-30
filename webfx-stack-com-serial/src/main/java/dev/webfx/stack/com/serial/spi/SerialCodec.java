@@ -13,8 +13,8 @@ public interface SerialCodec<T> {
 
     Class<? extends T> getJavaClass();
 
-    void encodeToJson(T javaObject, AstObject json);
+    void encode(T javaObject, AstObject serial);
 
-    T decodeFromJson(ReadOnlyAstObject json);
+    T decode(ReadOnlyAstObject serial);
 
 }

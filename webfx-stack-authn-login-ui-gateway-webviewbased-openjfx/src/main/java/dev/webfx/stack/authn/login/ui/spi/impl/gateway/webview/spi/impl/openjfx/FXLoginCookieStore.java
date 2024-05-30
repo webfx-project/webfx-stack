@@ -60,7 +60,7 @@ public class FXLoginCookieStore implements CookieStore {
             AstObject json = AST.createObject();
             // For each effective uri, we put a json array of all serialized cookies
             getURIs().stream().map(this::getEffectiveURI).forEach(uri ->
-                    json.setArray(uri.toASCIIString(), SerialCodecManager.encodeToAstArray(get(uri).toArray())));
+                    json.setArray(uri.toASCIIString(), SerialCodecManager.encodeJavaArrayToAstArray(get(uri).toArray())));
             // We store that into the json file
             Files.writeString(cookieFilePath, Json.formatNode(json));
         } catch (IOException e) {

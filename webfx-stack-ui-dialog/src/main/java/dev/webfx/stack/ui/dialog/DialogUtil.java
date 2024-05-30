@@ -69,7 +69,7 @@ public final class DialogUtil {
     public static BorderPane decorate(Node content) {
         // Setting max width/height to pref width/height (otherwise the grid pane takes all space with cells in top left corner)
         if (content instanceof Region)
-            LayoutUtil.setMaxSizeToPref(LayoutUtil.createPadding((Region) content));
+            LayoutUtil.setMaxSizeToPref(LayoutUtil.createPadding((Region) content, 10));
         BorderPane decorator = new BorderPane(content);
         decorator.backgroundProperty().bind(dialogBackgroundProperty());
         decorator.borderProperty().bind(dialogBorderProperty());

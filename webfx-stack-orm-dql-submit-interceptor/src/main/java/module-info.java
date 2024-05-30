@@ -17,6 +17,6 @@ module webfx.stack.orm.dql.submit.interceptor {
     exports dev.webfx.stack.orm.dql.submit.interceptor;
 
     // Provided services
-    provides dev.webfx.platform.boot.spi.ApplicationModuleBooter with dev.webfx.stack.orm.dql.submit.interceptor.DqlSubmitInterceptorModuleBooter;
+    provides dev.webfx.platform.boot.spi.ApplicationJob with dev.webfx.stack.orm.dql.submit.interceptor.DqlSubmitInterceptorInitializer;
 
 }

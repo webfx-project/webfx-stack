@@ -1,8 +1,7 @@
 package dev.webfx.stack.db.querypush.buscall.serial;
 
-import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.ast.AstObject;
-import dev.webfx.stack.com.serial.SerialCodecManager;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 import dev.webfx.stack.db.querypush.QueryPushArgument;
 
@@ -22,26 +21,26 @@ public final class QueryPushArgumentSerialCodec extends SerialCodecBase<QueryPus
     }
 
     @Override
-    public void encodeToJson(QueryPushArgument arg, AstObject json) {
-        encodeKeyIfNotNull(QUERY_STREAM_ID_KEY, arg.getQueryStreamId(), json);
-        encodeKeyIfNotNull(PARENT_QUERY_STREAM_ID_KEY, arg.getParentQueryStreamId(), json);
-        encodeKeyIfNotNull(QUERY_ARGUMENT_KEY, arg.getQueryArgument(), json);
-        encodeKey(DATA_SOURCE_ID_KEY, arg.getDataSourceId(), json);
-        encodeKeyIfNotNull(ACTIVE_KEY, arg.getActive(), json);
-        encodeKeyIfNotNull(RESEND_KEY, arg.getResend(), json);
-        encodeKeyIfNotNull(CLOSE_KEY, arg.getClose(), json);
+    public void encode(QueryPushArgument arg, AstObject serial) {
+        encodeObject( serial, QUERY_STREAM_ID_KEY,        arg.getQueryStreamId());
+        encodeObject( serial, PARENT_QUERY_STREAM_ID_KEY, arg.getParentQueryStreamId());
+        encodeObject( serial, QUERY_ARGUMENT_KEY,         arg.getQueryArgument());
+        encodeObject( serial, DATA_SOURCE_ID_KEY,         arg.getDataSourceId());
+        encodeBoolean(serial, ACTIVE_KEY,                 arg.getActive());
+        encodeBoolean(serial, RESEND_KEY,                 arg.getResend());
+        encodeBoolean(serial, CLOSE_KEY,                  arg.getClose());
     }
 
     @Override
-    public QueryPushArgument decodeFromJson(ReadOnlyAstObject json) {
+    public QueryPushArgument decode(ReadOnlyAstObject serial) {
         return new QueryPushArgument(
-                json.get(QUERY_STREAM_ID_KEY),
-                json.get(PARENT_QUERY_STREAM_ID_KEY),
-                SerialCodecManager.decodeFromJson(json.get(QUERY_ARGUMENT_KEY)),
-                json.get(DATA_SOURCE_ID_KEY),
-                json.getBoolean(ACTIVE_KEY),
-                json.getBoolean(RESEND_KEY),
-                json.getBoolean(CLOSE_KEY),
+                decodeObject( serial, QUERY_STREAM_ID_KEY),
+                decodeObject( serial, PARENT_QUERY_STREAM_ID_KEY),
+                decodeObject( serial, QUERY_ARGUMENT_KEY),
+                decodeObject( serial, DATA_SOURCE_ID_KEY),
+                decodeBoolean(serial, ACTIVE_KEY),
+                decodeBoolean(serial, RESEND_KEY),
+                decodeBoolean(serial, CLOSE_KEY),
                 null
         );
     }

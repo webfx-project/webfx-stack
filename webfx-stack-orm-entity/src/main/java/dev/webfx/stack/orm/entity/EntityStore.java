@@ -57,6 +57,13 @@ public interface EntityStore extends HasDataSourceModel {
 
     void applyEntityIdRefactor(EntityId oldId, EntityId newId);
 
+    default void applyEntityIdRefactor(EntityId oldId, Object newPk) {
+        if (!(newPk instanceof EntityId)) {
+            newPk = EntityId.create(oldId.getDomainClass(), newPk);
+        }
+        applyEntityIdRefactor(oldId, (EntityId) newPk);
+    }
+
 
     // Entity management
 

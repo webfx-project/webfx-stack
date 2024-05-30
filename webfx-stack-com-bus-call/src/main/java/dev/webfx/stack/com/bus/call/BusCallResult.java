@@ -70,7 +70,7 @@ public final class BusCallResult<T> {
     }
 
     /****************************************************
-     *                    Serial ProvidedSerialCodec                  *
+     *           Serial ProvidedSerialCodec             *
      * *************************************************/
 
     public static final class ProvidedSerialCodec extends SerialCodecBase<BusCallResult> {
@@ -84,17 +84,16 @@ public final class BusCallResult<T> {
         }
 
         @Override
-        public void encodeToJson(BusCallResult result, AstObject json) {
-            json.set(CALL_NUMBER_KEY, result.getCallNumber())
-                    .set(TARGET_RESULT_KEY, result.getSerializedTargetResult());
+        public void encode(BusCallResult result, AstObject serial) {
+            encodeInteger(serial, CALL_NUMBER_KEY,   result.getCallNumber());
+            encodeObject( serial, TARGET_RESULT_KEY, result.getSerializedTargetResult());
         }
 
         @Override
-        public BusCallResult decodeFromJson(ReadOnlyAstObject json) {
-            //Platform.log("Decoding " + json.toJsonString());
+        public BusCallResult decode(ReadOnlyAstObject serial) {
             return new BusCallResult(
-                    json.getInteger(CALL_NUMBER_KEY),
-                    json.get(TARGET_RESULT_KEY)
+                    decodeInteger(serial, CALL_NUMBER_KEY),
+                    decodeObject( serial, TARGET_RESULT_KEY)
             );
         }
     }

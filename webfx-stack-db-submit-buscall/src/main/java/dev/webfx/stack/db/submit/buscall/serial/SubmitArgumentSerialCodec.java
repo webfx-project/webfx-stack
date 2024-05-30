@@ -3,7 +3,6 @@ package dev.webfx.stack.db.submit.buscall.serial;
 import dev.webfx.platform.ast.AstObject;
 import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.util.Arrays;
-import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 import dev.webfx.stack.db.submit.SubmitArgument;
 
@@ -22,27 +21,25 @@ public final class SubmitArgumentSerialCodec extends SerialCodecBase<SubmitArgum
     }
 
     @Override
-    public void encodeToJson(SubmitArgument arg, AstObject json) {
-        json.set(DATA_SOURCE_ID_KEY, arg.getDataSourceId());
-        if (arg.getDataScope() != null)
-            json.set(DATA_SCOPE_KEY, SerialCodecManager.encodeToJson(arg.getDataScope()));
-        json.set(RETURN_GENERATED_KEYS_KEY, arg.returnGeneratedKeys());
-        if (arg.getLanguage() != null)
-            json.set(LANGUAGE_KEY, arg.getLanguage());
-        json.set(STATEMENT_KEY, arg.getStatement());
+    public void encode(SubmitArgument arg, AstObject serial) {
+        encodeObject(        serial, DATA_SOURCE_ID_KEY,        arg.getDataSourceId());
+        encodeObject(        serial, DATA_SCOPE_KEY,            arg.getDataScope());
+        encodeBoolean(       serial, RETURN_GENERATED_KEYS_KEY, arg.returnGeneratedKeys());
+        encodeString(        serial, LANGUAGE_KEY,              arg.getLanguage());
+        encodeString(        serial, STATEMENT_KEY,             arg.getStatement());
         if (!Arrays.isEmpty(arg.getParameters()))
-            json.set(PARAMETERS_KEY, SerialCodecManager.encodePrimitiveArrayToAstArray(arg.getParameters()));
+            encodeObjectArray(serial, PARAMETERS_KEY,           arg.getParameters());
     }
 
     @Override
-    public SubmitArgument decodeFromJson(ReadOnlyAstObject json) {
+    public SubmitArgument decode(ReadOnlyAstObject serial) {
         return new SubmitArgument(null,
-                json.get(DATA_SOURCE_ID_KEY),
-                SerialCodecManager.decodeFromJson(json.getObject(DATA_SCOPE_KEY)),
-                json.getBoolean(RETURN_GENERATED_KEYS_KEY),
-                json.getString(LANGUAGE_KEY),
-                json.getString(STATEMENT_KEY),
-                SerialCodecManager.decodePrimitiveArrayFromAstArray(json.getArray(PARAMETERS_KEY))
+                decodeObject(     serial, DATA_SOURCE_ID_KEY),
+                decodeObject(     serial, DATA_SCOPE_KEY),
+                decodeBoolean(    serial, RETURN_GENERATED_KEYS_KEY),
+                decodeString(     serial, LANGUAGE_KEY),
+                decodeString(     serial, STATEMENT_KEY),
+                decodeObjectArray(serial, PARAMETERS_KEY)
         );
     }
 }

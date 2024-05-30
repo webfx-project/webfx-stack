@@ -21,20 +21,20 @@ public class UserClaimsSerialCodec extends SerialCodecBase<UserClaims> {
     }
 
     @Override
-    public void encodeToJson(UserClaims arg, AstObject json) {
-        json.set(USERNAME_KEY, arg.getUsername());
-        json.set(EMAIL_KEY, arg.getEmail());
-        json.set(PHONE_KEY, arg.getPhone());
-        json.setObject(OTHER_CLAIMS_KEY, arg.getOtherClaims());
+    public void encode(UserClaims arg, AstObject serial) {
+        encodeString(serial, USERNAME_KEY,     arg.getUsername());
+        encodeString(serial, EMAIL_KEY,        arg.getEmail());
+        encodeString(serial, PHONE_KEY,        arg.getPhone());
+        encodeObject(serial, OTHER_CLAIMS_KEY, arg.getOtherClaims());
     }
 
     @Override
-    public UserClaims decodeFromJson(ReadOnlyAstObject json) {
+    public UserClaims decode(ReadOnlyAstObject serial) {
         return new UserClaims(
-                json.getString(USERNAME_KEY),
-                json.getString(EMAIL_KEY),
-                json.getString(PHONE_KEY),
-                json.getObject(OTHER_CLAIMS_KEY)
+                decodeString(serial, USERNAME_KEY),
+                decodeString(serial, EMAIL_KEY),
+                decodeString(serial, PHONE_KEY),
+                decodeObject(serial, OTHER_CLAIMS_KEY)
         );
     }
 }

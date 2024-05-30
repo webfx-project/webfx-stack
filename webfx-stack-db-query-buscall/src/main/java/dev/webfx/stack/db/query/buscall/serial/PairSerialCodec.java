@@ -3,7 +3,6 @@ package dev.webfx.stack.db.query.buscall.serial;
 import dev.webfx.platform.ast.AstObject;
 import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.util.tuples.Pair;
-import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 
 /**
@@ -23,16 +22,16 @@ public class PairSerialCodec extends SerialCodecBase<Pair> {
     }
 
     @Override
-    public void encodeToJson(Pair arg, AstObject json) {
-        json.set(ONE, SerialCodecManager.encodeToJson(arg.get1()));
-        json.set(TWO, SerialCodecManager.encodeToJson(arg.get2()));
+    public void encode(Pair arg, AstObject serial) {
+        encodeObject(serial, ONE, arg.get1());
+        encodeObject(serial, TWO, arg.get2());
     }
 
     @Override
-    public Pair decodeFromJson(ReadOnlyAstObject json) {
+    public Pair decode(ReadOnlyAstObject serial) {
         return new Pair(
-                SerialCodecManager.decodeFromJson(json.getObject(ONE)),
-                SerialCodecManager.decodeFromJson(json.getObject(TWO))
+                decodeObject(serial, ONE),
+                decodeObject(serial, TWO)
         );
     }
 }

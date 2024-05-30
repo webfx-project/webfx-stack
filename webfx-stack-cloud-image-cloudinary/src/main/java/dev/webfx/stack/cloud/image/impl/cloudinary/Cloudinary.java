@@ -1,13 +1,11 @@
 package dev.webfx.stack.cloud.image.impl.cloudinary;
 
-import dev.webfx.platform.ast.AST;
-import dev.webfx.platform.ast.ReadOnlyAstArray;
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.fetch.FetchOptions;
-import dev.webfx.platform.fetch.FormData;
-import dev.webfx.platform.fetch.Headers;
-import dev.webfx.platform.fetch.Method;
+import dev.webfx.platform.conf.ConfigLoader;
+import dev.webfx.platform.fetch.*;
 import dev.webfx.platform.file.File;
+import dev.webfx.platform.util.http.HttpHeaders;
+import dev.webfx.platform.util.http.HttpMethod;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.stack.cloud.image.impl.fetchbased.FetchBasedCloudImageService;
@@ -20,68 +18,60 @@ import java.util.*;
  */
 public class Cloudinary extends FetchBasedCloudImageService {
 
-    private final String cloudName;
-    private final String apiKey;
-    private final String apiSecret;
+    private static final String CONFIG_PATH = "webfx.stack.cloud.image.cloudinary";
 
-    public Cloudinary(String cloudName, String apiKey, String apiSecret) {
-        this.cloudName = cloudName;
-        this.apiKey = apiKey;
-        this.apiSecret = apiSecret;
+    private String cloudName;
+    private String apiKey;
+    private String apiSecret;
+
+    public Cloudinary() {
+        ConfigLoader.onConfigLoaded(CONFIG_PATH, config -> {
+            cloudName = config.getString("cloudName");
+            apiKey = config.getString("apiKey");
+            apiSecret = config.getString("apiSecret");
+        });
     }
 
     @Override
     protected Headers createHeaders() {
         return super.createHeaders()
-                .set("Authorization", "Basic " + Base64Coder.encode(apiKey + ":" + apiSecret));
+                .set(HttpHeaders.AUTHORIZATION, HttpHeaders.basicAuth(apiKey, apiSecret));
     }
 
-    public Future<Boolean> exists(String publicId) {
-        return fetchAndConvertJsonObject(
-                "https://api.cloudinary.com/v1_1/" + cloudName + "/resources/search",
-                Method.POST,
-                new FetchOptions().setBody(AST.formatObject(AST.createObject().set("expression", "public_id=" + publicId), "json")),
-                json -> {
-                    ReadOnlyAstArray resources = json.getArray("resources");
-                    return resources != null && !resources.isEmpty();
-                }
-        );
+    public Future<Boolean> exists(String id) {
+        return Fetch.fetch(url(id, -1, -1), new FetchOptions().setMethod(HttpMethod.HEAD))
+                .map(Response::ok);
     }
 
-    public Future<Map> upload(File file, String publicId, boolean overwrite) {
-        return fetchAndConvertJsonObjectToMap(
+    public Future<Void> upload(File file, String id, boolean overwrite) {
+        return fetchJsonObject(
                 "https://api.cloudinary.com/v1_1/" + cloudName + "/image/upload",
-                Method.POST,
+                HttpMethod.POST,
                 new FetchOptions().setBody(
                         signFormData(new FormData()
-                            .append("public_id", publicId)
+                            .append("public_id", id)
                             .append("overwrite", overwrite)
-                        ).append("file", file, publicId)
+                        ).append("file", file, id)
                 )
-        );
+        ).map(json -> null);
     }
 
-    public Future<Map> destroy(String publicId, boolean invalidate) {
-        return fetchAndConvertJsonObjectToMap(
+    public Future<Void> delete(String id, boolean invalidate) {
+        return fetchJsonObject(
                 "https://api.cloudinary.com/v1_1/" + cloudName + "/image/destroy",
-                Method.POST,
+                HttpMethod.POST,
                 new FetchOptions().setBody(
                         signFormData(new FormData()
-                                .append("public_id", publicId)
+                                .append("public_id", id)
                                 .append("invalidate", invalidate)
                         )
                 )
-        );
+        ).map(json -> null);
     }
 
-    public String url(String source, int width, int height) {
-        String url = "https://res.cloudinary.com/" + cloudName + "/image/upload/";
-        if (width > 0)
-            url += "w_" + width + "/";
-        if (height > 0)
-            url += "h_" + height + "/";
-        url += source;
-        return url;
+    @Override
+    public String urlPattern() {
+        return "https://res.cloudinary.com/" + cloudName + "/image/upload/w_:width/h_:height/:source";
     }
 
     private FormData signFormData(FormData formData) {
