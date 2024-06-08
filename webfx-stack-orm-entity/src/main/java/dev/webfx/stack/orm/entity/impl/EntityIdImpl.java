@@ -30,7 +30,7 @@ public final class EntityIdImpl implements EntityId {
 
     @Override
     public boolean isNew() {
-        return primaryKey instanceof Integer && (Integer) primaryKey < 0; // temporary convention for new ids
+        return primaryKey instanceof Number && ((Number) primaryKey).intValue() < 0; // convention for new ids
     }
 
     @Override

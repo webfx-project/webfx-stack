@@ -165,7 +165,7 @@ public interface Entity {
             if (!isFieldLoaded(leftFieldId))
                 return false;
             Entity rightEntity = getForeignEntity(leftFieldId);
-            return rightEntity == null || rightEntity.isPersistentTermLoaded(dot.getRight());
+            return rightEntity != null && rightEntity.isPersistentTermLoaded(dot.getRight());
         }
         if (persistentTerm instanceof ExpressionArray)
             return Arrays.stream(((ExpressionArray<E>) persistentTerm).getExpressions()).allMatch(this::isPersistentTermLoaded);
