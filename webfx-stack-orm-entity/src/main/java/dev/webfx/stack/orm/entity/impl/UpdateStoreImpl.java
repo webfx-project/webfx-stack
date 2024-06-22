@@ -50,7 +50,7 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
     @Override
     public <E extends Entity> E updateEntity(EntityId entityId) {
         changesBuilder.addUpdatedEntityId(entityId);
-        return createEntity(entityId);
+        return getOrCreateEntity(entityId);
     }
 
     boolean updateEntity(EntityId id, Object domainFieldId, Object value, Object previousValue) {

@@ -33,11 +33,35 @@ public interface UpdateStore extends EntityStore {
 
     <E extends Entity> E updateEntity(EntityId entityId);
 
+    default <E extends Entity> E updateEntity(DomainClass domainClass, Object primaryKey) {
+        return updateEntity(EntityId.create(domainClass, primaryKey));
+    }
+
+    default <E extends Entity> E updateEntity(Object domainClassId, Object primaryKey) {
+        return updateEntity(EntityId.create(getDomainClass(domainClassId), primaryKey));
+    }
+
+    default <E extends Entity> E updateEntity(Class<E> entityClass, Object primaryKey) {
+        return updateEntity(EntityDomainClassIdRegistry.getEntityDomainClassId(entityClass), primaryKey);
+    }
+
     default void deleteEntity(Entity entity) {
         deleteEntity(entity.getId());
     }
 
     void deleteEntity(EntityId entityId);
+
+    default void deleteEntity(DomainClass domainClass, Object primaryKey) {
+        deleteEntity(EntityId.create(domainClass, primaryKey));
+    }
+
+    default void deleteEntity(Object domainClassId, Object primaryKey) {
+        deleteEntity(EntityId.create(getDomainClass(domainClassId), primaryKey));
+    }
+
+    default void deleteEntity(Class<? extends Entity> entityClass, Object primaryKey) {
+        deleteEntity(EntityDomainClassIdRegistry.getEntityDomainClassId(entityClass), primaryKey);
+    }
 
     EntityChanges getEntityChanges();
 
