@@ -44,6 +44,10 @@ public final class FXAuthorizationsWaiting {
         }, FXLoggedOut.loggedOutProperty());
     }
 
+    public static void init() {
+        // The first call will trigger the static initialiser below, and subsequent calls won't do anything
+    }
+
     static {
         FXProperties.runNowAndOnPropertiesChange(FXAuthorizationsWaiting::updateAuthorizationsWaiting, FXLoggedOut.loggedOutProperty());
         FXAuthorizationsChanged.runOnAuthorizationsChanged(FXAuthorizationsWaiting::updateAuthorizationsWaiting);
