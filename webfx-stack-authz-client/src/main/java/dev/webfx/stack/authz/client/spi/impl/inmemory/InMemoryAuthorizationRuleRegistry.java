@@ -33,6 +33,10 @@ public final class InMemoryAuthorizationRuleRegistry implements InMemoryAuthoriz
         }
     }
 
+    public void clearAllAuthorizationRules() {
+        registeredInMemoryAuthorizationRules.clear();
+    }
+
     public <A> void registerAuthorizationRule(Class<A> operationRequestClass, InMemoryAuthorizationRule<A> authorizationRule) {
         Collection<InMemoryAuthorizationRule> inMemoryAuthorizationRules = registeredInMemoryAuthorizationRules.get(operationRequestClass);
         if (inMemoryAuthorizationRules == null)
