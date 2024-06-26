@@ -72,9 +72,8 @@ public final class QueryArgument {
         if (n1 != n2) return false;
         for (int i = 0; i < n1; i++) {
             Object p1 = parameters[i], p2 = that.parameters[i];
-            if (!Objects.equals(p1, p2)) { // Not equals, but might be 2 numbers of identical value
-                if (!(p1 instanceof Number && p2 instanceof Number && Numbers.identicalValues((Number) p1, (Number) p2)))
-                    return false; // if not, they are definitely not equals
+            if (!Numbers.identicalObjectsOrNumberValues(p1, p2)) {
+                return false;
             }
         }
         return true;
