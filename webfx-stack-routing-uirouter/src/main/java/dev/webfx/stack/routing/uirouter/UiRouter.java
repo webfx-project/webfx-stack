@@ -1,11 +1,11 @@
 package dev.webfx.stack.routing.uirouter;
 
-import dev.webfx.platform.async.Handler;
-import dev.webfx.platform.console.Console;
 import dev.webfx.platform.ast.AST;
 import dev.webfx.platform.ast.AstObject;
 import dev.webfx.platform.ast.ReadOnlyAstArray;
 import dev.webfx.platform.ast.ReadOnlyAstObject;
+import dev.webfx.platform.async.Handler;
+import dev.webfx.platform.console.Console;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Numbers;
 import dev.webfx.platform.util.Objects;
@@ -62,7 +62,7 @@ public final class UiRouter extends HistoryRouter {
     }
 
     private static <C extends UiRouteActivityContext<C>> C createSubRouterContext(C hostingContext, ActivityContextFactory<C> activityContextFactory) {
-        // For now we just create a new context that is different from the parent router one.
+        // For now, we just create a new context that is different from the parent router one.
         return activityContextFactory.createContext(hostingContext);
         // The main links between these 2 contexts will actually be done later:
         // - in routeAndMountSubRouter() which will reset the history to a SubBrowsingHistory (to consider the mount point shift)
@@ -85,13 +85,7 @@ public final class UiRouter extends HistoryRouter {
         UiRouteActivityContextBase hostingUiRouterActivityContext = UiRouteActivityContextBase.toUiRouterActivityContextBase(hostingContext);
         if (hostingUiRouterActivityContext != null) // can be null if the hosting context is the application context
             hostingUiRouterActivityContext.setUiRouter(this);
-        //setRouterSessionAndUserHandlers();
     }
-
-    /*private void setRouterSessionAndUserHandlers() {
-        router.route().handler(SessionHandler.create(this::getSessionStore, () -> sessionId, id -> sessionId = id));
-        router.route().handler(UserSessionHandler.create());
-    }*/
 
     @Override
     public void refresh() {
@@ -170,20 +164,31 @@ public final class UiRouter extends HistoryRouter {
         return route(uiRoute.requiresAuthentication(), uiRoute.isRegex(), uiRoute.getPath(), uiRoute.activityFactory(), uiRoute.activityContextFactory(), uiRoute.contextConverter());
     }
 
-    public <C extends UiRouteActivityContext<C>> UiRouter registerProvidedUiRoutes() {
+    public <C extends UiRouteActivityContext<C>> UiRouter registerProvidedUiRoutes(boolean log, boolean redirectAuthOnly) {
         Collection<UiRoute> providedUiRoutes = UiRoute.getProvidedUiRoutes();
+        StringBuilder sb = log ? new StringBuilder("***** Registered the following provided ui routes: ****") : null;
         if (redirectAuthHandler == null) {
             UiRoute loginUiRoute = Collections.findFirst(providedUiRoutes, uiRoute -> uiRoute instanceof ProvidedLoginUiRoute);
             UiRoute unauthorizedUiRoute = Collections.findFirst(providedUiRoutes, uiRoute -> uiRoute instanceof ProvidedUnauthorizedUiRoute);
-            if (loginUiRoute != null && unauthorizedUiRoute != null)
+            if (loginUiRoute != null && unauthorizedUiRoute != null) {
                 setRedirectAuthHandler(loginUiRoute.getPath(), unauthorizedUiRoute.getPath());
+                if (redirectAuthOnly) {
+                    if (log)
+                        sb.append("\n").append(loginUiRoute.getPath()).append("\n").append(unauthorizedUiRoute.getPath());
+                    route(loginUiRoute);
+                    route(unauthorizedUiRoute);
+                }
+            }
         }
-        StringBuilder sb = new StringBuilder("***** Registered the following provided ui routes: ****");
-        providedUiRoutes.forEach(uiRoute -> {
-            sb.append("\n").append(uiRoute.getPath());
-            route(uiRoute);
-        });
-        Console.log(sb.append("\n").append("*******************************************************"));
+        if (!redirectAuthOnly) {
+            providedUiRoutes.forEach(uiRoute -> {
+                if (log)
+                    sb.append("\n").append(uiRoute.getPath());
+                route(uiRoute);
+            });
+        }
+        if (log)
+            Console.log(sb.append("\n").append("*******************************************************"));
         return this;
     }
 
@@ -207,6 +212,7 @@ public final class UiRouter extends HistoryRouter {
         route(path, activityFactory, activityContextFactory);
         // Memorizing the link from the sub router to this router (for the sub routing management in ActivityRoutingHandler)
         subRouter.mountParentRouter = this;
+        mountChildSubRouter = subRouter;
         // Also changing the sub router history so that when sub activities call history.push("/xxx"), they actually do history.push("/{path}/xxx")
         subRouter.setHistory(new SubBrowsingHistory(subRouter.getHistory(), path));
         return this;
@@ -254,16 +260,20 @@ public final class UiRouter extends HistoryRouter {
             if (mountParentRouter != null) { // Indicates it is a child sub router
                 mountParentRouter.mountChildSubRouter = UiRouter.this; // Setting the parent router child pointer
                 // Calling the parent router on the mount point will cause the parent activity to be displayed (if not already done)
-                mountParentRouter.router.accept(routingContext.mountPoint() + "/", routingContext.getParams());
+                String mountPoint = routingContext.mountPoint();
+                if (mountPoint != null)
+                    mountParentRouter.router.accept(mountPoint + "/", routingContext.getParams());
             }
             // When the activity is a mount parent activity, we make the trick so the child activity is displayed within the parent activity
-            if (mountChildSubRouter != null) // Indicates it is a mount parent activity
+            if (mountChildSubRouter != null) { // Indicates it is a mount parent activity
                 // The trick is to bind the mount node of the parent activity to the child activity node
-                if (activityContext instanceof HasMountNodeProperty && mountChildSubRouter.hostingContext instanceof HasNodeProperty)
+                if (activityContext instanceof HasMountNodeProperty && mountChildSubRouter.hostingContext instanceof HasNodeProperty) {
                     UiScheduler.runInUiThread(() ->
+                            // This should display the child activity because a mount parent activity is supposed to bind its context mount node to the UI
                             ((HasMountNodeProperty) activityContext).mountNodeProperty().bind(((HasNodeProperty) mountChildSubRouter.hostingContext).nodeProperty()) // Using the hosting context node which is bound to the child activity node
                     );
-            // This should display the child activity because a mount parent activity is supposed to bind its context mount node to the UI
+                }
+            }
         }
 
         private C convertRoutingContextToActivityContext(RoutingContext routingContext) {
