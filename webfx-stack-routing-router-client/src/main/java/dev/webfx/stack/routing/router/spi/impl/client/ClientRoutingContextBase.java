@@ -116,7 +116,9 @@ public abstract class ClientRoutingContextBase implements RoutingContext {
         }
         if (context instanceof SubClientRoutingContext) {
             SubClientRoutingContext ctx = (SubClientRoutingContext) context;
-            return new SubClientRoutingContext(ctx.mountPoint(), redirectPath, ctx.routes, ctx.inner);
+            return new SubClientRoutingContext(null, redirectPath, ctx.routes, // trying first to find the login page in the sub-router
+                    new SubClientRoutingContext(ctx.mountPoint(), redirectPath, ctx.routes, ctx.inner) // otherwise in the parent router
+            );
         }
         return null; // Shouldn't happen
     }
