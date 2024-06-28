@@ -9,6 +9,7 @@ import dev.webfx.platform.console.Console;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Numbers;
 import dev.webfx.platform.util.Objects;
+import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.platform.util.function.Converter;
 import dev.webfx.platform.util.function.Factory;
@@ -264,9 +265,8 @@ public final class UiRouter extends HistoryRouter {
             if (mountParentRouter != null) { // Indicates it is a child sub router
                 mountParentRouter.mountChildSubRouter = UiRouter.this; // Setting the parent router child pointer
                 // Calling the parent router on the mount point will cause the parent activity to be displayed (if not already done)
-                String mountPoint = routingContext.mountPoint();
-                if (mountPoint != null)
-                    mountParentRouter.router.accept(mountPoint + "/", routingContext.getParams());
+                if (mountParentRouter.mountParentRouter == null) // only on root router (to prevent route "/" not found exception in BookEventActivity router - not sure it's good code)
+                    mountParentRouter.router.accept(Strings.toSafeString(routingContext.mountPoint()) + "/", routingContext.getParams());
             }
             // When the activity is a mount parent activity, we make the trick so the child activity is displayed within the parent activity
             if (mountChildSubRouter != null) { // Indicates it is a mount parent activity
