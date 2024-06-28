@@ -164,6 +164,10 @@ public final class UiRouter extends HistoryRouter {
         return route(uiRoute.requiresAuthentication(), uiRoute.isRegex(), uiRoute.getPath(), uiRoute.activityFactory(), uiRoute.activityContextFactory(), uiRoute.contextConverter());
     }
 
+    public <C extends UiRouteActivityContext<C>> UiRouter registerProvidedUiRoutes() {
+        return registerProvidedUiRoutes(true, false);
+    }
+
     public <C extends UiRouteActivityContext<C>> UiRouter registerProvidedUiRoutes(boolean log, boolean redirectAuthOnly) {
         Collection<UiRoute> providedUiRoutes = UiRoute.getProvidedUiRoutes();
         StringBuilder sb = log ? new StringBuilder("***** Registered the following provided ui routes: ****") : null;
