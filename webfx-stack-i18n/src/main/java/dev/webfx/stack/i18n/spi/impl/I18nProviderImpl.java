@@ -253,7 +253,7 @@ public class I18nProviderImpl implements I18nProvider {
         else {
             Dictionary dictionary = getDictionary();
             Object freshTokenValue = getFreshTokenValueFromSnapshot(tokenSnapshot, dictionary);
-            if (!Objects.equals(tokenSnapshot.tokenValue, freshTokenValue) || tokenSnapshot.dictionary != dictionary || !Objects.equals(freshI18nKey, i18nKey))
+            if (!Objects.equals(tokenSnapshot.tokenValue, freshTokenValue) || tokenSnapshot.dictionary != dictionary || freshI18nKey != i18nKey) // Note freshI18nKey normally already equals i18nKey, but still may have an internal different state, so we use instance comparison
                 dictionaryTokenProperty.setValue(new TokenSnapshot(dictionary, freshI18nKey, tokenSnapshot.tokenKey, freshTokenValue));
         }
         return dictionaryTokenProperty;
@@ -272,11 +272,12 @@ public class I18nProviderImpl implements I18nProvider {
     public boolean refreshMessageTokenProperties(Object freshI18nKey) {
         // Getting the message map to refresh
         Map<TokenKey, Reference<Property<TokenSnapshot>>> messageMap = liveDictionaryTokenProperties.get(freshI18nKey);
-        // Note that the passed i18nKey may contain fresher internal state than the ones in token snapshots, for example
-        // if a message depends on an object (ex: Entity in Modality). This provider doesn't directly manage this case
-        // (i.e. use internal state of i18nKey to interpret the message), but some providers may extend this one to do
-        // so by overriding getDictionaryTokenValueImpl() (ex: ModalityI18nProvider). So we pass that fresh i18nKey
-        // to also refresh the token snapshots if it differs from the previous one.
+        // Note that the passed i18nKey may contain fresher internal state than the one in token snapshots. For example
+        // if a message depends on another object such as the selected item (or Entity in Modality) in a context menu,
+        // the i18nKey can be used to pass that object. This provider doesn't directly manage this case (i.e. use
+        // internal state of i18nKey to interpret the message), but some providers may extend this class to do so by
+        // overriding getDictionaryTokenValueImpl() (ex: ModalityI18nProvider).
+        // So we pass that fresh i18nKey to also ask to refresh the token snapshots with that fresh i18nKey.
         refreshMessageTokenSnapshots(messageMap, freshI18nKey);
         return messageMap != null; // reporting if something has been updated or not
     }
