@@ -82,7 +82,4 @@ public final class InMemoryAuthorizationRuleRegistry implements InMemoryAuthoriz
         return result;
     }
 
-    public void clear() {
-        registeredInMemoryAuthorizationRules.clear();
-    }
 }
