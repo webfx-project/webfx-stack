@@ -1,5 +1,6 @@
 package dev.webfx.stack.orm.entity.impl;
 
+import dev.webfx.platform.util.Numbers;
 import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
 
@@ -41,7 +42,7 @@ public final class EntityIdImpl implements EntityId {
         EntityIdImpl entityId = (EntityIdImpl) o;
 
         if (!Objects.equals(domainClass, entityId.domainClass)) return false;
-        return Objects.equals(primaryKey, entityId.primaryKey);
+        return Numbers.identicalObjectsOrNumberValues(primaryKey, entityId.primaryKey);
 
     }
 
