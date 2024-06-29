@@ -29,6 +29,8 @@ import static dev.webfx.stack.db.querysubmit.VertxSqlUtil.*;
  */
 public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServiceProvider, SubmitServiceProvider {
 
+    private static final boolean LOG_TIMINGS = false;
+
     private final Pool pool;
 
     public VertxLocalPostgresQuerySubmitServiceProvider(LocalDataSource localDataSource) {
@@ -53,15 +55,31 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
 
     @Override
     public Future<QueryResult> executeQuery(QueryArgument argument) {
-        return toWebFxFuture( withConnection(pool, connection -> executeConnectionQuery(connection, argument)) );
+        long t0 = System.currentTimeMillis();
+        return toWebFxFuture( withConnection(pool, connection -> executeConnectionQuery(connection, argument)) )
+            .map(x -> { // Identity mapping just for time report
+                if (LOG_TIMINGS) {
+                    long t1 = System.currentTimeMillis();
+                    Console.log("DB query executed in " + (t1 - t0) + "ms");
+                }
+                return x;
+            });
     }
 
     @Override
     public Future<Batch<QueryResult>> executeQueryBatch(Batch<QueryArgument> batch) {
+        long t0 = System.currentTimeMillis();
         return toWebFxFuture( withConnection(pool, connection ->
             toVertxFuture( batch.executeSerial(QueryResult[]::new, arg ->
                     toWebFxFuture( executeConnectionQuery(connection, arg))))
-        ));
+        ))
+                .map(x -> { // Identity mapping just for time report
+                    if (LOG_TIMINGS) {
+                        long t1 = System.currentTimeMillis();
+                        Console.log("DB query batch executed in " + (t1 - t0) + "ms");
+                    }
+                    return x;
+                });
     }
 
     private io.vertx.core.Future<QueryResult> executeConnectionQuery(SqlConnection connection, QueryArgument argument) {
@@ -97,8 +115,10 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
                             })
                     )))
         )).map(x -> { // Identity mapping just for time report
-            long t1 = System.currentTimeMillis();
-            Console.log("DB query batch executed in " + (t1 - t0) + "ms");
+            if (LOG_TIMINGS) {
+                long t1 = System.currentTimeMillis();
+                Console.log("DB submit batch executed in " + (t1 - t0) + "ms");
+            }
             return x;
         });
     }
@@ -131,8 +151,10 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
         long t0 = System.currentTimeMillis();
         return queryExecutionFuture
                 .map(rs -> { // on success, returns rs as a Vert.x RowSet<Row>
-                    long t1 = System.currentTimeMillis();
-                    Console.log("DB query executed in " + (t1 - t0) + "ms (" + argument.getStatement() + ")");
+                    if (LOG_TIMINGS) {
+                        long t1 = System.currentTimeMillis();
+                        Console.log("DB submit executed in " + (t1 - t0) + "ms (" + argument.getStatement() + ")");
+                    }
                     // We convert that Vert.x RowSet into a WebFX SubmitResult
                     return toWebFxSubmitResult(rs, argument);
                 });
