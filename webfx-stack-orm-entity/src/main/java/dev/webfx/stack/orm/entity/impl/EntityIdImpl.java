@@ -61,10 +61,10 @@ public final class EntityIdImpl implements EntityId {
     private static int newPk;
 
     public static EntityIdImpl create(DomainClass domainClassId) {
-        return new EntityIdImpl(domainClassId, --newPk);
+        return create(domainClassId, null);
     }
 
     public static EntityIdImpl create(DomainClass domainClassId, Object primaryKey) {
-        return new EntityIdImpl(domainClassId, primaryKey);
+        return new EntityIdImpl(domainClassId, primaryKey != null ? primaryKey : --newPk);
     }
 }

@@ -23,7 +23,7 @@ public interface EntityId {
 
     /**
      * @return true if the designated entity is not yet inserted in the database. In this case, the primary key is a
-     * temporary but non null object that works to identify the in-memory newly created entity instance.
+     * temporary but non-null object that works to identify the in-memory newly created entity instance.
      */
     boolean isNew();
 
