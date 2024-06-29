@@ -13,6 +13,7 @@ import dev.webfx.stack.db.query.spi.QueryServiceProvider;
 import dev.webfx.stack.db.submit.GeneratedKeyReference;
 import dev.webfx.stack.db.submit.SubmitArgument;
 import dev.webfx.stack.db.submit.SubmitResult;
+import dev.webfx.stack.db.submit.listener.SubmitListenerService;
 import dev.webfx.stack.db.submit.spi.SubmitServiceProvider;
 import io.vertx.pgclient.PgBuilder;
 import io.vertx.pgclient.PgConnectOptions;
@@ -119,9 +120,15 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
                 long t1 = System.currentTimeMillis();
                 Console.log("DB submit batch executed in " + (t1 - t0) + "ms");
             }
+            onSuccessfulSubmitBatch(batch);
             return x;
         });
     }
+
+    private static void onSuccessfulSubmitBatch(Batch<SubmitArgument> batch) {
+        SubmitListenerService.fireSuccessfulSubmit(batch.getArray());
+    }
+
 
     private io.vertx.core.Future<SubmitResult> executeIndividualSubmitWithConnection(SubmitArgument argument, SqlConnection connection, List<Object[]> batchIndexGeneratedKeys) {
         // We get a prepared query from the connection
@@ -155,9 +162,14 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
                         long t1 = System.currentTimeMillis();
                         Console.log("DB submit executed in " + (t1 - t0) + "ms (" + argument.getStatement() + ")");
                     }
+                    onSuccessfulSubmit(argument);
                     // We convert that Vert.x RowSet into a WebFX SubmitResult
                     return toWebFxSubmitResult(rs, argument);
                 });
+    }
+
+    private static void onSuccessfulSubmit(SubmitArgument argument) {
+        SubmitListenerService.fireSuccessfulSubmit(argument);
     }
 
     private static void replaceGeneratedKeyReferencesWithActualGeneratedKeys(Object[] parameters, List<Object[]> batchIndexGeneratedKeys) {
