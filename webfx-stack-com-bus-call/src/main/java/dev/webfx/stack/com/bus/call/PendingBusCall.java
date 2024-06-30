@@ -28,19 +28,25 @@ public final class PendingBusCall<T> {
     }
 
     void onBusCallResult(AsyncResult<BusCallResult<T>> busCallAsyncResult) {
-        // Getting the result of the bus call that needs to be returned to the initial caller
-        Object result = busCallAsyncResult.succeeded() ? busCallAsyncResult.result().getTargetResult() : busCallAsyncResult.cause();
-        // Does it come from an asynchronous operation? (which returns an AsyncResult instance)
-        if (result instanceof AsyncResult) { // if yes
-            AsyncResult<T> ar = (AsyncResult<T>) result;
-            // What needs to be returned is the successful result (if succeeded) or the exception (if failed)
-            result = ar.succeeded() ? ar.result() : ar.cause();
+        // Getting the bus call result that holds the final target result to return to the initial caller
+        BusCallResult<T> busCallResult = busCallAsyncResult.result();
+        if (busCallResult == null) { // Presumably timeout, what else can it be? TODO investigate further
+            promise.fail("No reply from server (timeout)");
+        } else {
+            // Getting the result of the bus call that needs to be returned to the initial caller
+            Object result = busCallAsyncResult.succeeded() ? busCallResult.getTargetResult() : busCallAsyncResult.cause();
+            // Does it come from an asynchronous operation? (which returns an AsyncResult instance)
+            if (result instanceof AsyncResult) { // if yes
+                AsyncResult<T> ar = (AsyncResult<T>) result;
+                // What needs to be returned is the successful result (if succeeded) or the exception (if failed)
+                result = ar.succeeded() ? ar.result() : ar.cause();
+            }
+            // Now the result object is either the successful result or the exception whatever the nature of the operation (asynchronous or synchronous)
+            if (result instanceof Throwable) // if it is an exception
+                promise.tryFail((Throwable) result); // we finally mark the pending call as failed and return that exception (if not already failed)
+            else // otherwise it is as successful result
+                promise.complete((T) result); // so we finally mark the pending call as complete and return that result (in the expected class result)
         }
-        // Now the result object is either the successful result or the exception whatever the nature of the operation (asynchronous or synchronous)
-        if (result instanceof Throwable) // if it is an exception
-            promise.tryFail((Throwable) result); // we finally mark the pending call as failed and return that exception (if not already failed)
-        else // otherwise it is as successful result
-            promise.complete((T) result); // so we finally mark the pending call as complete and return that result (in the expected class result)
         // Updating the pending calls property
         updatePendingCalls(false);
     }
