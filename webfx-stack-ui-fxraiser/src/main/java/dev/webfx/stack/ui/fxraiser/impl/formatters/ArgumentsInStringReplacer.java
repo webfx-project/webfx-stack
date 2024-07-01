@@ -22,7 +22,7 @@ public class ArgumentsInStringReplacer implements ValueFormatter {
                 arg = namedArgument.getArgument();
             } else
                 pattern = "{" + i + "}";
-            text = text.replace(pattern, arg.toString());
+            text = text.replace(pattern, String.valueOf(arg));
         }
         return text;
     }
