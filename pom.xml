@@ -117,6 +117,7 @@
         <module>webfx-stack-db-submit-buscall</module>
         <module>webfx-stack-db-submit-listener</module>
         <module>webfx-stack-db-submit-remote</module>
+        <module>webfx-stack-hash-md5</module>
         <module>webfx-stack-hash-sha1</module>
         <module>webfx-stack-http-server-vertx-plugin</module>
         <module>webfx-stack-i18n</module>

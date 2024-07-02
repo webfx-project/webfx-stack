@@ -1,6 +1,6 @@
 package dev.webfx.stack.hash.md5;
 
-public final class MD5 {
+public final class Md5 {
 
     private static final int   INIT_A     = 0x67452301;
     private static final int   INIT_B     = (int) 0xEFCDAB89L;
