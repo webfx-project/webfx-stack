@@ -100,8 +100,8 @@ public class EntityStoreImpl implements EntityStore {
     // Expression
 
     @Override
-    public <E extends Entity> Object evaluateEntityExpression(E entity, Expression<E> expression) {
-        return expression.evaluate(entity, entityDataWriter);
+    public <E extends Entity, T> T evaluateEntityExpression(E entity, Expression<E> expression) {
+        return (T) expression.evaluate(entity, entityDataWriter);
     }
 
     @Override

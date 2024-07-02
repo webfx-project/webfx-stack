@@ -17,14 +17,30 @@ import javafx.beans.binding.BooleanExpression;
 public interface UpdateStore extends EntityStore {
 
     default <E extends Entity> E insertEntity(Class<E> entityClass) {
-        return insertEntity(EntityDomainClassIdRegistry.getEntityDomainClassId(entityClass));
+        return insertEntity(entityClass, null);
     }
 
     default <E extends Entity> E insertEntity(Object domainClassId) {
-        return insertEntity(getDomainClass(domainClassId));
+        return insertEntity(domainClassId, null);
     }
 
-    <E extends Entity> E insertEntity(DomainClass domainClass);
+    default <E extends Entity> E insertEntity(DomainClass domainClass) {
+        return insertEntity(domainClass, null);
+    }
+
+    default <E extends Entity> E insertEntity(Class<E> entityClass, Object primaryKey) {
+        return insertEntity(EntityDomainClassIdRegistry.getEntityDomainClassId(entityClass), primaryKey);
+    }
+
+    default <E extends Entity> E insertEntity(Object domainClassId, Object primaryKey) {
+        return insertEntity(getDomainClass(domainClassId), primaryKey);
+    }
+
+    default <E extends Entity> E insertEntity(DomainClass domainClass, Object primaryKey) {
+        return insertEntity(EntityId.create(domainClass, primaryKey));
+    }
+
+    <E extends Entity> E insertEntity(EntityId entityId);
 
     default <E extends Entity> E updateEntity(E entity) {
         updateEntity(entity.getId());

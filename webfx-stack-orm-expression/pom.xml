@@ -13,7 +13,6 @@
 
     <artifactId>webfx-stack-orm-expression</artifactId>
 
-
     <build>
         <plugins>
 

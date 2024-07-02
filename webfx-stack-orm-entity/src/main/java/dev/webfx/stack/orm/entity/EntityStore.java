@@ -151,11 +151,11 @@ public interface EntityStore extends HasDataSourceModel {
 
     // Expression evaluation
 
-    default Object evaluateEntityExpression(Entity entity, String expression) {
+    default <T> T evaluateEntityExpression(Entity entity, String expression) {
         return evaluateEntityExpression(entity, entity.parseExpression(expression));
     }
 
-    <E extends Entity> Object evaluateEntityExpression(E entity, Expression<E> expression);
+    <E extends Entity, T> T evaluateEntityExpression(E entity, Expression<E> expression);
 
     <E extends Entity> void setEntityExpressionValue(E entity, Expression<E> expression, Object value);
 
