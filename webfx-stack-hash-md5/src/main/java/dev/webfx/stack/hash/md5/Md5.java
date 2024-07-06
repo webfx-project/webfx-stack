@@ -100,9 +100,11 @@ public final class Md5 {
     public static String toHexString(byte[] b)
     {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < b.length; i++)
-        {
-            sb.append(String.format("%02X", b[i] & 0xFF));
+        for (byte value : b) {
+            String hex = Integer.toHexString(value & 0xFF);
+            if (hex.length() < 2)
+                sb.append('0');
+            sb.append(hex);
         }
         return sb.toString();
     }
