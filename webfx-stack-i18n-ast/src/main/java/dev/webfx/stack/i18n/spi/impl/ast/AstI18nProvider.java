@@ -17,11 +17,11 @@ public class AstI18nProvider extends I18nProviderImpl {
     }
 
     public AstI18nProvider(String resourcePathWithLangPattern, String... supportedFormats) {
-        this(resourcePathWithLangPattern, null, supportedFormats);
+        this(resourcePathWithLangPattern, "en", supportedFormats);
     }
 
     public AstI18nProvider(String resourcePathWithLangPattern, Object defaultLanguage, String... supportedFormats) {
-        this(resourcePathWithLangPattern, defaultLanguage, null, supportedFormats);
+        this(resourcePathWithLangPattern, defaultLanguage, "en", supportedFormats);
     }
 
     public AstI18nProvider(String resourcePathWithLangPattern, Object defaultLanguage, Object initialLanguage, String... supportedFormats) {
