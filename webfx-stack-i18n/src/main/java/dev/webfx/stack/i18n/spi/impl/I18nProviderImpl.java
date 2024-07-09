@@ -5,7 +5,6 @@ import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.util.collection.Collections;
-import dev.webfx.stack.i18n.DefaultTokenKey;
 import dev.webfx.stack.i18n.Dictionary;
 import dev.webfx.stack.i18n.TokenKey;
 import dev.webfx.stack.i18n.spi.I18nProvider;
@@ -206,8 +205,8 @@ public class I18nProviderImpl implements I18nProvider {
                 if (tokenValue == null) {
                     if (!skipMessageLoading)
                         scheduleMessageLoading(i18nKey, true);
-                    if (tokenKey == DefaultTokenKey.TEXT)
-                        tokenValue = messageKey; //;whatToReturnWhenI18nTextIsNotFound(tokenSnapshot.i18nKey, tokenSnapshot.tokenKey);
+                    //if (tokenKey == DefaultTokenKey.TEXT) // Commented as we use it also for graphic in Modality after evaluating an expression that gives the path to the icon
+                    tokenValue = messageKey; //;whatToReturnWhenI18nTextIsNotFound(tokenSnapshot.i18nKey, tokenSnapshot.tokenKey);
                 }
             }
         }
