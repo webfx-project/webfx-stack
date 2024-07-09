@@ -11,4 +11,8 @@
         </used-by-source-modules>
     </dependencies>
 
+    <providers>
+        <provider interface="dev.webfx.stack.i18n.spi.I18nProvider">dev.webfx.stack.i18n.spi.impl.ast.AstI18nProvider</provider>
+    </providers>
+
 </project>

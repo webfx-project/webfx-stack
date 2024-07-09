@@ -13,4 +13,7 @@ module webfx.stack.i18n.ast {
     // Exported packages
     exports dev.webfx.stack.i18n.spi.impl.ast;
 
+    // Provided services
+    provides dev.webfx.stack.i18n.spi.I18nProvider with dev.webfx.stack.i18n.spi.impl.ast.AstI18nProvider;
+
 }
