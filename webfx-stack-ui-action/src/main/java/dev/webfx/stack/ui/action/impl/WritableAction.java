@@ -11,7 +11,7 @@ import dev.webfx.stack.ui.action.Action;
 import dev.webfx.platform.util.Arrays;
 
 /**
- * An writable action where properties (text, graphic, disabled, visible) can be set later (ie after constructor call)
+ * A writable action where properties (text, graphic, disabled, visible) can be set later (ie after constructor call)
  * either by calling the setters or by binding these properties (ex: writableTextProperty().bind(myTextProperty))
  *
  * @author Bruno Salmon
