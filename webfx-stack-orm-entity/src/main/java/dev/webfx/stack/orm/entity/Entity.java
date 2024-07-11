@@ -144,7 +144,7 @@ public interface Entity {
     default <E extends Entity> Future<E> onExpressionLoaded(Expression<E> expression) {
         Collection<Expression<E>> unloadedPersistentTerms = getUnloadedPersistentTerms(expression);
         if (unloadedPersistentTerms.isEmpty())
-            return Future.succeededFuture();
+            return Future.succeededFuture((E) this);
         String dqlQuery = "select " + unloadedPersistentTerms.stream().map(e -> e instanceof Dot ? ((Dot) e).expandLeft() : e).map(Object::toString).collect(Collectors.joining(",")) + " from " + getDomainClass().getName() + " where id=?";
         return getStore().executeQuery(dqlQuery, getPrimaryKey()).map((E) this);
     }
