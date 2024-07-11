@@ -247,7 +247,7 @@ public final class SerialCodecManager {
         int n = jsonArray.size();
         if (expectedClass == null) {
             if (n > 0) {
-                ReadOnlyAstNode sample = jsonArray.getElement(0);
+                Object sample = jsonArray.getElement(0);
                 if (AST.isObject(sample)) {
                     String codecId = ((ReadOnlyAstObject) sample).getString(SerialCodecManager.CODEC_ID_KEY);
                     expectedClass = (Class<T>) getJavaClass(codecId);
