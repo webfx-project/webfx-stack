@@ -5,9 +5,9 @@ package dev.webfx.stack.orm.entity;
  */
 public final class EntityStoreQuery {
 
-    final String select;
-    final Object[] parameters;
-    final Object listId;
+    private final String select;
+    private final Object[] parameters;
+    private final Object listId;
 
     public EntityStoreQuery(String select) {
         this(select, select);
@@ -25,5 +25,17 @@ public final class EntityStoreQuery {
         this.select = select;
         this.parameters = parameters;
         this.listId = listId;
+    }
+
+    public String getSelect() {
+        return select;
+    }
+
+    public Object[] getParameters() {
+        return parameters;
+    }
+
+    public Object getListId() {
+        return listId;
     }
 }

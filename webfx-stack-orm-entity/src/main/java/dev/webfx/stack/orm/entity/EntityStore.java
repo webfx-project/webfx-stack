@@ -206,7 +206,7 @@ public interface EntityStore extends HasDataSourceModel {
     }
 
     default <E extends Entity> Future<EntityList<E>> executeQuery(EntityStoreQuery query) {
-        return executeListQuery(query.listId, query.select, query.parameters);
+        return executeListQuery(query.getListId(), query.getSelect(), query.getParameters());
     }
 
     default QueryArgument createQueryArgument(String dqlQuery, Object[] parameters) {
@@ -214,9 +214,9 @@ public interface EntityStore extends HasDataSourceModel {
     }
 
     default Future<EntityList[]> executeQueryBatch(EntityStoreQuery... queries) {
-        Future<Batch<QueryResult>> future = QueryService.executeQueryBatch(new Batch<>(Arrays.map(queries, (i, query) -> createQueryArgument(query.select, query.parameters), QueryArgument[]::new)));
-        SqlCompiled[] sqlCompileds = Arrays.map(queries, query -> getDataSourceModel().parseAndCompileSelect(query.select), SqlCompiled[]::new);
-        return future.map(batchResult -> Arrays.map(batchResult.getArray(), (i, rs) -> QueryResultToEntitiesMapper.mapQueryResultToEntities(rs, sqlCompileds[i].getQueryMapping(), this, queries[i].listId), EntityList[]::new));
+        Future<Batch<QueryResult>> future = QueryService.executeQueryBatch(new Batch<>(Arrays.map(queries, (i, query) -> createQueryArgument(query.getSelect(), query.getParameters()), QueryArgument[]::new)));
+        SqlCompiled[] sqlCompileds = Arrays.map(queries, query -> getDataSourceModel().parseAndCompileSelect(query.getSelect()), SqlCompiled[]::new);
+        return future.map(batchResult -> Arrays.map(batchResult.getArray(), (i, rs) -> QueryResultToEntitiesMapper.mapQueryResultToEntities(rs, sqlCompileds[i].getQueryMapping(), this, queries[i].getListId()), EntityList[]::new));
     }
 
     // String report for debugging
