@@ -7,6 +7,8 @@ import java.util.function.Supplier;
  */
 public final class SystemUserId {
 
+    public static final SystemUserId SYSTEM = new SystemUserId("System");
+
     private final String name;
 
     public SystemUserId() {
