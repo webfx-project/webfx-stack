@@ -10,7 +10,6 @@ import dev.webfx.stack.db.submit.SubmitArgument;
 import dev.webfx.stack.db.submit.SubmitResult;
 import dev.webfx.stack.db.submit.SubmitService;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
-import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.EntityStore;
@@ -41,16 +40,18 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
     }
 
     @Override
-    public <E extends Entity> E insertEntity(DomainClass domainClass) {
-        E entity = createEntity(domainClass);
-        changesBuilder.addInsertedEntityId(entity.getId());
+    public <E extends Entity> E insertEntity(EntityId entityId) {
+        if (!entityId.isNew())
+            throw new IllegalArgumentException("entityId must be new");
+        E entity = createEntity(entityId);
+        changesBuilder.addInsertedEntityId(entityId);
         return entity;
     }
 
     @Override
     public <E extends Entity> E updateEntity(EntityId entityId) {
         changesBuilder.addUpdatedEntityId(entityId);
-        return createEntity(entityId);
+        return getOrCreateEntity(entityId);
     }
 
     boolean updateEntity(EntityId id, Object domainFieldId, Object value, Object previousValue) {

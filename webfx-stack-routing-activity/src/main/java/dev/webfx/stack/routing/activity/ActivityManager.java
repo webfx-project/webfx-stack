@@ -133,7 +133,7 @@ public final class ActivityManager<C extends ActivityContext<C>> {
                 nextState = intentState;
             else
                 return failPromises("Illegal state transition", transitPromise, pendingPromise);
-            onStateChanged(nextState).onComplete(new Handler<AsyncResult<Void>>() {
+            onStateChanged(nextState).onComplete(new Handler<>() {
                 @Override
                 public void handle(AsyncResult<Void> result) {
                     if (result.failed())

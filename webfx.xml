@@ -82,7 +82,7 @@
 
         <!-- Additional library required at runtime when authenticating to a postgres database in a docker container -->
         <library name="com-ongres-scram-client">
-            <artifactId>client</artifactId>
+            <artifactId>scram-client</artifactId>
             <groupId>com.ongres.scram</groupId>
         </library>
 

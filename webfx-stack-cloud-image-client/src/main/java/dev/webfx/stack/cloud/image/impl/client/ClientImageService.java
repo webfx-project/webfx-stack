@@ -47,7 +47,7 @@ public class ClientImageService implements CloudImageService {
         ).compose(response -> {
             if (response.ok())
                 return Future.succeededFuture(response.status() == HttpResponseStatus.OK_200); // OK_200 = exists, NO_CONTENT_204 = doesn't exist
-            return Future.failedFuture(response.statusText());
+            return Future.failedFuture("Failed to call " + existsUrl + ", status = " + response.statusText());
         });
     }
 

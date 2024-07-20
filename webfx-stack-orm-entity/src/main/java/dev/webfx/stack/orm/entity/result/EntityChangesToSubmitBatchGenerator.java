@@ -159,7 +159,7 @@ public final class EntityChangesToSubmitBatchGenerator {
                 }
                 // If none of the submitArgument could be resolved, we are stuck and can't sort the list anymore
                 if (!someResolved) // this happens when there are cyclic references, which we complain about
-                    throw new IllegalStateException("Cyclic references detected");
+                    throw new IllegalStateException("Missing entities or cyclic references detected");
             }
             // Applying the result of the sort to the original list
             for (int i = 0; i < size; i++)

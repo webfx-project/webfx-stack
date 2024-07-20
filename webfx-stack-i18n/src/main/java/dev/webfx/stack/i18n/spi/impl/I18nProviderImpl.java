@@ -5,7 +5,6 @@ import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.util.collection.Collections;
-import dev.webfx.stack.i18n.DefaultTokenKey;
 import dev.webfx.stack.i18n.Dictionary;
 import dev.webfx.stack.i18n.TokenKey;
 import dev.webfx.stack.i18n.spi.I18nProvider;
@@ -206,8 +205,8 @@ public class I18nProviderImpl implements I18nProvider {
                 if (tokenValue == null) {
                     if (!skipMessageLoading)
                         scheduleMessageLoading(i18nKey, true);
-                    if (tokenKey == DefaultTokenKey.TEXT)
-                        tokenValue = messageKey; //;whatToReturnWhenI18nTextIsNotFound(tokenSnapshot.i18nKey, tokenSnapshot.tokenKey);
+                    //if (tokenKey == DefaultTokenKey.TEXT) // Commented as we use it also for graphic in Modality after evaluating an expression that gives the path to the icon
+                    tokenValue = messageKey; //;whatToReturnWhenI18nTextIsNotFound(tokenSnapshot.i18nKey, tokenSnapshot.tokenKey);
                 }
             }
         }
@@ -240,19 +239,21 @@ public class I18nProviderImpl implements I18nProvider {
     }
 
     private <TK extends Enum<?> & TokenKey> Property<TokenSnapshot> createLiveDictionaryTokenProperty(Object i18nKey, TK tokenKey) {
-        return refreshDictionaryTokenSnapshot(new SimpleObjectProperty<>(new TokenSnapshot(null, i18nKey, tokenKey, null)));
+        return refreshDictionaryTokenSnapshot(new SimpleObjectProperty<>(new TokenSnapshot(null, i18nKey, tokenKey, null)), null);
     }
 
-    private Property<TokenSnapshot> refreshDictionaryTokenSnapshot(Property<TokenSnapshot> dictionaryTokenProperty) {
+    private Property<TokenSnapshot> refreshDictionaryTokenSnapshot(Property<TokenSnapshot> dictionaryTokenProperty, Object freshI18nKey) {
         TokenSnapshot tokenSnapshot = dictionaryTokenProperty.getValue();
         Object i18nKey = tokenSnapshot.i18nKey;
+        if (freshI18nKey == null)
+            freshI18nKey = i18nKey;
         if (dictionaryLoadRequired && dictionaryLoader != null)
             scheduleMessageLoading(i18nKey, false);
         else {
             Dictionary dictionary = getDictionary();
             Object freshTokenValue = getFreshTokenValueFromSnapshot(tokenSnapshot, dictionary);
-            if (!Objects.equals(tokenSnapshot.tokenValue, freshTokenValue) || tokenSnapshot.dictionary != dictionary)
-                dictionaryTokenProperty.setValue(new TokenSnapshot(dictionary, i18nKey, tokenSnapshot.tokenKey, freshTokenValue));
+            if (!Objects.equals(tokenSnapshot.tokenValue, freshTokenValue) || tokenSnapshot.dictionary != dictionary || freshI18nKey != i18nKey) // Note freshI18nKey normally already equals i18nKey, but still may have an internal different state, so we use instance comparison
+                dictionaryTokenProperty.setValue(new TokenSnapshot(dictionary, freshI18nKey, tokenSnapshot.tokenKey, freshTokenValue));
         }
         return dictionaryTokenProperty;
     }
@@ -267,10 +268,17 @@ public class I18nProviderImpl implements I18nProvider {
         return getDictionaryTokenValueImpl(i18nKey, (Enum<?> & TokenKey) tokenKey, dictionary, false, false, true);
     }
 
-    public boolean refreshMessageTokenProperties(Object i18nKey) {
-        Map<TokenKey, Reference<Property<TokenSnapshot>>> messageMap = liveDictionaryTokenProperties.get(i18nKey);
-        refreshMessageTokenSnapshots(messageMap);
-        return messageMap != null;
+    public boolean refreshMessageTokenProperties(Object freshI18nKey) {
+        // Getting the message map to refresh
+        Map<TokenKey, Reference<Property<TokenSnapshot>>> messageMap = liveDictionaryTokenProperties.get(freshI18nKey);
+        // Note that the passed i18nKey may contain fresher internal state than the one in token snapshots. For example
+        // if a message depends on another object such as the selected item (or Entity in Modality) in a context menu,
+        // the i18nKey can be used to pass that object. This provider doesn't directly manage this case (i.e. use
+        // internal state of i18nKey to interpret the message), but some providers may extend this class to do so by
+        // overriding getDictionaryTokenValueImpl() (ex: ModalityI18nProvider).
+        // So we pass that fresh i18nKey to also ask to refresh the token snapshots with that fresh i18nKey.
+        refreshMessageTokenSnapshots(messageMap, freshI18nKey);
+        return messageMap != null; // reporting if something has been updated or not
     }
 
     @Override
@@ -329,7 +337,7 @@ public class I18nProviderImpl implements I18nProvider {
         return inDefaultLanguage ? defaultKeysToLoad : keysToLoad;
     }
 
-    private void refreshMessageTokenSnapshots(Map<TokenKey, Reference<Property<TokenSnapshot>>> messageMap) {
+    private void refreshMessageTokenSnapshots(Map<TokenKey, Reference<Property<TokenSnapshot>>> messageMap, Object freshI18nKey) {
         if (messageMap != null)
             for (Iterator<Map.Entry<TokenKey, Reference<Property<TokenSnapshot>>>> it = messageMap.entrySet().iterator(); it.hasNext(); ) {
                 Map.Entry<TokenKey, Reference<Property<TokenSnapshot>>> mapEntry = it.next();
@@ -343,7 +351,7 @@ public class I18nProviderImpl implements I18nProvider {
                 if (tokenProperty == null) // Means the client software doesn't use this token
                     it.remove(); // So we can drop this entry
                 else // Otherwise, the client software still uses it, and we need to update it
-                    refreshDictionaryTokenSnapshot(tokenProperty);
+                    refreshDictionaryTokenSnapshot(tokenProperty, freshI18nKey);
             }
     }
 
@@ -357,7 +365,7 @@ public class I18nProviderImpl implements I18nProvider {
             // We iterate through the translation map to update all parts (text, graphic, etc...) of all messages (i18nKey)
             for (Iterator<Map.Entry<Object, Map<TokenKey, Reference<Property<TokenSnapshot>>>>> it = liveDictionaryTokenProperties.entrySet().iterator(); it.hasNext(); ) {
                 Map.Entry<Object, Map<TokenKey, Reference<Property<TokenSnapshot>>>> messageMapEntry = it.next();
-                refreshMessageTokenSnapshots(messageMapEntry.getValue());
+                refreshMessageTokenSnapshots(messageMapEntry.getValue(), null);
                 // Although a message map is never empty at initialization, it can become empty if all i18nKey,translationPart
                 // have been removed (as explained above). If this happens, this means that the client software actually
                 // doesn't use this message at all (either never from the beginning or not anymore).

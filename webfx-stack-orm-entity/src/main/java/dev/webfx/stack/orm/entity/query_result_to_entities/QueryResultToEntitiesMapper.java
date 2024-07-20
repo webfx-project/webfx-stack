@@ -1,14 +1,14 @@
 package dev.webfx.stack.orm.entity.query_result_to_entities;
 
 import dev.webfx.extras.type.PrimType;
+import dev.webfx.platform.util.time.Times;
+import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.orm.domainmodel.DomainField;
+import dev.webfx.stack.orm.dql.sqlcompiler.mapping.QueryColumnToEntityFieldMapping;
+import dev.webfx.stack.orm.dql.sqlcompiler.mapping.QueryRowToEntityMapping;
 import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.entity.EntityList;
 import dev.webfx.stack.orm.entity.EntityStore;
-import dev.webfx.stack.orm.dql.sqlcompiler.mapping.QueryColumnToEntityFieldMapping;
-import dev.webfx.stack.orm.dql.sqlcompiler.mapping.QueryRowToEntityMapping;
-import dev.webfx.stack.db.query.QueryResult;
-import dev.webfx.platform.util.time.Times;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -54,7 +54,7 @@ public final class QueryResultToEntitiesMapper {
                 // Some conversion to do if it is a domain field
                 if (fieldId instanceof DomainField) {
                     DomainField domainField = (DomainField) fieldId;
-                    // First the id the actually the domain field id
+                    // First, getting the field id
                     fieldId = domainField.getId();
                     // And second, converting the dates possibly returned as String by the QueryService into LocalDate or LocalDateTime objects
                     if (value != null && domainField.getType() == PrimType.DATE && value instanceof String) {

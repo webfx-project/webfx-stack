@@ -85,6 +85,8 @@ public final class SerialCodecManager {
             return encodePrefixedLocalDateTime((LocalDateTime) object);
         if (object instanceof LocalTime)
             return encodePrefixedLocalTime((LocalTime) object);
+        if (object instanceof Object[])
+            return encodeJavaArrayToAstArray((Object[]) object);
         // Other java objects are serialized into json
         return encodeToAstObject(object);
     }
@@ -244,10 +246,15 @@ public final class SerialCodecManager {
             return null;
         int n = jsonArray.size();
         if (expectedClass == null) {
-            if (n == 0)
+            if (n > 0) {
+                Object sample = jsonArray.getElement(0);
+                if (AST.isObject(sample)) {
+                    String codecId = ((ReadOnlyAstObject) sample).getString(SerialCodecManager.CODEC_ID_KEY);
+                    expectedClass = (Class<T>) getJavaClass(codecId);
+                }
+            }
+            if (expectedClass == null)
                 expectedClass = (Class<T>) Object.class;
-            else
-                expectedClass = (Class<T>) getJavaClass(jsonArray.getObject(0).getString(SerialCodecManager.CODEC_ID_KEY));
         }
         T[] array = (T[]) RArray.newInstance(expectedClass, n);
         for (int i = 0; i < n; i++)

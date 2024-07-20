@@ -114,7 +114,7 @@ public final class ExpressionSqlCompiler {
         SqlBuild sqlBuild = createSqlOrderBuild(select, SqlClause.SELECT, dbmsSyntax, parent, modelReader);
         sqlBuild.setDistinct(select.isDistinct());
         boolean grouped = select.getGroupBy() != null;
-        if (select.isIncludeIdColumn())
+        if (select.isIncludeIdColumn() || select.getFields() == null /* <= because a SQL select must have at least 1 column to read */)
             sqlBuild.addColumnInClause(sqlBuild.getTableAlias(), modelReader.getDomainClassPrimaryKeySqlColumnName(select.getDomainClass()), null, null, SqlClause.SELECT, "", grouped, false, true);
         if (select.getFields() != null)
             compileExpression(select.getFields(), new Options(sqlBuild, SqlClause.SELECT, ", ", grouped, generateQueryMapping, readForeignFields, modelReader));

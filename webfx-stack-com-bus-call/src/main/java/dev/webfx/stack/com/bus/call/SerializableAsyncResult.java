@@ -76,7 +76,7 @@ public final class SerializableAsyncResult<T> implements AsyncResult<T> {
             String errorMessage = decodeString(serial, ERROR_KEY);
             return new SerializableAsyncResult<>(
                     decodeObject(serial, RESULT_KEY),
-                    errorMessage == null ? null : new NoStackTraceThrowable(errorMessage)
+                    errorMessage == null ? null : new NoStackTraceThrowable("Server error: " + errorMessage) // Error message on deserialization presumably comes from server
             );
         }
     }

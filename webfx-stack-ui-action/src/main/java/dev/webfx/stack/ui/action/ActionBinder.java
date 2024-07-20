@@ -1,19 +1,19 @@
 package dev.webfx.stack.ui.action;
 
+import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.kit.util.properties.ObservableLists;
+import dev.webfx.platform.util.function.Converter;
+import dev.webfx.stack.ui.action.impl.WritableAction;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBase;
 import javafx.scene.control.Labeled;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
-import dev.webfx.stack.ui.action.impl.WritableAction;
-import dev.webfx.kit.util.properties.ObservableLists;
-import dev.webfx.kit.util.properties.FXProperties;
-import dev.webfx.platform.util.function.Converter;
 
 import java.util.Collection;
 
@@ -22,13 +22,13 @@ import java.util.Collection;
  */
 public final class ActionBinder {
 
-    public static Button bindButtonToAction(Button button, Action action) {
+    public static <T extends ButtonBase> T bindButtonToAction(T button, Action action) {
         bindLabeledToAction(button, action);
         button.setOnAction(action);
         return button;
     }
 
-    public static MenuItem bindMenuItemToAction(MenuItem menuItem, Action action) {
+    public static <T extends MenuItem> T bindMenuItemToAction(T menuItem, Action action) {
         menuItem.textProperty().bind(action.textProperty());
         bindGraphicProperties(menuItem.graphicProperty(), action.graphicProperty());
         menuItem.disableProperty().bind(action.disabledProperty());
@@ -37,7 +37,7 @@ public final class ActionBinder {
         return menuItem;
     }
 
-    private static Labeled bindLabeledToAction(Labeled labeled, Action action) {
+    private static <T extends Labeled> T bindLabeledToAction(T labeled, Action action) {
         labeled.textProperty().bind(action.textProperty());
         bindGraphicProperties(labeled.graphicProperty(), action.graphicProperty());
         bindNodeToAction(labeled, action, false);
@@ -66,7 +66,7 @@ public final class ActionBinder {
         return bindNodeToAction(action.getGraphic(), action, true);
     }
 
-    private static Node bindNodeToAction(Node node, Action action, boolean setOnMouseClicked) {
+    private static <T extends Node> T bindNodeToAction(T node, Action action, boolean setOnMouseClicked) {
         node.disableProperty().bind(action.disabledProperty());
         node.visibleProperty().bind(action.visibleProperty());
         // Automatically removing the node from layout if not visible
@@ -93,7 +93,7 @@ public final class ActionBinder {
         return parent;
     }
 
-    public static ObservableList<Node> bindChildrenToActionGroup(ObservableList<Node> children, ActionGroup actionGroup, Converter<Action, Node> nodeFactory) {
+    public static <T extends Node> ObservableList<T> bindChildrenToActionGroup(ObservableList<T> children, ActionGroup actionGroup, Converter<Action, T> nodeFactory) {
         ObservableLists.bindConverted(children, actionGroup.getVisibleActions(), nodeFactory);
         return children;
     }

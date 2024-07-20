@@ -1,5 +1,6 @@
 package dev.webfx.stack.orm.entity.impl;
 
+import dev.webfx.platform.util.Numbers;
 import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
 
@@ -30,7 +31,7 @@ public final class EntityIdImpl implements EntityId {
 
     @Override
     public boolean isNew() {
-        return primaryKey instanceof Integer && (Integer) primaryKey < 0; // temporary convention for new ids
+        return primaryKey instanceof Number && ((Number) primaryKey).intValue() < 0; // convention for new ids
     }
 
     @Override
@@ -41,7 +42,7 @@ public final class EntityIdImpl implements EntityId {
         EntityIdImpl entityId = (EntityIdImpl) o;
 
         if (!Objects.equals(domainClass, entityId.domainClass)) return false;
-        return Objects.equals(primaryKey, entityId.primaryKey);
+        return Numbers.identicalObjectsOrNumberValues(primaryKey, entityId.primaryKey);
 
     }
 
@@ -60,10 +61,10 @@ public final class EntityIdImpl implements EntityId {
     private static int newPk;
 
     public static EntityIdImpl create(DomainClass domainClassId) {
-        return new EntityIdImpl(domainClassId, --newPk);
+        return create(domainClassId, null);
     }
 
     public static EntityIdImpl create(DomainClass domainClassId, Object primaryKey) {
-        return new EntityIdImpl(domainClassId, primaryKey);
+        return new EntityIdImpl(domainClassId, primaryKey != null ? primaryKey : --newPk);
     }
 }

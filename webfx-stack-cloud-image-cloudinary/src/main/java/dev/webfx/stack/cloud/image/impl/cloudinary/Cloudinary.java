@@ -88,8 +88,8 @@ public class Cloudinary extends FetchBasedCloudImageService {
 
     private static String apiSignRequest(FormData paramsToSign, String apiSecret) {
         List<Map.Entry<String, Object>> entries = new ArrayList<>(paramsToSign.entries());
-        entries.sort(Comparator.comparing(Map.Entry::getKey));
-        Collection<String> params = new ArrayList<String>();
+        entries.sort(Map.Entry.comparingByKey());
+        Collection<String> params = new ArrayList<>();
         for (Map.Entry<String, Object> param : entries) {
             if (param.getValue() instanceof Collection) {
                 params.add(param.getKey() + "=" + Collections.toString((Collection) param.getValue(), false, false));

@@ -36,6 +36,10 @@ public final class ThreadLocalStateHolder implements AutoCloseable {
         }
     }
 
+    public static void runAsUser(Object userId, Runnable runnable) {
+        runWithState(StateAccessor.setUserId(null, userId), runnable);
+    }
+
     public static Object getThreadLocalState() {
         return stateThreadLocal.get();
     }

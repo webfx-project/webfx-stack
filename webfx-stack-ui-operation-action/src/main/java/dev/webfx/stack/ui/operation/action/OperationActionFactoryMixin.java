@@ -33,21 +33,21 @@ public interface OperationActionFactoryMixin extends HasOperationExecutor {
 
     // OperationAction factory methods
 
-    default <Rq> OperationAction newOperationAction(Factory<Rq> operationRequestFactory, ObservableValue... graphicalDependencies) {
+    default <Rq, Rs> OperationAction<Rq, Rs> newOperationAction(Factory<Rq> operationRequestFactory, ObservableValue<?>... graphicalDependencies) {
         return newOperationAction(operationRequestFactory, getOperationExecutor(), graphicalDependencies);
     }
 
-    default <Rq, Rs> OperationAction newOperationAction(Factory<Rq> operationRequestFactory, AsyncFunction<Rq, Rs> topOperationExecutor, ObservableValue... graphicalDependencies) {
+    default <Rq, Rs> OperationAction<Rq, Rs> newOperationAction(Factory<Rq> operationRequestFactory, AsyncFunction<Rq, Rs> topOperationExecutor, ObservableValue... graphicalDependencies) {
         return initOperationAction(new OperationAction<>(operationRequestFactory, topOperationExecutor, graphicalDependencies));
     }
 
     // Same but with an action event passed to the operation request factory
 
-    default <Rq> OperationAction newOperationAction(Function<ActionEvent, Rq> operationRequestFactory, ObservableValue... graphicalDependencies) {
+    default <Rq> OperationAction<Rq, ?> newOperationAction(Function<ActionEvent, Rq> operationRequestFactory, ObservableValue<?>... graphicalDependencies) {
         return newOperationAction(operationRequestFactory, getOperationExecutor(), graphicalDependencies);
     }
 
-    default <Rq, Rs> OperationAction newOperationAction(Function<ActionEvent, Rq> operationRequestFactory, AsyncFunction<Rq, Rs> topOperationExecutor, ObservableValue... graphicalDependencies) {
+    default <Rq, Rs> OperationAction<Rq, Rs> newOperationAction(Function<ActionEvent, Rq> operationRequestFactory, AsyncFunction<Rq, Rs> topOperationExecutor, ObservableValue... graphicalDependencies) {
         return initOperationAction(new OperationAction<>(operationRequestFactory, topOperationExecutor, graphicalDependencies));
     }
 
@@ -73,7 +73,7 @@ public interface OperationActionFactoryMixin extends HasOperationExecutor {
         return new ActionGroupBuilder().setI18nKey(i18nKey).setActions(actions).setHasSeparators(hasSeparators).build();
     }
 
-    default OperationAction initOperationAction(OperationAction operationAction) {
+    default <Rq, Rs> OperationAction<Rq, Rs> initOperationAction(OperationAction<Rq, Rs> operationAction) {
         OperationActionRegistry registry = operationAction.getOperationActionRegistry();
         if (registry == null) {
             registry = getOperationActionRegistry();

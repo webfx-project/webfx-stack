@@ -11,4 +11,9 @@ public final class ViewActivityContextFinal extends ViewActivityContextBase<View
     public ViewActivityContextFinal(ActivityContext parentContext, ActivityContextFactory<ViewActivityContextFinal> contextFactory) {
         super(parentContext, contextFactory);
     }
+
+    public ViewActivityContextFinal(ActivityContext parentContext) {
+        super(parentContext, ViewActivityContextFinal::new);
+    }
+
 }

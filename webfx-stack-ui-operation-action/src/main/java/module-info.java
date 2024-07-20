@@ -4,6 +4,7 @@ module webfx.stack.ui.operation.action {
 
     // Direct dependencies modules
     requires javafx.base;
+    requires javafx.graphics;
     requires webfx.kit.util;
     requires webfx.platform.async;
     requires webfx.platform.console;
@@ -11,6 +12,7 @@ module webfx.stack.ui.operation.action {
     requires webfx.platform.util;
     requires webfx.stack.authz.client;
     requires transitive webfx.stack.ui.action;
+    requires webfx.stack.ui.exceptions;
     requires webfx.stack.ui.operation;
 
     // Exported packages

@@ -17,11 +17,15 @@ final class SubClientRoutingContext extends ClientRoutingContextBase {
     SubClientRoutingContext(String mountPoint, String path, Collection<ClientRoute> routes, RoutingContext inner) {
         super(mountPoint, path, routes, null);
         this.inner = inner;
-        String parentMountPoint = inner.mountPoint();
-        // Removing the trailing slash or we won't match
-        if (mountPoint.endsWith("/"))
-            mountPoint = mountPoint.substring(0, mountPoint.length() - 1);
-        this.mountPoint = parentMountPoint == null ? mountPoint : parentMountPoint + mountPoint;
+        if (mountPoint == null)
+            this.mountPoint = null;
+        else {
+            // Removing the trailing slash or we won't match
+            if (mountPoint.endsWith("/"))
+                mountPoint = mountPoint.substring(0, mountPoint.length() - 1);
+            String parentMountPoint = inner.mountPoint();
+            this.mountPoint = parentMountPoint == null ? mountPoint : parentMountPoint + mountPoint;
+        }
     }
 
     @Override

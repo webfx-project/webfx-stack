@@ -17,7 +17,7 @@
 
         <dependency>
             <groupId>com.ongres.scram</groupId>
-            <artifactId>client</artifactId>
+            <artifactId>scram-client</artifactId>
             <scope>runtime</scope>
         </dependency>
 
