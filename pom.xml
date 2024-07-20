@@ -123,6 +123,7 @@
         <module>webfx-stack-i18n</module>
         <module>webfx-stack-i18n-ast</module>
         <module>webfx-stack-i18n-controls</module>
+        <module>webfx-stack-i18n-time-plugin</module>
         <module>webfx-stack-orm-datasourcemodel-service</module>
         <module>webfx-stack-orm-domainmodel</module>
         <module>webfx-stack-orm-domainmodel-activity</module>
