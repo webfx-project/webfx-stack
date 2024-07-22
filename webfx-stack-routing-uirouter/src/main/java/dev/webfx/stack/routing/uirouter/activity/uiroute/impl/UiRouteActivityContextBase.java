@@ -10,8 +10,8 @@ import dev.webfx.stack.routing.activity.impl.ActivityContextBase;
 import dev.webfx.stack.routing.uirouter.UiRouter;
 import dev.webfx.stack.routing.uirouter.activity.uiroute.UiRouteActivityContext;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableBooleanValue;
 
 /**
  * @author Bruno Salmon
@@ -102,7 +102,7 @@ public class UiRouteActivityContextBase
 
     private final BooleanProperty activeProperty = new SimpleBooleanProperty(false);
     @Override
-    public ReadOnlyProperty<Boolean> activeProperty() {
+    public ObservableBooleanValue activeProperty() {
         return activeProperty;
     }
 

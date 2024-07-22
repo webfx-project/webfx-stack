@@ -3,10 +3,10 @@ package dev.webfx.stack.routing.activity.impl.elementals.activeproperty.impl;
 import dev.webfx.stack.routing.activity.ActivityContext;
 import dev.webfx.stack.routing.activity.ActivityContextFactory;
 import dev.webfx.stack.routing.activity.impl.ActivityContextBase;
-import javafx.beans.property.Property;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import dev.webfx.stack.routing.activity.impl.elementals.activeproperty.ActivePropertyActivityContext;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableBooleanValue;
 
 /**
  * @author Bruno Salmon
@@ -21,10 +21,10 @@ public class ActivePropertyActivityContextBase
         super(parentContext, contextFactory);
     }
 
-    private final Property<Boolean> activeProperty = new SimpleObjectProperty<>(false);
+    private final BooleanProperty activeProperty = new SimpleBooleanProperty(false);
+
     @Override
-    public ReadOnlyProperty<Boolean> activeProperty() {
+    public ObservableBooleanValue activeProperty() {
         return activeProperty;
     }
-
 }
