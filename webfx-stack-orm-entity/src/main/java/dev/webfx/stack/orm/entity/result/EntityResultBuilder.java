@@ -22,10 +22,10 @@ public final class EntityResultBuilder {
     }
 
     public boolean setFieldValue(EntityId id, Object fieldId, Object fieldValue) {
+        Map fieldMap = entityFieldMap(id);
         if (id.isNew() && !entityIds.contains(id))
             changedEntitiesCount++;
-        Map fieldMap = entityFieldMap(id);
-        if (fieldId != null && hasEntityNoChange(id, fieldMap))
+        else if (fieldId != null && hasEntityNoChange(id, fieldMap))
             changedEntitiesCount++;
         boolean firstFieldValueSet = !fieldMap.containsKey(fieldId);
         fieldMap.put(fieldId, fieldValue);
