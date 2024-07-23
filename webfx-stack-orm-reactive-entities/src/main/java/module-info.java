@@ -6,6 +6,7 @@ module webfx.stack.orm.reactive.entities {
     requires javafx.base;
     requires javafx.graphics;
     requires webfx.extras.type;
+    requires webfx.extras.util;
     requires webfx.kit.util;
     requires webfx.platform.ast;
     requires webfx.platform.ast.json.plugin;
