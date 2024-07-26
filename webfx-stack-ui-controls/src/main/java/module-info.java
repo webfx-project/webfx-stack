@@ -6,7 +6,7 @@ module webfx.stack.ui.controls {
     requires javafx.base;
     requires javafx.controls;
     requires javafx.graphics;
-    requires webfx.extras.materialdesign;
+    requires webfx.extras.styles.materialdesign;
     requires webfx.extras.util.background;
     requires webfx.extras.util.border;
     requires webfx.extras.util.layout;

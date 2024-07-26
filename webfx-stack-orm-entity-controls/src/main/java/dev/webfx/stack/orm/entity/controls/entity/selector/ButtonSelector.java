@@ -1,6 +1,6 @@
 package dev.webfx.stack.orm.entity.controls.entity.selector;
 
-import dev.webfx.extras.materialdesign.textfield.MaterialTextFieldPane;
+import dev.webfx.extras.styles.materialdesign.textfield.MaterialTextFieldPane;
 import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.util.layout.LayoutUtil;

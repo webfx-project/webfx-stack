@@ -5,9 +5,9 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Region;
 import dev.webfx.stack.i18n.I18n;
-import dev.webfx.extras.materialdesign.textfield.MaterialTextField;
-import dev.webfx.extras.materialdesign.textfield.MaterialTextFieldPane;
-import dev.webfx.extras.materialdesign.util.MaterialUtil;
+import dev.webfx.extras.styles.materialdesign.textfield.MaterialTextField;
+import dev.webfx.extras.styles.materialdesign.textfield.MaterialTextFieldPane;
+import dev.webfx.extras.styles.materialdesign.util.MaterialUtil;
 
 /**
  * @author Bruno Salmon
