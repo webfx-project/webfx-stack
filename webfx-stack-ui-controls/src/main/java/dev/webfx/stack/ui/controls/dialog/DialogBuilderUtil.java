@@ -12,6 +12,7 @@ import java.util.function.Consumer;
  * @author Bruno Salmon
  */
 public final class DialogBuilderUtil {
+
     public static DialogCallback showModalNodeInGoldLayout(DialogBuilder dialogBuilder, Pane parent) {
         return showModalNodeInGoldLayout(dialogBuilder, parent, 0, 0);
     }
@@ -33,7 +34,7 @@ public final class DialogBuilderUtil {
     }
 
     public static void armDialogContentButtons(DialogContent dialogContent, Consumer<DialogCallback> okConsumer) {
-        dialogContent.getCancelButton().setOnAction(event -> dialogContent.getDialogCallback().closeDialog());
-        dialogContent.getOkButton().setOnAction(event -> okConsumer.accept(dialogContent.getDialogCallback()));
+        dialogContent.getSecondaryButton().setOnAction(event -> dialogContent.getDialogCallback().closeDialog());
+        dialogContent.getPrimaryButton().setOnAction(event -> okConsumer.accept(dialogContent.getDialogCallback()));
     }
 }

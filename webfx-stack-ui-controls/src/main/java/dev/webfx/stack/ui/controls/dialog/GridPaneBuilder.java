@@ -1,21 +1,18 @@
 package dev.webfx.stack.ui.controls.dialog;
 
-import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.platform.util.tuples.Pair;
+import dev.webfx.stack.i18n.controls.I18nControls;
 import dev.webfx.stack.ui.dialog.DialogCallback;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.text.Font;
+import javafx.scene.layout.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +25,6 @@ import java.util.function.Consumer;
 public final class GridPaneBuilder implements DialogBuilder {
 
     private final GridPane gridPane = new GridPane();
-    private final Font font = Font.getDefault();
     private int rowCount;
     private int colCount;
     private final List<Pair<Property, Object>> watchedUserProperties = new ArrayList<>();
@@ -55,11 +51,6 @@ public final class GridPaneBuilder implements DialogBuilder {
         return addNewRow(createLabel(i18nKey), setUpTextInput(textInput));
     }
 
-    public GridPaneBuilder addLabelNodeRow(Object i18nKey, Node node) {
-        GridPane.setHgrow(node, Priority.ALWAYS);
-        return addNewRow(createLabel(i18nKey), node);
-    }
-
     public GridPaneBuilder addCheckBoxTextInputRow(Object i18nKey, CheckBox checkBox, TextInputControl textInput) {
         textInput.visibleProperty().bind(checkBox.selectedProperty());
         return addNewRow(setUpLabeled(checkBox, i18nKey), setUpTextInput(textInput));
@@ -78,20 +69,11 @@ public final class GridPaneBuilder implements DialogBuilder {
         return this;
     }
 
-    public GridPaneBuilder addTextInputRow(TextInputControl textInput) {
-        return addNodeFillingRow(setUpTextInput(textInput));
-    }
-
     public GridPaneBuilder addTextRow(String text) {
         return addNodeFillingRow(setUpLabeled(new Label(), text));
     }
 
     public GridPaneBuilder addNodeFillingRow(Node node) {
-        return addNodeFillingRow(0, node);
-    }
-
-    public GridPaneBuilder addNodeFillingRowAndHeight(Node node) {
-        GridPane.setVgrow(node, Priority.ALWAYS);
         return addNodeFillingRow(0, node);
     }
 
@@ -111,15 +93,6 @@ public final class GridPaneBuilder implements DialogBuilder {
         return this;
     }
 
-    public GridPaneBuilder addButton(String buttonKey, Button button) {
-        //I18nControls.bindI18nProperties(button, buttonKey).setFont(font);
-        button.setText(buttonKey);
-        button.setFont(font);
-        GridPane.setHalignment(button, HPos.RIGHT);
-        gridPane.add(button, 0, rowCount++, colCount, 1);
-        return this;
-    }
-
     public GridPaneBuilder addButtons(String button1Key, Consumer<DialogCallback> action1, String button2Key, Consumer<DialogCallback> action2) {
         return addNodeFillingRow(20, createButtonBar(button1Key, action1, button2Key, action2));
     }
@@ -128,28 +101,22 @@ public final class GridPaneBuilder implements DialogBuilder {
         return addNodeFillingRow(20, createButtonBar(button1Key, button1, button2Key, button2));
     }
 
-    public GridPaneBuilder addButtons(Button... buttons) {
-        return addNodeFillingRow(20, createButtonBar(buttons));
-    }
-
-    private HBox createButtonBar(String button1Key, Consumer<DialogCallback> action1, String button2Key, Consumer<DialogCallback> action2) {
+    private Pane createButtonBar(String button1Key, Consumer<DialogCallback> action1, String button2Key, Consumer<DialogCallback> action2) {
         return createButtonBar(button1Key, newButton(button1Key, action1), button2Key, newButton(button1Key, action2));
     }
 
-    private HBox createButtonBar(String button1Key, Button button1, String button2Key, Button button2) {
+    private Pane createButtonBar(String button1Key, Button button1, String button2Key, Button button2) {
         if ("Ok".equals(button1Key) && !watchedUserProperties.isEmpty())
             button1.disableProperty().bind(noChangesProperty);
         button1.setText(button1Key);
         button2.setText(button2Key);
-        return createButtonBar(button1, button2);
+        return createButtonBar(button2, button1);
     }
 
-    private HBox createButtonBar(Button... buttons) {
-        for (Button button : buttons)
-            button.setFont(font);
-        HBox hBox = new HBox(10, LayoutUtil.createHGrowable());
-        hBox.getChildren().addAll(buttons);
-        return hBox;
+    private Pane createButtonBar(Button... buttons) {
+        HBox buttonBar = new HBox(20, buttons);
+        buttonBar.setAlignment(Pos.CENTER);
+        return buttonBar;
     }
 
     @Override
@@ -164,9 +131,8 @@ public final class GridPaneBuilder implements DialogBuilder {
     }
 
     private <T extends Labeled> T setUpLabeled(T labeled, Object i18nKey) {
-        //I18nControls.bindI18nProperties(labeled, i18nKey).setFont(font);
-        labeled.setText(i18nKey.toString());
-        labeled.setFont(font);
+        I18nControls.bindI18nProperties(labeled, i18nKey);
+        //labeled.setText(i18nKey.toString());
         //label.textFillProperty().bind(Theme.dialogTextFillProperty());
         GridPane.setHalignment(labeled, HPos.RIGHT);
         if (labeled instanceof CheckBox)
@@ -176,7 +142,6 @@ public final class GridPaneBuilder implements DialogBuilder {
 
     private TextInputControl setUpTextInput(TextInputControl textInput) {
         textInput.setPrefWidth(150d);
-        textInput.setFont(font);
         watchUserProperty(textInput.textProperty());
         return textInput;
     }
