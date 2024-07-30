@@ -22,11 +22,11 @@ public final class EntityResultBuilder {
     }
 
     public boolean setFieldValue(EntityId id, Object fieldId, Object fieldValue) {
-        Map fieldMap = entityFieldMap(id);
-        if (id.isNew() && !entityIds.contains(id))
+        Map fieldMap = entityFieldMap(id); // This method also detects first changes for new entities
+        // Detecting first change for non-new entities:
+        if (!id.isNew() && fieldId != null && hasEntityNoChange(id, fieldMap)) {
             changedEntitiesCount++;
-        else if (fieldId != null && hasEntityNoChange(id, fieldMap))
-            changedEntitiesCount++;
+        }
         boolean firstFieldValueSet = !fieldMap.containsKey(fieldId);
         fieldMap.put(fieldId, fieldValue);
         return firstFieldValueSet;
@@ -77,6 +77,8 @@ public final class EntityResultBuilder {
         else {
             entityIds.add(id);
             entityFieldsMaps.add(entityFieldsMap = new HashMap());
+            if (id.isNew())
+                changedEntitiesCount++;
         }
         return entityFieldsMap;
     }
