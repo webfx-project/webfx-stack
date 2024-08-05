@@ -47,21 +47,27 @@ final class LoginPortalUi implements UiLoginPortalCallback {
             double margin = 40, x = margin, y = margin, w = width - 2 * margin, h, wor = orText.prefWidth(w), wl = w * 0.5 - wor;
             layoutInArea(backgroundRegion, 0, 0, width, height, 0, null, HPos.LEFT, VPos.TOP);
             layoutInArea(userPasswordUI, x, y, w, h = Math.min(userPasswordUI.prefHeight(w), height - 2 * margin), 0, Insets.EMPTY, false, false, HPos.CENTER, VPos.TOP);
-            layoutInArea(orText, x, y += h + margin, w, 0, 0, null, false, false, HPos.CENTER, VPos.CENTER);
-            layoutInArea(leftLine, x, y, wl, 1, 0, HPos.LEFT, VPos.CENTER);
-            layoutInArea(rightLine, x + w -wl, y, wl, 1, 0, HPos.RIGHT, VPos.CENTER);
             int n = otherLoginButtons.size();
-            double[] prefWidths = new double[n];
-            double prefWidthTotal = 24 * (n - 1);
-            for (int i = 0; i < n; i++) {
-                prefWidthTotal += prefWidths[i] = otherLoginButtons.get(i).prefWidth(24);
-            }
-            x = x + w / 2 - prefWidthTotal / 2;
-            y += margin;
-            h = 24;
-            for (int i = 0; i < n; i++) {
-                layoutInArea(otherLoginButtons.get(i), x, y, prefWidths[i], h , 0, Insets.EMPTY, false, true, HPos.CENTER, VPos.CENTER);
-                x += prefWidths[i] + 24;
+            boolean hasOtherLoginButtons = n > 0;
+            orText.setVisible(hasOtherLoginButtons);
+            leftLine.setVisible(hasOtherLoginButtons);
+            rightLine.setVisible(hasOtherLoginButtons);
+            if (hasOtherLoginButtons) {
+                layoutInArea(orText, x, y += h + margin, w, 0, 0, null, false, false, HPos.CENTER, VPos.CENTER);
+                layoutInArea(leftLine, x, y, wl, 1, 0, HPos.LEFT, VPos.CENTER);
+                layoutInArea(rightLine, x + w -wl, y, wl, 1, 0, HPos.RIGHT, VPos.CENTER);
+                double[] prefWidths = new double[n];
+                double prefWidthTotal = 24 * (n - 1);
+                for (int i = 0; i < n; i++) {
+                    prefWidthTotal += prefWidths[i] = otherLoginButtons.get(i).prefWidth(24);
+                }
+                x = x + w / 2 - prefWidthTotal / 2;
+                y += margin;
+                h = 24;
+                for (int i = 0; i < n; i++) {
+                    layoutInArea(otherLoginButtons.get(i), x, y, prefWidths[i], h , 0, Insets.EMPTY, false, true, HPos.CENTER, VPos.CENTER);
+                    x += prefWidths[i] + 24;
+                }
             }
         }
 
@@ -73,8 +79,10 @@ final class LoginPortalUi implements UiLoginPortalCallback {
         protected double computePrefHeight(double width) {
             double margin = 40, y = margin, w = width - 2 * margin;
             double h = userPasswordUI.prefHeight(w); // userPasswordUI
-            y += h + margin; // orText
-            y += margin;
+            y += h;
+            if (!otherLoginButtons.isEmpty()) {
+                y += margin; // orText
+            }
             h = 24;
             return y + h + margin;
         }
