@@ -19,6 +19,7 @@ module webfx.stack.orm.entity.controls {
     requires webfx.kit.util;
     requires webfx.platform.ast;
     requires webfx.platform.async;
+    requires webfx.platform.console;
     requires webfx.platform.scheduler;
     requires webfx.platform.uischeduler;
     requires webfx.platform.util;
