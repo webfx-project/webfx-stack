@@ -30,7 +30,8 @@ import static dev.webfx.stack.db.querysubmit.VertxSqlUtil.*;
  */
 public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServiceProvider, SubmitServiceProvider {
 
-    private static final boolean LOG_TIMINGS = false;
+    private static final boolean LOG_TIMINGS = true;
+    private static final long WARNING_MILLIS = 5000;
 
     private final Pool pool;
 
@@ -60,8 +61,8 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
         return toWebFxFuture( withConnection(pool, connection -> executeConnectionQuery(connection, argument))
         ).onSuccess(x -> { // Just for time report
             if (LOG_TIMINGS) {
-                long t1 = System.currentTimeMillis();
-                Console.log("DB query executed in " + (t1 - t0) + "ms");
+                long executionTimeMillis = System.currentTimeMillis() - t0;
+                Console.log("[POSTGRES] " + (executionTimeMillis < WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Query executed in " + executionTimeMillis + "ms: " + argument.getStatement());
             }
         });
     }
@@ -74,8 +75,8 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
                     toWebFxFuture( executeConnectionQuery(connection, arg))))
         )).onSuccess(x -> { // Just for time report
             if (LOG_TIMINGS) {
-                long t1 = System.currentTimeMillis();
-                Console.log("DB query batch executed in " + (t1 - t0) + "ms");
+                long executionTimeMillis = System.currentTimeMillis() - t0;
+                Console.log("[POSTGRES] " + (executionTimeMillis < WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Query batch executed in " + executionTimeMillis + "ms");
             }
         });
     }
@@ -114,8 +115,8 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
                     )))
         )).onSuccess(x -> { // Just for time report
             if (LOG_TIMINGS) {
-                long t1 = System.currentTimeMillis();
-                Console.log("DB submit batch executed in " + (t1 - t0) + "ms");
+                long executionTimeMillis = System.currentTimeMillis() - t0;
+                Console.log("[POSTGRES] " + (executionTimeMillis < WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Submit batch executed in " + executionTimeMillis + "ms");
             }
             onSuccessfulSubmitBatch(batch);
         });
@@ -155,8 +156,8 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
         return queryExecutionFuture
                 .map(rs -> { // on success, returns rs as a Vert.x RowSet<Row>
                     if (LOG_TIMINGS) {
-                        long t1 = System.currentTimeMillis();
-                        Console.log("DB submit executed in " + (t1 - t0) + "ms (" + argument.getStatement() + ")");
+                        long executionTimeMillis = System.currentTimeMillis() - t0;
+                        Console.log("[POSTGRES] " + (executionTimeMillis < WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Submit executed in " + executionTimeMillis + "ms: " + argument.getStatement());
                     }
                     onSuccessfulSubmit(argument);
                     // We convert that Vert.x RowSet into a WebFX SubmitResult
