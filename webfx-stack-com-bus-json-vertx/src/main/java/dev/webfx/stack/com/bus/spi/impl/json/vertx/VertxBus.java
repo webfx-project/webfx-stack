@@ -82,6 +82,7 @@ final class VertxBus implements Bus {
         Object state = webfxOptions.getState();
         if (state != null)
             deliveryOptions.addHeader(JsonBusConstants.HEADERS_STATE, StateAccessor.encodeState(state));
+        deliveryOptions.setSendTimeout(3*60 * 1000); // Temporarily set to 3 mins instead of 30s
         return deliveryOptions;
     }
 
