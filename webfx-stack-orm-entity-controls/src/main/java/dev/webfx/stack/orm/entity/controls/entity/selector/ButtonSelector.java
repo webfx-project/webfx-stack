@@ -370,12 +370,16 @@ public abstract class ButtonSelector<T> {
                     cancelLink = parameters.getButtonFactory().newHyperlink("Cancel", e -> onDialogCancel());
                     cancelLink.setContentDisplay(ContentDisplay.TEXT_ONLY); // To hide cancel icon in back-office
                 }
-                StackPane stackPane = new StackPane(searchTextField, cancelLink);
-                StackPane.setAlignment(cancelLink, Pos.CENTER_RIGHT);
-                StackPane.setMargin(cancelLink, new Insets(0, 5, 0, 0));
-                stackPane.setMaxHeight(USE_PREF_SIZE); // Necessary to make the scale work
-                searchPane.setContent(stackPane);
-                dialogPane.setTop(searchTextField == null ? null : searchPane);
+                if (searchTextField == null)
+                    dialogPane.setTop(null);
+                else {
+                    StackPane stackPane = new StackPane(searchTextField, cancelLink);
+                    StackPane.setAlignment(cancelLink, Pos.CENTER_RIGHT);
+                    StackPane.setMargin(cancelLink, new Insets(0, 5, 0, 0));
+                    stackPane.setMaxHeight(USE_PREF_SIZE); // Necessary to make the scale work
+                    searchPane.setContent(stackPane);
+                    dialogPane.setTop(searchPane);
+                }
                 dialogCallback = DialogUtil.showModalNodeInGoldLayout(dialogPane, dialogParent, 0.95, 0.95);
                 dialogHeightProperty.bind(dialogPane.heightProperty());
                 dialogPane.setVisible(true);
