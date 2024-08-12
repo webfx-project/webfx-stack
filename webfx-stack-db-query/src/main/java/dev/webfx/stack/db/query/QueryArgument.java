@@ -92,8 +92,8 @@ public final class QueryArgument {
     public String toString() {
         return "QueryArgument{" +
                 "dataSourceId=" + dataSourceId +
-                ", queryLang='" + language + '\'' +
-                ", queryString='" + statement + '\'' +
+                ", language='" + language + '\'' +
+                ", statement='" + statement + '\'' +
                 ", parameters=" + java.util.Arrays.toString(parameters) +
                 '}';
     }
