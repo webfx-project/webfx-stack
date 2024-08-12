@@ -20,4 +20,15 @@ public final class LocalDataSourceService {
         return provider != null && provider.isDataSourceLocal(dataSourceId);
     }
 
+    public static boolean isInitialised() {
+        return provider == null || provider.isInitialised();
+    }
+
+    public static void onInitialised(Runnable runnable) {
+        if (provider != null)
+            provider.onInitialised(runnable);
+        else
+            runnable.run();
+    }
+
 }

@@ -13,4 +13,8 @@ public interface LocalDataSourceProvider {
         return getLocalDataSource(dataSourceId) != null;
     }
 
+    boolean isInitialised();
+
+    void onInitialised(Runnable runnable);
+
 }
