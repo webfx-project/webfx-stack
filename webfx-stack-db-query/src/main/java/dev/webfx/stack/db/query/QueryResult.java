@@ -1,5 +1,6 @@
 package dev.webfx.stack.db.query;
 
+import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.Numbers;
 
 import java.util.Arrays;
@@ -77,7 +78,12 @@ public final class QueryResult {
     }
 
     public <T> T getValue(int rowIndex, int columnIndex) {
-        return (T) values[rowIndex + columnIndex * rowCount];
+        int index = rowIndex + columnIndex * rowCount;
+        if (index < values.length)
+            return (T) values[index];
+        // Temporarily friendly with no exception
+        Console.log("[QueryResult] ⚠️ WARNING: returning null as the index is out of bounds! (rowIndex = " + rowIndex + ", columnIndex = " + columnIndex + ", rowCount = " + rowCount + ", columnCount = " + columnCount + ")");
+        return null;
     }
 
     public int getVersionNumber() {
