@@ -1,7 +1,5 @@
 package dev.webfx.stack.authn.login.ui.spi.impl.portal;
 
-import dev.webfx.extras.panes.FlipPane;
-import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.service.MultipleServiceProviders;
 import dev.webfx.stack.authn.login.ui.spi.UiLoginServiceProvider;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProvider;
@@ -9,7 +7,6 @@ import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginPortalCallback;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.Region;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +24,14 @@ public class UiLoginPortalProvider implements UiLoginServiceProvider, UiLoginPor
     // Several login ui may be instantiated in different activities, but only one should be visible at a time (= active login)
     private final List<LoginPortalUi> loginPortalUis = new ArrayList<>();
 
+    @Override
+    public Node createLoginUi() { // Called each time a login window is required
+        LoginPortalUi loginPortalUi = new LoginPortalUi();
+        loginPortalUis.add(loginPortalUi);
+        return loginPortalUi.getFlipPane();
+    }
+
+    /* Commented this version which recycles detached login uis, but it still has some issues
     @Override
     public Node createLoginUi() { // Called each time a login window is required
         LoginPortalUi loginPortalUi = getDetachedLoginPortalUi();
@@ -48,6 +53,7 @@ public class UiLoginPortalProvider implements UiLoginServiceProvider, UiLoginPor
         }
         return null;
     }
+*/
 
     private LoginPortalUi getActiveLoginPortalUi() {
         for (LoginPortalUi loginPortalUi : loginPortalUis) {
