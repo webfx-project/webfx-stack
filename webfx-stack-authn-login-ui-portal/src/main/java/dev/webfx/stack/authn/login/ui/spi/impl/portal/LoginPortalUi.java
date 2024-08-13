@@ -150,7 +150,7 @@ final class LoginPortalUi implements UiLoginPortalCallback {
         return flipPane;
     }
 
-    private void showLoginHome() {
+    void showLoginHome() {
         flipPane.setFront(loginPane);
         if (flipPane.getScene() != null)
             flipPane.flipToFront();
