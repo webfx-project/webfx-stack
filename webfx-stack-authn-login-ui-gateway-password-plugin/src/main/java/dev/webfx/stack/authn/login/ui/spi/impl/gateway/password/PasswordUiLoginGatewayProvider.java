@@ -6,15 +6,17 @@ import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;
+import dev.webfx.platform.windowlocation.WindowLocation;
 import dev.webfx.stack.authn.AuthenticationRequest;
+import dev.webfx.stack.authn.MagicLinkRequest;
 import dev.webfx.stack.authn.UsernamePasswordCredentials;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProviderBase;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginPortalCallback;
+import dev.webfx.stack.i18n.I18n;
 import dev.webfx.stack.i18n.controls.I18nControls;
 import dev.webfx.stack.ui.controls.MaterialFactoryMixin;
 import dev.webfx.stack.ui.controls.button.ButtonFactory;
 import dev.webfx.stack.ui.controls.dialog.GridPaneBuilder;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
@@ -41,6 +43,7 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
     private PasswordField passwordField;
     private double passwordPrefHeight;
     private Button button;
+    // SignInMode = true => username/password, false => magic link
     private final Property<Boolean> signInMode = new SimpleObjectProperty<>(true);
     //private final ModalityValidationSupport validationSupport = new ModalityValidationSupport();
 
@@ -59,11 +62,11 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
         Hyperlink hyperLink = newHyperlink(null, e -> signInMode.setValue(!signInMode.getValue()));
         GridPane.setMargin(hyperLink, new Insets(20));
         GridPane gridPane = new GridPaneBuilder()
-                .addNodeFillingRow(usernameField = newMaterialTextField("Email"))
-                .addNodeFillingRow(passwordField = newMaterialPasswordField("Password"))
-                .addNewRow(hyperLink)
-                .addNodeFillingRow(button = new Button())
-                .build();
+            .addNodeFillingRow(usernameField = newMaterialTextField("Email"))
+            .addNodeFillingRow(passwordField = newMaterialPasswordField("Password"))
+            .addNewRow(hyperLink)
+            .addNodeFillingRow(button = new Button())
+            .build();
         LayoutUtil.setMaxWidthToInfinite(button);
         /* Temporary hard-coded style for the web version */
         button.setPadding(new Insets(15));
@@ -86,30 +89,32 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
                 }
                 passwordField.setMinHeight(0);
             }
-            Timeline timeline = Animations.animateProperty(passwordField.prefHeightProperty(), signIn ? passwordPrefHeight : 0);
-            if (timeline != null)
-                timeline.setOnFinished(e -> passwordField.setMinHeight(signIn ? -1 : 0));
+            Animations.animateProperty(passwordField.prefHeightProperty(), signIn ? passwordPrefHeight : 0)
+                .setOnFinished(e -> passwordField.setMinHeight(signIn ? -1 : 0));
         }, signInMode);
         //initValidation();
         button.setOnAction(event -> {
             //if (validationSupport.isValid())
-                new AuthenticationRequest()
-                        .setUserCredentials(new UsernamePasswordCredentials(usernameField.getText(), passwordField.getText()))
-                        .executeAsync()
-                        .onFailure(callback::notifyUserLoginFailed)
-                        .onSuccess(ignored -> Platform.runLater(() -> {
-                            usernameField.clear();
-                            passwordField.clear();
-                            //callback.notifyUserLoginSuccessful();
-                            SVGPath checkMark = new SVGPath();
-                            checkMark.setContent("M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z M14.7 8.39l-3.78 5-1.63-2.11a1 1 0 0 0-1.58 1.23l2.43 3.11a1 1 0 0 0 .79.38 1 1 0 0 0 .79-.39l4.57-6a1 1 0 1 0-1.6-1.22z");
-                            checkMark.setFill(Color.WHITE);
-                            ScalePane scalePane = new ScalePane(checkMark);
-                            button.graphicProperty().unbind();
-                            button.setGraphic(scalePane);
-                            button.textProperty().unbind();
-                            button.setText(null);
-                        }));
+            Object credentials = signInMode.getValue() ?
+                new UsernamePasswordCredentials(usernameField.getText(), passwordField.getText())
+                : new MagicLinkRequest(usernameField.getText(), WindowLocation.getOrigin(), I18n.getLanguage());
+            new AuthenticationRequest()
+                .setUserCredentials(credentials)
+                .executeAsync()
+                .onFailure(callback::notifyUserLoginFailed)
+                .onSuccess(ignored -> Platform.runLater(() -> {
+                    usernameField.clear();
+                    passwordField.clear();
+                    //callback.notifyUserLoginSuccessful();
+                    SVGPath checkMark = new SVGPath();
+                    checkMark.setContent("M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z M14.7 8.39l-3.78 5-1.63-2.11a1 1 0 0 0-1.58 1.23l2.43 3.11a1 1 0 0 0 .79.38 1 1 0 0 0 .79-.39l4.57-6a1 1 0 1 0-1.6-1.22z");
+                    checkMark.setFill(Color.WHITE);
+                    ScalePane scalePane = new ScalePane(checkMark);
+                    button.graphicProperty().unbind();
+                    button.setGraphic(scalePane);
+                    button.textProperty().unbind();
+                    button.setText(null);
+                }));
         });
         FXProperties.runNowAndOnPropertiesChange(this::prepareShowing, loginWindow.sceneProperty());
         return loginWindow;

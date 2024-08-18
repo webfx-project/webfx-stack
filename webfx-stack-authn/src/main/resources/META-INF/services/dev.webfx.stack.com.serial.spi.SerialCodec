@@ -1,2 +1,4 @@
 dev.webfx.stack.authn.serial.UserClaimsSerialCodec
 dev.webfx.stack.authn.serial.UsernamePasswordCredentialsSerialCodec
+dev.webfx.stack.authn.serial.MagicLinkRequestSerialCodec
+dev.webfx.stack.authn.serial.MagicLinkCredentialsSerialCodec
