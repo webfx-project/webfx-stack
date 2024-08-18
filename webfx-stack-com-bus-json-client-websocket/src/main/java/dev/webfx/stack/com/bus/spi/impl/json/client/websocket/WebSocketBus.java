@@ -17,10 +17,10 @@
  */
 package dev.webfx.stack.com.bus.spi.impl.json.client.websocket;
 
-import dev.webfx.platform.conf.ConfigLoader;
-import dev.webfx.platform.console.Console;
 import dev.webfx.platform.ast.AST;
 import dev.webfx.platform.ast.ReadOnlyAstObject;
+import dev.webfx.platform.conf.ConfigLoader;
+import dev.webfx.platform.console.Console;
 import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.platform.util.Booleans;
@@ -77,6 +77,9 @@ public class WebSocketBus extends JsonClientBus {
                 WebSocketBus.this.onIncomingNetworkRawMessage(msg);
                 if (webSocketListener != null)
                     webSocketListener.onMessage(msg);
+                // Note that if there is an issue with the Scheduler when the browser tab is hidden (lack of reactivity),
+                // here will be a good opportunity to wake it up, as websocket communications continues in that case
+                // Ex: Scheduler.wakeup();
             }
 
             @Override
