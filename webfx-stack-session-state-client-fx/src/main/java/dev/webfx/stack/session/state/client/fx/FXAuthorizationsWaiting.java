@@ -39,13 +39,13 @@ public final class FXAuthorizationsWaiting {
     public static void runOnAuthorizationsChangedOrWaiting(Runnable runnable) {
         FXAuthorizationsChanged.runOnAuthorizationsChanged(runnable);
         FXProperties.runOnPropertiesChange(() -> {
-            if (isAuthorizationsWaiting())
+            if (isAuthorizationsWaiting() || FXLoggedOut.isLoggedOut())
                 runnable.run();
         }, FXLoggedOut.loggedOutProperty());
     }
 
     public static void init() {
-        // The first call will trigger the static initialiser below, and subsequent calls won't do anything
+        // The first call will trigger the static initializer below, and subsequent calls won't do anything
     }
 
     static {
