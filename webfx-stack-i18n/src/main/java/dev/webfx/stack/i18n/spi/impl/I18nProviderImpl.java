@@ -289,7 +289,7 @@ public class I18nProviderImpl implements I18nProvider {
         Set<Object> keysToLoad = getKeysToLoad(inDefaultLanguage);
         keysToLoad.add(i18nKey);
         // Scheduling the dictionary loading if not already done
-        if (dictionaryLoadingScheduled == null || dictionaryLoadingScheduled.isFinished()) {
+        if (!isDictionaryLoading()) {
             // Capturing the requested language (either current of default)
             Object language = inDefaultLanguage ? getDefaultLanguage() : getLanguage();
             // We schedule the load but defer it because we will probably have many successive calls to this method while
@@ -301,36 +301,48 @@ public class I18nProviderImpl implements I18nProvider {
                 keysToLoad.clear();
                 // Extracting the message keys to load from them (in case they are different)
                 Set<Object> messageKeysToLoad = loadingKeys.stream()
-                        .map(this::i18nKeyToDictionaryMessageKey).collect(Collectors.toSet());
+                    .map(this::i18nKeyToDictionaryMessageKey).collect(Collectors.toSet());
                 // Asking the dictionary loader to load these messages in that language
                 dictionaryLoader.loadDictionary(language, messageKeysToLoad)
-                        .onFailure(Console::log)
-                        .onSuccess(dictionary -> {
-                            // Once the dictionary is loaded, we take it as the current dictionary if it's in the current language
-                            if (language.equals(getLanguage())) // unless the load was a fallback to the default language
-                                dictionaryProperty.setValue(dictionary);
-                            // Also taking it as the default dictionary if it's in the default language
-                            if (language.equals(getDefaultLanguage()))
-                                defaultDictionaryProperty.setValue(dictionary);
-                            // Turning off dictionaryLoadRequired
-                            dictionaryLoadRequired = false;
-                            // Refreshing all loaded keys in the user interface
-                            Set<Object> unfoundKeys = null;
-                            for (Object key : loadingKeys) {
-                                boolean found = refreshMessageTokenProperties(key);
-                                if (!found) {
-                                    if (unfoundKeys == null)
-                                        unfoundKeys = new HashSet<>();
-                                    unfoundKeys.add(key);
-                                }
+                    .onFailure(Console::log)
+                    .onSuccess(dictionary -> {
+                        // Once the dictionary is loaded, we take it as the current dictionary if it's in the current language
+                        if (language.equals(getLanguage())) // unless the load was a fallback to the default language
+                            dictionaryProperty.setValue(dictionary);
+                        // Also taking it as the default dictionary if it's in the default language
+                        if (language.equals(getDefaultLanguage()))
+                            defaultDictionaryProperty.setValue(dictionary);
+                        // Turning off dictionaryLoadRequired
+                        dictionaryLoadRequired = false;
+                        // Refreshing all loaded keys in the user interface
+                        Set<Object> unfoundKeys = null;
+                        for (Object key : loadingKeys) {
+                            boolean found = refreshMessageTokenProperties(key);
+                            if (!found) {
+                                if (unfoundKeys == null)
+                                    unfoundKeys = new HashSet<>();
+                                unfoundKeys.add(key);
                             }
-                            if (unfoundKeys != null) {
-                                blacklistedKeys.addAll(unfoundKeys);
-                                Console.log("⚠️ I18n keys not found (now blacklisted): " + Collections.toString(unfoundKeys, false, false));
-                            }
-                        });
+                        }
+                        if (unfoundKeys != null) {
+                            blacklistedKeys.addAll(unfoundKeys);
+                            Console.log("⚠️ I18n keys not found (now blacklisted): " + Collections.toString(unfoundKeys, false, false));
+                        }
+                    })
+                    .onComplete(ar -> {
+                        // If the requested language has changed in the meantime, we might need to reload another dictionary!
+                        if (!language.equals(getLanguage())) {
+                            // We postpone the call to be sure that dictionaryLoadingScheduled will be finished
+                            UiScheduler.scheduleDeferred(this::onLanguageChanged);
+                        }
+                    })
+                ;
             });
         }
+    }
+
+    private boolean isDictionaryLoading() {
+        return dictionaryLoadingScheduled != null && !dictionaryLoadingScheduled.isFinished();
     }
 
     private Set<Object> getKeysToLoad(boolean inDefaultLanguage) {
@@ -356,6 +368,8 @@ public class I18nProviderImpl implements I18nProvider {
     }
 
     private void onLanguageChanged() {
+        if (isDictionaryLoading())
+            return;
         dictionaryLoadRequired = true;
         refreshAllLiveTokenSnapshots();
     }
