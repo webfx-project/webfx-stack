@@ -38,12 +38,13 @@ public final class SimplePushServerServiceProvider implements PushServerServiceP
         if (LOG_PUSH)
             Console.log("Pushing " + clientBusCallServiceAddress + " -> " + clientServiceAddress);
         pushClientInfo.touchCalled();
-        BusCallService.<T>call(clientBusCallServiceAddress, clientServiceAddress, javaArgument, options, bus).onComplete(ar -> {
-            pushClientInfo.touchReceived(ar.cause());
-            if (ar.failed())
-                pushFailed(clientRunId);
-            promise.complete(ar.result());
-        });
+        BusCallService.<T>call(clientBusCallServiceAddress, clientServiceAddress, javaArgument, options, bus)
+            .onComplete(ar -> {
+                pushClientInfo.touchReceived(ar.cause());
+                if (ar.failed())
+                    pushFailed(clientRunId);
+                promise.handle(ar);
+            });
         return promise.future();
     }
 
