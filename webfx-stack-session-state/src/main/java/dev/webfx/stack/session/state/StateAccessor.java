@@ -63,6 +63,10 @@ public final class StateAccessor {
         return setStateAttribute(state, SERVER_SESSION_ID_ATTRIBUE_NAME, serverSessionId, override);
     }
 
+    public static Object createServerSessionIdState(String serverSessionId) {
+        return setServerSessionId(null, serverSessionId);
+    }
+
     public static Object getUserId(Object state) {
         return getStateAttribute(state, USER_ID_ATTRIBUE_NAME);
     }
@@ -75,6 +79,10 @@ public final class StateAccessor {
         return setStateAttribute(state, USER_ID_ATTRIBUE_NAME, userId, override);
     }
 
+    public static Object createUserIdState(Object userId) {
+        return setUserId(null, userId);
+    }
+
     public static String getRunId(Object state) {
         return (String) getStateAttribute(state, RUN_ID_ATTRIBUE_NAME);
     }
@@ -85,6 +93,14 @@ public final class StateAccessor {
 
     public static Object setRunId(Object state, String runId, boolean override) {
         return setStateAttribute(state, RUN_ID_ATTRIBUE_NAME, runId, override);
+    }
+
+    public static Object createRunIdState(String runId) {
+        return setRunId(null, runId);
+    }
+
+    public static Object createUserIdRunIdState(Object userId, String runId) {
+        return setRunId(createUserIdState(userId), runId);
     }
 
     private static Object getStateAttribute(Object state, String name) {

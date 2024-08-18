@@ -97,19 +97,19 @@ public class MojoAuthServerLoginGatewayProvider implements ServerLoginGatewayPro
                 String stateId = params.getString("state_id");
                 String sessionId = params.getString("sessionId");
                 AuthenticationService.authenticate(MOJO_AUTH_PREFIX + stateId)
-                        .compose(userId ->
-                                SessionService.getSessionStore().get(sessionId)
-                                        .map(session -> new Pair<>(userId, session)))
-                        .compose(pair -> {
-                            Session session = pair.get2();
-                            String runId = SessionAccessor.getRunId(session);
-                            if (runId == null)
-                                return Future.failedFuture("Login push failed");
-                            Object userId = pair.get1();
-                            return PushServerService.pushState(StateAccessor.setUserId(null, userId), runId);
-                        })
-                        .onFailure(e -> sendHtmlResponse("Login failed: " + e.getMessage(), rc))
-                        .onSuccess(ignored -> sendHtmlResponse("Login successful", rc));
+                    .compose(userId ->
+                        SessionService.getSessionStore().get(sessionId)
+                            .map(session -> new Pair<>(userId, session)))
+                    .compose(pair -> {
+                        Session session = pair.get2();
+                        String runId = SessionAccessor.getRunId(session);
+                        if (runId == null)
+                            return Future.failedFuture("Login push failed");
+                        Object userId = pair.get1();
+                        return PushServerService.pushState(StateAccessor.createUserIdState(userId), runId);
+                    })
+                    .onFailure(e -> sendHtmlResponse("Login failed: " + e.getMessage(), rc))
+                    .onSuccess(ignored -> sendHtmlResponse("Login successful", rc));
             });
         });
     }
@@ -135,15 +135,15 @@ public class MojoAuthServerLoginGatewayProvider implements ServerLoginGatewayPro
     @Override
     public Future<?> getLoginUiInput(Object gatewayContext) {
         return checkConfigurationValid()
-                .map(ignored -> {
-                    String serverSessionId = ThreadLocalStateHolder.getServerSessionId();
-                    String RETURN_URL = REDIRECT_ORIGIN + REDIRECT_PATH;
-                    String html = HTML_TEMPLATE
-                            .replace("{{API_KEY}}", MOJO_AUTH_API_KEY)
-                            .replace("{{RETURN_URL}}", RETURN_URL)
-                            .replace(":sessionId", serverSessionId);
-                    return html;
-                });
+            .map(ignored -> {
+                String serverSessionId = ThreadLocalStateHolder.getServerSessionId();
+                String RETURN_URL = REDIRECT_ORIGIN + REDIRECT_PATH;
+                String html = HTML_TEMPLATE
+                    .replace("{{API_KEY}}", MOJO_AUTH_API_KEY)
+                    .replace("{{RETURN_URL}}", RETURN_URL)
+                    .replace(":sessionId", serverSessionId);
+                return html;
+            });
     }
 
 }

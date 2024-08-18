@@ -13,6 +13,6 @@ public class LogoutPush {
 
     public static Future<Void> pushLogoutMessageToClient() {
         String runId = ThreadLocalStateHolder.getRunId();
-        return PushServerService.pushState(StateAccessor.setUserId(null, LogoutUserId.LOGOUT_USER_ID), runId);
+        return PushServerService.pushState(StateAccessor.createUserIdState(LogoutUserId.LOGOUT_USER_ID), runId);
     }
 }
