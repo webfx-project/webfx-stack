@@ -20,7 +20,7 @@ public class HistoryRouter {
     public HistoryRouter(Router router, BrowsingHistory history) {
         this.router = router;
         this.history = history;
-        router.exceptionHandler(new Handler<Throwable>() {
+        router.exceptionHandler(new Handler<>() {
             @Override
             public void handle(Throwable throwable) {
                 Console.log("Path not found", throwable);
