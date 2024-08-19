@@ -27,8 +27,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Text;
 
@@ -68,11 +68,7 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
             .addNodeFillingRow(button = new Button())
             .build();
         LayoutUtil.setMaxWidthToInfinite(button);
-        /* Temporary hard-coded style for the web version */
         button.setPadding(new Insets(15));
-        button.setBackground(new Background(new BackgroundFill(Color.web("#0096D6FF"), new CornerRadii(10), null)));
-        button.setBorder(null);
-        button.setTextFill(Color.WHITE);
         LayoutUtil.setPrefWidthToInfinite(gridPane);
         loginWindow.setCenter(gridPane);
         GridPane.setHalignment(hyperLink, HPos.CENTER);
@@ -108,7 +104,6 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
                     //callback.notifyUserLoginSuccessful();
                     SVGPath checkMark = new SVGPath();
                     checkMark.setContent("M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z M14.7 8.39l-3.78 5-1.63-2.11a1 1 0 0 0-1.58 1.23l2.43 3.11a1 1 0 0 0 .79.38 1 1 0 0 0 .79-.39l4.57-6a1 1 0 1 0-1.6-1.22z");
-                    checkMark.setFill(Color.WHITE);
                     ScalePane scalePane = new ScalePane(checkMark);
                     button.graphicProperty().unbind();
                     button.setGraphic(scalePane);
