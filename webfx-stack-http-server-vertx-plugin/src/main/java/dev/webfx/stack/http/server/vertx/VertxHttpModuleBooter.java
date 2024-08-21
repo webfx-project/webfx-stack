@@ -160,14 +160,22 @@ public class VertxHttpModuleBooter implements ApplicationModuleBooter {
     private static boolean checkHttpStaticRouteConfig(ReadOnlyAstObject httpStaticRouteConfig) {
         String routePattern = httpStaticRouteConfig.getString(ROUTE_PATTERN_CONFIG_KEY);
         String pathToStaticFolder = httpStaticRouteConfig.getString(PATH_TO_STATIC_FOLDER_CONFIG_KEY);
-        if (areValuesNonNullAndResolved(routePattern, pathToStaticFolder)
-                && (!httpStaticRouteConfig.has(HOSTNAME_PATTERNS_CONFIG_KEY) || httpStaticRouteConfig.isArray(HOSTNAME_PATTERNS_CONFIG_KEY) && checkArrayOfResolvedStrings(httpStaticRouteConfig.getArray(HOSTNAME_PATTERNS_CONFIG_KEY)))
-                && checkFolderExists(pathToStaticFolder) ) {
+        boolean mandatoryFieldsPresent = areValuesNonNullAndResolved(routePattern, pathToStaticFolder);
+        boolean hostnamePatternsCorrect = !httpStaticRouteConfig.has(HOSTNAME_PATTERNS_CONFIG_KEY) || httpStaticRouteConfig.isArray(HOSTNAME_PATTERNS_CONFIG_KEY) && checkArrayOfResolvedStrings(httpStaticRouteConfig.getArray(HOSTNAME_PATTERNS_CONFIG_KEY));
+        boolean staticFolderExists = checkFolderExists(pathToStaticFolder);
+        if (mandatoryFieldsPresent && hostnamePatternsCorrect && staticFolderExists) {
             // Reaching this code block indicates that the http configuration is valid.
             // Returning true to indicate this configuration is valid
             return true;
         }
-        Console.log("⛔️️ INVALID ROUTE: Couldn't create static route due to invalid configuration: " + AST.formatObject(httpStaticRouteConfig, "json"));
+        String invalidMessage = "⛔️️ INVALID ROUTE: Couldn't create static route due to invalid configuration: " + AST.formatObject(httpStaticRouteConfig, "json") + " because";
+        if (!mandatoryFieldsPresent)
+            invalidMessage += " " + ROUTE_PATTERN_CONFIG_KEY + " and/or " + PATH_TO_STATIC_FOLDER_CONFIG_KEY + " are absent or contains unresolved variables";
+        if (!hostnamePatternsCorrect)
+            invalidMessage += " " + HOSTNAME_PATTERNS_CONFIG_KEY + " = " + routePattern + " is invalid";
+        if (!staticFolderExists)
+            invalidMessage += " " + PATH_TO_STATIC_FOLDER_CONFIG_KEY + " = " + pathToStaticFolder + " doesn't exist";
+        Console.log(invalidMessage);
         return false;
     }
 
