@@ -1,11 +1,11 @@
 package dev.webfx.stack.http.server.vertx;
 
 import dev.webfx.platform.ast.AST;
+import dev.webfx.platform.ast.ReadOnlyAstArray;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
 import dev.webfx.platform.conf.ConfigLoader;
 import dev.webfx.platform.console.Console;
-import dev.webfx.platform.ast.ReadOnlyAstArray;
-import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.vertx.common.VertxInstance;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.sstore.LocalSessionStore;
@@ -126,8 +126,8 @@ public class VertxHttpModuleBooter implements ApplicationModuleBooter {
         String certPath = httpServerConfig.getString(CERT_PATH_CONFIG_KEY);
         String keyPath = httpServerConfig.getString(KEY_PATH_CONFIG_KEY);
         if (areValuesNonNullAndResolved(protocol, port)
-                && areValuesNullOrResolved(certPath, keyPath)
-                && (certPath == null && keyPath == null || certPath != null && keyPath != null && Files.exists(Path.of(certPath)) && Files.exists(Path.of(keyPath)))) {
+            && areValuesNullOrResolved(certPath, keyPath)
+            && (certPath == null && keyPath == null || certPath != null && keyPath != null && Files.exists(Path.of(certPath)) && Files.exists(Path.of(keyPath)))) {
             // Reaching this code block indicates that the http configuration is valid.
             // We set the HTTP_SERVER_XXX global variables from the first valid http configuration:
             if (HTTP_SERVER_PROTOCOL == null) {
@@ -160,34 +160,33 @@ public class VertxHttpModuleBooter implements ApplicationModuleBooter {
     private static boolean checkHttpStaticRouteConfig(ReadOnlyAstObject httpStaticRouteConfig) {
         String routePattern = httpStaticRouteConfig.getString(ROUTE_PATTERN_CONFIG_KEY);
         String pathToStaticFolder = httpStaticRouteConfig.getString(PATH_TO_STATIC_FOLDER_CONFIG_KEY);
+        StaticFolder staticFolder = new StaticFolder(pathToStaticFolder);
         boolean mandatoryFieldsPresent = areValuesNonNullAndResolved(routePattern, pathToStaticFolder);
         boolean hostnamePatternsCorrect = !httpStaticRouteConfig.has(HOSTNAME_PATTERNS_CONFIG_KEY) || httpStaticRouteConfig.isArray(HOSTNAME_PATTERNS_CONFIG_KEY) && checkArrayOfResolvedStrings(httpStaticRouteConfig.getArray(HOSTNAME_PATTERNS_CONFIG_KEY));
-        boolean staticFolderExists = checkFolderExists(pathToStaticFolder);
+        boolean staticFolderExists = staticFolder.exists();
         if (mandatoryFieldsPresent && hostnamePatternsCorrect && staticFolderExists) {
             // Reaching this code block indicates that the http configuration is valid.
             // Returning true to indicate this configuration is valid
             return true;
         }
-        String invalidMessage = "⛔️️ INVALID ROUTE: Couldn't create static route due to invalid configuration: " + AST.formatObject(httpStaticRouteConfig, "json") + " because";
+        StringBuilder invalidMessage = new StringBuilder("⛔️️ INVALID ROUTE: Couldn't create static route due to invalid configuration: " + AST.formatObject(httpStaticRouteConfig, "json") + " because");
         if (!mandatoryFieldsPresent)
-            invalidMessage += " " + ROUTE_PATTERN_CONFIG_KEY + " and/or " + PATH_TO_STATIC_FOLDER_CONFIG_KEY + " are absent or contains unresolved variables";
+            invalidMessage.append(" " + ROUTE_PATTERN_CONFIG_KEY + " and/or " + PATH_TO_STATIC_FOLDER_CONFIG_KEY + " are absent or contains unresolved variables");
         if (!hostnamePatternsCorrect)
-            invalidMessage += " " + HOSTNAME_PATTERNS_CONFIG_KEY + " = " + routePattern + " is invalid";
-        if (!staticFolderExists)
-            invalidMessage += " " + PATH_TO_STATIC_FOLDER_CONFIG_KEY + " = " + pathToStaticFolder + " doesn't exist";
-        Console.log(invalidMessage);
-        return false;
-    }
-
-    private static boolean checkFolderExists(String pathToFolder) {
-        boolean expectingDirectory = true;
-        int exclamationIndex = pathToFolder.indexOf('!'); // means that the folder is actually inside a .zip file (or .war)
-        if (exclamationIndex != -1) {
-            expectingDirectory = false;
-            pathToFolder = pathToFolder.substring(0, exclamationIndex);
+            invalidMessage.append(" " + HOSTNAME_PATTERNS_CONFIG_KEY + " = ").append(routePattern).append(" is invalid");
+        if (!staticFolderExists) {
+            invalidMessage.append(" " + PATH_TO_STATIC_FOLDER_CONFIG_KEY + " = ").append(pathToStaticFolder).append(" doesn't exist");
+            File parentFolder = staticFolder.getParentFolder();
+            File[] files = parentFolder == null ? null : parentFolder.listFiles();
+            if (files != null) {
+                invalidMessage.append(". Here is the content of the parent folder ").append(parentFolder.getAbsolutePath()).append(":");
+                for (File file : files) {
+                    invalidMessage.append("\n").append(file.getAbsolutePath());
+                }
+            }
         }
-        File file = Path.of(pathToFolder).toFile();
-        return file.exists() && file.isDirectory() == expectingDirectory;
+        Console.log(invalidMessage.toString());
+        return false;
     }
 
     private static boolean checkArrayOfResolvedStrings(ReadOnlyAstArray hostnamePatterns) {
@@ -228,5 +227,31 @@ public class VertxHttpModuleBooter implements ApplicationModuleBooter {
 
     public static Pattern VARIABLE_PATTERN = Pattern.compile("\\$?\\{\\{(.+)}}");
 
+    private static class StaticFolder {
 
+        private boolean expectingDirectory;
+        private final File fileOrArchive;
+
+        public StaticFolder(String pathToFolder) {
+            if (pathToFolder == null)
+                fileOrArchive = null;
+            else {
+                expectingDirectory = true;
+                int exclamationIndex = pathToFolder.indexOf('!'); // means that the folder is actually inside a .zip file (or .war)
+                if (exclamationIndex != -1) {
+                    expectingDirectory = false;
+                    pathToFolder = pathToFolder.substring(0, exclamationIndex);
+                }
+                fileOrArchive = Path.of(pathToFolder).toFile();
+            }
+        }
+
+        public boolean exists() {
+            return fileOrArchive != null && fileOrArchive.exists() && fileOrArchive.isDirectory() == expectingDirectory;
+        }
+
+        public File getParentFolder() {
+            return fileOrArchive == null ? null : fileOrArchive.getParentFile();
+        }
+    }
 }
