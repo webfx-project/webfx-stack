@@ -77,9 +77,13 @@ public class WebSocketBus extends JsonClientBus {
                 WebSocketBus.this.onIncomingNetworkRawMessage(msg);
                 if (webSocketListener != null)
                     webSocketListener.onMessage(msg);
-                // Note that if there is an issue with the Scheduler when the browser tab is hidden (lack of reactivity),
-                // here will be a good opportunity to wake it up, as websocket communications continues in that case
-                // Ex: Scheduler.wakeup();
+                // When running in the browser, the Scheduler can lack of reactivity when the tab is hidden, but not the
+                // websocket communication, so it's a good opportunity to wake it up and ensure that all pending
+                // operations are processed. It's especially important when receiving a login message from the magic
+                // link app (which can be open in a separate tab in the same browser, making this app hidden) to ensure
+                // we send back the acknowledgement, so the magic link app can confirm the user it reached out this app
+                // with a successful login.
+                Scheduler.wakeUp();
             }
 
             @Override
