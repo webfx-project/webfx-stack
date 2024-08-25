@@ -5,6 +5,7 @@ module webfx.stack.i18n {
     // Direct dependencies modules
     requires javafx.base;
     requires javafx.graphics;
+    requires webfx.kit.util;
     requires webfx.platform.async;
     requires webfx.platform.console;
     requires webfx.platform.scheduler;
