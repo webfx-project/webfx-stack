@@ -5,6 +5,7 @@ import dev.webfx.stack.ui.fxraiser.impl.DefaultFXValueRaiser;
 import javafx.beans.property.*;
 import javafx.beans.value.*;
 import javafx.scene.Node;
+import javafx.scene.paint.Paint;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -138,6 +139,14 @@ public class FXRaiser {
 
     public static Node raiseToNode(Object value, FXValueRaiser fxValueRaiser, Object... args) {
         return raiseToObject(value, Node.class, fxValueRaiser, args);
+    }
+
+    public static Paint raiseToPaint(Object value, Object... args) {
+        return raiseToPaint(value, null, args);
+    }
+
+    public static Paint raiseToPaint(Object value, FXValueRaiser fxValueRaiser, Object... args) {
+        return raiseToObject(value, Paint.class, fxValueRaiser, args);
     }
 
     public static <T> T raiseToObject(Object value, Class<T> raisedClass, Object... args) {
