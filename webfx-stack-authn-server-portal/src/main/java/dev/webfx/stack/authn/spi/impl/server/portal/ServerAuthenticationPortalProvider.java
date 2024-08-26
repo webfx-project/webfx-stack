@@ -73,6 +73,17 @@ public class ServerAuthenticationPortalProvider implements AuthenticationService
     }
 
     @Override
+    public Future<?> updateCredentials(Object updateCredentialsArgument) {
+        for (ServerAuthenticationGatewayProvider gatewayProvider : getGatewayProviders()) {
+            boolean acceptsUserId = gatewayProvider.acceptsUserId();
+            boolean acceptsArgument = gatewayProvider.acceptsUpdateCredentialsArgument(updateCredentialsArgument);
+            if (acceptsUserId && acceptsArgument)
+                return gatewayProvider.updateCredentials(updateCredentialsArgument);
+        }
+        return Future.failedFuture("No server authentication gateway found accepting credentials update " + updateCredentialsArgument);
+    }
+
+    @Override
     public Future<Void> logout() {
         for (ServerAuthenticationGatewayProvider gatewayProvider : getGatewayProviders()) {
             boolean accepts = gatewayProvider.acceptsUserId();

@@ -14,6 +14,8 @@ public interface AuthenticationServiceProvider {
 
     Future<UserClaims> getUserClaims();
 
+    Future<?> updateCredentials(Object updateCredentialsArgument);
+
     Future<Void> logout();
 
 }

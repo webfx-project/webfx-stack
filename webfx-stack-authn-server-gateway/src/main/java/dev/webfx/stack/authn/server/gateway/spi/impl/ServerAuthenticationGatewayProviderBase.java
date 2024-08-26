@@ -5,7 +5,6 @@ import dev.webfx.platform.async.Promise;
 import dev.webfx.stack.authn.UserClaims;
 import dev.webfx.stack.authn.logout.server.LogoutPush;
 import dev.webfx.stack.authn.server.gateway.spi.ServerAuthenticationGatewayProvider;
-import dev.webfx.stack.authn.spi.AuthenticatorInfo;
 import dev.webfx.stack.session.state.ThreadLocalStateHolder;
 /**
  * @author Bruno Salmon
@@ -15,11 +14,6 @@ public abstract class ServerAuthenticationGatewayProviderBase implements ServerA
 
     public ServerAuthenticationGatewayProviderBase(String gatewayAuthPrefix) {
         this.gatewayAuthPrefix = gatewayAuthPrefix;
-    }
-
-    @Override
-    public AuthenticatorInfo getAuthenticatorInfo() {
-        return null;
     }
 
     @Override
@@ -68,6 +62,16 @@ public abstract class ServerAuthenticationGatewayProviderBase implements ServerA
     }
 
     protected abstract void getUserClaimsImpl(String token, Promise<UserClaims> promise);
+
+    @Override
+    public boolean acceptsUpdateCredentialsArgument(Object updateCredentialsArgument) {
+        return false;
+    }
+
+    @Override
+    public Future<?> updateCredentials(Object updateCredentialsArgument) {
+        return Future.failedFuture("Unsupported operation: updateCredentials()");
+    }
 
     @Override
     public Future<Void> logout() {

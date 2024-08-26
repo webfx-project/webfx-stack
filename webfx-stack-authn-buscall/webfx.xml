@@ -12,6 +12,7 @@
     <providers>
         <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.authn.buscall.AuthenticateMethodEndpoint</provider>
         <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.authn.buscall.GetUserClaimsMethodEndpoint</provider>
+        <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.authn.buscall.UpdateCredentialsMethodEndpoint</provider>
         <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.authn.buscall.LogoutMethodEndpoint</provider>
     </providers>
 
