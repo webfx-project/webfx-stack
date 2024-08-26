@@ -10,6 +10,7 @@ import dev.webfx.platform.windowlocation.WindowLocation;
 import dev.webfx.stack.authn.AuthenticationRequest;
 import dev.webfx.stack.authn.MagicLinkRequest;
 import dev.webfx.stack.authn.UsernamePasswordCredentials;
+import dev.webfx.stack.authn.login.ui.FXLoginContext;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProviderBase;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginPortalCallback;
 import dev.webfx.stack.i18n.I18n;
@@ -93,7 +94,7 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
             //if (validationSupport.isValid())
             Object credentials = signInMode.getValue() ?
                 new UsernamePasswordCredentials(usernameField.getText(), passwordField.getText())
-                : new MagicLinkRequest(usernameField.getText(), WindowLocation.getOrigin(), I18n.getLanguage());
+                : new MagicLinkRequest(usernameField.getText(), WindowLocation.getOrigin(), I18n.getLanguage(), FXLoginContext.getLoginContext());
             new AuthenticationRequest()
                 .setUserCredentials(credentials)
                 .executeAsync()

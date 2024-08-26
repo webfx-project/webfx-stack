@@ -14,6 +14,7 @@ public class MagicLinkRequestSerialCodec extends SerialCodecBase<MagicLinkReques
     private static final String EMAIL_KEY = "email";
     private static final String CLIENT_ORIGIN_KEY = "clientOrigin";
     private static final String LANGUAGE_KEY = "lang";
+    private static final String CONTEXT_KEY = "context";
 
     public MagicLinkRequestSerialCodec() {
         super(MagicLinkRequest.class, CODEC_ID);
@@ -24,6 +25,7 @@ public class MagicLinkRequestSerialCodec extends SerialCodecBase<MagicLinkReques
         encodeString(serial, EMAIL_KEY,         arg.getEmail());
         encodeString(serial, CLIENT_ORIGIN_KEY, arg.getClientOrigin());
         encodeObject(serial, LANGUAGE_KEY,      arg.getLanguage());
+        encodeObject(serial, CONTEXT_KEY,       arg.getContext());
     }
 
     @Override
@@ -31,7 +33,8 @@ public class MagicLinkRequestSerialCodec extends SerialCodecBase<MagicLinkReques
         return new MagicLinkRequest(
             decodeString(serial, EMAIL_KEY),
             decodeString(serial, CLIENT_ORIGIN_KEY),
-            decodeObject(serial, LANGUAGE_KEY)
+            decodeObject(serial, LANGUAGE_KEY),
+            decodeObject(serial, CONTEXT_KEY)
         );
     }
 }
