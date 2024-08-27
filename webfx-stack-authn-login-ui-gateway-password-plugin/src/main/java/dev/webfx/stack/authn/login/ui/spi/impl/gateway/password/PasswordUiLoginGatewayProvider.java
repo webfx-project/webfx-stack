@@ -18,7 +18,7 @@ import dev.webfx.stack.i18n.controls.I18nControls;
 import dev.webfx.stack.ui.controls.MaterialFactoryMixin;
 import dev.webfx.stack.ui.controls.button.ButtonFactory;
 import dev.webfx.stack.ui.controls.dialog.GridPaneBuilder;
-import javafx.application.Platform;
+import dev.webfx.stack.ui.operation.OperationUtil;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.HPos;
@@ -95,12 +95,15 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
             Object credentials = signInMode.getValue() ?
                 new UsernamePasswordCredentials(usernameField.getText(), passwordField.getText())
                 : new MagicLinkRequest(usernameField.getText(), WindowLocation.getOrigin(), I18n.getLanguage(), FXLoginContext.getLoginContext());
+            OperationUtil.turnOnButtonsWaitMode(button);
             new AuthenticationRequest()
                 .setUserCredentials(credentials)
                 .executeAsync()
+                .onComplete(ar -> UiScheduler.runInUiThread(() -> OperationUtil.turnOffButtonsWaitMode(button)))
                 .onFailure(callback::notifyUserLoginFailed)
-                .onSuccess(ignored -> Platform.runLater(() -> {
-                    usernameField.clear();
+                .onSuccess(ignored -> UiScheduler.runInUiThread(() -> {
+                    if (signInMode.getValue())
+                        usernameField.clear();
                     passwordField.clear();
                     //callback.notifyUserLoginSuccessful();
                     SVGPath checkMark = new SVGPath();
@@ -108,8 +111,8 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
                     ScalePane scalePane = new ScalePane(checkMark);
                     button.graphicProperty().unbind();
                     button.setGraphic(scalePane);
-                    button.textProperty().unbind();
-                    button.setText(null);
+                    //button.textProperty().unbind();
+                    //button.setText(null);
                 }));
         });
         FXProperties.runNowAndOnPropertiesChange(this::prepareShowing, loginWindow.sceneProperty());
