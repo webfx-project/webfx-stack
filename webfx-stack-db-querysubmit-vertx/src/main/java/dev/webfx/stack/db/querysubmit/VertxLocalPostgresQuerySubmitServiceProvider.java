@@ -3,6 +3,7 @@ package dev.webfx.stack.db.querysubmit;
 import dev.webfx.platform.async.Batch;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.console.Console;
+import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.vertx.common.VertxInstance;
 import dev.webfx.stack.db.datasource.ConnectionDetails;
@@ -21,8 +22,10 @@ import io.vertx.sqlclient.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
-import static dev.webfx.platform.vertx.common.VertxFutureUtil.*;
+import static dev.webfx.platform.vertx.common.VertxFutureUtil.toVertxFuture;
+import static dev.webfx.platform.vertx.common.VertxFutureUtil.toWebFxFuture;
 import static dev.webfx.stack.db.querysubmit.VertxSqlUtil.*;
 
 /**
@@ -33,7 +36,12 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
     private static final boolean LOG_TIMINGS = true;
     private static final long WARNING_MILLIS = 5000;
 
-    private final Pool pool;
+    // Setting a timer to periodically renew the pool to reduce risk of broken connection on remote databases
+    private static final long POOL_RENEW_PERIODIC_MILLIS = 30 * 60_000; // -1 to disable that feature
+    private static int SEQ;
+
+    private final int seq = ++SEQ;
+    private Pool pool;
 
     public VertxLocalPostgresQuerySubmitServiceProvider(LocalDataSource localDataSource) {
         ConnectionDetails cd = localDataSource.getLocalConnectionDetails();
@@ -47,12 +55,27 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
         // Pool Options
         PoolOptions poolOptions = new PoolOptions().setMaxSize(10);
 
+        Supplier<Pool> poolFactory = () -> PgBuilder.pool()
+            .with(poolOptions)
+            .connectingTo(connectOptions)
+            .using(VertxInstance.getVertx())
+            .build();
+
         // Create the pool from the data object
-        pool = PgBuilder.pool()
-                .with(poolOptions)
-                .connectingTo(connectOptions)
-                .using(VertxInstance.getVertx())
-                .build();
+        pool = poolFactory.get();
+        Console.log("[POSTGRES] Creating pool seq = " + seq);
+
+        if (POOL_RENEW_PERIODIC_MILLIS > 0) {
+            Scheduler.schedulePeriodic(POOL_RENEW_PERIODIC_MILLIS, () -> {
+                Console.log("[POSTGRES] Renewing pool seq = " + seq);
+                Pool oldPool = pool;
+                pool = poolFactory.get();
+                Scheduler.scheduleDelay(WARNING_MILLIS, () -> {
+                    Console.log("[POSTGRES] Closing old pool seq = " + seq);
+                    oldPool.close();
+                });
+            });
+        }
     }
 
     @Override
