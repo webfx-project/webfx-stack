@@ -54,20 +54,21 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
     public VertxLocalPostgresQuerySubmitServiceProvider(LocalDataSource localDataSource) {
         ConnectionDetails cd = localDataSource.getLocalConnectionDetails();
         PgConnectOptions connectOptions = new PgConnectOptions()
-                .setPort(cd.getPort())
-                .setHost(cd.getHost())
-                .setDatabase(cd.getDatabaseName())
-                .setUser(cd.getUsername())
-                .setPassword(cd.getPassword());
+            .setPort(cd.getPort())
+            .setHost(cd.getHost())
+            .setDatabase(cd.getDatabaseName())
+            .setUser(cd.getUsername())
+            .setPassword(cd.getPassword());
 
         // Pool Options
         PoolOptions poolOptions = new PoolOptions().setMaxSize(POOL_SIZE);
 
-        Supplier<Pool> poolFactory = () -> PgBuilder.pool()
-            .with(poolOptions)
-            .connectingTo(connectOptions)
-            .using(VertxInstance.getVertx())
-            .build();
+        Supplier<Pool> poolFactory = () ->
+            PgBuilder.pool()
+                .with(poolOptions)
+                .connectingTo(connectOptions)
+                .using(VertxInstance.getVertx())
+                .build();
 
         // Create the pool from the data object
         Console.log("[POSTGRES] Creating pool seq = " + seq);
@@ -98,7 +99,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
     @Override
     public Future<QueryResult> executeQuery(QueryArgument argument) {
         long t0 = System.currentTimeMillis();
-        return toWebFxFuture( withConnection(pool, connection -> executeConnectionQuery(connection, argument))
+        return toWebFxFuture(withConnection(pool, connection -> executeConnectionQuery(connection, argument))
         ).onSuccess(x -> { // Just for time report
             if (LOG_TIMINGS) {
                 long executionTimeMillis = System.currentTimeMillis() - t0;
@@ -110,9 +111,9 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
     @Override
     public Future<Batch<QueryResult>> executeQueryBatch(Batch<QueryArgument> batch) {
         long t0 = System.currentTimeMillis();
-        return toWebFxFuture( withConnection(pool, connection ->
-            toVertxFuture( batch.executeSerial(QueryResult[]::new, arg ->
-                    toWebFxFuture( executeConnectionQuery(connection, arg))))
+        return toWebFxFuture(withConnection(pool, connection ->
+            toVertxFuture(batch.executeSerial(QueryResult[]::new, arg ->
+                toWebFxFuture(executeConnectionQuery(connection, arg))))
         )).onSuccess(x -> { // Just for time report
             if (LOG_TIMINGS) {
                 long executionTimeMillis = System.currentTimeMillis() - t0;
@@ -123,14 +124,14 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
 
     private io.vertx.core.Future<QueryResult> executeConnectionQuery(SqlConnection connection, QueryArgument argument) {
         return connection
-                .preparedQuery(argument.getStatement())
-                .execute(tupleFromArguments(argument.getParameters()))
-                .map(VertxSqlUtil::toWebFxQueryResult);
+            .preparedQuery(argument.getStatement())
+            .execute(tupleFromArguments(argument.getParameters()))
+            .map(VertxSqlUtil::toWebFxQueryResult);
     }
 
     @Override
     public Future<SubmitResult> executeSubmit(SubmitArgument argument) {
-        return toWebFxFuture( withConnection(pool, connection -> executeIndividualSubmitWithConnection(argument, connection, null)) );
+        return toWebFxFuture(withConnection(pool, connection -> executeIndividualSubmitWithConnection(argument, connection, null)));
     }
 
     @Override
@@ -142,17 +143,17 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
         List<Object[]> batchIndexGeneratedKeys = new ArrayList<>(batch.getArray().length);
         long t0 = System.currentTimeMillis();
         // We embed the batch execution inside a transaction using Vert.x API (and convert the return Vert.x Future<SubmitResult> into WebFX Future<SubmitResult>)
-        return toWebFxFuture( withTransaction(pool, connection ->
+        return toWebFxFuture(withTransaction(pool, connection ->
             // We execute the batch in a serial order (we need a couple of Vert.x <-> WebFX Future for that)
-            toVertxFuture( batch.executeSerial(SubmitResult[]::new, arg -> toWebFxFuture(
-                    // We execute each individual submit, passing batchIndexGeneratedKeys (for GeneratedKeyReference resolution)
-                    executeIndividualSubmitWithConnection(arg, connection, batchIndexGeneratedKeys)
-                            .map(submitResult -> { // Identity mapping, just for batchIndexGeneratedKeys management
-                                // We collect the possible generated keys (if the last submit was "insert ... returning id")
-                                batchIndexGeneratedKeys.add(submitResult.getGeneratedKeys());
-                                return submitResult;
-                            })
-                    )))
+            toVertxFuture(batch.executeSerial(SubmitResult[]::new, arg -> toWebFxFuture(
+                // We execute each individual submit, passing batchIndexGeneratedKeys (for GeneratedKeyReference resolution)
+                executeIndividualSubmitWithConnection(arg, connection, batchIndexGeneratedKeys)
+                    .map(submitResult -> { // Identity mapping, just for batchIndexGeneratedKeys management
+                        // We collect the possible generated keys (if the last submit was "insert ... returning id")
+                        batchIndexGeneratedKeys.add(submitResult.getGeneratedKeys());
+                        return submitResult;
+                    })
+            )))
         )).onSuccess(x -> { // Just for time report
             if (LOG_TIMINGS) {
                 long executionTimeMillis = System.currentTimeMillis() - t0;
@@ -170,7 +171,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
     private io.vertx.core.Future<SubmitResult> executeIndividualSubmitWithConnection(SubmitArgument argument, SqlConnection connection, List<Object[]> batchIndexGeneratedKeys) {
         // We get a prepared query from the connection
         PreparedQuery<RowSet<Row>> preparedQuery = connection
-                .preparedQuery(argument.getStatement()); // statement can be insert, update or delete
+            .preparedQuery(argument.getStatement()); // statement can be insert, update or delete
         // We will execute the query with either a Tuple (1 row of parameters), or a List<Tuple> (several rows of parameters)
         io.vertx.core.Future<RowSet<Row>> queryExecutionFuture; // Will contain the Vert.x Future of that execution
         Object[] parameters = argument.getParameters();
@@ -194,15 +195,15 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
         // Waiting the completion of the previous query execution
         long t0 = System.currentTimeMillis();
         return queryExecutionFuture
-                .map(rs -> { // on success, returns rs as a Vert.x RowSet<Row>
-                    if (LOG_TIMINGS) {
-                        long executionTimeMillis = System.currentTimeMillis() - t0;
-                        Console.log("[POSTGRES] " + (executionTimeMillis < WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Submit executed in " + executionTimeMillis + "ms: " + argument.getStatement());
-                    }
-                    onSuccessfulSubmit(argument);
-                    // We convert that Vert.x RowSet into a WebFX SubmitResult
-                    return toWebFxSubmitResult(rs, argument);
-                });
+            .map(rs -> { // on success, returns rs as a Vert.x RowSet<Row>
+                if (LOG_TIMINGS) {
+                    long executionTimeMillis = System.currentTimeMillis() - t0;
+                    Console.log("[POSTGRES] " + (executionTimeMillis < WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Submit executed in " + executionTimeMillis + "ms: " + argument.getStatement());
+                }
+                onSuccessfulSubmit(argument);
+                // We convert that Vert.x RowSet into a WebFX SubmitResult
+                return toWebFxSubmitResult(rs, argument);
+            });
     }
 
     private static void onSuccessfulSubmit(SubmitArgument argument) {
