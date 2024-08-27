@@ -3,7 +3,9 @@ package dev.webfx.stack.db.querysubmit;
 import dev.webfx.platform.async.Batch;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.console.Console;
+import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.scheduler.Scheduler;
+import dev.webfx.platform.shutdown.Shutdown;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.vertx.common.VertxInstance;
 import dev.webfx.stack.db.datasource.ConnectionDetails;
@@ -29,6 +31,9 @@ import static dev.webfx.platform.vertx.common.VertxFutureUtil.toWebFxFuture;
 import static dev.webfx.stack.db.querysubmit.VertxSqlUtil.*;
 
 /**
+ * Note: the same class is used for both the QueryService and the SubmitService, so there will be 2 different instances,
+ * one for each service.
+ *
  * @author Bruno Salmon
  */
 public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServiceProvider, SubmitServiceProvider {
@@ -36,12 +41,15 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
     private static final boolean LOG_TIMINGS = true;
     private static final long WARNING_MILLIS = 5000;
 
-    // Setting a timer to periodically renew the pool to reduce risk of broken connection on remote databases
-    private static final long POOL_RENEW_PERIODIC_MILLIS = 30 * 60_000; // -1 to disable that feature
-    private static int SEQ;
+    private static final int POOL_SIZE = 10; // Note: it's for each instance (1 pool for query = reading, another one for submit = writing)
+    // Setting a timer to periodically renew the pool to reduce risk of broken connections on remote databases
+    private static final long POOL_RENEW_PERIODIC_MILLIS = 30 * 60_000; // every 30 min (can be set to -1 to disable that feature)
+    private static final long POLL_CLOSE_DELAY_MILLIS = 3 * 60_000; // Waiting 3 min before actually closing the old poll for possible running queries
+    private static int SEQ; // Temporary for logs
 
     private final int seq = ++SEQ;
     private Pool pool;
+    private final Scheduled poolRenewalTimer;
 
     public VertxLocalPostgresQuerySubmitServiceProvider(LocalDataSource localDataSource) {
         ConnectionDetails cd = localDataSource.getLocalConnectionDetails();
@@ -53,7 +61,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
                 .setPassword(cd.getPassword());
 
         // Pool Options
-        PoolOptions poolOptions = new PoolOptions().setMaxSize(10);
+        PoolOptions poolOptions = new PoolOptions().setMaxSize(POOL_SIZE);
 
         Supplier<Pool> poolFactory = () -> PgBuilder.pool()
             .with(poolOptions)
@@ -62,20 +70,29 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
             .build();
 
         // Create the pool from the data object
-        pool = poolFactory.get();
         Console.log("[POSTGRES] Creating pool seq = " + seq);
+        pool = poolFactory.get();
 
         if (POOL_RENEW_PERIODIC_MILLIS > 0) {
-            Scheduler.schedulePeriodic(POOL_RENEW_PERIODIC_MILLIS, () -> {
+            poolRenewalTimer = Scheduler.schedulePeriodic(POOL_RENEW_PERIODIC_MILLIS, () -> {
                 Console.log("[POSTGRES] Renewing pool seq = " + seq);
                 Pool oldPool = pool;
                 pool = poolFactory.get();
-                Scheduler.scheduleDelay(WARNING_MILLIS, () -> {
+                // Waiting a bit before closing the old pool to ensure possible queries are finished
+                Scheduler.scheduleDelay(POLL_CLOSE_DELAY_MILLIS, () -> {
                     Console.log("[POSTGRES] Closing old pool seq = " + seq);
                     oldPool.close();
                 });
             });
         }
+
+        // Closing properly the poll on server shutdown
+        Shutdown.addShutdownHook(() -> {
+            Console.log("[POSTGRES] Closing pool on server shutdown");
+            if (poolRenewalTimer != null)
+                poolRenewalTimer.cancel();
+            pool.close();
+        });
     }
 
     @Override
