@@ -43,7 +43,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
 
     private static final int POOL_SIZE = 10; // Note: it's for each instance (1 pool for query = reading, another one for submit = writing)
     // Setting a timer to periodically renew the pool to reduce risk of broken connections on remote databases
-    private static final long POOL_RENEW_PERIODIC_MILLIS = 30 * 60_000; // every 30 min (can be set to -1 to disable that feature)
+    private static final long POOL_RENEW_PERIODIC_MILLIS = 15 * 60_000; // every 15 min (can be set to -1 to disable that feature)
     private static final long POLL_CLOSE_DELAY_MILLIS = 3 * 60_000; // Waiting 3 min before actually closing the old poll for possible running queries
     private static int SEQ; // Temporary for logs
 
