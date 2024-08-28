@@ -71,17 +71,17 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
                 .build();
 
         // Create the pool from the data object
-        Console.log("[POSTGRES] Creating pool seq = " + seq);
+        log("Creating pool seq = " + seq);
         pool = poolFactory.get();
 
         if (POOL_RENEW_PERIODIC_MILLIS > 0) {
             poolRenewalTimer = Scheduler.schedulePeriodic(POOL_RENEW_PERIODIC_MILLIS, () -> {
-                Console.log("[POSTGRES] Renewing pool seq = " + seq);
+                log("Renewing pool seq = " + seq);
                 Pool oldPool = pool;
                 pool = poolFactory.get();
                 // Waiting a bit before closing the old pool to ensure possible queries are finished
                 Scheduler.scheduleDelay(POLL_CLOSE_DELAY_MILLIS, () -> {
-                    Console.log("[POSTGRES] Closing old pool seq = " + seq);
+                    log("Closing old pool seq = " + seq);
                     oldPool.close();
                 });
             });
@@ -89,7 +89,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
 
         // Closing properly the poll on server shutdown
         Shutdown.addShutdownHook(() -> {
-            Console.log("[POSTGRES] Closing pool on server shutdown");
+            log("Closing pool on server shutdown");
             if (poolRenewalTimer != null)
                 poolRenewalTimer.cancel();
             pool.close();
@@ -99,13 +99,14 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
     @Override
     public Future<QueryResult> executeQuery(QueryArgument argument) {
         long t0 = System.currentTimeMillis();
-        return toWebFxFuture(withConnection(pool, connection -> executeConnectionQuery(connection, argument))
-        ).onSuccess(x -> { // Just for time report
-            if (LOG_TIMINGS) {
-                long executionTimeMillis = System.currentTimeMillis() - t0;
-                Console.log("[POSTGRES] " + (executionTimeMillis < WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Query executed in " + executionTimeMillis + "ms: " + argument.getStatement());
-            }
-        });
+        return toWebFxFuture(withConnection(pool, connection -> executeConnectionQuery(connection, argument)))
+            .onFailure(e -> log("⛔️ ERROR with executeQuery(" + argument + "): " + e.getMessage()))
+            .onSuccess(x -> { // Just for time report
+                if (LOG_TIMINGS) {
+                    long executionTimeMillis = System.currentTimeMillis() - t0;
+                    log((executionTimeMillis < WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Query executed in " + executionTimeMillis + "ms: " + argument);
+                }
+            });
     }
 
     @Override
@@ -114,12 +115,14 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
         return toWebFxFuture(withConnection(pool, connection ->
             toVertxFuture(batch.executeSerial(QueryResult[]::new, arg ->
                 toWebFxFuture(executeConnectionQuery(connection, arg))))
-        )).onSuccess(x -> { // Just for time report
-            if (LOG_TIMINGS) {
-                long executionTimeMillis = System.currentTimeMillis() - t0;
-                Console.log("[POSTGRES] " + (executionTimeMillis < WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Query batch executed in " + executionTimeMillis + "ms");
-            }
-        });
+        ))
+            .onFailure(e -> log("⛔️ ERROR with executeQueryBatch(" + batch + "): " + e.getMessage()))
+            .onSuccess(x -> { // Just for time report
+                if (LOG_TIMINGS) {
+                    long executionTimeMillis = System.currentTimeMillis() - t0;
+                    log((executionTimeMillis < WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Query batch executed in " + executionTimeMillis + "ms");
+                }
+            });
     }
 
     private io.vertx.core.Future<QueryResult> executeConnectionQuery(SqlConnection connection, QueryArgument argument) {
@@ -131,6 +134,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
 
     @Override
     public Future<SubmitResult> executeSubmit(SubmitArgument argument) {
+        // Note: executeIndividualSubmitWithConnection() already logs failure and timing
         return toWebFxFuture(withConnection(pool, connection -> executeIndividualSubmitWithConnection(argument, connection, null)));
     }
 
@@ -157,7 +161,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
         )).onSuccess(x -> { // Just for time report
             if (LOG_TIMINGS) {
                 long executionTimeMillis = System.currentTimeMillis() - t0;
-                Console.log("[POSTGRES] " + (executionTimeMillis < WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Submit batch executed in " + executionTimeMillis + "ms");
+                log((executionTimeMillis < WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Submit batch executed in " + executionTimeMillis + "ms");
             }
             onSuccessfulSubmitBatch(batch);
         });
@@ -195,10 +199,11 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
         // Waiting the completion of the previous query execution
         long t0 = System.currentTimeMillis();
         return queryExecutionFuture
+            .onFailure(e -> log("⛔️ ERROR with executeIndividualSubmitWithConnection(" + argument + "): " + e.getMessage()))
             .map(rs -> { // on success, returns rs as a Vert.x RowSet<Row>
                 if (LOG_TIMINGS) {
                     long executionTimeMillis = System.currentTimeMillis() - t0;
-                    Console.log("[POSTGRES] " + (executionTimeMillis < WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Submit executed in " + executionTimeMillis + "ms: " + argument.getStatement());
+                    log((executionTimeMillis < WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Submit executed in " + executionTimeMillis + "ms: " + argument);
                 }
                 onSuccessfulSubmit(argument);
                 // We convert that Vert.x RowSet into a WebFX SubmitResult
@@ -225,6 +230,10 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
                 }
             }
         }
+    }
+
+    private static void log(String message) {
+        Console.log("[POSTGRES] " + message);
     }
 
 }

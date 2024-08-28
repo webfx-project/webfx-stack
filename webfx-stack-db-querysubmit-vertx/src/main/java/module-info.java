@@ -11,13 +11,13 @@ module webfx.stack.db.querysubmit.vertx {
     requires webfx.platform.async;
     requires webfx.platform.console;
     requires webfx.platform.scheduler;
+    requires webfx.platform.shutdown;
     requires webfx.platform.util;
     requires webfx.platform.vertx.common;
     requires webfx.stack.db.datasource;
     requires webfx.stack.db.query;
     requires webfx.stack.db.submit;
     requires webfx.stack.db.submit.listener;
-    requires webfx.platform.shutdown;
 
     // Exported packages
     exports dev.webfx.stack.db.query.spi.impl.vertx;
