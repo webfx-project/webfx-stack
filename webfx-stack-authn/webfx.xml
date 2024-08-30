@@ -12,6 +12,10 @@
     </dependencies>
 
     <providers>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.serial.MagicLinkRequestSerialCodec</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.serial.MagicLinkCredentialsSerialCodec</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.serial.MagicLinkPasswordUpdateSerialCodec</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.serial.PasswordUpdateSerialCodec</provider>
         <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.serial.UserClaimsSerialCodec</provider>
         <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.serial.UsernamePasswordCredentialsSerialCodec</provider>
     </providers>

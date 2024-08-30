@@ -9,8 +9,8 @@ module webfx.stack.orm.entity.controls {
     requires webfx.extras.cell;
     requires webfx.extras.imagestore;
     requires webfx.extras.label;
-    requires webfx.extras.materialdesign;
     requires webfx.extras.panes;
+    requires webfx.extras.styles.materialdesign;
     requires webfx.extras.type;
     requires webfx.extras.util.layout;
     requires webfx.extras.util.scene;
@@ -19,6 +19,7 @@ module webfx.stack.orm.entity.controls {
     requires webfx.kit.util;
     requires webfx.platform.ast;
     requires webfx.platform.async;
+    requires webfx.platform.console;
     requires webfx.platform.scheduler;
     requires webfx.platform.uischeduler;
     requires webfx.platform.util;

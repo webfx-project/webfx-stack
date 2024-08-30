@@ -99,7 +99,7 @@ public final class VertxLocalQuerySubmitServiceProvider implements QueryServiceP
             return singularBatchFuture;
 
         // Now handling real batch with several arguments -> no autocommit with explicit commit() or rollback() handling
-        return connectAndExecuteInTransaction((connection, transaction, batchPromise) -> executeUpdateBatchOnConnection(batch, connection, transaction, batchPromise));
+        return connectAndExecuteInTransaction((connection, transaction, batchPromise) -> executeSubmitBatchOnConnection(batch, connection, transaction, batchPromise));
     }
 
 
@@ -224,7 +224,7 @@ public final class VertxLocalQuerySubmitServiceProvider implements QueryServiceP
         return promise.future();
     }
 
-    private void executeUpdateBatchOnConnection(Batch<SubmitArgument> batch, SqlConnection connection, Transaction transaction, Promise<Batch<SubmitResult>> batchPromise) {
+    private void executeSubmitBatchOnConnection(Batch<SubmitArgument> batch, SqlConnection connection, Transaction transaction, Promise<Batch<SubmitResult>> batchPromise) {
         List<Object> batchIndexGeneratedKeys = new ArrayList<>(Collections.nCopies(batch.getArray().length, null));
         Unit<Integer> batchIndex = new Unit<>(0);
         batch.executeSerial(batchPromise, SubmitResult[]::new, updateArgument -> {
@@ -245,7 +245,7 @@ public final class VertxLocalQuerySubmitServiceProvider implements QueryServiceP
                     })
                     .onSuccess(submitResult -> {
                         long t1 = System.currentTimeMillis();
-                        Console.log("DB query batch executed in " + (t1 - t0) + "ms");
+                        Console.log("DB submit batch executed in " + (t1 - t0) + "ms");
                         Object[] generatedKeys = submitResult.getGeneratedKeys();
                         if (!Arrays.isEmpty(generatedKeys))
                             batchIndexGeneratedKeys.set(batchIndex.get(), generatedKeys[0]);

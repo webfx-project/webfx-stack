@@ -15,8 +15,8 @@ module webfx.stack.com.bus.json.vertx {
     requires webfx.stack.com.bus.client;
     requires webfx.stack.com.bus.json;
     requires webfx.stack.com.bus.json.server;
+    requires webfx.stack.session;
     requires webfx.stack.session.state;
-    requires webfx.stack.session.vertx;
 
     // Exported packages
     exports dev.webfx.stack.com.bus.spi.impl.json.vertx;

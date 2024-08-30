@@ -11,6 +11,8 @@ public final class AuthenticationServiceBusAddress {
 
     public static final String GET_USER_CLAIMS_METHOD_ADDRESS = "service/authn/getUserDetails";
 
+    public static final String UPDATE_CREDENTIALS_METHOD_ADDRESS = "service/authn/updateCredentials";
+
     public static final String LOGOUT_METHOD_ADDRESS = "service/authn/logout";
 
 }

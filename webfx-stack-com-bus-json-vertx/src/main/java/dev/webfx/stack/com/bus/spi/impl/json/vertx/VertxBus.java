@@ -12,7 +12,7 @@ import dev.webfx.stack.com.bus.Message;
 import dev.webfx.stack.com.bus.Registration;
 import dev.webfx.stack.com.bus.spi.impl.json.JsonBusConstants;
 import dev.webfx.stack.com.bus.spi.impl.json.server.ServerJsonBusStateManager;
-import dev.webfx.stack.session.spi.impl.vertx.VertxSession;
+import dev.webfx.stack.session.SessionService;
 import dev.webfx.stack.session.state.StateAccessor;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.DeliveryOptions;
@@ -22,6 +22,7 @@ import io.vertx.core.eventbus.impl.EventBusInternal;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.bridge.BridgeEventType;
 import io.vertx.ext.web.Session;
+import io.vertx.ext.web.handler.sockjs.SockJSSocket;
 
 /**
  * @author Bruno Salmon
@@ -47,18 +48,36 @@ final class VertxBus implements Bus {
             // Outgoing messages  (from server to client): type = receive
             boolean outgoingMessage = type.equals(BridgeEventType.RECEIVE);
             boolean ping = type.equals(BridgeEventType.SOCKET_PING);
-            Session vertxWebSession = bridgeEvent.socket().webSession();
-            VertxSession webSession = VertxSession.create(vertxWebSession);
+            // We get the web session. It is based on cookies, so 2 different tabs in the same browser share the same
+            // web session, which is annoying, we don't want to mix sessions, as each tab can be a different application
+            // (ex: back-office, front-office, magic link, etc...), and each communicates with the server with its own
+            // web socket connection. So we will use the socket itself as an identifier of the session.
+            SockJSSocket socket = bridgeEvent.socket();
+            Session vertxWebSession = socket.webSession();
+            // We will use the socket uri as the identifier, as it's unique per client (something like /eventbus/568/rzhmtc04/websocket)
+            String socketUri = socket.uri();
+            // And we will use the web session to store "inside" each possible client session running under that same
+            // browser. It's possible that 1 client disconnect and reconnect, which will produce 2 sessions inside (as
+            // the second websocket is a new one), but the second session should retrieve the data of the first as they
+            // will have actually the same serverSessionId (re-communicated by the client).
+            // So we retrieve that session from the web session, or create a new session if we can't find it.
+            dev.webfx.stack.session.Session webfxSession = vertxWebSession.get(socketUri);
+            if (webfxSession == null) {
+                webfxSession = SessionService.getSessionStore().createSession();
+                vertxWebSession.put(socketUri, webfxSession);
+            }
+
             if (ping) {
-                ServerJsonBusStateManager.clientIsLive(null, webSession);
+                ServerJsonBusStateManager.clientIsLive(null, webfxSession);
                 if (REPLY_PONG_TO_PING)
-                    bridgeEvent.socket().write("{\"type\":\"pong\"}");
+                    socket.write("{\"type\":\"pong\"}");
             } else if (incomingMessage || outgoingMessage) {
                 JsonObject rawMessage = bridgeEvent.getRawMessage();
                 if (rawMessage != null) {
                     // This is the main call for state management
                     Future<?> sessionFuture = ServerJsonBusStateManager.manageStateOnIncomingOrOutgoingRawJsonMessage(
-                            AST.createObject(rawMessage), webSession, incomingMessage);
+                            AST.createObject(rawMessage), webfxSession, incomingMessage)
+                        .onSuccess(finalSession -> vertxWebSession.put(socketUri, finalSession));
                     // If the session is not ready right now (this may happen because of a session switch), then
                     // we need to wait this operation to complete before continuing the message delivery
                     if (incomingMessage && !sessionFuture.isComplete()) {
@@ -82,6 +101,7 @@ final class VertxBus implements Bus {
         Object state = webfxOptions.getState();
         if (state != null)
             deliveryOptions.addHeader(JsonBusConstants.HEADERS_STATE, StateAccessor.encodeState(state));
+        deliveryOptions.setSendTimeout(3*60 * 1000); // Temporarily set to 3 mins instead of 30s
         return deliveryOptions;
     }
 

@@ -1,14 +1,15 @@
 package dev.webfx.stack.ui.controls.dialog;
 
+import dev.webfx.extras.styles.bootstrap.Bootstrap;
 import dev.webfx.stack.ui.dialog.DialogCallback;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.layout.Background;
+import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
 
 /**
  * @author Bruno Salmon
@@ -18,12 +19,12 @@ public final class DialogContent implements DialogBuilder {
     private String title;
     private String headerText;
     private String contentText;
-    private String okText = "Ok";
-    private String cancelText = "Cancel";
+    private String primaryButtonText = "Ok";
+    private String secondaryButtonText = "Cancel";
 
     private Node content;
-    private Button okButton = new Button(); { okButton.setDefaultButton(true); okButton.setPadding(new Insets(5)); } // TODO: replace hardcoded style with CSS
-    private Button cancelButton = new Button(); { cancelButton.setCancelButton(true); cancelButton.setPadding(new Insets(5)); } // TODO: replace hardcoded style with CSS
+    private Button primaryButton = new Button(); { setPrimaryButton(primaryButton); }
+    private Button secondaryButton = new Button(); { setSecondaryButton(secondaryButton); }
 
     private DialogCallback dialogCallback;
 
@@ -66,44 +67,55 @@ public final class DialogContent implements DialogBuilder {
     }
 
     public DialogContent setYesNo() {
-        okText = "Yes";
-        cancelText = "No";
+        primaryButtonText = "Yes";
+        secondaryButtonText = "No";
         return this;
     }
 
-    public Button getOkButton() {
-        return okButton;
+    public Button getPrimaryButton() {
+        return primaryButton;
     }
 
-    public DialogContent setOkButton(Button okButton) {
-        this.okButton = okButton;
+    public DialogContent setPrimaryButton(Button primaryButton) {
+        this.primaryButton = Bootstrap.largeSuccessButton(primaryButton);
+        primaryButton.setDefaultButton(true);
         return this;
     }
 
-    public Button getCancelButton() {
-        return cancelButton;
+    public Button getSecondaryButton() {
+        return secondaryButton;
     }
 
-    public DialogContent setCancelButton(Button cancelButton) {
-        this.cancelButton = cancelButton;
+    public DialogContent setSecondaryButton(Button secondaryButton) {
+        this.secondaryButton = Bootstrap.largeSecondaryButton(secondaryButton);
+        secondaryButton.setCancelButton(true);
         return this;
     }
 
     @Override
     public Region build() {
         GridPaneBuilder builder = new GridPaneBuilder();
-        if (headerText != null)
-            builder.addTextRow(headerText);
-        if (contentText != null)
-            builder.addTextRow(contentText);
+        if (title != null)
+            builder.addTextRow(title);
+        if (headerText != null) {
+            Label headerLabel = Bootstrap.textSuccess(Bootstrap.h3(newLabel(headerText)));
+            headerLabel.setWrapText(true);
+            GridPane.setHalignment(headerLabel, HPos.CENTER);
+            GridPane.setMargin(headerLabel, new Insets(10));
+            builder.addNodeFillingRow(headerLabel);
+        }
+        if (contentText != null) {
+            Label contentLabel = Bootstrap.h4(newLabel(contentText));
+            contentLabel.setWrapText(true);
+            GridPane.setMargin(contentLabel, new Insets(20));
+            builder.addNodeFillingRow(contentLabel);
+        }
         if (content != null) {
             builder.addNodeFillingRow(content);
             GridPane.setVgrow(content, Priority.ALWAYS);
         }
-        GridPane gridPane = builder
-                .addButtons(okText, okButton, cancelText, cancelButton)
+        return builder
+                .addButtons(primaryButtonText, primaryButton, secondaryButtonText, secondaryButton)
                 .build();
-        gridPane.setBackground(Background.fill(Color.WHITE)); // TODO: replace hardcoded style with CSS
-        return gridPane;
     }
 }

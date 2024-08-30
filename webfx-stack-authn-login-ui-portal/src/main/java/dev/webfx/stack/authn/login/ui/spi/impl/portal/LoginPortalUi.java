@@ -14,10 +14,8 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
@@ -47,34 +45,43 @@ final class LoginPortalUi implements UiLoginPortalCallback {
             double margin = 40, x = margin, y = margin, w = width - 2 * margin, h, wor = orText.prefWidth(w), wl = w * 0.5 - wor;
             layoutInArea(backgroundRegion, 0, 0, width, height, 0, null, HPos.LEFT, VPos.TOP);
             layoutInArea(userPasswordUI, x, y, w, h = Math.min(userPasswordUI.prefHeight(w), height - 2 * margin), 0, Insets.EMPTY, false, false, HPos.CENTER, VPos.TOP);
-            layoutInArea(orText, x, y += h + margin, w, 0, 0, null, false, false, HPos.CENTER, VPos.CENTER);
-            layoutInArea(leftLine, x, y, wl, 1, 0, HPos.LEFT, VPos.CENTER);
-            layoutInArea(rightLine, x + w -wl, y, wl, 1, 0, HPos.RIGHT, VPos.CENTER);
             int n = otherLoginButtons.size();
-            double[] prefWidths = new double[n];
-            double prefWidthTotal = 24 * (n - 1);
-            for (int i = 0; i < n; i++) {
-                prefWidthTotal += prefWidths[i] = otherLoginButtons.get(i).prefWidth(24);
-            }
-            x = x + w / 2 - prefWidthTotal / 2;
-            y += margin;
-            h = 24;
-            for (int i = 0; i < n; i++) {
-                layoutInArea(otherLoginButtons.get(i), x, y, prefWidths[i], h , 0, Insets.EMPTY, false, true, HPos.CENTER, VPos.CENTER);
-                x += prefWidths[i] + 24;
+            boolean hasOtherLoginButtons = n > 0;
+            orText.setVisible(hasOtherLoginButtons);
+            leftLine.setVisible(hasOtherLoginButtons);
+            rightLine.setVisible(hasOtherLoginButtons);
+            if (hasOtherLoginButtons) {
+                layoutInArea(orText, x, y += h + margin, w, 0, 0, null, false, false, HPos.CENTER, VPos.CENTER);
+                layoutInArea(leftLine, x, y, wl, 1, 0, HPos.LEFT, VPos.CENTER);
+                layoutInArea(rightLine, x + w -wl, y, wl, 1, 0, HPos.RIGHT, VPos.CENTER);
+                double[] prefWidths = new double[n];
+                double prefWidthTotal = 24 * (n - 1);
+                for (int i = 0; i < n; i++) {
+                    prefWidthTotal += prefWidths[i] = otherLoginButtons.get(i).prefWidth(24);
+                }
+                x = x + w / 2 - prefWidthTotal / 2;
+                y += margin;
+                h = 24;
+                for (int i = 0; i < n; i++) {
+                    layoutInArea(otherLoginButtons.get(i), x, y, prefWidths[i], h , 0, Insets.EMPTY, false, true, HPos.CENTER, VPos.CENTER);
+                    x += prefWidths[i] + 24;
+                }
             }
         }
 
         {
             setMinHeight(USE_PREF_SIZE);
+            setMaxSize(400, Region.USE_PREF_SIZE);
         }
 
         @Override
         protected double computePrefHeight(double width) {
-            double margin = 40, y = margin, w = width - 2 * margin;
+            double margin = 40, y = margin, w = Math.max(-1 , width - 2 * margin);
             double h = userPasswordUI.prefHeight(w); // userPasswordUI
-            y += h + margin; // orText
-            y += margin;
+            y += h;
+            if (!otherLoginButtons.isEmpty()) {
+                y += margin; // orText
+            }
             h = 24;
             return y + h + margin;
         }
@@ -88,18 +95,11 @@ final class LoginPortalUi implements UiLoginPortalCallback {
                 StackPane loginButton = new StackPane(gatewayProvider.createLoginButton());
                 loginButton.setPadding(new Insets(13));
                 loginButton.setPrefSize(50, 50);
-                loginButton.setBorder(new Border(new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, new CornerRadii(50), BorderStroke.THIN)));
-                loginButton.setCursor(Cursor.HAND);
                 loginButton.setOnMouseClicked(e -> {
                     Button backButton = new Button("« Use another method to sign in");
-                    /* Temporary hard-coded style for the web version */
                     backButton.setPadding(new Insets(15));
-                    backButton.setBackground(new Background(new BackgroundFill(Color.web("#0096D6FF"), new CornerRadii(10), null)));
-                    backButton.setBorder(null);
-                    backButton.setTextFill(Color.WHITE);
                     BorderPane.setAlignment(backButton, Pos.CENTER);
                     BorderPane.setMargin(backButton, new Insets(10));
-                    backButton.setCursor(Cursor.HAND);
                     backButton.setOnAction(e2 -> showLoginHome());
                     BorderPane borderPane = new BorderPane();
                     borderPane.setBottom(backButton);
@@ -123,17 +123,12 @@ final class LoginPortalUi implements UiLoginPortalCallback {
         }
         loginPane.getChildren().add(userPasswordUI);
         loginPane.getChildren().addAll(otherLoginButtons);
-        loginPane.setMaxSize(400, Region.USE_PREF_SIZE);
-        Color lightgray = Color.web("#888");
-        orText.setFill(lightgray);
-        lightgray = Color.LIGHTGRAY;
+        orText.getStyleClass().add("or");
         leftLine.setMinHeight(1);
-        leftLine.setBackground(Background.fill(lightgray));
+        leftLine.getStyleClass().add("line");
         rightLine.setMinHeight(1);
-        rightLine.setBackground(Background.fill(lightgray));
-        backgroundRegion.setBackground(new Background(new BackgroundFill(Color.WHITE, new CornerRadii(20), null)));
-        backgroundRegion.setBorder(new Border(new BorderStroke(Color.gray(0.8), BorderStrokeStyle.SOLID, new CornerRadii(20), BorderStroke.THIN)));
-        backgroundRegion.setEffect(new DropShadow(10, Color.gray(0.8)));
+        rightLine.getStyleClass().add("line");
+        backgroundRegion.getStyleClass().addAll("background", "fx-border");
         FXProperties.runNowAndOnPropertiesChange(this::showLoginHome, flipPane.sceneProperty());
         flipPane.getStyleClass().add("login");
     }
@@ -142,7 +137,7 @@ final class LoginPortalUi implements UiLoginPortalCallback {
         return flipPane;
     }
 
-    private void showLoginHome() {
+    void showLoginHome() {
         flipPane.setFront(loginPane);
         if (flipPane.getScene() != null)
             flipPane.flipToFront();
@@ -185,6 +180,7 @@ final class LoginPortalUi implements UiLoginPortalCallback {
             success.setFill(Color.web("#0096D6FF"));
             ScalePane scalePane = new ScalePane(success);
             scalePane.setMaxWidth(250);
+            scalePane.setMinHeight(16);
             flipPane.setBack(scalePane);
             flipPane.flipToBack();
         });

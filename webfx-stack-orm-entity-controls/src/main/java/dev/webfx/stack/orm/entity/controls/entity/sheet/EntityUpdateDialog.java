@@ -53,7 +53,7 @@ abstract class EntityUpdateDialog<E extends Entity> implements MaterialFactoryMi
 
     void updateOkButton() {
         if (dialogContent != null)
-            dialogContent.getOkButton().setDisable(!updateStore.hasChanges());
+            dialogContent.getPrimaryButton().setDisable(!updateStore.hasChanges());
     }
 
     abstract Expression<? extends Entity> expressionToLoad();

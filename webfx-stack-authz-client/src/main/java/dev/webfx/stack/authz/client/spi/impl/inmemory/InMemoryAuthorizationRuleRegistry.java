@@ -69,7 +69,7 @@ public final class InMemoryAuthorizationRuleRegistry implements InMemoryAuthoriz
         while (true) {
             Collection<InMemoryAuthorizationRule> rules = registeredInMemoryAuthorizationRules.get(operationRequestClass);
             if (rules != null)
-                for (InMemoryAuthorizationRule rule : rules)
+                for (InMemoryAuthorizationRule rule : rules) // ConcurrentModificationException observed
                     switch (rule.computeRuleResult(operationRequest)) {
                         case DENIED:  result = AuthorizationRuleResult.DENIED; break; // Breaking as it's a final decision
                         case GRANTED: result = AuthorizationRuleResult.GRANTED; // Not breaking, as we need to check there is not another denying rule (which is priority)

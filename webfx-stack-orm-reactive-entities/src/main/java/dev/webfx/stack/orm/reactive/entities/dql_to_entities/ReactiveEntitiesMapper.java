@@ -1,5 +1,6 @@
 package dev.webfx.stack.orm.reactive.entities.dql_to_entities;
 
+import dev.webfx.extras.util.OptimizedObservableListWrapper;
 import dev.webfx.kit.util.properties.ObservableLists;
 import dev.webfx.stack.orm.reactive.dql.query.ReactiveDqlQuery;
 import dev.webfx.stack.orm.reactive.dql.querypush.ReactiveDqlQueryPush;

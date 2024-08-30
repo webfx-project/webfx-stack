@@ -17,10 +17,10 @@
  */
 package dev.webfx.stack.com.bus.spi.impl.json.client.websocket;
 
-import dev.webfx.platform.conf.ConfigLoader;
-import dev.webfx.platform.console.Console;
 import dev.webfx.platform.ast.AST;
 import dev.webfx.platform.ast.ReadOnlyAstObject;
+import dev.webfx.platform.conf.ConfigLoader;
+import dev.webfx.platform.console.Console;
 import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.platform.util.Booleans;
@@ -77,6 +77,13 @@ public class WebSocketBus extends JsonClientBus {
                 WebSocketBus.this.onIncomingNetworkRawMessage(msg);
                 if (webSocketListener != null)
                     webSocketListener.onMessage(msg);
+                // When running in the browser, the Scheduler can lack of reactivity when the tab is hidden, but not the
+                // websocket communication, so it's a good opportunity to wake it up and ensure that all pending
+                // operations are processed. It's especially important when receiving a login message from the magic
+                // link app (which can be open in a separate tab in the same browser, making this app hidden) to ensure
+                // we send back the acknowledgement, so the magic link app can confirm the user it reached out this app
+                // with a successful login.
+                Scheduler.wakeUp();
             }
 
             @Override

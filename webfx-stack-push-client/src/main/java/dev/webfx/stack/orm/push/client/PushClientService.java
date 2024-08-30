@@ -23,7 +23,7 @@ public final class PushClientService {
         // listener over the local client bus.
         registerPushFunction(ClientPushBusAddressesSharedByBothClientAndServer.PUSH_PING_CLIENT_LISTENER_SERVICE_ADDRESS, arg -> {
             Console.log("Received server push: " + arg);
-            return (Void) null;
+            return null;
         });
         // But to make this work, the client bus call service must listen server calls! This takes place as soon as the
         // connection to the server is ready, or each time we reconnect to the server:

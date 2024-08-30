@@ -2,6 +2,7 @@ package dev.webfx.stack.ui.fxraiser.impl;
 
 import dev.webfx.stack.ui.fxraiser.FXValueRaiser;
 import dev.webfx.stack.ui.fxraiser.impl.converters.ImageToImageViewConverter;
+import dev.webfx.stack.ui.fxraiser.impl.converters.StringToPaintConverter;
 import dev.webfx.stack.ui.fxraiser.impl.converters.StringUrlToImageConverter;
 
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ public class ValueConverterRegistry {
 
     public static void registerDefaultConverters() {
         registerValueConverter(new StringUrlToImageConverter());
+        registerValueConverter(new StringToPaintConverter());
         registerValueConverter(new ImageToImageViewConverter());
     }
 

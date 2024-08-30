@@ -91,7 +91,7 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
                 markAsFinished();
             else
                 refreshQuery(nextMostUrgentQuery)
-                        .onComplete(ar -> refreshNextMostUrgentQueryIfAnyAndLoop());
+                    .onComplete(ar -> refreshNextMostUrgentQueryIfAnyAndLoop());
         }
 
         Future<Void> refreshQuery(QueryInfo queryInfo) {
@@ -102,7 +102,8 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
             else { // Otherwise asking the query service to execute the query
                 executedQueries++;
                 queryInfo.touchExecuted();
-                resultFuture = QueryService.executeQuery(queryInfo.queryArgument);
+                resultFuture = QueryService.executeQuery(queryInfo.queryArgument)
+                    .onFailure(Console::log);
             }
             // Calling the pushResultToRelevantClients() method when the result is ready
             return resultFuture.map(queryResult -> {
@@ -159,19 +160,19 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
             Object queryStreamId = streamInfo.queryStreamId;
             Console.log("pushResultToClient() to queryStreamId=" + queryStreamId + " with " + (queryResult != null ? queryResult.getRowCount() + " rows" : "diff"));
             QueryPushServerService.pushQueryResultToClient(new QueryPushResult(queryStreamId, queryResult, queryResultDiff), streamInfo.clientRunId)
-                    .onFailure(cause -> { // Handling push call failure
-                        long timeSinceCreation = now() - streamInfo.creationTime;
-                        if (timeSinceCreation < 1_000)
-                            Scheduler.scheduleDelay(100, () -> {
-                                Console.log("Retrying result push to client " + streamInfo.clientRunId + " since it failed less than 1s after the stream creation (the client push registration may have not been completed)");
-                                pushResultToClient(streamInfo, queryResult, queryResultDiff);
-                            });
-                        else {
-                            Console.log("Result push failed :" + cause.getMessage());
-                            pushedFailed++;
-                            removeStream(streamInfo);
-                        }
-                    });
+                .onFailure(cause -> { // Handling push call failure
+                    long timeSinceCreation = now() - streamInfo.creationTime;
+                    if (timeSinceCreation < 1_000)
+                        Scheduler.scheduleDelay(100, () -> {
+                            Console.log("Retrying result push to client " + streamInfo.clientRunId + " since it failed less than 1s after the stream creation (the client push registration may have not been completed)");
+                            pushResultToClient(streamInfo, queryResult, queryResultDiff);
+                        });
+                    else {
+                        Console.log("Result push failed :" + cause.getMessage());
+                        pushedFailed++;
+                        removeStream(streamInfo);
+                    }
+                });
         }
 
         QueryInfo getNextMostUrgentQuery() {

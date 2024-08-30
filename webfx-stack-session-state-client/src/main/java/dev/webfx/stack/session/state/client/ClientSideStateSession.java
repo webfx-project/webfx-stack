@@ -2,8 +2,10 @@ package dev.webfx.stack.session.state.client;
 
 import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.platform.console.Console;
+import dev.webfx.platform.meta.Meta;
 import dev.webfx.platform.storage.LocalStorage;
 import dev.webfx.platform.uischeduler.UiScheduler;
+import dev.webfx.platform.useragent.UserAgent;
 import dev.webfx.platform.util.uuid.Uuid;
 import dev.webfx.stack.session.Session;
 import dev.webfx.stack.session.SessionService;
@@ -19,7 +21,12 @@ import java.util.Objects;
  */
 public final class ClientSideStateSession {
 
-    private static final String ACTIVE_CLIENT_SESSION_ID = "activeClientSessionId";
+    // We prefix the key used to store the active session id in the browser, because it is stored in the local storage
+    // which is shared with all other apps running under the same origin. This will prevent interferences between apps
+    // (especially webfx apps). Not necessary for other platforms as the client session storage is already specific to
+    // the application.
+    private static final String ACTIVE_CLIENT_SESSION_ID_PREFIX = UserAgent.isBrowser() ? Meta.getApplicationModuleName() + "-" : "";
+    private static final String ACTIVE_CLIENT_SESSION_ID = ACTIVE_CLIENT_SESSION_ID_PREFIX + "activeClientSessionId";
     private static final String RUN_ID = Uuid.randomUuid();
     private static final ClientSideStateSession INSTANCE = new ClientSideStateSession();
 
@@ -50,16 +57,16 @@ public final class ClientSideStateSession {
         String clientSessionId = LocalStorage.getItem(ACTIVE_CLIENT_SESSION_ID);
         if (clientSessionId != null)
             sessionStore.get(clientSessionId)
-                    .onComplete(ar -> {
-                        Session session = ar.result();
-                        if (session != null)
-                            setClientSession(session);
-                        else {
-                            Console.log("WARNING: Couldn't reload previous client session from session store (session with localId " + clientSessionId + " not found)");
-                            if (ar.failed())
-                                Console.log(ar.cause());
-                        }
-                    });
+                .onComplete(ar -> {
+                    Session session = ar.result();
+                    if (session != null)
+                        setClientSession(session);
+                    else {
+                        Console.log("WARNING: Couldn't reload previous client session from session store (session with localId " + clientSessionId + " not found)");
+                        if (ar.failed())
+                            Console.log(ar.cause());
+                    }
+                });
     }
 
     public ClientSideStateSession(SessionStore sessionStore, Session clientSession) {

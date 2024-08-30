@@ -23,6 +23,10 @@ public final class AuthenticationService {
         return getProvider().getUserClaims();
     }
 
+    public static Future<?> updateCredentials(Object updateCredentialsArgument) {
+        return getProvider().updateCredentials(updateCredentialsArgument);
+    }
+
     public static Future<Void> logout() {
         return getProvider().logout();
     }

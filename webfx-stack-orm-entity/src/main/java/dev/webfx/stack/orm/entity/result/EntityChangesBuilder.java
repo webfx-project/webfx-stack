@@ -3,12 +3,11 @@ package dev.webfx.stack.orm.entity.result;
 import dev.webfx.platform.util.collection.HashList;
 import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.result.impl.EntityChangesImpl;
-import dev.webfx.stack.orm.entity.result.impl.EntityResultImpl;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
-import java.util.*;
+import java.util.Collection;
 
 /**
  * @author Bruno Salmon
@@ -21,7 +20,7 @@ public final class EntityChangesBuilder {
 
     private EntityChangesBuilder() {}
 
-    public EntityChangesBuilder addDeletedEntityId(EntityId id) {
+    public void addDeletedEntityId(EntityId id) {
         if (id.isNew()) {
             cancelEntityChanges(id);
         } else {
@@ -30,21 +29,18 @@ public final class EntityChangesBuilder {
             deletedEntities.add(id);
         }
         updateHasChangesProperty();
-        return this;
     }
 
-    public EntityChangesBuilder addInsertedEntityId(EntityId id) {
+    public void addInsertedEntityId(EntityId id) {
         if (id.isNew())
             addFieldChange(id, null, null);
         updateHasChangesProperty();
-        return this;
     }
 
-    public EntityChangesBuilder addUpdatedEntityId(EntityId id) {
+    public void addUpdatedEntityId(EntityId id) {
         if (!id.isNew())
             addFieldChange(id, null, null);
         updateHasChangesProperty();
-        return this;
     }
 
     public boolean hasEntityId(EntityId id) {
@@ -57,20 +53,18 @@ public final class EntityChangesBuilder {
         return fieldChanged;
     }
 
-    public EntityChangesBuilder removeFieldChange(EntityId id, Object fieldId) {
+    public void removeFieldChange(EntityId id, Object fieldId) {
         if (rsb != null)
             rsb.unsetFieldValue(id, fieldId);
         updateHasChangesProperty();
-        return this;
     }
 
-    public EntityChangesBuilder cancelEntityChanges(EntityId id) {
+    public void cancelEntityChanges(EntityId id) {
         if (deletedEntities != null)
             deletedEntities.remove(id);
         if (rsb != null)
             rsb.removeEntityId(id);
         updateHasChangesProperty();
-        return this;
     }
 
     public void clear() {

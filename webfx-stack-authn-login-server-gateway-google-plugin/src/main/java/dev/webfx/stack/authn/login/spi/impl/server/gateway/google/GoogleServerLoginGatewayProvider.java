@@ -100,7 +100,7 @@ public class GoogleServerLoginGatewayProvider implements ServerLoginGatewayProvi
                                             SessionService.getSessionStore().get(sessionId)
                                                     // Once done, we push the user id to the client using the state
                                                     .compose(session -> PushServerService.pushState(
-                                                            StateAccessor.setUserId(null, userId), // we create a state that holds the user id
+                                                            StateAccessor.createUserIdState(userId), // we create a state that holds the user id
                                                             SessionAccessor.getRunId(session)) // and push it to the runId stored in the session
                                                     )
                                     ) // Finally we return the final content to be displayed in the web view

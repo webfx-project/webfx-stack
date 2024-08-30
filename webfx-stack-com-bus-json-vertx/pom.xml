@@ -93,13 +93,13 @@
 
         <dependency>
             <groupId>dev.webfx</groupId>
-            <artifactId>webfx-stack-session-state</artifactId>
+            <artifactId>webfx-stack-session</artifactId>
             <version>0.1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>dev.webfx</groupId>
-            <artifactId>webfx-stack-session-vertx</artifactId>
+            <artifactId>webfx-stack-session-state</artifactId>
             <version>0.1.0-SNAPSHOT</version>
         </dependency>
 

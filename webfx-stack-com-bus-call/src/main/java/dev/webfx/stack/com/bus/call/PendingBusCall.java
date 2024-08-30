@@ -30,7 +30,7 @@ public final class PendingBusCall<T> {
     void onBusCallResult(AsyncResult<BusCallResult<T>> busCallAsyncResult) {
         // Getting the bus call result that holds the final target result to return to the initial caller
         BusCallResult<T> busCallResult = busCallAsyncResult.result();
-        if (busCallResult == null) { // Presumably timeout, what else can it be? TODO investigate further
+        if (busCallResult == null && busCallAsyncResult.succeeded()) { // Presumably timeout, what else can it be? TODO investigate further
             promise.fail("No reply from server (timeout)");
         } else {
             // Getting the result of the bus call that needs to be returned to the initial caller

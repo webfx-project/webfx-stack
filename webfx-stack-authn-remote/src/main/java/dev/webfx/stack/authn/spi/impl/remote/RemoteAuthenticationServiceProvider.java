@@ -27,6 +27,11 @@ public class RemoteAuthenticationServiceProvider implements AuthenticationServic
     }
 
     @Override
+    public Future<?> updateCredentials(Object updateCredentialsArgument) {
+        return BusCallService.call(AuthenticationServiceBusAddress.UPDATE_CREDENTIALS_METHOD_ADDRESS, updateCredentialsArgument);
+    }
+
+    @Override
     public Future<Void> logout() {
         return BusCallService.call(AuthenticationServiceBusAddress.LOGOUT_METHOD_ADDRESS, null);
     }

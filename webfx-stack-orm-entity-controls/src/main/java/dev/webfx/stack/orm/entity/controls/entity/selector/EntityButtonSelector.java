@@ -7,6 +7,7 @@ import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.visual.VisualResult;
 import dev.webfx.extras.visual.controls.grid.SkinnedVisualGrid;
 import dev.webfx.extras.visual.controls.grid.VisualGrid;
+import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.util.function.Callable;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
@@ -119,6 +120,9 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
             setSearchCondition(entityClass.getSearchCondition());
         }
         entityRenderer = renderingExpression == null ? null : ValueRendererFactory.getDefault().createValueRenderer(renderingExpression.getType());
+        if (entityRenderer == null) {
+            Console.log("⚠️ WARNING: EntityButtonSelector couldn't find any domain renderer! Please fix this issue by specifying fields or columns in : " + jsonOrClass);
+        }
         forceDialogRebuiltOnNextShow();
         return this;
     }
@@ -247,8 +251,9 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
     }
 
     public ReactiveVisualMapper<E> getReactiveVisualMapper() {
-        if (entityDialogMapper == null)
+        if (entityDialogMapper == null) {
             getOrCreateDialogContent();
+        }
         return entityDialogMapper;
     }
 

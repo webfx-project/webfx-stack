@@ -4,6 +4,7 @@ package dev.webfx.stack.authn;
  * @author Bruno Salmon
  */
 public final class UsernamePasswordCredentials {
+
     private final String username;
     private final String password;
 

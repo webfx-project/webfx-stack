@@ -1,11 +1,10 @@
 package dev.webfx.stack.com.bus.spi.impl.json.server;
 
-import dev.webfx.platform.async.Future;
-import dev.webfx.platform.async.Promise;
-import dev.webfx.platform.console.Console;
 import dev.webfx.platform.ast.AST;
 import dev.webfx.platform.ast.AstObject;
 import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.async.Future;
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.stack.com.bus.DeliveryOptions;
 import dev.webfx.stack.com.bus.spi.impl.json.JsonBusConstants;
@@ -31,61 +30,46 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
         serverJsonBus.register(JsonBusConstants.PING_STATE_ADDRESS, event -> event.reply(null, new DeliveryOptions()));
     }
 
-    public static Future<Session> manageStateOnIncomingOrOutgoingRawJsonMessage(AstObject rawJsonMessage, Session webServerSession, boolean incoming) {
+    public static Future<Session> manageStateOnIncomingOrOutgoingRawJsonMessage(AstObject rawJsonMessage, Session serverSession, boolean incoming) {
         AstObject headers = rawJsonMessage.getObject(JsonBusConstants.HEADERS);
         Object originalState = headers == null ? null : StateAccessor.decodeState(headers.getString(JsonBusConstants.HEADERS_STATE));
         String originalStateCapture = LOG_STATES ? "" + originalState : null;
-        // Is there an application session already associated with the web session?
-        Session associatedSession = webServerSession.get(ASSOCIATED_SESSION_KEY);
-        // If yes, we use it as the application session, otherwise, we continue with the web session (but we may still
-        // do a session switch if the client requests a specific serverSessionId)
-        Session applicationServerSession = associatedSession != null ? associatedSession : webServerSession;
 
         // Incoming message (from client to server)
         if (incoming) {
             if (LOG_RAW_MESSAGES)
                 Console.log(">> Incoming message : " + Json.formatNode(rawJsonMessage));
-            Promise<Session> promise = Promise.promise();
-            // We sync the application session with the incoming state. This is at this point that the session switch
-            // can happen if requested by the client, in which case a different session will be returned.
-            ServerSideStateSessionSyncer.syncServerSessionFromIncomingClientState(applicationServerSession, originalState)
-                    .onComplete(ar -> {
-                        // Getting the requested session (might be null if cleared by the server, in which case we continue with the previous one)
-                        Session requestedSession = ar.result() != null ? ar.result() : applicationServerSession;
-                        // If the session has been switched, we associate that new application session with the web
-                        // session if not already done (for further calls)
-                        if (requestedSession != applicationServerSession && associatedSession != requestedSession) {
-                            //Console.log("Associating " + webServerSession.id() + " -> " + requestedSession.id());
-                            webServerSession.put(ASSOCIATED_SESSION_KEY, requestedSession);
-                        }
-                        // Finally we complete the incoming state with possible further info coming from the session
-                        Object finalState = ServerSideStateSessionSyncer.syncIncomingClientStateFromServerSession(originalState, requestedSession);
+            // We sync the application serverSession with the incoming state. This is at this point that the serverSession
+            // switch can happen if requested by the client, in which case a different serverSession will be returned.
+            return ServerSideStateSessionSyncer.syncServerSessionFromIncomingClientState(serverSession, originalState)
+                    .compose(finalSession -> {
+                        // Finally we complete the incoming state with possible further info coming from the serverSession
+                        Object finalState = ServerSideStateSessionSyncer.syncIncomingClientStateFromServerSession(originalState, finalSession);
                         if (LOG_STATES)
                             Console.log(">> Incoming state: " + originalStateCapture + " >> " + finalState);
                         // We memorise that final state in the raw message
                         setJsonRawMessageState(rawJsonMessage, headers, finalState);
                         // We tell the client is live
-                        clientIsLive(finalState, requestedSession);
-                        // We tell the message delivery can now continue into the server, and return the session (not
-                        // sure if the session object will be useful - most important thing is to complete this
+                        clientIsLive(finalState, finalSession);
+                        // We tell the message delivery can now continue into the server, and return the serverSession (not
+                        // sure if the serverSession object will be useful - most important thing is to complete this
                         // asynchronous operation so the delivery can go on)
-                        promise.complete(requestedSession);
+                        return Future.succeededFuture(finalSession);
                     });
-            return promise.future();
         }
 
         // Outgoing message (from server to client)
-        // We complete the state with possible further info coming from the session (ex: serverSessionId change)
-        Object finalState = ServerSideStateSessionSyncer.syncOutgoingServerStateFromServerSessionAndViceVersa(originalState, applicationServerSession);
+        // We complete the state with possible further info coming from the serverSession (ex: serverSessionId change)
+        Object finalState = ServerSideStateSessionSyncer.syncOutgoingServerStateFromServerSessionAndViceVersa(originalState, serverSession);
         if (LOG_STATES)
             Console.log("<< Outgoing state: " + finalState + " << " + originalStateCapture);
         // We memorise that final state in the raw message
         setJsonRawMessageState(rawJsonMessage, headers, finalState);
         if (LOG_RAW_MESSAGES)
             Console.log("<< Outgoing message : " + Json.formatNode(rawJsonMessage));
-        // We tell the message delivery can now continue into the client, and return the session (not sure if the session
+        // We tell the message delivery can now continue into the client, and return the serverSession (not sure if the serverSession
         // object will be useful - most important thing is the to complete this asynchronous operation so the delivery can go on)
-        return Future.succeededFuture(applicationServerSession);
+        return Future.succeededFuture(serverSession);
     }
 
     private static void setJsonRawMessageState(AstObject rawJsonMessage, AstObject headers, Object state) {
@@ -109,12 +93,6 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
             if (runId == null) {
                 // If not found, trying to get it from the session
                 runId = SessionAccessor.getRunId(session);
-                if (runId == null) {
-                    // If not found, trying to get it from the application (in case the passed session was the web session)
-                    session = session.get(ASSOCIATED_SESSION_KEY);
-                    if (session != null)
-                        runId = SessionAccessor.getRunId(session);
-                }
             }
             if (runId != null)
                 clientLiveListener.accept(runId);

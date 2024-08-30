@@ -10,7 +10,7 @@ import dev.webfx.platform.async.AsyncFunction;
 public class RoutePushRequest extends RouteRequestBase<RoutePushRequest> {
 
     private ReadOnlyAstObject state;
-    private boolean replace; // flag asking a replace the current url instead of pushing a new entry in the browser history
+    private boolean replace; // flag asking to replace the current url instead of pushing a new entry in the browser history
 
     public RoutePushRequest(String routePath, BrowsingHistory browsingHistory) {
         this(routePath, browsingHistory, null);

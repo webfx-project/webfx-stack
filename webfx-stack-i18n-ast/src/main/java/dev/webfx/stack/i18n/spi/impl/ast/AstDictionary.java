@@ -27,7 +27,7 @@ final class AstDictionary implements Dictionary {
         String key = Strings.toString(messageKey);
         Object o = dictionary.get(key);
         if (o instanceof ReadOnlyAstObject)
-            return ((ReadOnlyAstObject) o).get(tokenKey.name().toLowerCase());
+            return ((ReadOnlyAstObject) o).get(tokenKey.toString());
         return tokenKey == DefaultTokenKey.TEXT ? Strings.toString(o) : null;
     }
 }

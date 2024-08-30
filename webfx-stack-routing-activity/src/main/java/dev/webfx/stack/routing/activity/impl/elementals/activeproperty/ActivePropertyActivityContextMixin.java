@@ -1,7 +1,7 @@
 package dev.webfx.stack.routing.activity.impl.elementals.activeproperty;
 
 import dev.webfx.stack.routing.activity.ActivityContextMixin;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.value.ObservableBooleanValue;
 
 /**
  * @author Bruno Salmon
@@ -13,7 +13,7 @@ public interface ActivePropertyActivityContextMixin
         ActivePropertyActivityContext<C> {
 
     @Override
-    default ObservableValue<Boolean> activeProperty() {
+    default ObservableBooleanValue activeProperty() {
         return getActivityContext().activeProperty();
     }
 

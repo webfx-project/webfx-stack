@@ -3,6 +3,7 @@
 module webfx.stack.authn.login.ui {
 
     // Direct dependencies modules
+    requires javafx.base;
     requires javafx.graphics;
     requires webfx.platform.service;
 

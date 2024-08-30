@@ -120,20 +120,20 @@ public class FacebookServerLoginGatewayProvider implements ServerLoginGatewayPro
                 // retrieve the session id. This session id is required by the FB gateway, only because it will fetch
                 // a FB API url that requires to pass the exact same redirect uri as the one initially passed on the
                 // login url (otherwise that FB API will fail), and that redirect uri contains the session id.
-                ThreadLocalStateHolder.runWithState(StateAccessor.setServerSessionId(null, sessionId), () ->
-                        AuthenticationService.authenticate(FACEBOOK_AUTH_PREFIX + code) // the Facebook prefix is required by the Authentication portal to dispatch it to the Facebook gateway
-                                .compose(userId -> // On success, the FB gateway is returning the user id
-                                        // We will push that user id to the client, but to do that, we need the client runId
-                                        // which is stored in the session. So we first load the session:
-                                        SessionService.getSessionStore().get(sessionId)
-                                                // Once done, we push the user id to the client using the state
-                                                .compose(session -> PushServerService.pushState(
-                                                        StateAccessor.setUserId(null, userId), // we create a state that holds the user id
-                                                        SessionAccessor.getRunId(session)) // and push it to the runId stored in the session
-                                                )
-                                ) // Finally we return the final content to be displayed in the web view
-                                .onFailure(e -> sendHtmlResponse("Login failed with message: " + e.getMessage(), rc))
-                                .onSuccess(ignored -> sendHtmlResponse("Login successful", rc)) // on success, the UI router should anyway quickly replace the login web view with the page initially requested (if authorized)
+                ThreadLocalStateHolder.runWithState(StateAccessor.createServerSessionIdState(sessionId), () ->
+                    AuthenticationService.authenticate(FACEBOOK_AUTH_PREFIX + code) // the Facebook prefix is required by the Authentication portal to dispatch it to the Facebook gateway
+                        .compose(userId -> // On success, the FB gateway is returning the user id
+                            // We will push that user id to the client, but to do that, we need the client runId
+                            // which is stored in the session. So we first load the session:
+                            SessionService.getSessionStore().get(sessionId)
+                                // Once done, we push the user id to the client using the state
+                                .compose(session -> PushServerService.pushState(
+                                    StateAccessor.createUserIdState(userId), // we create a state that holds the user id
+                                    SessionAccessor.getRunId(session)) // and push it to the runId stored in the session
+                                )
+                        ) // Finally we return the final content to be displayed in the web view
+                        .onFailure(e -> sendHtmlResponse("Login failed with message: " + e.getMessage(), rc))
+                        .onSuccess(ignored -> sendHtmlResponse("Login successful", rc)) // on success, the UI router should anyway quickly replace the login web view with the page initially requested (if authorized)
                 );
             });
         });
@@ -166,34 +166,34 @@ public class FacebookServerLoginGatewayProvider implements ServerLoginGatewayPro
         // After checking the configuration is valid (will return a failed Future if not), we return the Facebook login
         // url to be displayed for the web view (this url depends on whether the web view is in an iFrame).
         return checkConfigurationValid()
-                .map(ignored ->
-                    // If the web view is in an iFrame (web version), we can't use the direct Facebook url, because the
-                    // iFrame will refuse to load from facebook.com, it will accept only an url from the same origin
-                    // as the main browser url (i.e. your domain). So in that case, we must return the url that points to
-                    // our own login path, which will be served by our router (see router.route(LOGIN_PATH).handler(...)
-                    // in the boot() method above). Also, please note that the router will render a login page that uses
-                    // the Facebook JavaScript SDK, because this is the only method provided by Facebook that works in
-                    // an iFrame. Also note that this Facebook JavaScript SDK doesn't work in the OpenJFX web view for
-                    // any reason. So for the OpenJFX version, we need to use the direct Facebook url instead.
-                    isWebViewInIframe ? // is the web view in an iFrame ?
-                            // If yes (web version), we return the url of the login page served by our own router (Facebook JavaScript SDK version)
-                            LOGIN_ORIGIN + LOGIN_PATH + "?sessionId=" + serverSessionId
-                            // If no (OpenJFX version), we return the direct Facebook url
-                            : resolveTemplateVariablesWithServerSessionId(DIRECT_LOGIN_URL_TEMPLATE, serverSessionId)
-                );
+            .map(ignored ->
+                // If the web view is in an iFrame (web version), we can't use the direct Facebook url, because the
+                // iFrame will refuse to load from facebook.com, it will accept only an url from the same origin
+                // as the main browser url (i.e. your domain). So in that case, we must return the url that points to
+                // our own login path, which will be served by our router (see router.route(LOGIN_PATH).handler(...)
+                // in the boot() method above). Also, please note that the router will render a login page that uses
+                // the Facebook JavaScript SDK, because this is the only method provided by Facebook that works in
+                // an iFrame. Also note that this Facebook JavaScript SDK doesn't work in the OpenJFX web view for
+                // any reason. So for the OpenJFX version, we need to use the direct Facebook url instead.
+                isWebViewInIframe ? // is the web view in an iFrame ?
+                    // If yes (web version), we return the url of the login page served by our own router (Facebook JavaScript SDK version)
+                    LOGIN_ORIGIN + LOGIN_PATH + "?sessionId=" + serverSessionId
+                    // If no (OpenJFX version), we return the direct Facebook url
+                    : resolveTemplateVariablesWithServerSessionId(DIRECT_LOGIN_URL_TEMPLATE, serverSessionId)
+            );
     }
 
     private String resolveTemplateVariables(String template) {
         return template
-                .replace("{{CLIENT_ID}}", FACEBOOK_CLIENT_ID)
-                .replace("{{CLIENT_SECRET}}", FACEBOOK_CLIENT_SECRET)
-                .replace("{{RETURN_URL}}", REDIRECT_ORIGIN + REDIRECT_PATH)
-                ;
+            .replace("{{CLIENT_ID}}", FACEBOOK_CLIENT_ID)
+            .replace("{{CLIENT_SECRET}}", FACEBOOK_CLIENT_SECRET)
+            .replace("{{RETURN_URL}}", REDIRECT_ORIGIN + REDIRECT_PATH)
+            ;
     }
 
     private String resolveTemplateVariablesWithServerSessionId(String template, String serverSessionId) {
         return resolveTemplateVariables(template)
-                .replace("{{SESSION_ID}}", serverSessionId);
+            .replace("{{SESSION_ID}}", serverSessionId);
     }
 
 }

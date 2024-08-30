@@ -1,6 +1,6 @@
 package dev.webfx.stack.orm.reactive.entities.entities_to_objects;
 
-import dev.webfx.stack.orm.reactive.entities.dql_to_entities.OptimizedObservableListWrapper;
+import dev.webfx.extras.util.OptimizedObservableListWrapper;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 

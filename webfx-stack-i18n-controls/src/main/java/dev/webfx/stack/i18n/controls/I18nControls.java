@@ -28,6 +28,7 @@ public final class I18nControls {
     public static <T extends Labeled> T bindI18nProperties(T labeled, Object i18nKey, Object... args) {
         bindI18nTextProperty(labeled, i18nKey, args);
         bindI18nGraphicProperty(labeled, i18nKey, args);
+        bindI18nTextFillProperty(labeled, i18nKey, args);
         return labeled;
     }
 
@@ -41,11 +42,16 @@ public final class I18nControls {
         return labeled;
     }
 
-    public static <T extends TextInputControl> T bindI18nProperties(T textInputControl, Object i18nKey, Object... args) {
-        return bindI18nPropmptProperty(textInputControl, i18nKey, args);
+    public static <T extends Labeled> T bindI18nTextFillProperty(T labeled, Object i18nKey, Object... args) {
+        I18n.bindI18nTextFillProperty(labeled.textFillProperty(), i18nKey, args);
+        return labeled;
     }
 
-    public static <T extends TextInputControl> T bindI18nPropmptProperty(T textInputControl, Object i18nKey, Object... args) {
+    public static <T extends TextInputControl> T bindI18nProperties(T textInputControl, Object i18nKey, Object... args) {
+        return bindI18nPromptProperty(textInputControl, i18nKey, args);
+    }
+
+    public static <T extends TextInputControl> T bindI18nPromptProperty(T textInputControl, Object i18nKey, Object... args) {
         I18n.bindI18nPromptProperty(textInputControl.promptTextProperty(), i18nKey, args);
         return textInputControl;
     }
