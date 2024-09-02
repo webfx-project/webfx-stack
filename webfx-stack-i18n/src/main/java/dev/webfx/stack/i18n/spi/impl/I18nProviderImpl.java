@@ -194,7 +194,7 @@ public class I18nProviderImpl implements I18nProvider {
                         Object resolvedValue = getDictionaryTokenValueImpl(new I18nSubKey(sToken.substring(i1 + 1, i2), i18nKey), tokenKey, dictionary, false, false, skipMessageLoading);
                         // If the bracket token has been resolved, we return it with the parts before and after the brackets
                         if (resolvedValue != null)
-                            tokenValue = (i1 == 0 ? "" : sToken.substring(0, i1 - 1)) + resolvedValue + sToken.substring(i2 + 1);
+                            tokenValue = (i1 == 0 ? "" : sToken.substring(0, i1)) + resolvedValue + sToken.substring(i2 + 1);
                     }
                 }
             }
