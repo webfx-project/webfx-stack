@@ -18,7 +18,7 @@ public final class EntityStoreQuery {
     }
 
     public EntityStoreQuery(String select, Object[] parameters) {
-        this(select, parameters, select);
+        this(select, parameters, null); // entity list will not be memorised in the entity store if not listId is provided
     }
 
     public EntityStoreQuery(String select, Object[] parameters, Object listId) {

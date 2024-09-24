@@ -43,7 +43,7 @@ public interface EntityList<E extends Entity> extends List<E>, HasEntityStore {
     }
 
 
-    // static factoy methods
+    // static factory methods
 
     static <E extends Entity> EntityList<E> create(Object listId, EntityStore store) {
         return new EntityListImpl<>(listId, store);
