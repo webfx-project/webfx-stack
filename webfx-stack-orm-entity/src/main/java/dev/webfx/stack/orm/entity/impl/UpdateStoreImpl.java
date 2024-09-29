@@ -55,7 +55,9 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
     }
 
     boolean updateEntity(EntityId id, Object domainFieldId, Object value, Object previousValue) {
-        if (!Objects.areEquals(value, previousValue) && changesBuilder.hasEntityId(id)) {
+        if (!Objects.areEquals(value, previousValue)/* && changesBuilder.hasEntityId(id)*/) { // Second conditions commented for Audio Recording & Video Settings (otherwise subsequent changes after submit are ignored)
+            if (!changesBuilder.hasEntityId(id)) // TODO: remove if no side effect
+                Console.log("[UpdateStoreImpl] WARNING: Changing a field on an entity not known by the changesBuilder");
             if (previousValues != null && Objects.areEquals(value, previousValues.getFieldValue(id, domainFieldId))) {
                 changesBuilder.removeFieldChange(id, domainFieldId);
                 return true;

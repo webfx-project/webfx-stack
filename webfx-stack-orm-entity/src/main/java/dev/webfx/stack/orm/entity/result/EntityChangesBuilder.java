@@ -70,6 +70,7 @@ public final class EntityChangesBuilder {
     public void clear() {
         rsb = null;
         deletedEntities = null;
+        updateHasChangesProperty();
     }
 
     public boolean hasChanges() {
