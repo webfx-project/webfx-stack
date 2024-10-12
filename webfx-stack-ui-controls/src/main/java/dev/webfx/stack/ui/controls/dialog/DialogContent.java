@@ -72,6 +72,12 @@ public final class DialogContent implements DialogBuilder {
         return this;
     }
 
+    public DialogContent setOk() {
+        primaryButtonText = "Ok";
+        secondaryButton.setManaged(false);
+        return this;
+    }
+
     public Button getPrimaryButton() {
         return primaryButton;
     }
