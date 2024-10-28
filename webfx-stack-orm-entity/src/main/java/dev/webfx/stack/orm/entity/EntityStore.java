@@ -166,7 +166,7 @@ public interface EntityStore extends HasDataSourceModel {
     // Query methods
 
     default <E extends Entity> Future<EntityList<E>> executeQuery(String dqlQuery, Object... parameters) {
-        return executeListQuery(dqlQuery, dqlQuery, parameters);
+        return executeListQuery(null, dqlQuery, parameters);
     }
 
     default <E extends Entity> Future<EntityList<E>> executeCachedQuery(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, Consumer<EntityList<E>> cacheListConsumer, String dqlQuery, Object... parameters) {
