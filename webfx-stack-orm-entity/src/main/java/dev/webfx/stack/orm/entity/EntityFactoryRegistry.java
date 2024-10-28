@@ -32,7 +32,11 @@ public final class EntityFactoryRegistry {
     public static <E extends Entity> void registerEntityFactory(Class<E> entityClass, Object domainClassId, EntityFactory<E> entityFactory) {
         //Logger.log("Registering " + domainClassId + " entity factory (creates " + entityFactory.createEntity(null, null).getClass().getName() + " instances for " + entityClass + ")");
         EntityDomainClassIdRegistry.registerEntityDomainClassId(entityClass, domainClassId);
-        entityFactories.put(domainClassId, entityFactory);
+        EntityFactory<Entity> existingEntityFactory = getEntityFactory(domainClassId);
+        if (existingEntityFactory != null) { // Happens with KBSX which overrides the Event entity class
+            Console.log("⚠️ Skipping '" + domainClassId + "' entity factory second registration (skipping " + entityFactory.getClass() + " and keeping " + existingEntityFactory.getClass() + ")");
+        } else
+            entityFactories.put(domainClassId, entityFactory);
     }
 
     public static <E extends Entity> EntityFactory<E> getEntityFactory(Class<E> entityClass) {
