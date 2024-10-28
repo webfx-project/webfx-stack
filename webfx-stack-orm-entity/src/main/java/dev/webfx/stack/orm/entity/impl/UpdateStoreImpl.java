@@ -55,20 +55,23 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
     }
 
     boolean updateEntity(EntityId id, Object domainFieldId, Object value, Object previousValue) {
-        if (!Objects.areEquals(value, previousValue)/* && changesBuilder.hasEntityId(id)*/) { // Second conditions commented for Audio Recording & Video Settings (otherwise subsequent changes after submit are ignored)
-            if (!changesBuilder.hasEntityId(id)) // TODO: remove if no side effect
-                Console.log("[UpdateStoreImpl] WARNING: Changing a field on an entity not known by the changesBuilder");
-            if (previousValues != null && Objects.areEquals(value, previousValues.getFieldValue(id, domainFieldId))) {
-                changesBuilder.removeFieldChange(id, domainFieldId);
-                return true;
-            } else {
-                boolean firstFieldChange = updateEntity(id, domainFieldId, value);
-                if (firstFieldChange)
-                    rememberPreviousEntityFieldValue(id, domainFieldId, previousValue);
-                return firstFieldChange;
-            }
+        if (Objects.areEquals(value, previousValue))
+            return false;
+
+        if (previousValues != null && Objects.areEquals(value, previousValues.getFieldValue(id, domainFieldId))) {
+            changesBuilder.removeFieldChange(id, domainFieldId);
+            return true;
         }
-        return false;
+
+        if (!changesBuilder.hasEntityId(id)) { // TODO: remove if no side effect
+            // return false // Commented for Audio Recording & Video Settings (otherwise subsequent changes after submit are ignored)
+            Console.log("[UpdateStoreImpl] WARNING: Changing a field on an entity not known by the changesBuilder");
+        }
+
+        boolean firstFieldChange = updateEntity(id, domainFieldId, value);
+        if (firstFieldChange)
+            rememberPreviousEntityFieldValue(id, domainFieldId, previousValue);
+        return firstFieldChange;
     }
 
     boolean updateEntity(EntityId id, Object domainFieldId, Object value) {
@@ -79,18 +82,6 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
         if (previousValues == null)
             previousValues = EntityResultBuilder.create();
         previousValues.setFieldValue(id, domainFieldId, value);
-    }
-
-    void restorePreviousValues() {
-        if (previousValues != null) {
-            EntityResult rs = previousValues.build();
-            for (EntityId id : rs.getEntityIds()) {
-                Entity entity = getEntity(id);
-                for (Object fieldId : rs.getFieldIds(id))
-                    entity.setFieldValue(fieldId, rs.getFieldValue(id, fieldId));
-            }
-            previousValues = null;
-        }
     }
 
     @Override
@@ -133,6 +124,19 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
     public void cancelChanges() {
         changesBuilder.clear();
         restorePreviousValues();
+        previousValues = null;
+    }
+
+    private void restorePreviousValues() {
+        if (previousValues != null) {
+            EntityResult rs = previousValues.build();
+            for (EntityId id : rs.getEntityIds()) {
+                Entity entity = getEntity(id);
+                for (Object fieldId : rs.getFieldIds(id))
+                    entity.setFieldValue(fieldId, rs.getFieldValue(id, fieldId));
+            }
+            previousValues = null;
+        }
     }
 
     @Override
