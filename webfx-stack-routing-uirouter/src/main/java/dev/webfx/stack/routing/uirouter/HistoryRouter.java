@@ -7,6 +7,8 @@ import dev.webfx.platform.windowhistory.spi.BrowsingHistoryLocation;
 import dev.webfx.stack.routing.router.Router;
 import dev.webfx.stack.session.state.client.fx.FXAuthorizationsWaiting;
 
+import java.util.Objects;
+
 /**
  * @author Bruno Salmon
  */
@@ -16,6 +18,8 @@ public class HistoryRouter {
     protected BrowsingHistory history;
     // The default path to be used if the history is initially empty or the path is not found
     private String defaultInitialHistoryPath;
+    private String lastPath;
+    private Object lastState;
 
     public HistoryRouter(Router router, BrowsingHistory history) {
         this.router = router;
@@ -68,17 +72,27 @@ public class HistoryRouter {
     }
 
     protected void onNewHistoryLocation(BrowsingHistoryLocation browsingHistoryLocation) {
-        String path = null;
-        Object state = null;
+        String path;
+        Object state;
         // On first call, browsingHistoryLocation might be null when not running in the browser
-        if (browsingHistoryLocation != null) {
+        if (browsingHistoryLocation == null) { // in-memory history not yet initialised
+            path = defaultInitialHistoryPath;
+            state = null;
+            history.push(path); // initialising in-memory history to the default initial path
+        } else { // general case (browser history or in-memory history but initialised)
             path = history.getPath(browsingHistoryLocation);
             state = browsingHistoryLocation.getState();
         }
         // Also on first call, the path might be empty in the browser if the location is just the domain name
-        if (path == null || path.isEmpty()) // In both cases, we route to the initial default path
+        if (path == null || path.isEmpty()) { // In that case, we route to the initial default path
             path = defaultInitialHistoryPath;
-        router.accept(path, state);
+        }
+        // Submitting the new path & state to the router (do nothing if no change)
+        if (!Objects.equals(path, lastPath) || !Objects.equals(state, lastState)) {
+            lastPath = path;
+            lastState = state;
+            router.accept(path, state);
+        }
     }
 
 }
