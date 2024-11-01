@@ -1,9 +1,7 @@
 package dev.webfx.stack.i18n.controls;
 
 import dev.webfx.stack.i18n.I18n;
-import javafx.scene.control.Labeled;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TextInputControl;
+import javafx.scene.control.*;
 
 /**
  * @author Bruno Salmon
@@ -70,4 +68,25 @@ public final class I18nControls {
         I18n.bindI18nGraphicProperty(tab.graphicProperty(), i18nKey, args);
         return tab;
     }
+
+    public static Label newLabel(Object i18nKey, Object... args) {
+        return bindI18nProperties(new Label(), i18nKey, args);
+    }
+
+    public static Button newButton(Object i18nKey, Object... args) {
+        return bindI18nProperties(new Button(), i18nKey, args);
+    }
+
+    public static RadioButton newRadioButton(Object i18nKey, Object... args) {
+        return bindI18nProperties(new RadioButton(), i18nKey, args);
+    }
+
+    public static Hyperlink newHyperlink(Object i18nKey, Object... args) {
+        return bindI18nProperties(new Hyperlink(), i18nKey, args);
+    }
+
+    public static CheckBox newCheckBox(Object i18nKey, Object... args) {
+        return bindI18nProperties(new CheckBox(), i18nKey, args);
+    }
+
 }
