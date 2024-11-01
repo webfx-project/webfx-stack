@@ -1,5 +1,6 @@
 package dev.webfx.stack.i18n.spi.impl;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.uischeduler.UiScheduler;
@@ -103,12 +104,7 @@ public class I18nProviderImpl implements I18nProvider {
         return null;
     }
 
-    private final ObjectProperty<Object> languageProperty = new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-            onLanguageChanged();
-        }
-    };
+    private final ObjectProperty<Object> languageProperty = FXProperties.newObjectProperty(this::onLanguageChanged);
 
     @Override
     public ObjectProperty<Object> languageProperty() {

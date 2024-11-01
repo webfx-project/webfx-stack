@@ -1,8 +1,8 @@
 package dev.webfx.stack.orm.entity.controls.entity.selector;
 
-import dev.webfx.extras.styles.materialdesign.textfield.MaterialTextFieldPane;
 import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.extras.panes.ScalePane;
+import dev.webfx.extras.styles.materialdesign.textfield.MaterialTextFieldPane;
 import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.FXProperties;
@@ -62,13 +62,8 @@ public abstract class ButtonSelector<T> {
     private ShowMode decidedShowMode;
 
     private final Property<ShowMode> showModeProperty = new SimpleObjectProperty<>(ShowMode.AUTO);
-    private final Property<T> selectedItemProperty = new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-            // Updating the content of the button when selected item changes
-            updateButtonContentFromSelectedItem();
-        }
-    };
+    // Updating the content of the button when selected item changes
+    private final Property<T> selectedItemProperty = FXProperties.newObjectProperty(this::updateButtonContentFromSelectedItem);
     private final DoubleProperty dialogHeightProperty = new SimpleDoubleProperty();
 
     public ButtonSelector(ButtonFactoryMixin buttonFactory, Callable<Pane> parentGetter) {

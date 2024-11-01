@@ -4,7 +4,6 @@ import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 
 import java.util.Objects;
 
@@ -13,12 +12,9 @@ import java.util.Objects;
  */
 public final class FXAuthorizationsWaiting {
 
-    private final static BooleanProperty authorizationsWaitingProperty = new SimpleBooleanProperty(false) {
-        @Override
-        protected void invalidated() {
-            Console.log("FXAuthorizationsWaiting = " + get());
-        }
-    };
+    private final static BooleanProperty authorizationsWaitingProperty = FXProperties.newBooleanProperty(waiting ->
+        Console.log("FXAuthorizationsWaiting = " + waiting)
+    );
 
     public static ReadOnlyBooleanProperty authorizationsWaitingProperty() {
         return authorizationsWaitingProperty;

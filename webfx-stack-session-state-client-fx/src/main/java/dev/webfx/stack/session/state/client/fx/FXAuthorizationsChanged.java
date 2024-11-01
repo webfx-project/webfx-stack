@@ -4,19 +4,15 @@ import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 
 /**
  * @author Bruno Salmon
  */
 public final class FXAuthorizationsChanged {
 
-    private final static BooleanProperty authorizationsChangedProperty = new SimpleBooleanProperty(false) {
-        @Override
-        protected void invalidated() {
-            //Console.log("FXAuthorizationsChanged = " + get());
-        }
-    };
+    private final static BooleanProperty authorizationsChangedProperty = FXProperties.newBooleanProperty(changed -> {
+        //Console.log("FXAuthorizationsChanged = " + changed);
+    });
     private static boolean fireScheduled;
 
     public static ReadOnlyBooleanProperty authorizationsChangedProperty() {
@@ -32,7 +28,7 @@ public final class FXAuthorizationsChanged {
     /**
      * "If we haven't already scheduled a call to fire the authorizationsChangedProperty, then schedule a call to fire the
      * authorizationsChangedProperty."
-     *
+     * <p>
      * The authorizationsChangedProperty is a JavaFX property that is used to notify the UI that the authorizations have
      * changed
      */

@@ -5,21 +5,17 @@ import dev.webfx.kit.util.properties.Unregisterable;
 import dev.webfx.platform.console.Console;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 
 /**
  * @author Bruno Salmon
  */
 public final class FXConnected {
 
-    private final static BooleanProperty connectedProperty = new SimpleBooleanProperty(false) {
-        @Override
-        protected void invalidated() {
-            Console.log("FXConnected = " + get());
-            FXConnectionLost.refreshValue();
-            FXReconnected.refreshValue();
-        }
-    };
+    private final static BooleanProperty connectedProperty = FXProperties.newBooleanProperty(connected -> {
+        Console.log("FXConnected = " + connected);
+        FXConnectionLost.refreshValue();
+        FXReconnected.refreshValue();
+    });
 
     public static ReadOnlyBooleanProperty connectedProperty() {
         return connectedProperty;
@@ -30,7 +26,7 @@ public final class FXConnected {
     }
 
     static void setConnected(boolean connected) {
-       connectedProperty.set(connected);
+        connectedProperty.set(connected);
     }
 
     public static Unregisterable runOnEachConnected(Runnable runnable) {

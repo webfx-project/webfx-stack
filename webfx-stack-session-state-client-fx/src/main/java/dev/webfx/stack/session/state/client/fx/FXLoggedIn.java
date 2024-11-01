@@ -4,19 +4,15 @@ import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 
 /**
  * @author Bruno Salmon
  */
 public final class FXLoggedIn {
 
-    private final static BooleanProperty loggedInProperty = new SimpleBooleanProperty(false) {
-        @Override
-        protected void invalidated() {
-            Console.log("FXLoggedIn = " + get());
-        }
-    };
+    private final static BooleanProperty loggedInProperty = FXProperties.newBooleanProperty(loggedIn ->
+        Console.log("FXLoggedIn = " + loggedIn)
+    );
 
     public static ReadOnlyBooleanProperty loggedInProperty() {
         return loggedInProperty;
