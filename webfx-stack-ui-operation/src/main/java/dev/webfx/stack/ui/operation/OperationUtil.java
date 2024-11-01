@@ -1,12 +1,12 @@
 package dev.webfx.stack.ui.operation;
 
+import dev.webfx.extras.util.control.ControlUtil;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.async.AsyncFunction;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import javafx.scene.Node;
 import javafx.scene.control.Labeled;
-import javafx.scene.control.ProgressIndicator;
 
 /**
  * @author Bruno Salmon
@@ -48,9 +48,7 @@ public final class OperationUtil {
             Node graphic = null;
             if (button == buttons[0]) {
                 if (on) {
-                    ProgressIndicator progressIndicator = new ProgressIndicator();
-                    progressIndicator.setPrefSize(20, 20); // Note setMaxSize() doesn't work with WebFX but setPrefSize() does
-                    graphic = progressIndicator;
+                    graphic = ControlUtil.createProgressIndicator(20);
                     // Memorising the previous graphic before changing it
                     button.getProperties().put("webfx-operation-util-graphic", button.getGraphic());
                 } else {
