@@ -129,7 +129,7 @@ final class LoginPortalUi implements UiLoginPortalCallback {
         rightLine.setMinHeight(1);
         rightLine.getStyleClass().add("line");
         backgroundRegion.getStyleClass().addAll("background", "fx-border");
-        FXProperties.runNowAndOnPropertiesChange(this::showLoginHome, flipPane.sceneProperty());
+        FXProperties.runNowAndOnPropertyChange(this::showLoginHome, flipPane.sceneProperty());
         flipPane.getStyleClass().add("login");
     }
 

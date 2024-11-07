@@ -1,5 +1,6 @@
 package dev.webfx.stack.orm.entity.controls.entity.sheet;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
@@ -69,7 +70,7 @@ public final class EntityPropertiesSheet<E extends Entity> extends EntityUpdateD
         // Returning a EntityRenderingContext otherwise (in case of a foreign entity) which will be used by the EntityRenderer
         else
             context = new EntityRenderingContext(entityColumn.isReadOnly(), labelKey, null, entityColumn, () -> entity.getStore(), () -> dialogParent, this);
-        context.getEditedValueProperty().addListener((observable, oldValue, newValue) -> applyUiChangeOnEntity(entityColumn, context));
+        FXProperties.runOnPropertyChange(() -> applyUiChangeOnEntity(entityColumn, context), context.getEditedValueProperty());
         return context;
     }
 

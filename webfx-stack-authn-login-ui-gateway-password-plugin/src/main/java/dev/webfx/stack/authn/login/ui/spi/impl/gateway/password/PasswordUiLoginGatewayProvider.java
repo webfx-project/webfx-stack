@@ -45,7 +45,7 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
     private double passwordPrefHeight;
     private Button button;
     // SignInMode = true => username/password, false => magic link
-    private final Property<Boolean> signInMode = new SimpleObjectProperty<>(true);
+    private final Property<Boolean> signInModeProperty = new SimpleObjectProperty<>(true);
     //private final ModalityValidationSupport validationSupport = new ModalityValidationSupport();
 
     public PasswordUiLoginGatewayProvider() {
@@ -60,11 +60,11 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
     @Override
     public Node createLoginUi(UiLoginPortalCallback callback) {
         BorderPane loginWindow = new BorderPane();
-        Hyperlink hyperLink = newHyperlink(null, e -> signInMode.setValue(!signInMode.getValue()));
+        Hyperlink hyperLink = newHyperlink(null, e -> signInModeProperty.setValue(!signInModeProperty.getValue()));
         GridPane.setMargin(hyperLink, new Insets(20));
         GridPane gridPane = new GridPaneBuilder()
-            .addNodeFillingRow(usernameField = newMaterialTextField("Email"))
-            .addNodeFillingRow(passwordField = newMaterialPasswordField("Password"))
+            .addNodeFillingRow(usernameField = newMaterialTextField("Email")) // ???
+            .addNodeFillingRow(passwordField = newMaterialPasswordField("Password")) // ???
             .addNewRow(hyperLink)
             .addNodeFillingRow(button = new Button())
             .build();
@@ -73,26 +73,25 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
         LayoutUtil.setPrefWidthToInfinite(gridPane);
         loginWindow.setCenter(gridPane);
         GridPane.setHalignment(hyperLink, HPos.CENTER);
-        hyperLink.setOnAction(e -> signInMode.setValue(!signInMode.getValue()));
-        FXProperties.runNowAndOnPropertiesChange(() -> {
-            boolean signIn = signInMode.getValue();
-            I18nControls.bindI18nProperties(button, signIn ? "SignIn>>" : "SendLink>>");
-            I18nControls.bindI18nProperties(hyperLink, signIn ? "ForgotPassword?" : "RememberPassword?");
-            passwordField.setVisible(signIn);
-            if (!signIn) {
+        hyperLink.setOnAction(e -> signInModeProperty.setValue(!signInModeProperty.getValue()));
+        FXProperties.runNowAndOnPropertyChange(signInMode -> {
+            I18nControls.bindI18nProperties(button, signInMode ? "SignIn>>" : "SendLink>>"); // ???
+            I18nControls.bindI18nProperties(hyperLink, signInMode ? "ForgotPassword?" : "RememberPassword?"); // ???
+            passwordField.setVisible(signInMode);
+            if (!signInMode) {
                 if (passwordPrefHeight == 0) {
                     passwordPrefHeight = passwordField.getHeight();
                     passwordField.setPrefHeight(passwordPrefHeight);
                 }
                 passwordField.setMinHeight(0);
             }
-            Animations.animateProperty(passwordField.prefHeightProperty(), signIn ? passwordPrefHeight : 0)
-                .setOnFinished(e -> passwordField.setMinHeight(signIn ? -1 : 0));
-        }, signInMode);
+            Animations.animateProperty(passwordField.prefHeightProperty(), signInMode ? passwordPrefHeight : 0)
+                .setOnFinished(e -> passwordField.setMinHeight(signInMode ? -1 : 0));
+        }, signInModeProperty);
         //initValidation();
         button.setOnAction(event -> {
             //if (validationSupport.isValid())
-            Object credentials = signInMode.getValue() ?
+            Object credentials = signInModeProperty.getValue() ?
                 new UsernamePasswordCredentials(usernameField.getText(), passwordField.getText())
                 : new MagicLinkRequest(usernameField.getText(), WindowLocation.getOrigin(), I18n.getLanguage(), FXLoginContext.getLoginContext());
             OperationUtil.turnOnButtonsWaitMode(button);
@@ -102,7 +101,7 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
                 .onComplete(ar -> UiScheduler.runInUiThread(() -> OperationUtil.turnOffButtonsWaitMode(button)))
                 .onFailure(callback::notifyUserLoginFailed)
                 .onSuccess(ignored -> UiScheduler.runInUiThread(() -> {
-                    if (signInMode.getValue())
+                    if (signInModeProperty.getValue())
                         usernameField.clear();
                     passwordField.clear();
                     //callback.notifyUserLoginSuccessful();
@@ -115,7 +114,7 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
                     //button.setText(null);
                 }));
         });
-        FXProperties.runNowAndOnPropertiesChange(this::prepareShowing, loginWindow.sceneProperty());
+        FXProperties.runNowAndOnPropertyChange(this::prepareShowing, loginWindow.sceneProperty());
         return loginWindow;
     }
 
@@ -125,7 +124,7 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
     }*/
 
     public void prepareShowing() {
-        I18nControls.bindI18nProperties(button, signInMode.getValue() ? "SignIn>>" : "SendLink>>");
+        I18nControls.bindI18nProperties(button, signInModeProperty.getValue() ? "SignIn>>" : "SendLink>>"); // ???
         // Resetting the default button (required for JavaFX if displayed a second time)
         ButtonFactory.resetDefaultButton(button);
         SceneUtil.autoFocusIfEnabled(usernameField);

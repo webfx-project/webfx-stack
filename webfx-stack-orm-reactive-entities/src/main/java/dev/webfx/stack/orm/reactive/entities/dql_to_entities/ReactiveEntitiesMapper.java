@@ -35,7 +35,7 @@ public final class ReactiveEntitiesMapper<E extends Entity> implements HasEntity
 
     public ReactiveEntitiesMapper(ReactiveDqlQuery<E> reactiveDqlQuery) {
         this.reactiveDqlQuery = reactiveDqlQuery;
-        FXProperties.runOnPropertiesChange(p -> onNewQueryResult((QueryResult) p.getValue()), reactiveDqlQuery.resultProperty());
+        FXProperties.runOnPropertyChange(this::onNewQueryResult, reactiveDqlQuery.resultProperty());
     }
 
     @Override

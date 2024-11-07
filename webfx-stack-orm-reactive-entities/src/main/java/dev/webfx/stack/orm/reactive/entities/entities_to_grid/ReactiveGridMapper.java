@@ -53,7 +53,7 @@ public abstract class ReactiveGridMapper<E extends Entity> {
             return dqlStatement;
         });
         // Reacting to the change of i18n dictionary TODO: make this configurable without forcing i18n dependency
-        FXProperties.runOnPropertiesChange(() -> onEntityListChanged(getCurrentEntities()), I18n.dictionaryProperty());
+        FXProperties.runOnPropertyChange(() -> onEntityListChanged(getCurrentEntities()), I18n.dictionaryProperty());
         //reactiveDqlStatement.combine(persistentFieldsDqlStatementProperty);
     }
 

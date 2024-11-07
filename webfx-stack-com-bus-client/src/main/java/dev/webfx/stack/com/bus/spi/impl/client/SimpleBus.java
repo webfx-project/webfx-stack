@@ -275,7 +275,7 @@ public class SimpleBus implements Bus {
             Map.Entry<String, Handler<AsyncResult<Message>>> entry = it.next();
             if (shouldClearReplyHandlerNow(entry.getKey())) {
                 entry.getValue().handle(Future.failedFuture(new Exception("Bus closed")));
-                it.remove();
+                it.remove(); // ConcurrentModificationException observed
             }
         }
     }

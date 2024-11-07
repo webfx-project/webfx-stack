@@ -176,7 +176,7 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
         selectedEntities.addListener((InvalidationListener) observable ->
             syncFromSelectedEntities());
         // Calling syncFromRequestedSelectedEntity() on active changes (to possibly show the confirm dialog on activity resume)
-        FXProperties.runOnPropertiesChange(this::syncFromRequestedSelectedEntity, activeProperty());
+        FXProperties.runOnPropertyChange(this::syncFromRequestedSelectedEntity, activeProperty());
     }
 
     // Exposing selectedEntities and selectedEntityProperty in public methods

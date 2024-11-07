@@ -7,6 +7,7 @@ import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.visual.VisualResult;
 import dev.webfx.extras.visual.controls.grid.SkinnedVisualGrid;
 import dev.webfx.extras.visual.controls.grid.VisualGrid;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.util.function.Callable;
@@ -165,7 +166,8 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
             dialogVisualGrid.setHeaderVisible(false);
             dialogVisualGrid.setCursor(Cursor.HAND);
             BorderPane.setAlignment(dialogVisualGrid, Pos.TOP_LEFT);
-            dialogVisualGrid.visualResultProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(() -> deferredVisualResult.setValue(newValue)));
+            FXProperties.runOnPropertyChange(visualResult -> Platform.runLater(() -> deferredVisualResult.setValue(visualResult))
+                , dialogVisualGrid.visualResultProperty());
             EntityStore filterStore = loadingStore != null ? loadingStore : getSelectedItem() != null ? getSelectedItem().getStore() : null;
             entityDialogMapper = ReactiveVisualMapper.<E>createReactiveChain()
                     .always(jsonOrClass)
@@ -201,13 +203,13 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
             searchPane.setStretchWidth(true); // Actually shrinks the grid width back to fit again in the dialog
             searchPane.setScaleMode(ScaleMode.FIT_HEIGHT); // We will manually stretch the height to control the scale
             // We multiply the height by the same scale factor as the one applied on the visual grid to get the same scale
-            dialogVisualGrid.scaleYProperty().addListener((observable, oldValue, visualGridScaleY) -> {
+            FXProperties.runOnDoublePropertyChange(visualGridScaleY -> {
                 // First we compute the searchPane normal height (with no scale).
                 searchPane.setPrefHeight(Region.USE_COMPUTED_SIZE); // Necessary to force the computation
                 double prefHeight = searchPane.prefHeight(searchPane.getWidth());
                 // Now we stretch the searchPane height with the visual grid scale factor
-                searchPane.setPrefHeight(prefHeight * visualGridScaleY.doubleValue()); // will scale the content (search text field + icon)
-            });
+                searchPane.setPrefHeight(prefHeight * visualGridScaleY); // will scale the content (search text field + icon)
+            }, dialogVisualGrid.scaleYProperty());
         }
         return scalePane;
     }
