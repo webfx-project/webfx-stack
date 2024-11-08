@@ -1,14 +1,16 @@
 package dev.webfx.stack.ui.action.impl;
 
+import dev.webfx.platform.util.Arrays;
+import dev.webfx.stack.ui.action.Action;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
-import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableStringValue;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-import dev.webfx.stack.ui.action.Action;
-import dev.webfx.platform.util.Arrays;
+
+import java.util.function.Supplier;
 
 /**
  * A writable action where properties (text, graphic, disabled, visible) can be set later (ie after constructor call)
@@ -19,15 +21,15 @@ import dev.webfx.platform.util.Arrays;
 public class WritableAction extends ReadOnlyAction {
 
     public WritableAction(Action action, String... writablePropertyNames) {
-        this(createStringProperty(action.textProperty(), "text", writablePropertyNames), createObjectProperty(action.graphicProperty(), "graphic", writablePropertyNames), createBooleanProperty(action.disabledProperty(), "disabled", writablePropertyNames), createBooleanProperty(action.visibleProperty(), "visible", writablePropertyNames), action);
+        this(createStringProperty(action.textProperty(), "text", writablePropertyNames), createObjectProperty(action.graphicFactoryProperty(), "graphicFactory", writablePropertyNames), createBooleanProperty(action.disabledProperty(), "disabled", writablePropertyNames), createBooleanProperty(action.visibleProperty(), "visible", writablePropertyNames), action);
     }
 
     public WritableAction(EventHandler<ActionEvent> actionHandler) {
         this(new SimpleStringProperty(), new SimpleObjectProperty<>(), new SimpleBooleanProperty(true /* disabled until it is bound */), new SimpleBooleanProperty(false /* invisible until it is bound */), actionHandler);
     }
 
-    public WritableAction(ObservableStringValue textProperty, ObservableObjectValue<Node> graphicProperty, ObservableBooleanValue disabledProperty, ObservableBooleanValue visibleProperty, EventHandler<ActionEvent> actionHandler) {
-        super(textProperty, graphicProperty, disabledProperty, visibleProperty, actionHandler);
+    public WritableAction(ObservableStringValue textProperty, ObservableValue<Supplier<Node>> graphicFactoryProperty, ObservableBooleanValue disabledProperty, ObservableBooleanValue visibleProperty, EventHandler<ActionEvent> actionHandler) {
+        super(textProperty, graphicFactoryProperty, disabledProperty, visibleProperty, actionHandler);
     }
 
     public StringProperty writableTextProperty() {
@@ -38,12 +40,12 @@ public class WritableAction extends ReadOnlyAction {
         writableTextProperty().set(text);
     }
 
-    public ObjectProperty<Node> writableGraphicProperty() {
-        return (ObjectProperty<Node>) graphicProperty();
+    public ObjectProperty<Supplier<Node>> writableGraphicFactoryProperty() {
+        return (ObjectProperty<Supplier<Node>>) graphicFactoryProperty();
     }
 
-    public void setGraphic(Node graphic) {
-        writableGraphicProperty().set(graphic);
+    public void setGraphicFactory(Supplier<Node> graphicFactory) {
+        writableGraphicFactoryProperty().set(graphicFactory);
     }
 
     public BooleanProperty writableDisabledProperty() {
@@ -76,7 +78,7 @@ public class WritableAction extends ReadOnlyAction {
         return writableProperty;
     }
 
-    private static <T> ObjectProperty<T> createObjectProperty(ObservableObjectValue readOnlyProperty, String propertyName, String... writablePropertyNames) {
+    private static <T> ObjectProperty<T> createObjectProperty(ObservableValue readOnlyProperty, String propertyName, String... writablePropertyNames) {
         if (readOnlyProperty instanceof ObjectProperty)
             return (ObjectProperty<T>) readOnlyProperty;
         SimpleObjectProperty<T> writableProperty = new SimpleObjectProperty<T>() {

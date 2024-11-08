@@ -6,13 +6,13 @@ module webfx.stack.authn.login.ui.gateway.webviewbased.openjfx {
     requires java.xml;
     requires javafx.graphics;
     requires javafx.web;
+    requires webfx.kit.util;
     requires webfx.platform.ast;
     requires webfx.platform.ast.json.plugin;
     requires webfx.platform.storagelocation;
     requires webfx.stack.authn.login.ui.gateway.webviewbased;
     requires webfx.stack.com.serial;
     requires webfx.stack.ui.dialog;
-    requires webfx.kit.util;
 
     // Exported packages
     exports dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.spi.impl.openjfx;
