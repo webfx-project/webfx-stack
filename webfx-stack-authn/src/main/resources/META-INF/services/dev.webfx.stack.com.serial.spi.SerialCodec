@@ -1,4 +1,5 @@
 dev.webfx.stack.authn.serial.MagicLinkRequestSerialCodec
+dev.webfx.stack.authn.serial.MagicLinkRenewalRequestSerialCodec
 dev.webfx.stack.authn.serial.MagicLinkCredentialsSerialCodec
 dev.webfx.stack.authn.serial.MagicLinkPasswordUpdateSerialCodec
 dev.webfx.stack.authn.serial.PasswordUpdateSerialCodec
