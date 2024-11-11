@@ -34,8 +34,8 @@ public final class FXAuthorizationsWaiting {
 
     public static void runOnAuthorizationsChangedOrWaiting(Runnable runnable) {
         FXAuthorizationsChanged.runOnAuthorizationsChanged(runnable);
-        FXProperties.runOnPropertiesChange(() -> {
-            if (isAuthorizationsWaiting() || FXLoggedOut.isLoggedOut())
+        FXProperties.runOnPropertyChange(loggedOut -> {
+            if (isAuthorizationsWaiting() || loggedOut)
                 runnable.run();
         }, FXLoggedOut.loggedOutProperty());
     }
@@ -45,7 +45,7 @@ public final class FXAuthorizationsWaiting {
     }
 
     static {
-        FXProperties.runNowAndOnPropertiesChange(FXAuthorizationsWaiting::updateAuthorizationsWaiting, FXLoggedOut.loggedOutProperty());
+        FXProperties.runNowAndOnPropertyChange(FXAuthorizationsWaiting::updateAuthorizationsWaiting, FXLoggedOut.loggedOutProperty());
         FXAuthorizationsChanged.runOnAuthorizationsChanged(FXAuthorizationsWaiting::updateAuthorizationsWaiting);
     }
 

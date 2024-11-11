@@ -129,7 +129,7 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
       ================================================================================================================*/
 
     public ReactiveDqlStatement<E> always(ObservableValue<DqlStatement> dqlStatementProperty) {
-        FXProperties.runOnPropertiesChange(this::markDqlStatementsAsChanged, dqlStatementProperty);
+        FXProperties.runOnPropertyChange(this::markDqlStatementsAsChanged, dqlStatementProperty);
         return addWithoutListening(dqlStatementProperty);
     }
 

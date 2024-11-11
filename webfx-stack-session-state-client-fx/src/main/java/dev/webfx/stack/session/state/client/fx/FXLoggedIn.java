@@ -35,7 +35,7 @@ public final class FXLoggedIn {
     }
 
     static {
-        FXProperties.runNowAndOnPropertiesChange(FXLoggedIn::updateLoggedIn, FXAuthorizationsReceived.authorizationsReceivedProperty());
+        FXProperties.runNowAndOnPropertyChange(FXLoggedIn::updateLoggedIn, FXAuthorizationsReceived.authorizationsReceivedProperty());
     }
 
 }

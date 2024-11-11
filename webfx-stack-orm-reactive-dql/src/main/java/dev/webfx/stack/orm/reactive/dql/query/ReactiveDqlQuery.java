@@ -47,8 +47,7 @@ public class ReactiveDqlQuery<E> implements ReactiveDqlQueryAPI<E, ReactiveDqlQu
     public ReactiveDqlQuery(ReactiveDqlStatement<E> reactiveDqlStatement, ReactiveCall<QueryArgument, QueryResult> reactiveQueryCall) {
         this.reactiveDqlStatement = reactiveDqlStatement;
         this.reactiveQueryCall = reactiveQueryCall;
-        resultingDqlStatementProperty().addListener((observableValue, oldDqlStatement, newDqlStatement)
-                -> updateQueryArgument(newDqlStatement));
+        FXProperties.runOnPropertyChange(this::updateQueryArgument, resultingDqlStatementProperty());
     }
 
     @Override
@@ -79,7 +78,7 @@ public class ReactiveDqlQuery<E> implements ReactiveDqlQueryAPI<E, ReactiveDqlQu
 
     @Override
     public <T> ReactiveDqlQuery<E> setAggregateScope(ObservableValue<T> property, Converter<T, AggregateScope> toAggregateScopeConverter) {
-        FXProperties.runNowAndOnPropertiesChange(() -> aggregateScope = toAggregateScopeConverter.convert(property.getValue()) , property);
+        FXProperties.runNowAndOnPropertyChange(value -> aggregateScope = toAggregateScopeConverter.convert(value), property);
         return this;
     }
 

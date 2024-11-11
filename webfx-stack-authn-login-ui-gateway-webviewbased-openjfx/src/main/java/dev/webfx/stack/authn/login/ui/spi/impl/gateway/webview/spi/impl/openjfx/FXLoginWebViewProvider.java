@@ -1,5 +1,6 @@
 package dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.spi.impl.openjfx;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.spi.LoginWebViewProvider;
 import dev.webfx.stack.ui.dialog.DialogCallback;
 import dev.webfx.stack.ui.dialog.DialogUtil;
@@ -40,7 +41,7 @@ public class FXLoginWebViewProvider implements LoginWebViewProvider {
         });
 
         // When there is a state change on the main web engine, this can indicate the final success callback:
-        mainWebEngine.getLoadWorker().stateProperty().addListener((ov,oldState,newState) -> {
+        FXProperties.runOnPropertyChange(webEngineState -> {
             if (popupDialogCallback != null) { // indicates that there was login popup dialog
                 popupDialogCallback.closeDialog(); // we close that dialog, because this state change must indicate the success callback
                 popupDialogCallback = null; // No need to do it again
@@ -56,7 +57,7 @@ public class FXLoginWebViewProvider implements LoginWebViewProvider {
             Element headerNotices = document == null ? null : document.getElementById("header-notices");
             if (headerNotices != null)
                 headerNotices.getParentNode().removeChild(headerNotices);
-        });
+        }, mainWebEngine.getLoadWorker().stateProperty());
 
         // Setting a cookie handler with a persistent cookie store. This is mainly for the Facebook login which prompts
         // an annoying cookie window. Thanks to the cookie persistence, this should now happen only once, on first time.

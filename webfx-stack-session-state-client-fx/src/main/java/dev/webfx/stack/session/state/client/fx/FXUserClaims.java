@@ -28,7 +28,7 @@ public final class FXUserClaims {
     }
 
     static {
-        FXProperties.runNowAndOnPropertiesChange(() -> {
+        FXProperties.runNowAndOnPropertyChange(() -> {
             // Forgetting the previous user claims on user change
             setUserClaims(null);
             // Asking the new user claim if the user is logged in (ignored if the user just logged out)

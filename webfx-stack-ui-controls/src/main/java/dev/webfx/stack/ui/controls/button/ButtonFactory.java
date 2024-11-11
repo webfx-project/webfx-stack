@@ -62,7 +62,7 @@ public final class ButtonFactory {
         downArrow.setFill(null);
         downArrow.setContent("M1 1.22998L6.325 6.55499L11.65 1.22998");
         GraphicDecoration dropDownArrowDecoration = new GraphicDecoration(downArrow, Pos.CENTER_RIGHT, 0, 0, -1, 0);
-        FXProperties.runNowAndOnPropertiesChange(() -> Platform.runLater(() ->
+        FXProperties.runNowAndOnPropertyChange(() -> Platform.runLater(() ->
             Controls.onSkinReady(button, () -> dropDownArrowDecoration.applyDecoration(button))
         ), button.graphicProperty());
         // Code to clip the content before the down arrow

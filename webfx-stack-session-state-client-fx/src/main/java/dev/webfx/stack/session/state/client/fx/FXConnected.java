@@ -30,8 +30,8 @@ public final class FXConnected {
     }
 
     public static Unregisterable runOnEachConnected(Runnable runnable) {
-        return FXProperties.runNowAndOnPropertiesChange(() -> {
-            if (isConnected()) // Only on false -> true transition
+        return FXProperties.runNowAndOnPropertyChange(connected -> {
+            if (connected) // Only on false -> true transition
                 runnable.run();
         }, connectedProperty());
     }

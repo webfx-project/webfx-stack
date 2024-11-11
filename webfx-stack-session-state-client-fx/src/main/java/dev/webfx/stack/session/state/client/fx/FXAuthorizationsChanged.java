@@ -45,8 +45,8 @@ public final class FXAuthorizationsChanged {
     }
 
     public static void runOnAuthorizationsChanged(Runnable runnable) {
-        FXProperties.runOnPropertiesChange(() -> {
-            if (hasAuthorizationsChanged()) // Only on false -> true transition
+        FXProperties.runOnPropertyChange(changed -> {
+            if (changed) // Only on false -> true transition
                 runnable.run();
         }, authorizationsChangedProperty());
     }

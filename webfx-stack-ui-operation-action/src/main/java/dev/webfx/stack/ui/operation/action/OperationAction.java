@@ -86,9 +86,8 @@ public final class OperationAction<Rq, Rs> extends WritableAction {
         // If in addition an icon has been provided to graphically indicate the execution is in progress,
         if (actionExecutingIconFactory != null) { // we apply it to the graphic property
             Node executingIcon = actionExecutingIconFactory.apply(operationRequest);
-            if (executingIcon != null) {
-                FXProperties.setEvenIfBound(writableGraphicProperty(), executingIcon);
-            }
+            if (executingIcon != null) // For some operations such as routing operation, there is no executing icon
+                FXProperties.setEvenIfBound(writableGraphicFactoryProperty(), () -> executingIcon);
         }
     }
 
@@ -100,9 +99,8 @@ public final class OperationAction<Rq, Rs> extends WritableAction {
         // If in addition an icon has been provided to graphically indicate the execution has ended,
         if (actionExecutedIconFactory != null) { // we apply it to the graphic property for 2s
             Node executedIcon = actionExecutedIconFactory.apply(operationRequest, exception);
-            if (executedIcon != null) {
-                FXProperties.setEvenIfBound(writableGraphicProperty(), executedIcon);
-            }
+            if (executedIcon != null) // For some operations such as routing operation, there is no executed icon
+                FXProperties.setEvenIfBound(writableGraphicFactoryProperty(), () -> executedIcon);
             UiScheduler.scheduleDelay(2000, () -> {
                 // After 2 seconds, we reestablish the original action icon, unless it's already executing again
                 if (!executing) { // if executing again, we keep the possible executing icon instead

@@ -39,7 +39,7 @@ public final class FXLoggedOut {
     }
 
     static {
-        FXProperties.runNowAndOnPropertiesChange(FXLoggedOut::updateLoggedOut, FXUserId.userIdProperty());
+        FXProperties.runNowAndOnPropertyChange(FXLoggedOut::updateLoggedOut, FXUserId.userIdProperty());
     }
 
 }

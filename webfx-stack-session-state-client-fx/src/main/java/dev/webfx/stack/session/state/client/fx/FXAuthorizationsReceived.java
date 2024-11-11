@@ -36,7 +36,7 @@ public final class FXAuthorizationsReceived {
     }
 
     static {
-        FXProperties.runNowAndOnPropertiesChange(FXAuthorizationsReceived::updateAuthorizationsReceived, FXLoggedOut.loggedOutProperty());
+        FXProperties.runNowAndOnPropertyChange(FXAuthorizationsReceived::updateAuthorizationsReceived, FXLoggedOut.loggedOutProperty());
         FXAuthorizationsChanged.runOnAuthorizationsChanged(FXAuthorizationsReceived::updateAuthorizationsReceived);
     }
 

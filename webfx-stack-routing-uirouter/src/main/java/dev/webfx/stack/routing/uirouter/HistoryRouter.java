@@ -7,8 +7,6 @@ import dev.webfx.platform.windowhistory.spi.BrowsingHistoryLocation;
 import dev.webfx.stack.routing.router.Router;
 import dev.webfx.stack.session.state.client.fx.FXAuthorizationsWaiting;
 
-import java.util.Objects;
-
 /**
  * @author Bruno Salmon
  */
@@ -18,8 +16,6 @@ public class HistoryRouter {
     protected BrowsingHistory history;
     // The default path to be used if the history is initially empty or the path is not found
     private String defaultInitialHistoryPath;
-    private String lastPath;
-    private Object lastState;
 
     public HistoryRouter(Router router, BrowsingHistory history) {
         this.router = router;
@@ -87,12 +83,11 @@ public class HistoryRouter {
         if (path == null || path.isEmpty()) { // In that case, we route to the initial default path
             path = defaultInitialHistoryPath;
         }
-        // Submitting the new path & state to the router (do nothing if no change)
-        if (!Objects.equals(path, lastPath) || !Objects.equals(state, lastState)) {
-            lastPath = path;
-            lastState = state;
-            router.accept(path, state);
-        }
+        // Submitting the new path & state to the router, and this even if the path & state didn't change, as the router
+        // may behave differently in dependence on other factors (ex: it may show a login window on first attempt, then
+        // the actual requested page on second attend (if logged in and authorized) or the unauthorized page (if logged
+        // in but not authorized).
+        router.accept(path, state);
     }
 
 }
