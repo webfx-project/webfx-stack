@@ -9,5 +9,9 @@ public interface PasswordI18nKeys {
     String RememberPassword = "RememberPassword";
     String SignIn = "SignIn";
     String SendLink = "SendLink";
+    String IncorrectLoginOrPassword = "IncorrectLoginOrPassword";
+    String Login = "Login";
+    String Recovery = "Recovery";
+    String LinkSent = "LinkSent";
 
 }

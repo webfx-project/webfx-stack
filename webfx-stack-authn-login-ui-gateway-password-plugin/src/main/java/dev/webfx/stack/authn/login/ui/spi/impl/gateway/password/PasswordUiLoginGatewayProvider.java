@@ -1,6 +1,7 @@
 package dev.webfx.stack.authn.login.ui.spi.impl.gateway.password;
 
 import dev.webfx.extras.panes.ScalePane;
+import dev.webfx.extras.styles.bootstrap.Bootstrap;
 import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.extras.util.scene.SceneUtil;
@@ -15,6 +16,7 @@ import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProviderBas
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginPortalCallback;
 import dev.webfx.stack.i18n.I18n;
 import dev.webfx.stack.i18n.controls.I18nControls;
+import dev.webfx.stack.session.state.client.fx.FXUserId;
 import dev.webfx.stack.ui.controls.MaterialFactoryMixin;
 import dev.webfx.stack.ui.controls.button.ButtonFactory;
 import dev.webfx.stack.ui.controls.dialog.GridPaneBuilder;
@@ -23,15 +25,14 @@ import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Text;
+import one.modality.base.client.icons.SvgIcons;
 
 /**
  * @author Bruno Salmon
@@ -40,8 +41,11 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
 
     private final static String GATEWAY_ID = "Password";
 
+    private Label titleLabel;
     private TextField usernameField;
     private PasswordField passwordField;
+    private Label errorMessageLabel;
+    private VBox successMessageVBox;
     private double passwordPrefHeight;
     private Button button;
     // SignInMode = true => username/password, false => magic link
@@ -50,6 +54,10 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
 
     public PasswordUiLoginGatewayProvider() {
         super(GATEWAY_ID);
+        FXProperties.runOnPropertiesChange(() -> {
+            if (FXUserId.getUserId() != null)
+                resetUXToLogin();
+        }, FXUserId.userIdProperty());
     }
 
     @Override
@@ -57,17 +65,42 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
         return new Text("Password");
     }
 
+    //TODO remplacer les strings en dur avec du I18n
+
     @Override
     public Node createLoginUi(UiLoginPortalCallback callback) {
         BorderPane loginWindow = new BorderPane();
         Hyperlink hyperLink = newHyperlink(null, e -> signInMode.setValue(!signInMode.getValue()));
+        hyperLink.getStyleClass().add(Bootstrap.TEXT_INFO);
         GridPane.setMargin(hyperLink, new Insets(20));
+        titleLabel = Bootstrap.textPrimary(I18nControls.newLabel(PasswordI18nKeys.Login));
+        titleLabel.getStyleClass().add(Bootstrap.H3);
+        // Create the error message label, initially hidden
+        errorMessageLabel = Bootstrap.textDanger(I18nControls.newLabel(PasswordI18nKeys.IncorrectLoginOrPassword));
+        errorMessageLabel.setVisible(false);
+        successMessageVBox = new VBox();
+        successMessageVBox.setSpacing(15);
+        successMessageVBox.setAlignment(Pos.CENTER);
+        successMessageVBox.setVisible(false);
+
         GridPane gridPane = new GridPaneBuilder()
-            .addNodeFillingRow(usernameField = newMaterialTextField("Email"))
-            .addNodeFillingRow(passwordField = newMaterialPasswordField("Password"))
+            .addNodeFillingRow(titleLabel)
+            .addNodeFillingRow(successMessageVBox)
+            .addNodeFillingRow(usernameField = newMaterialTextField(PasswordI18nKeys.Email))
+            .addNodeFillingRow(passwordField = newMaterialPasswordField(PasswordI18nKeys.Password))
+            .addNodeFillingRow(errorMessageLabel)
             .addNewRow(hyperLink)
-            .addNodeFillingRow(button = new Button())
+            .addNodeFillingRow(button = Bootstrap.largePrimaryButton(new Button()))
             .build();
+        RowConstraints firstRowConstraints = new RowConstraints();
+        firstRowConstraints.setMinHeight(Region.USE_PREF_SIZE);
+        firstRowConstraints.setVgrow(Priority.SOMETIMES);
+        firstRowConstraints.setMinHeight(80);
+        gridPane.getRowConstraints().add(firstRowConstraints);
+
+        GridPane.setHalignment(titleLabel, HPos.CENTER);  // Horizontally center
+        GridPane.setValignment(titleLabel, VPos.TOP);
+
         LayoutUtil.setMaxWidthToInfinite(button);
         button.setPadding(new Insets(15));
         LayoutUtil.setPrefWidthToInfinite(gridPane);
@@ -76,8 +109,11 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
         hyperLink.setOnAction(e -> signInMode.setValue(!signInMode.getValue()));
         FXProperties.runNowAndOnPropertiesChange(() -> {
             boolean signIn = signInMode.getValue();
-            I18nControls.bindI18nProperties(button, signIn ? "SignIn>>" : "SendLink>>");
-            I18nControls.bindI18nProperties(hyperLink, signIn ? "ForgotPassword?" : "RememberPassword?");
+            I18nControls.bindI18nProperties(titleLabel, signIn ? PasswordI18nKeys.Login : PasswordI18nKeys.Recovery);
+            I18nControls.bindI18nProperties(button, signIn ? PasswordI18nKeys.SignIn + ">>" : PasswordI18nKeys.SendLink+">>");
+            I18nControls.bindI18nProperties(hyperLink, signIn ? PasswordI18nKeys.ForgotPassword : PasswordI18nKeys.RememberPassword);
+            errorMessageLabel.setVisible(false);
+            successMessageVBox.setVisible(false);
             passwordField.setVisible(signIn);
             if (!signIn) {
                 if (passwordPrefHeight == 0) {
@@ -92,6 +128,9 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
         //initValidation();
         button.setOnAction(event -> {
             //if (validationSupport.isValid())
+            errorMessageLabel.setVisible(false);
+            successMessageVBox.setVisible(false);
+            successMessageVBox.getChildren().clear();
             Object credentials = signInMode.getValue() ?
                 new UsernamePasswordCredentials(usernameField.getText(), passwordField.getText())
                 : new MagicLinkRequest(usernameField.getText(), WindowLocation.getOrigin(), I18n.getLanguage(), FXLoginContext.getLoginContext());
@@ -100,14 +139,32 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
                 .setUserCredentials(credentials)
                 .executeAsync()
                 .onComplete(ar -> UiScheduler.runInUiThread(() -> OperationUtil.turnOffButtonsWaitMode(button)))
-                .onFailure(callback::notifyUserLoginFailed)
+                .onFailure(failure-> {
+                    callback.notifyUserLoginFailed(failure);
+                    errorMessageLabel.setVisible(true);
+                })
                 .onSuccess(ignored -> UiScheduler.runInUiThread(() -> {
-                    if (signInMode.getValue())
+                    if (signInMode.getValue()) {
                         usernameField.clear();
+                    }
+                    else {
+                        //Case of the magic link
+                        successMessageVBox.setVisible(true);
+                        successMessageVBox.setManaged(true);
+                        Label message = Bootstrap.textSuccess(I18nControls.newLabel(PasswordI18nKeys.LinkSent));
+                        message.setWrapText(true);
+                        ProgressIndicator progressIndicator = new ProgressIndicator();
+                        progressIndicator.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
+                        Label waitingMessage = Bootstrap.textSecondary(I18nControls.newLabel("Waiting for the validation of the hyperlink"));
+                        waitingMessage.setWrapText(true);
+                        successMessageVBox.getChildren().addAll(message,progressIndicator,waitingMessage);
+                        button.setVisible(false);
+                        usernameField.setVisible(false);
+                        //hyperLink.setVisible(false);
+                    }
                     passwordField.clear();
                     //callback.notifyUserLoginSuccessful();
-                    SVGPath checkMark = new SVGPath();
-                    checkMark.setContent("M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z M14.7 8.39l-3.78 5-1.63-2.11a1 1 0 0 0-1.58 1.23l2.43 3.11a1 1 0 0 0 .79.38 1 1 0 0 0 .79-.39l4.57-6a1 1 0 1 0-1.6-1.22z");
+                    SVGPath checkMark = SvgIcons.createCheckMarkSVGPath();
                     ScalePane scalePane = new ScalePane(checkMark);
                     button.graphicProperty().unbind();
                     button.setGraphic(scalePane);
@@ -123,6 +180,15 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
         validationSupport.addRequiredInput(usernameField, "Username is required");
         validationSupport.addRequiredInput(passwordField, "Password is required");
     }*/
+
+    private void resetUXToLogin() {
+        signInMode.setValue(true);
+        button.setVisible(true);
+        successMessageVBox.setVisible(false);
+        successMessageVBox.setManaged(false);
+        usernameField.setVisible(true);
+        button.setGraphic(null);
+    }
 
     public void prepareShowing() {
         I18nControls.bindI18nProperties(button, signInMode.getValue() ? "SignIn>>" : "SendLink>>");
