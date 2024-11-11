@@ -73,7 +73,7 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
         LayoutUtil.setPrefWidthToInfinite(gridPane);
         loginWindow.setCenter(gridPane);
         GridPane.setHalignment(hyperLink, HPos.CENTER);
-        hyperLink.setOnAction(e -> signInModeProperty.setValue(!signInModeProperty.getValue()));
+        hyperLink.setOnAction(e -> FXProperties.toggleProperty(signInModeProperty));
         FXProperties.runNowAndOnPropertyChange(signInMode -> {
             I18nControls.bindI18nProperties(button, signInMode ? "SignIn>>" : "SendLink>>"); // ???
             I18nControls.bindI18nProperties(hyperLink, signInMode ? "ForgotPassword?" : "RememberPassword?"); // ???
