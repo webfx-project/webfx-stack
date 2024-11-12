@@ -8,7 +8,7 @@ import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 /**
  * @author Bruno Salmon
  */
-public class MagicLinkRenewalRequestSerialCodec extends SerialCodecBase<MagicLinkRenewalRequest> {
+public final class MagicLinkRenewalRequestSerialCodec extends SerialCodecBase<MagicLinkRenewalRequest> {
 
     private static final String CODEC_ID = "MagicLinkRenewalRequest";
     private static final String PREVIOUS_TOKEN_KEY = "previousToken";

@@ -8,7 +8,7 @@ import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 /**
  * @author Bruno Salmon
  */
-public class PasswordUpdateSerialCodec extends SerialCodecBase<PasswordUpdate> {
+public final class PasswordUpdateSerialCodec extends SerialCodecBase<PasswordUpdate> {
 
     private static final String CODEC_ID = "PasswordUpdate";
     private static final String OLD_PASSWORD_KEY = "oldPassword";

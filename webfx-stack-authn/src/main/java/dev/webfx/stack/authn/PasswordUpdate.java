@@ -3,7 +3,7 @@ package dev.webfx.stack.authn;
 /**
  * @author Bruno Salmon
  */
-public class PasswordUpdate {
+public final class PasswordUpdate {
 
     private final String oldPassword;
     private final String newPassword;

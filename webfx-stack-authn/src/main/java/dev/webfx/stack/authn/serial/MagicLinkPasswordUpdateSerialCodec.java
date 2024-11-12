@@ -8,7 +8,7 @@ import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 /**
  * @author Bruno Salmon
  */
-public class MagicLinkPasswordUpdateSerialCodec extends SerialCodecBase<MagicLinkPasswordUpdate> {
+public final class MagicLinkPasswordUpdateSerialCodec extends SerialCodecBase<MagicLinkPasswordUpdate> {
 
     private static final String CODEC_ID = "MagicLinkPasswordUpdate";
     private static final String NEW_PASSWORD_KEY = "newPassword";

@@ -8,7 +8,7 @@ import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 /**
  * @author Bruno Salmon
  */
-public class MagicLinkRequestSerialCodec extends SerialCodecBase<MagicLinkRequest> {
+public final class MagicLinkRequestSerialCodec extends SerialCodecBase<MagicLinkRequest> {
 
     private static final String CODEC_ID = "MagicLinkRequest";
     private static final String EMAIL_KEY = "email";

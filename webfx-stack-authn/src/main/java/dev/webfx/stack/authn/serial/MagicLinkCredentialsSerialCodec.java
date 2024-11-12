@@ -8,7 +8,7 @@ import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 /**
  * @author Bruno Salmon
  */
-public class MagicLinkCredentialsSerialCodec extends SerialCodecBase<MagicLinkCredentials> {
+public final class MagicLinkCredentialsSerialCodec extends SerialCodecBase<MagicLinkCredentials> {
 
     private static final String CODEC_ID = "MagicLinkCredentials";
     private static final String TOKEN_KEY = "token";

@@ -8,7 +8,7 @@ import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 /**
  * @author Bruno Salmon
  */
-public class UsernamePasswordCredentialsSerialCodec extends SerialCodecBase<UsernamePasswordCredentials> {
+public final class UsernamePasswordCredentialsSerialCodec extends SerialCodecBase<UsernamePasswordCredentials> {
 
     private static final String CODEC_ID = "UsernamePasswordCredentials";
     private static final String USERNAME_KEY = "username";
