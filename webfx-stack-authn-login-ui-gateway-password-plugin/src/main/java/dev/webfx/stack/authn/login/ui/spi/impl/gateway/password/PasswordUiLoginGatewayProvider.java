@@ -133,7 +133,7 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
             successMessageVBox.getChildren().clear();
             Object credentials = signInMode.getValue() ?
                 new UsernamePasswordCredentials(usernameField.getText(), passwordField.getText())
-                : new MagicLinkRequest(usernameField.getText(), WindowLocation.getOrigin(), I18n.getLanguage(), FXLoginContext.getLoginContext());
+                : new MagicLinkRequest(usernameField.getText(), WindowLocation.getOrigin(), WindowLocation.getPath(), I18n.getLanguage(), FXLoginContext.getLoginContext());
             OperationUtil.turnOnButtonsWaitMode(button);
             new AuthenticationRequest()
                 .setUserCredentials(credentials)
