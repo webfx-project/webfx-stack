@@ -19,4 +19,8 @@ public final class LoginUiService {
         return getProvider().createLoginUi();
     }
 
+    public static Node createMagicLinkUi() {
+        return getProvider().createMagicLinkUi();
+    }
+
 }

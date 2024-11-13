@@ -59,6 +59,7 @@
         <module>webfx-stack-authn-login-ui-gateway</module>
         <module>webfx-stack-authn-login-ui-gateway-facebook-plugin</module>
         <module>webfx-stack-authn-login-ui-gateway-google-plugin</module>
+        <module>webfx-stack-authn-login-ui-gateway-magiclink</module>
         <module>webfx-stack-authn-login-ui-gateway-mojoauth-plugin</module>
         <module>webfx-stack-authn-login-ui-gateway-password-plugin</module>
         <module>webfx-stack-authn-login-ui-gateway-webviewbased</module>

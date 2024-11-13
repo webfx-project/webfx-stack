@@ -87,7 +87,7 @@ final class LoginPortalUi implements UiLoginPortalCallback {
         }
     };
 
-    public LoginPortalUi() {
+    public LoginPortalUi(boolean magicLink) {
         for (UiLoginGatewayProvider gatewayProvider : UiLoginPortalProvider.getProviders()) {
             if ("Password".equals(gatewayProvider.getGatewayId())) {
                 userPasswordUI = gatewayProvider.createLoginUi(this);

@@ -26,7 +26,15 @@ public class UiLoginPortalProvider implements UiLoginServiceProvider, UiLoginPor
 
     @Override
     public Node createLoginUi() { // Called each time a login window is required
-        LoginPortalUi loginPortalUi = new LoginPortalUi();
+        return createLoginPortalUi(false);
+    }
+
+    public Node createMagicLinkUi() { // Called each time a magic link window is required
+        return createLoginPortalUi(true);
+    }
+
+    private Node createLoginPortalUi(boolean magicLink) {
+        LoginPortalUi loginPortalUi = new LoginPortalUi(magicLink);
         loginPortalUis.add(loginPortalUi);
         return loginPortalUi.getFlipPane();
     }
