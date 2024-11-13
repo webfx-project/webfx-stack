@@ -48,8 +48,9 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
     private VBox successMessageVBox;
     private double passwordPrefHeight;
     private Button button;
+
     // SignInMode = true => username/password, false => magic link
-    private final Property<Boolean> signInMode = new SimpleObjectProperty<>(true);
+    private final Property<Boolean> signInModeProperty = new SimpleObjectProperty<>(true);
     //private final ModalityValidationSupport validationSupport = new ModalityValidationSupport();
 
     public PasswordUiLoginGatewayProvider() {
@@ -69,8 +70,9 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
 
     @Override
     public Node createLoginUi(UiLoginPortalCallback callback) {
+
         BorderPane loginWindow = new BorderPane();
-        Hyperlink hyperLink = newHyperlink(null, e -> signInMode.setValue(!signInMode.getValue()));
+        Hyperlink hyperLink = newHyperlink(null, e -> signInModeProperty.setValue(!signInModeProperty.getValue()));
         hyperLink.getStyleClass().add(Bootstrap.TEXT_INFO);
         GridPane.setMargin(hyperLink, new Insets(20));
         titleLabel = Bootstrap.textPrimary(I18nControls.newLabel(PasswordI18nKeys.Login));
@@ -106,9 +108,9 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
         LayoutUtil.setPrefWidthToInfinite(gridPane);
         loginWindow.setCenter(gridPane);
         GridPane.setHalignment(hyperLink, HPos.CENTER);
-        hyperLink.setOnAction(e -> signInMode.setValue(!signInMode.getValue()));
+        hyperLink.setOnAction(e -> signInModeProperty.setValue(!signInModeProperty.getValue()));
         FXProperties.runNowAndOnPropertiesChange(() -> {
-            boolean signIn = signInMode.getValue();
+            boolean signIn = signInModeProperty.getValue();
             I18nControls.bindI18nProperties(titleLabel, signIn ? PasswordI18nKeys.Login : PasswordI18nKeys.Recovery);
             I18nControls.bindI18nProperties(button, signIn ? PasswordI18nKeys.SignIn + ">>" : PasswordI18nKeys.SendLink+">>");
             I18nControls.bindI18nProperties(hyperLink, signIn ? PasswordI18nKeys.ForgotPassword : PasswordI18nKeys.RememberPassword);
@@ -124,14 +126,14 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
             }
             Animations.animateProperty(passwordField.prefHeightProperty(), signIn ? passwordPrefHeight : 0)
                 .setOnFinished(e -> passwordField.setMinHeight(signIn ? -1 : 0));
-        }, signInMode);
+        }, signInModeProperty);
         //initValidation();
         button.setOnAction(event -> {
             //if (validationSupport.isValid())
             errorMessageLabel.setVisible(false);
             successMessageVBox.setVisible(false);
             successMessageVBox.getChildren().clear();
-            Object credentials = signInMode.getValue() ?
+            Object credentials = signInModeProperty.getValue() ?
                 new UsernamePasswordCredentials(usernameField.getText(), passwordField.getText())
                 : new MagicLinkRequest(usernameField.getText(), WindowLocation.getOrigin(), WindowLocation.getPath(), I18n.getLanguage(), FXLoginContext.getLoginContext());
             OperationUtil.turnOnButtonsWaitMode(button);
@@ -144,7 +146,7 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
                     errorMessageLabel.setVisible(true);
                 })
                 .onSuccess(ignored -> UiScheduler.runInUiThread(() -> {
-                    if (signInMode.getValue()) {
+                    if (signInModeProperty.getValue()) {
                         usernameField.clear();
                     }
                     else {
@@ -182,7 +184,7 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
     }*/
 
     private void resetUXToLogin() {
-        signInMode.setValue(true);
+        signInModeProperty.setValue(true);
         button.setVisible(true);
         successMessageVBox.setVisible(false);
         successMessageVBox.setManaged(false);
@@ -191,7 +193,7 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
     }
 
     public void prepareShowing() {
-        I18nControls.bindI18nProperties(button, signInMode.getValue() ? "SignIn>>" : "SendLink>>");
+        I18nControls.bindI18nProperties(button, signInModeProperty.getValue() ? "SignIn>>" : "SendLink>>");
         // Resetting the default button (required for JavaFX if displayed a second time)
         ButtonFactory.resetDefaultButton(button);
         SceneUtil.autoFocusIfEnabled(usernameField);

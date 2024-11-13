@@ -13,5 +13,6 @@ public interface PasswordI18nKeys {
     String Login = "Login";
     String Recovery = "Recovery";
     String LinkSent = "LinkSent";
+    String KadampaBookingSystem = "KadampaBookingSystem";
 
 }
