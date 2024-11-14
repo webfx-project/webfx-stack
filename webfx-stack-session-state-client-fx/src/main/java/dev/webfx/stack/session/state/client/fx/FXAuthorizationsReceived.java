@@ -40,4 +40,8 @@ public final class FXAuthorizationsReceived {
         FXAuthorizationsChanged.runOnAuthorizationsChanged(FXAuthorizationsReceived::updateAuthorizationsReceived);
     }
 
+    static void init() {
+        // The first call will trigger the static initializer below, and subsequent calls won't do anything
+    }
+
 }
