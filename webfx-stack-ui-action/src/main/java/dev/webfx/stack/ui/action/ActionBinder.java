@@ -9,9 +9,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
-import javafx.scene.control.ButtonBase;
-import javafx.scene.control.Labeled;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 
 import java.util.Collection;
@@ -21,6 +19,18 @@ import java.util.function.Supplier;
  * @author Bruno Salmon
  */
 public final class ActionBinder {
+
+    public static Button newActionButton(Action action) {
+        return bindButtonToAction(new Button(), action);
+    }
+
+    public static Hyperlink newActionHyperlink(Action action) {
+        return bindButtonToAction(new Hyperlink(), action);
+    }
+
+    public static MenuItem newActionMenuItem(Action action) {
+        return bindMenuItemToAction(new MenuItem(), action);
+    }
 
     public static <T extends ButtonBase> T bindButtonToAction(T button, Action action) {
         bindLabeledToAction(button, action);
