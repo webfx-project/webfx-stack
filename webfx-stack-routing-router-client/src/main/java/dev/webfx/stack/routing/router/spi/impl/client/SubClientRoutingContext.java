@@ -15,7 +15,11 @@ final class SubClientRoutingContext extends ClientRoutingContextBase {
     private final String mountPoint;
 
     SubClientRoutingContext(String mountPoint, String path, Collection<ClientRoute> routes, RoutingContext inner) {
-        super(mountPoint, path, routes, null);
+        this(mountPoint, path, routes, inner, false);
+    }
+
+    SubClientRoutingContext(String mountPoint, String path, Collection<ClientRoute> routes, RoutingContext inner, boolean redirected) {
+        super(mountPoint, path, routes, null, redirected);
         this.inner = inner;
         if (mountPoint == null)
             this.mountPoint = null;

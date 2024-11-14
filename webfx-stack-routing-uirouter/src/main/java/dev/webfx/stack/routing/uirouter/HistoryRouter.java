@@ -53,7 +53,7 @@ public class HistoryRouter {
         this.defaultInitialHistoryPath = defaultInitialHistoryPath;
     }
 
-    private void replaceCurrentHistoryWithInitialDefaultPath() {
+    protected void replaceCurrentHistoryWithInitialDefaultPath() {
         if (defaultInitialHistoryPath != null)
             history.replace(defaultInitialHistoryPath);
     }

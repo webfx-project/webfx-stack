@@ -27,6 +27,8 @@ import dev.webfx.stack.routing.uirouter.activity.uiroute.UiRouteActivityContext;
 import dev.webfx.stack.routing.uirouter.activity.uiroute.impl.UiRouteActivityContextBase;
 import dev.webfx.stack.routing.uirouter.activity.view.HasMountNodeProperty;
 import dev.webfx.stack.routing.uirouter.activity.view.HasNodeProperty;
+import javafx.beans.property.Property;
+import javafx.scene.Node;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -88,6 +90,13 @@ public final class UiRouter extends HistoryRouter {
             hostingUiRouterActivityContext.setUiRouter(this);
     }
 
+    protected void replaceCurrentHistoryWithInitialDefaultPath() {
+        if (mountParentRouter == null)
+            super.replaceCurrentHistoryWithInitialDefaultPath();
+        else
+            mountParentRouter.replaceCurrentHistoryWithInitialDefaultPath();
+    }
+
     @Override
     public void refresh() {
         if (mountParentRouter == null)
@@ -97,7 +106,7 @@ public final class UiRouter extends HistoryRouter {
     }
 
     public UiRouter setRedirectAuthHandler(String loginPath, String unauthorizedPath) {
-        return setRedirectAuthHandler(RedirectAuthHandler.create(loginPath, unauthorizedPath));
+        return setRedirectAuthHandler(RedirectAuthHandler.create(loginPath, unauthorizedPath, this::replaceCurrentHistoryWithInitialDefaultPath));
     }
 
     public UiRouter setRedirectAuthHandler(RedirectAuthHandler redirectAuthHandler) {
@@ -249,33 +258,38 @@ public final class UiRouter extends HistoryRouter {
                 activityManager = activityManagerFactory.create(); // So we create the activity manager (and its associated activity)
                 activityManager.create(activityContext); // and we transit the activity into the created state and pass the context
             }
-            // Now that the new requested activity is displayed, we pause the previous activity
-            if (previousActivityManager != null) // if there was a previous activity
+            // Before displaying the activity, we pause the previous one (if there is one)
+            if (previousActivityManager != null)
                 previousActivityManager.pause();
-            // Now we transit the current activity (which was either paused or newly created) into the resume state and
-            // once done we display the activity node by binding it with the hosting context (done in the UI tread)
-            activityManager.resume().onComplete(event -> {
-                if (hostingContext instanceof HasNodeProperty && activityContext instanceof HasNodeProperty)
-                    UiScheduler.runInUiThread(() ->
-                            ((HasNodeProperty) hostingContext).nodeProperty().bind(((HasNodeProperty) activityContext).nodeProperty())
-                    );
-            });
+            // Now we transit the current activity (which was either paused or newly created) into the resume state
+            activityManager.resume()
+                .onComplete(event -> { // Then we display the activity node by binding it with the hosting context
+                    if (hostingContext instanceof HasNodeProperty && activityContext instanceof HasNodeProperty) {
+                        UiScheduler.runInUiThread(() -> { // done in the UI tread (JavaFX thread in OpenJFX)
+                            Property<Node> hostingNodeProperty = ((HasNodeProperty) hostingContext).nodeProperty();
+                            Property<Node> activityNodeProperty = ((HasNodeProperty) activityContext).nodeProperty();
+                            hostingNodeProperty.bind(activityNodeProperty);
+                        });
+                    }
+                });
             /*--- Sub routing management ---*/
             // When the activity is a mount child activity coming from sub routing, we make sure the mount parent activity is displayed
             if (mountParentRouter != null) { // Indicates it is a child sub router
                 mountParentRouter.mountChildSubRouter = UiRouter.this; // Setting the parent router child pointer
                 // Calling the parent router on the mount point will cause the parent activity to be displayed (if not already done)
-                if (mountParentRouter.mountParentRouter == null) // only on root router (to prevent route "/" not found exception in BookEventActivity router - not sure it's good code)
+                if (mountParentRouter.mountParentRouter == null) // only on root router (to prevent route "/" not found exception in BookEventActivity router - not sure if it's good code)
                     mountParentRouter.router.accept(Strings.toSafeString(routingContext.mountPoint()) + "/", routingContext.getParams());
             }
             // When the activity is a mount parent activity, we make the trick so the child activity is displayed within the parent activity
             if (mountChildSubRouter != null) { // Indicates it is a mount parent activity
                 // The trick is to bind the mount node of the parent activity to the child activity node
                 if (activityContext instanceof HasMountNodeProperty && mountChildSubRouter.hostingContext instanceof HasNodeProperty) {
-                    UiScheduler.runInUiThread(() ->
-                            // This should display the child activity because a mount parent activity is supposed to bind its context mount node to the UI
-                            ((HasMountNodeProperty) activityContext).mountNodeProperty().bind(((HasNodeProperty) mountChildSubRouter.hostingContext).nodeProperty()) // Using the hosting context node which is bound to the child activity node
-                    );
+                    UiScheduler.runInUiThread(() -> {
+                        // This should display the child activity because a mount parent activity is supposed to bind its context mount node to the UI
+                        Property<Node> parentMountNodeProperty = ((HasMountNodeProperty) activityContext).mountNodeProperty();
+                        Property<Node> childHostingNodeProperty = ((HasNodeProperty) mountChildSubRouter.hostingContext).nodeProperty();
+                        parentMountNodeProperty.bind(childHostingNodeProperty);
+                    });
                 }
             }
         }
