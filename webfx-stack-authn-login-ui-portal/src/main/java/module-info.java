@@ -3,6 +3,7 @@
 module webfx.stack.authn.login.ui.portal {
 
     // Direct dependencies modules
+    requires javafx.base;
     requires javafx.controls;
     requires javafx.graphics;
     requires webfx.extras.panes;
@@ -14,12 +15,14 @@ module webfx.stack.authn.login.ui.portal {
     requires webfx.platform.uischeduler;
     requires webfx.stack.authn.login.ui;
     requires webfx.stack.authn.login.ui.gateway;
+    requires webfx.stack.authn.login.ui.gateway.magiclink.plugin;
 
     // Exported packages
     exports dev.webfx.stack.authn.login.ui.spi.impl.portal;
 
     // Resources packages
     opens dev.webfx.kit.css.fonts.password;
+    opens dev.webfx.kit.css.loginportal.images;
 
     // Used services
     uses dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProvider;
