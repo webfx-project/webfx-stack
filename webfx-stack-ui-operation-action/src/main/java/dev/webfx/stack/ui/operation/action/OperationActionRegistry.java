@@ -1,11 +1,14 @@
 package dev.webfx.stack.ui.operation.action;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.async.AsyncFunction;
 import dev.webfx.platform.async.Future;
+import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.stack.authz.client.factory.AuthorizationUtil;
 import dev.webfx.stack.ui.action.Action;
 import dev.webfx.stack.ui.action.ActionBinder;
+import dev.webfx.stack.ui.action.impl.WritableAction;
 import dev.webfx.stack.ui.operation.HasOperationCode;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -41,17 +44,27 @@ import java.util.function.Function;
  */
 public final class OperationActionRegistry {
 
-    private static OperationActionRegistry INSTANCE;
+    private static final OperationActionRegistry INSTANCE = new OperationActionRegistry();
 
-    private final Map<Object /* key = request class or operation code */, Action> graphicalActions = new HashMap<>();
-    private Collection<OperationAction> notYetBoundOperationActions;
-    private Map<Object, ObjectProperty<OperationAction>> operationActionProperties;
-    private Runnable pendingBindRunnable;
+    // Holding the actions that have been registered by the application code through registerOperationGraphicalAction().
+    // These actions usually hold only the graphical properties, they are not executable (the event handler doesn't do
+    // anything). They are used to bind the graphical properties of the executable operation actions - through
+    // bindOperationActionGraphicalProperties().
+    private final Map<Object /* key = request class or operation code */, Action> registeredGraphicalActions = new HashMap<>();
+
+    // Holding the executable operation actions instantiated by the application code (probably bound to a UI control
+    // such as a button) which have been asked to be bound to a registered graphical action, through
+    // bindOperationActionGraphicalProperties() but the issue is that this graphical action is not yet registered.
+    private Collection<OperationAction> notYetBoundExecutableOperationActions; // to be bound as soon as the graphical action will be registered
+
+    // When the application code wants to be notified when an executable operation action has been bound to its graphical
+    // properties, it can get an observable which will transit from null to the operation action at that time.
+    private final Map<Object, ObjectProperty<OperationAction>> executableOperationActionNotifyingProperties = new HashMap<>();
+
+    private Scheduled bindScheduled;
     private Consumer<OperationAction> operationActionGraphicalPropertiesUpdater;
 
     public static OperationActionRegistry getInstance() {
-        if (INSTANCE == null)
-            INSTANCE = new OperationActionRegistry();
         return INSTANCE;
     }
 
@@ -80,66 +93,61 @@ public final class OperationActionRegistry {
         return AuthorizationUtil.authorizedOperationProperty(
                 operationRequestFactory
                 , embedAuthorizationFunction
-                , operationActionProperty(operationCode) // reactive property (will change when operation action will be registered, causing a new authorization evaluation)
+                , executableOperationActionNotifyingProperty(operationCode) // reactive property (will change when operation action will be registered, causing a new authorization evaluation)
         );
     }
 
     public <A> OperationActionRegistry registerOperationGraphicalAction(Class<A> operationRequestClass, Action graphicalAction) {
-        synchronized (graphicalActions) {
-            graphicalActions.put(operationRequestClass, graphicalAction);
-            return checkPendingOperationActionGraphicalBindings();
-        }
+        return registerOperationGraphicalAction((Object) operationRequestClass, graphicalAction); // because share the same map
     }
 
     public OperationActionRegistry registerOperationGraphicalAction(Object operationCode, Action graphicalAction) {
-        synchronized (graphicalActions) {
-            graphicalActions.put(operationCode, graphicalAction);
+        synchronized (registeredGraphicalActions) {
+            registeredGraphicalActions.put(operationCode, graphicalAction);
             return checkPendingOperationActionGraphicalBindings();
         }
     }
 
     private OperationActionRegistry checkPendingOperationActionGraphicalBindings() {
-        if (notYetBoundOperationActions != null && pendingBindRunnable == null) {
-            UiScheduler.scheduleDeferred(pendingBindRunnable = () -> {
-                Collection<OperationAction> operationActionsToBind = notYetBoundOperationActions;
-                pendingBindRunnable = null;
-                notYetBoundOperationActions = null;
-                for (OperationAction operationAction : operationActionsToBind)
-                    bindOperationActionGraphicalProperties(operationAction);
+        if (notYetBoundExecutableOperationActions != null && (bindScheduled == null || bindScheduled.isFinished())) {
+            bindScheduled = UiScheduler.scheduleDeferred(() -> {
+                Collection<OperationAction> operationActionsToBind = notYetBoundExecutableOperationActions;
+                notYetBoundExecutableOperationActions = null;
+                operationActionsToBind.forEach(this::bindOperationActionGraphicalProperties);
             });
         }
         return this;
     }
 
-    <A, R> void bindOperationActionGraphicalProperties(OperationAction<A, R> operationAction) {
-        if (bindOperationActionGraphicalPropertiesNow(operationAction))
+    <A, R> void bindOperationActionGraphicalProperties(OperationAction<A, R> executableOperationAction) {
+        if (bindOperationActionGraphicalPropertiesNow(executableOperationAction))
             return;
-        if (notYetBoundOperationActions == null)
-            notYetBoundOperationActions = new ArrayList<>();
-        notYetBoundOperationActions.add(operationAction);
+        if (notYetBoundExecutableOperationActions == null)
+            notYetBoundExecutableOperationActions = new ArrayList<>();
+        notYetBoundExecutableOperationActions.add(executableOperationAction);
     }
 
-    private <A, R> boolean bindOperationActionGraphicalPropertiesNow(OperationAction<A, R> operationAction) {
+    private <A, R> boolean bindOperationActionGraphicalPropertiesNow(OperationAction<A, R> executableOperationAction) {
         // The binding is possible only if a graphical action has been registered for that operation
         // Instantiating an operation request just to have the request class or operation code
-        A operationRequest = newOperationActionRequest(operationAction);
+        A operationRequest = newOperationActionRequest(executableOperationAction);
         // Then getting the graphical action from it
         Action graphicalAction = getGraphicalActionFromOperationRequest(operationRequest);
         // If this is not the case, we return false (can't do the binding now)
         if (graphicalAction == null)
             return false;
-        Map<Object, ObjectProperty<OperationAction>> properties = operationActionProperties;
-        if (properties != null) {
+        // if we reach this point, we can do the binding.
+        // We notify the application code that
+        if (!executableOperationActionNotifyingProperties.isEmpty()) {
             Object code = getOperationCodeFromGraphicalAction(graphicalAction);
             if (code != null) {
-                ObjectProperty<OperationAction> operationActionProperty = properties.remove(code);
+                ObjectProperty<OperationAction> operationActionProperty = executableOperationActionNotifyingProperties.remove(code);
+                // Note: 👆 should we use get() instead of remove() to keep them for a possible future use in getOrWaitOperationAction() ?
                 if (operationActionProperty != null)
-                    operationActionProperty.set(operationAction);
-                if (properties.isEmpty())
-                    operationActionProperties = null;
+                    operationActionProperty.set(executableOperationAction);
             }
         }
-        ActionBinder.bindWritableActionToAction(operationAction, graphicalAction);
+        ActionBinder.bindWritableActionToAction(executableOperationAction, graphicalAction);
         return true;
     }
 
@@ -159,20 +167,18 @@ public final class OperationActionRegistry {
     }
 
     private Action getGraphicalActionFromOperationRequestClass(Class operationRequestClass) {
-        synchronized (graphicalActions) {
-            return graphicalActions.get(operationRequestClass);
-        }
+        return getGraphicalActionFromOperationCode(operationRequestClass); // because they share the same map
     }
 
     private Action getGraphicalActionFromOperationCode(Object operationCode) {
-        synchronized (graphicalActions) {
-            return graphicalActions.get(operationCode);
+        synchronized (registeredGraphicalActions) {
+            return registeredGraphicalActions.get(operationCode);
         }
     }
 
     private Object getOperationCodeFromGraphicalAction(Action graphicalAction) {
-        synchronized (graphicalActions) {
-            for (Map.Entry<Object, Action> entry : graphicalActions.entrySet()) {
+        synchronized (registeredGraphicalActions) {
+            for (Map.Entry<Object, Action> entry : registeredGraphicalActions.entrySet()) {
                 if (entry.getValue() == graphicalAction)
                     return entry.getKey();
             }
@@ -189,12 +195,8 @@ public final class OperationActionRegistry {
             operationActionGraphicalPropertiesUpdater.accept(operationAction);
     }
 
-    private ObservableValue<OperationAction> operationActionProperty(Object operationCode) {
-        ObjectProperty<OperationAction> operationActionProperty = new SimpleObjectProperty<>();
-        if (operationActionProperties == null)
-            operationActionProperties = new HashMap<>();
-        operationActionProperties.put(operationCode, operationActionProperty);
-        return operationActionProperty;
+    private ObservableValue<OperationAction> executableOperationActionNotifyingProperty(Object operationCode) {
+        return executableOperationActionNotifyingProperties.computeIfAbsent(operationCode, k -> new SimpleObjectProperty<>());
     }
 
     public <A, R> A newOperationActionRequest(OperationAction<A, R> operationAction) {
@@ -204,6 +206,22 @@ public final class OperationActionRegistry {
         if (operationRequestFactory != null)
             return operationRequestFactory.apply(new ActionEvent());
         return null;
+    }
+
+    public Action getOrWaitOperationAction(Object operationCode) {
+        // Waiting to be notified
+        ObservableValue<OperationAction> operationActionProperty = executableOperationActionNotifyingProperty(operationCode);
+        // For now, we create a wrapper action that delegates the execution to the operation action (if set)
+        WritableAction wrapperAction = new WritableAction(e -> { // Invisible & disabled at this stage
+            OperationAction operationAction = operationActionProperty.getValue();
+            if (operationAction != null) {
+                operationAction.handle(e);
+            }
+        });
+        FXProperties.onPropertySet(operationActionProperty, operationAction ->
+            ActionBinder.bindWritableActionToAction(wrapperAction, operationAction)
+        );
+        return wrapperAction;
     }
 
 }
