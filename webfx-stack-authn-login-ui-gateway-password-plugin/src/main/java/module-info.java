@@ -9,8 +9,6 @@ module webfx.stack.authn.login.ui.gateway.password.plugin {
     requires modality.base.client.icons;
     requires webfx.extras.panes;
     requires webfx.extras.styles.bootstrap;
-    requires webfx.extras.util.animation;
-    requires webfx.extras.util.layout;
     requires webfx.extras.util.scene;
     requires webfx.kit.util;
     requires webfx.platform.uischeduler;
