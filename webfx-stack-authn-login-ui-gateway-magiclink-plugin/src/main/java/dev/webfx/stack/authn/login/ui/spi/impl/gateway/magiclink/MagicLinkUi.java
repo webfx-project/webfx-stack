@@ -74,7 +74,7 @@ public class MagicLinkUi implements MaterialFactoryMixin {
         uiLoginView.showMessageForPasswordField();
         uiLoginView.hideGraphicFromActionButton();
         uiLoginView.getActionButton().setDisable(false);
-        uiLoginView.getActionButton().setOnAction(l -> AuthenticationService.updateCredentials(new MagicLinkPasswordUpdate(uiLoginView.getEmailTextField().getText()))
+        uiLoginView.getActionButton().setOnAction(l -> AuthenticationService.updateCredentials(new MagicLinkPasswordUpdate(uiLoginView.getPasswordField().getText()))
             .onFailure(e -> {
                 Console.log("Error Updating password: " + e);
                 Platform.runLater(()->onFailure(e));
