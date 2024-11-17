@@ -34,7 +34,11 @@ public final class FXLoggedIn {
         setLoggedIn(FXAuthorizationsReceived.isAuthorizationsReceived());
     }
 
-    static {
+    static { // All FXClass in this package should call FXInit.init() in their static initializer
+        FXInit.init(); // See FXInit comments to understand why
+    }
+
+    static void init() { // Called back (only once) by FXInit in a controlled overall sequence
         FXProperties.runNowAndOnPropertyChange(FXLoggedIn::updateLoggedIn, FXAuthorizationsReceived.authorizationsReceivedProperty());
     }
 

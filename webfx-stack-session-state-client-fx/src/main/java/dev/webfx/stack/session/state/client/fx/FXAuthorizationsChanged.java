@@ -51,10 +51,8 @@ public final class FXAuthorizationsChanged {
         }, authorizationsChangedProperty());
     }
 
-    static {
-        // Important to keep FXAuthorizationsReceived synced in first place, so that when the listeners set by the
-        // application code are called, all FX classes are in a final, coherent & stable state.
-        FXAuthorizationsReceived.init();
+    static { // All FXClass in this package should call FXInit.init() in their static initializer
+        FXInit.init(); // See FXInit comments to understand why
     }
 
 }

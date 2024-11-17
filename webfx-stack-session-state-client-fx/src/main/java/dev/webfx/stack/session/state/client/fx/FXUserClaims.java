@@ -27,7 +27,11 @@ public final class FXUserClaims {
         FXProperties.setIfNotEquals(userClaimsProperty, userClaims);
     }
 
-    static {
+    static { // All FXClass in this package should call FXInit.init() in their static initializer
+        FXInit.init(); // See FXInit comments to understand why
+    }
+
+    static void init() {
         FXProperties.runNowAndOnPropertyChange(() -> {
             // Forgetting the previous user claims on user change
             setUserClaims(null);

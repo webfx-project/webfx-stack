@@ -28,7 +28,11 @@ public final class FXConnectionSequence {
         FXConnectionSequence.connectionSequence.set(connectionSequence);
     }
 
-    static void init() {
+    static { // All FXClass in this package should call FXInit.init() in their static initializer
+        FXInit.init(); // See FXInit comments to understand why
+    }
+
+    static void init() { // Called back (only once) by FXInit in a controlled overall sequence
         FXProperties.runOnPropertyChange(connected -> {
             if (connected)
                 setConnectionSequence(getConnectionSequence() + 1);

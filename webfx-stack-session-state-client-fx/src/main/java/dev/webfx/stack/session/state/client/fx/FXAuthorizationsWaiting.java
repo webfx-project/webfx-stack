@@ -40,11 +40,11 @@ public final class FXAuthorizationsWaiting {
         }, FXLoggedOut.loggedOutProperty());
     }
 
-    public static void init() {
-        // The first call will trigger the static initializer below, and subsequent calls won't do anything
+    static { // All FXClass in this package should call FXInit.init() in their static initializer
+        FXInit.init(); // See FXInit comments to understand why
     }
 
-    static {
+    static void init() { // Called back (only once) by FXInit in a controlled overall sequence
         FXProperties.runNowAndOnPropertyChange(FXAuthorizationsWaiting::updateAuthorizationsWaiting, FXLoggedOut.loggedOutProperty());
         FXAuthorizationsChanged.runOnAuthorizationsChanged(FXAuthorizationsWaiting::updateAuthorizationsWaiting);
     }

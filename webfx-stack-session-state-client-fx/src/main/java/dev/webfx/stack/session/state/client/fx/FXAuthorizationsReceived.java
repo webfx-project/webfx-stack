@@ -35,13 +35,13 @@ public final class FXAuthorizationsReceived {
             setAuthorizationsReceived(true);
     }
 
-    static {
-        FXProperties.runNowAndOnPropertyChange(FXAuthorizationsReceived::updateAuthorizationsReceived, FXLoggedOut.loggedOutProperty());
-        FXAuthorizationsChanged.runOnAuthorizationsChanged(FXAuthorizationsReceived::updateAuthorizationsReceived);
+    static { // All FXClass in this package should call FXInit.init() in their static initializer
+        FXInit.init(); // See FXInit comments to understand why
     }
 
-    static void init() {
-        // The first call will trigger the static initializer below, and subsequent calls won't do anything
+    static void init() { // Called back (only once) by FXInit in a controlled overall sequence
+        FXProperties.runNowAndOnPropertyChange(FXAuthorizationsReceived::updateAuthorizationsReceived, FXLoggedOut.loggedOutProperty());
+        FXAuthorizationsChanged.runOnAuthorizationsChanged(FXAuthorizationsReceived::updateAuthorizationsReceived);
     }
 
 }

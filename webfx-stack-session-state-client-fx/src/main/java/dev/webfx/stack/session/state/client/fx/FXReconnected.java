@@ -32,4 +32,8 @@ public final class FXReconnected {
         setReconnected(FXConnected.isConnected() && FXConnectionSequence.getConnectionSequence() >= 2);
     }
 
+    static { // All FXClass in this package should call FXInit.init() in their static initializer
+        FXInit.init(); // See FXInit comments to understand why
+    }
+
 }

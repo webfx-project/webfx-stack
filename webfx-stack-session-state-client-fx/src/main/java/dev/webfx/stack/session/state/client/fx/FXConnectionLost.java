@@ -33,4 +33,8 @@ public final class FXConnectionLost {
         connectionLostProperty.set(connectionLost);
     }
 
+    static { // All FXClass in this package should call FXInit.init() in their static initializer
+        FXInit.init(); // See FXInit comments to understand why
+    }
+
 }
