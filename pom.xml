@@ -160,6 +160,7 @@
         <module>webfx-stack-session-state-server</module>
         <module>webfx-stack-session-vertx</module>
         <module>webfx-stack-ui-action</module>
+        <module>webfx-stack-ui-action-tuner</module>
         <module>webfx-stack-ui-controls</module>
         <module>webfx-stack-ui-dialog</module>
         <module>webfx-stack-ui-exceptions</module>
