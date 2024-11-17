@@ -58,13 +58,9 @@ public final class OperationAction<Rq, Rs> extends WritableAction {
         me[0] = this;
         this.operationRequestFactory = operationRequestFactory;
         OperationActionRegistry registry = getOperationActionRegistry();
-        registry.bindOperationActionGraphicalProperties(this);
-        // Also, if some graphical dependencies are passed, we update the graphical properties when they change
-        if (graphicalDependencies.length > 0)
-            FXProperties.runNowAndOnPropertiesChange(() -> {
-                registry.updateOperationActionGraphicalProperties(this);
-                registry.bindOperationActionGraphicalProperties(this);
-            }, graphicalDependencies);
+        FXProperties.runNowAndOnPropertiesChange(() ->
+            registry.bindOperationActionGraphicalProperties(this)
+        , graphicalDependencies); // Also updating the graphical properties when graphical dependencies change
     }
 
     public OperationActionRegistry getOperationActionRegistry() {
