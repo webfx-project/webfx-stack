@@ -81,7 +81,7 @@ public class WritableAction extends ReadOnlyAction {
     private static <T> ObjectProperty<T> createObjectProperty(ObservableValue readOnlyProperty, String propertyName, String... writablePropertyNames) {
         if (readOnlyProperty instanceof ObjectProperty)
             return (ObjectProperty<T>) readOnlyProperty;
-        SimpleObjectProperty<T> writableProperty = new SimpleObjectProperty<T>() {
+        SimpleObjectProperty<T> writableProperty = new SimpleObjectProperty<>() {
             @Override
             public void set(T newValue) {
                 unbindPropertyIfWritable(this, propertyName, writablePropertyNames);

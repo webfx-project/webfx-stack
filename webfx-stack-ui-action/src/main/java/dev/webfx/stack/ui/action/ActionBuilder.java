@@ -42,6 +42,8 @@ public class ActionBuilder {
 
     private EventHandler<ActionEvent> actionHandler;
 
+    private Object userData;
+
     private ActionBuilderRegistry registry;
 
     public ActionBuilder() {
@@ -49,6 +51,18 @@ public class ActionBuilder {
 
     public ActionBuilder(Object actionKey) {
         this.actionKey = actionKey;
+    }
+
+    public ActionBuilder(Action action) {
+        setTextProperty(action.textProperty());
+        setText(action.getText());
+        setGraphicFactoryProperty(action.graphicFactoryProperty());
+        setGraphicFactory(action.getGraphicFactory());
+        setDisabledProperty(action.disabledProperty());
+        setVisibleProperty(action.visibleProperty());
+        setActionHandler(action);
+        setUserData(action.getUserData());
+        //setHiddenWhenDisabled(visibleProperty == disabledProperty || visibleProperty instanceof BooleanBinding && ((BooleanBinding) visibleProperty).getDependencies().contains(disabledProperty));
     }
 
     public Object getActionKey() {
@@ -172,6 +186,15 @@ public class ActionBuilder {
         return setActionHandler(e -> actionHandler.run());
     }
 
+    public Object getUserData() {
+        return userData;
+    }
+
+    public ActionBuilder setUserData(Object userData) {
+        this.userData = userData;
+        return this;
+    }
+
     public ActionBuilder setRegistry(ActionBuilderRegistry registry) {
         this.registry = registry;
         return this;
@@ -212,7 +235,9 @@ public class ActionBuilder {
 
     public Action build() {
         completePropertiesForBuild();
-        return Action.create(textProperty, graphicFactoryProperty, disabledProperty, visibleProperty, actionHandler);
+        Action action = Action.create(textProperty, graphicFactoryProperty, disabledProperty, visibleProperty, actionHandler);
+        action.setUserData(userData);
+        return action;
     }
 
     void completePropertiesForBuild() {
