@@ -1,6 +1,7 @@
 package dev.webfx.stack.authn.login.ui.spi.impl.portal;
 
 import dev.webfx.extras.panes.FlipPane;
+import dev.webfx.extras.panes.GoldenRatioPane;
 import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.kit.util.properties.FXProperties;
@@ -40,7 +41,7 @@ final class LoginPortalUi implements UiLoginPortalCallback {
     private Node userUI;
     private final List<Node> otherLoginButtons = new ArrayList<>();
 
-    private final BorderPane loginPaneContainer = new BorderPane();
+    private final GoldenRatioPane loginPaneContainer = new GoldenRatioPane();
     private final Pane loginPane = new Pane(backgroundRegion, leftLine, orText, rightLine) {
 
         @Override
@@ -132,7 +133,7 @@ final class LoginPortalUi implements UiLoginPortalCallback {
                 }
             }
         }
-        loginPaneContainer.setCenter(loginPane);
+        loginPaneContainer.setContent(loginPane);
         loginPane.getChildren().add(userUI);
         loginPane.getChildren().addAll(otherLoginButtons);
         orText.getStyleClass().add("or");

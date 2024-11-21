@@ -4,6 +4,7 @@ package dev.webfx.stack.authn.login.ui.spi.impl.gateway.password;
 import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.styles.bootstrap.Bootstrap;
 import dev.webfx.stack.i18n.controls.I18nControls;
+import dev.webfx.stack.ui.controls.MaterialFactoryMixin;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -12,12 +13,12 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.text.TextAlignment;
 
-public class UILoginView implements dev.webfx.stack.ui.controls.MaterialFactoryMixin {
+public class UILoginView implements MaterialFactoryMixin {
 
     private Label loginTitleLabel;
     private Label mainMessageLabel;
-    private javafx.scene.control.TextField emailTextField;
-    private javafx.scene.control.PasswordField passwordField;
+    private TextField emailTextField;
+    private PasswordField passwordField;
     private Label infoMessageForPasswordFieldLabel;
     private Hyperlink hyperlink;
     private Button actionButton;
@@ -25,7 +26,7 @@ public class UILoginView implements dev.webfx.stack.ui.controls.MaterialFactoryM
     private VBox passwordFieldAndMessageVbox;
     private BorderPane container;
 
-    private static final String CHECKMARCK_PATH = "M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z M14.7 8.39l-3.78 5-1.63-2.11a1 1 0 0 0-1.58 1.23l2.43 3.11a1 1 0 0 0 .79.38 1 1 0 0 0 .79-.39l4.57-6a1 1 0 1 0-1.6-1.22z";
+    private static final String CHECKMARK_PATH = "M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z M14.7 8.39l-3.78 5-1.63-2.11a1 1 0 0 0-1.58 1.23l2.43 3.11a1 1 0 0 0 .79.38 1 1 0 0 0 .79-.39l4.57-6a1 1 0 1 0-1.6-1.22z";
 
     public void initializeComponents() { // Reminder: called only once (rebuild = bad UX) => UI is reacting to parameter changes
         container = new BorderPane();
@@ -165,7 +166,7 @@ public class UILoginView implements dev.webfx.stack.ui.controls.MaterialFactoryM
 
     public void showGraphicFromActionButton() {
         SVGPath svgPath = new SVGPath();
-        svgPath.setContent(CHECKMARCK_PATH);
+        svgPath.setContent(CHECKMARK_PATH);
         actionButton.setGraphic(new ScalePane(svgPath));
     }
 
