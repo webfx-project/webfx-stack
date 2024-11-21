@@ -21,7 +21,6 @@ final class FXInit {
         FXAuthorizationsWaiting.init();
         FXAuthorizationsReceived.init();
         FXLoggedIn.init();
-        FXUserClaims.init();
         FXConnectionSequence.init();
 
         ClientSideStateSession.getInstance().setClientSideStateSessionHolder(new ClientSideStateSessionListener() {
