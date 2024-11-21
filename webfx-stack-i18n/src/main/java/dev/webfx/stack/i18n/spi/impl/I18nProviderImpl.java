@@ -212,6 +212,9 @@ public class I18nProviderImpl implements I18nProvider {
                 }
             }
         }
+        // Temporary code which is a workaround for the yaml parser not able to parse line feeds in strings.
+        if (tokenValue instanceof String) // TODO: remove this workaround once yaml parser is fixed
+            tokenValue = ((String) tokenValue).replace("\\n", "\n");
         if (tokenValuePrefix != null)
             tokenValue = tokenValuePrefix + tokenValue;
         if (tokenValueSuffix != null)
