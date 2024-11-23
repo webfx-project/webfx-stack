@@ -183,34 +183,7 @@ public class I18nProviderImpl implements I18nProvider {
                     }
                 }
             }
-            // Token value bracket interpretation: if the value contains an i18n key in bracket, we interpret it
-            if (tokenValue instanceof String || tokenValue == null && messageKey instanceof String) {
-                String sToken = (String) (tokenValue == null ? messageKey : tokenValue);
-                int i1 = sToken.indexOf('[');
-                if (i1 >= 0) {
-                    int i2 = i1 == 0 && sToken.endsWith("]") ? sToken.length() - 1 : sToken.indexOf(']', i1 + 1);
-                    if (i2 > 0) {
-                        // Note: we always use originalDictionary for the resolution, because even if that token value
-                        // comes from the default dictionary (ex: EN), we still want the brackets to be interpreted in
-                        // the original language (ex: FR).
-                        Object resolvedValue = getDictionaryTokenValueImpl(new I18nSubKey(sToken.substring(i1 + 1, i2), i18nKey), tokenKey, originalDictionary, false, originalDictionary, false, skipMessageLoading);
-                        // If the bracket token has been resolved, we return it with the parts before and after the brackets
-                        if (resolvedValue != null)
-                            tokenValue = (i1 == 0 ? "" : sToken.substring(0, i1)) + resolvedValue + sToken.substring(i2 + 1);
-                    }
-                }
-            }
-            if (tokenValue == null && !skipDefaultDictionary) {
-                Dictionary defaultDictionary = getDefaultDictionary();
-                if (dictionary != defaultDictionary && defaultDictionary != null)
-                    tokenValue = getDictionaryTokenValueImpl(i18nKey, tokenKey, defaultDictionary, true, originalDictionary, false, skipMessageLoading); //getI18nPartValue(tokenSnapshot.i18nKey, part, defaultDictionary, skipPrefixOrSuffix);
-                if (tokenValue == null) {
-                    if (!skipMessageLoading)
-                        scheduleMessageLoading(i18nKey, true);
-                    //if (tokenKey == DefaultTokenKey.TEXT) // Commented as we use it also for graphic in Modality after evaluating an expression that gives the path to the icon
-                    tokenValue = messageKey; //;whatToReturnWhenI18nTextIsNotFound(tokenSnapshot.i18nKey, tokenSnapshot.tokenKey);
-                }
-            }
+            tokenValue = interpretBracketsAndDefaultInTokenValue(tokenValue, messageKey, i18nKey, tokenKey, dictionary, skipDefaultDictionary, originalDictionary, skipMessageLoading);
         }
         // Temporary code which is a workaround for the yaml parser not able to parse line feeds in strings.
         if (tokenValue instanceof String) // TODO: remove this workaround once yaml parser is fixed
@@ -219,6 +192,39 @@ public class I18nProviderImpl implements I18nProvider {
             tokenValue = tokenValuePrefix + tokenValue;
         if (tokenValueSuffix != null)
             tokenValue = tokenValue + tokenValueSuffix;
+        return tokenValue;
+    }
+
+    // public because called by AstDictionary to interpret token values within Ast objects as well
+    public <TK extends Enum<?> & TokenKey> Object interpretBracketsAndDefaultInTokenValue(Object tokenValue, Object messageKey, Object i18nKey, TK tokenKey, Dictionary dictionary, boolean skipDefaultDictionary, Dictionary originalDictionary, boolean skipMessageLoading) {
+        // Token value bracket interpretation: if the value contains an i18n key in bracket, we interpret it
+        if (tokenValue instanceof String || tokenValue == null && messageKey instanceof String) {
+            String sToken = (String) (tokenValue == null ? messageKey : tokenValue);
+            int i1 = sToken.indexOf('[');
+            if (i1 >= 0) {
+                int i2 = i1 == 0 && sToken.endsWith("]") ? sToken.length() - 1 : sToken.indexOf(']', i1 + 1);
+                if (i2 > 0) {
+                    // Note: we always use originalDictionary for the resolution, because even if that token value
+                    // comes from the default dictionary (ex: EN), we still want the brackets to be interpreted in
+                    // the original language (ex: FR).
+                    Object resolvedValue = getDictionaryTokenValueImpl(new I18nSubKey(sToken.substring(i1 + 1, i2), i18nKey), tokenKey, originalDictionary, false, originalDictionary, false, skipMessageLoading);
+                    // If the bracket token has been resolved, we return it with the parts before and after the brackets
+                    if (resolvedValue != null)
+                        tokenValue = (i1 == 0 ? "" : sToken.substring(0, i1)) + resolvedValue + sToken.substring(i2 + 1);
+                }
+            }
+        }
+        if (tokenValue == null && !skipDefaultDictionary) {
+            Dictionary defaultDictionary = getDefaultDictionary();
+            if (dictionary != defaultDictionary && defaultDictionary != null)
+                tokenValue = getDictionaryTokenValueImpl(i18nKey, tokenKey, defaultDictionary, true, originalDictionary, false, skipMessageLoading); //getI18nPartValue(tokenSnapshot.i18nKey, part, defaultDictionary, skipPrefixOrSuffix);
+            if (tokenValue == null) {
+                if (!skipMessageLoading)
+                    scheduleMessageLoading(i18nKey, true);
+                //if (tokenKey == DefaultTokenKey.TEXT) // Commented as we use it also for graphic in Modality after evaluating an expression that gives the path to the icon
+                tokenValue = messageKey; //;whatToReturnWhenI18nTextIsNotFound(tokenSnapshot.i18nKey, tokenSnapshot.tokenKey);
+            }
+        }
         return tokenValue;
     }
 
