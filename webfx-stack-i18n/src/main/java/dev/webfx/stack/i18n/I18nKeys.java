@@ -21,4 +21,26 @@ public final class I18nKeys {
         return "<<" + i18nKey;
     }
 
+    public static String upperCase(String i18nKey) {
+        return i18nKey.toUpperCase();
+    }
+
+    public static String lowerCase(String i18nKey) {
+        return i18nKey.toLowerCase();
+    }
+
+    public static String upperCaseFirstChar(String i18nKey) {
+        char firstCharKey = i18nKey.charAt(0);
+        if (!Character.isUpperCase(firstCharKey))
+            i18nKey = Character.toUpperCase(firstCharKey) + i18nKey.substring(1);
+        return i18nKey;
+    }
+
+    public static String lowerCaseFirstChar(String i18nKey) {
+        char firstCharKey = i18nKey.charAt(0);
+        if (!Character.isLowerCase(firstCharKey))
+            i18nKey = Character.toLowerCase(firstCharKey) + i18nKey.substring(1);
+        return i18nKey;
+    }
+
 }

@@ -27,12 +27,26 @@ final class AstDictionary implements Dictionary {
     }
 
     @Override
-    public <TK extends Enum<?> & TokenKey> Object getMessageTokenValue(Object messageKey, TK tokenKey) {
+    public <TK extends Enum<?> & TokenKey> Object getMessageTokenValue(Object messageKey, TK tokenKey, boolean ignoreCase) {
         String key = Strings.toString(messageKey);
         Object o = dictionary.get(key);
+        if (o == null && ignoreCase) {
+            for (Object k : dictionary.keys()) {
+                String sk = Strings.toString(k);
+                if (key.equalsIgnoreCase(sk)) {
+                    o = dictionary.get(sk);
+                    break;
+                }
+            }
+        }
         Object value;
+        // If we have a multi-token message (coming from json, yaml, etc...), we return the value corresponding to the
+        // requested token
         if (o instanceof ReadOnlyAstObject) {
             value = ((ReadOnlyAstObject) o).get(tokenKey.toString());
+            // If the value itself is again an object (which can happen with graphic defined as an svgPath with
+            // associated properties such as fill, stroke, etc...), we extend the i18n interpretation features (normally
+            // designed for simple text values) to this object too (ex: fill = [brandMainColor])
             if (value instanceof AstObject) {
                 interpretBracketsAndDefaultInAstObjectValues((AstObject) value, messageKey);
             }

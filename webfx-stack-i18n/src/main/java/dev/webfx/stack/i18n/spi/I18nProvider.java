@@ -48,7 +48,7 @@ public interface I18nProvider {
     default <TK extends Enum<?> & TokenKey> Object getDictionaryTokenValue(Object i18nKey, TK tokenKey, Dictionary dictionary) {
         if (dictionary == null)
             dictionary = getDictionary();
-        return dictionary.getMessageTokenValue(i18nKeyToDictionaryMessageKey(i18nKey), tokenKey);
+        return dictionary.getMessageTokenValue(i18nKeyToDictionaryMessageKey(i18nKey), tokenKey, false); // Is it ok to always ignore case or should we add this to method signature
     }
 
     // Temporary (should be protected)

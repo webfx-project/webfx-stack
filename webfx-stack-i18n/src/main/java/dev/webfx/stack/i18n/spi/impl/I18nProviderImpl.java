@@ -144,11 +144,12 @@ public class I18nProviderImpl implements I18nProvider {
         String tokenValuePrefix = null, tokenValueSuffix = null;
         if (dictionary != null && i18nKey != null) {
             Object messageKey = i18nKeyToDictionaryMessageKey(i18nKey);
-            tokenValue = dictionary.getMessageTokenValue(messageKey, tokenKey);
+            tokenValue = dictionary.getMessageTokenValue(messageKey, tokenKey, false);
             // Message key prefix & suffix interpretation
             if (tokenValue == null && !skipMessageKeyInterpretation && messageKey instanceof String) {
                 String sKey = (String) messageKey;
                 int length = Strings.length(sKey);
+                // Prefix interpretation (only << for now)
                 if (length > 1) {
                     int index = 0;
                     while (index < length && !Character.isLetterOrDigit(sKey.charAt(index)))
@@ -164,6 +165,7 @@ public class I18nProviderImpl implements I18nProvider {
                         }
                     }
                 }
+                // Suffix interpretation (:, ?, >>, ...)
                 if (tokenValue == null && length > 1) {
                     int index = length;
                     while (index > 0 && !Character.isLetterOrDigit(sKey.charAt(index - 1)))
@@ -179,6 +181,29 @@ public class I18nProviderImpl implements I18nProvider {
                                 tokenValue = getDictionaryTokenValueImpl(new I18nSubKey(sKey.substring(0, length - sKeySuffix.length()), i18nKey), tokenKey, dictionary, skipDefaultDictionary, originalDictionary, true, skipMessageLoading);
                                 if (tokenValue != null && isAssignableFrom(tokenKey.expectedClass(), String.class))
                                     tokenValueSuffix = "" + getDictionaryTokenValueImpl(sKeySuffix, tokenKey, dictionary, skipDefaultDictionary, originalDictionary, true, skipMessageLoading);
+                        }
+                    }
+                }
+                // Case transformer keys
+                if (tokenValue == null && length > 1) {
+                    // Second search but ignoring case
+                    tokenValue = dictionary.getMessageTokenValue(messageKey, tokenKey, true);
+                    if (tokenValue != null) { // Yes, we found a value this time!
+                        String sValue = Strings.toString(tokenValue);
+                        if (sKey.equals(sKey.toUpperCase())) // key was upper case ? => we upper case the value
+                            tokenValue = sValue.toUpperCase();
+                        else if (sKey.equals(sKey.toLowerCase())) // key was lower case ? => we lower case the value
+                            tokenValue = sValue.toLowerCase();
+                        else if (!sValue.isEmpty()) {
+                            char firstCharKey = sKey.charAt(0);
+                            char firstCharValue = sValue.charAt(0);
+                            if (Character.isUpperCase(firstCharKey)) { // first letter uppercase ? => we upper case first letter in value
+                                if (!Character.isUpperCase(firstCharValue))
+                                    tokenValue = Character.toUpperCase(firstCharValue) + sValue.substring(1);
+                            } else { // first letter lowercase ? => we lower case first letter in value
+                                if (!Character.isLowerCase(firstCharValue))
+                                    tokenValue = Character.toLowerCase(firstCharValue) + sValue.substring(1);
+                            }
                         }
                     }
                 }
