@@ -2,7 +2,6 @@ package dev.webfx.stack.cache.client;
 
 import dev.webfx.stack.cache.Cache;
 import dev.webfx.stack.session.Session;
-import dev.webfx.stack.session.SessionService;
 import dev.webfx.stack.session.state.client.fx.FXSession;
 
 /**
@@ -15,7 +14,7 @@ public class SessionClientCache implements Cache {
         Session session = FXSession.getSession();
         if (session != null) {
             session.put(key, value);
-            SessionService.getSessionStore().put(session);
+            session.store();
         }
     }
 

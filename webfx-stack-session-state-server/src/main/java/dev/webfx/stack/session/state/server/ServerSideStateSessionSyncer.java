@@ -99,7 +99,7 @@ public final class ServerSideStateSessionSyncer {
     }
 
     private static Future<Session> storeServerSession(Session serverSession) {
-        return SessionService.getSessionStore().put(serverSession)
+        return serverSession.store()
             .onFailure(Console::log)
             .map(x -> serverSession);
     }
