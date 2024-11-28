@@ -6,6 +6,7 @@ import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.util.collection.Collections;
+import dev.webfx.stack.i18n.DefaultTokenKey;
 import dev.webfx.stack.i18n.Dictionary;
 import dev.webfx.stack.i18n.TokenKey;
 import dev.webfx.stack.i18n.spi.I18nProvider;
@@ -142,9 +143,9 @@ public class I18nProviderImpl implements I18nProvider {
     protected <TK extends Enum<?> & TokenKey> Object getDictionaryTokenValueImpl(Object i18nKey, TK tokenKey, Dictionary dictionary, boolean skipDefaultDictionary, Dictionary originalDictionary, boolean skipMessageKeyInterpretation, boolean skipMessageLoading) {
         Object tokenValue = null;
         String tokenValuePrefix = null, tokenValueSuffix = null;
-        if (dictionary != null && i18nKey != null) {
+        if (i18nKey != null) {
             Object messageKey = i18nKeyToDictionaryMessageKey(i18nKey);
-            tokenValue = dictionary.getMessageTokenValue(messageKey, tokenKey, false);
+            tokenValue = dictionary == null ? null : dictionary.getMessageTokenValue(messageKey, tokenKey, false);
             // Message key prefix & suffix interpretation
             if (tokenValue == null && !skipMessageKeyInterpretation && messageKey instanceof String) {
                 String sKey = (String) messageKey;
@@ -185,7 +186,7 @@ public class I18nProviderImpl implements I18nProvider {
                     }
                 }
                 // Case transformer keys
-                if (tokenValue == null && length > 1) {
+                if (tokenValue == null && length > 1 && dictionary != null) {
                     // Second search but ignoring case
                     tokenValue = dictionary.getMessageTokenValue(messageKey, tokenKey, true);
                     if (tokenValue != null) { // Yes, we found a value this time!
@@ -246,8 +247,8 @@ public class I18nProviderImpl implements I18nProvider {
             if (tokenValue == null) {
                 if (!skipMessageLoading)
                     scheduleMessageLoading(i18nKey, true);
-                //if (tokenKey == DefaultTokenKey.TEXT) // Commented as we use it also for graphic in Modality after evaluating an expression that gives the path to the icon
-                tokenValue = messageKey; //;whatToReturnWhenI18nTextIsNotFound(tokenSnapshot.i18nKey, tokenSnapshot.tokenKey);
+                if (tokenKey == DefaultTokenKey.TEXT || tokenKey == DefaultTokenKey.GRAPHIC) // we use it also for graphic in Modality after evaluating an expression that gives the path to the icon
+                    tokenValue = messageKey; //;whatToReturnWhenI18nTextIsNotFound(tokenSnapshot.i18nKey, tokenSnapshot.tokenKey);
             }
         }
         return tokenValue;
@@ -344,7 +345,10 @@ public class I18nProviderImpl implements I18nProvider {
                     .map(this::i18nKeyToDictionaryMessageKey).collect(Collectors.toSet());
                 // Asking the dictionary loader to load these messages in that language
                 dictionaryLoader.loadDictionary(language, messageKeysToLoad)
-                    .onFailure(Console::log)
+                    .onFailure(e -> {
+                        Console.log(e);
+                        dictionaryProperty.set(null); // necessary to force default dictionary fallback and not keep previous language applied
+                    })
                     .onSuccess(dictionary -> {
                         // Once the dictionary is loaded, we take it as the current dictionary if it's in the current language
                         if (language.equals(getLanguage())) // unless the load was a fallback to the default language
@@ -352,6 +356,8 @@ public class I18nProviderImpl implements I18nProvider {
                         // Also taking it as the default dictionary if it's in the default language
                         if (language.equals(getDefaultLanguage()))
                             defaultDictionaryProperty.setValue(dictionary);
+                    })
+                    .onComplete(ar -> {
                         // Turning off dictionaryLoadRequired
                         dictionaryLoadRequired = false;
                         // Refreshing all loaded keys in the user interface
@@ -368,8 +374,6 @@ public class I18nProviderImpl implements I18nProvider {
                             blacklistedKeys.addAll(unfoundKeys);
                             Console.log("⚠️ I18n keys not found (now blacklisted): " + Collections.toString(unfoundKeys, false, false));
                         }
-                    })
-                    .onComplete(ar -> {
                         // If the requested language has changed in the meantime, we might need to reload another dictionary!
                         if (!language.equals(getLanguage())) {
                             // We postpone the call to be sure that dictionaryLoadingScheduled will be finished
