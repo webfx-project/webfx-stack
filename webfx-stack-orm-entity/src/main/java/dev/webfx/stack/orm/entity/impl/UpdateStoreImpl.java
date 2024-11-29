@@ -55,12 +55,17 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
     }
 
     boolean updateEntity(EntityId id, Object domainFieldId, Object value, Object previousValue) {
+        // Nothing to update if the new value is the same as the previous value
         if (Objects.areEquals(value, previousValue))
             return false;
 
+        // If the user enters back the original value, we completely clear that field from the changes
         if (previousValues != null && Objects.areEquals(value, previousValues.getFieldValue(id, domainFieldId))) {
-            changesBuilder.removeFieldChange(id, domainFieldId);
-            return true;
+            // Note that if the value is null, we still need to check that the previous value was really null (not just unloaded)
+            if (value != null || previousValues.hasFieldValue(id, domainFieldId)) {
+                changesBuilder.removeFieldChange(id, domainFieldId);
+                return true;
+            }
         }
 
         if (!changesBuilder.hasEntityId(id)) { // TODO: remove if no side effect

@@ -41,6 +41,11 @@ public final class EntityResultBuilder {
         return fieldMap.get(fieldId);
     }
 
+    public boolean hasFieldValue(EntityId id, Object fieldId) {
+        Map fieldMap = entityFieldMap(id);
+        return fieldMap != null && fieldMap.containsKey(fieldId);
+    }
+
     void unsetFieldValue(EntityId id, Object fieldId) {
         Map fieldMap = entityFieldMap(id);
         if (fieldId != null)
