@@ -1,28 +1,29 @@
 package dev.webfx.stack.orm.entity.controls.entity.sheet;
 
-import dev.webfx.kit.util.properties.FXProperties;
-import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import dev.webfx.extras.cell.renderer.ValueRenderer;
 import dev.webfx.extras.cell.renderer.ValueRenderingContext;
 import dev.webfx.extras.imagestore.ImageStore;
+import dev.webfx.extras.type.PrimType;
 import dev.webfx.extras.type.Types;
 import dev.webfx.extras.visual.*;
 import dev.webfx.extras.visual.controls.grid.SkinnedVisualGrid;
 import dev.webfx.extras.visual.controls.grid.VisualGrid;
 import dev.webfx.extras.visual.impl.VisualColumnImpl;
-import dev.webfx.stack.orm.reactive.entities.entities_to_grid.EntityColumn;
-import dev.webfx.stack.orm.reactive.mapping.entities_to_visual.VisualEntityColumn;
-import dev.webfx.stack.orm.reactive.mapping.entities_to_visual.VisualEntityColumnFactory;
+import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.platform.uischeduler.UiScheduler;
+import dev.webfx.platform.util.Arrays;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.domainmodel.formatter.ValueFormatter;
 import dev.webfx.stack.orm.domainmodel.formatter.ValueParser;
 import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.expression.Expression;
-import dev.webfx.platform.uischeduler.UiScheduler;
-import dev.webfx.platform.util.Arrays;
+import dev.webfx.stack.orm.reactive.entities.entities_to_grid.EntityColumn;
+import dev.webfx.stack.orm.reactive.mapping.entities_to_visual.VisualEntityColumn;
+import dev.webfx.stack.orm.reactive.mapping.entities_to_visual.VisualEntityColumnFactory;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -184,6 +185,10 @@ public final class EntityPropertiesSheet<E extends Entity> extends EntityUpdateD
             Object previousModelValue = entity.evaluate(expression);
             if (Objects.equals(formatter.formatValue(value), formatter.formatValue(previousModelValue)))
                 value = previousModelValue;
+        }
+        // Empty strings are considered as null values for non-string expression
+        if ("".equals(value) && expression.getType() != PrimType.STRING) {
+            value = null;
         }
         updateEntity.setExpressionValue(expression, value);
         updateOkButton();
