@@ -92,7 +92,7 @@ public class Cloudinary extends FetchBasedCloudImageService {
         Collection<String> params = new ArrayList<>();
         for (Map.Entry<String, Object> param : entries) {
             if (param.getValue() instanceof Collection) {
-                params.add(param.getKey() + "=" + Collections.toString((Collection) param.getValue(), false, false));
+                params.add(param.getKey() + "=" + Collections.toStringCommaSeparated((Collection) param.getValue()));
             } /*else if (param.getValue() instanceof Object[]) {
                 params.add(param.getKey() + "=" + StringUtils.join((Object[]) param.getValue(), ","));
             }*/ else {
@@ -103,7 +103,7 @@ public class Cloudinary extends FetchBasedCloudImageService {
             }
         }
 
-        String to_sign = Collections.toString(params, "&", false, false);
+        String to_sign = Collections.toStringAmpersandSeparated(params);
         String hash = Sha1.hash(to_sign + apiSecret);
         return hash;
     }

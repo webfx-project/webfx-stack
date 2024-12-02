@@ -39,6 +39,6 @@ public final class EntityListImpl<E extends Entity> extends ArrayList<E> impleme
 
     @Override
     public String toString() {
-        return Collections.toStringWithLineFeeds(this);
+        return Collections.toStringCommaSeparatedWithBracketsAndLineFeeds(this);
     }
 }

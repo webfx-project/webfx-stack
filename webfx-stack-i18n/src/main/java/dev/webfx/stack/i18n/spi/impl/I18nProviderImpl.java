@@ -372,7 +372,7 @@ public class I18nProviderImpl implements I18nProvider {
                         }
                         if (unfoundKeys != null) {
                             blacklistedKeys.addAll(unfoundKeys);
-                            Console.log("⚠️ I18n keys not found (now blacklisted): " + Collections.toString(unfoundKeys, false, false));
+                            Console.log("⚠️ I18n keys not found (now blacklisted): " + Collections.toStringCommaSeparated(unfoundKeys));
                         }
                         // If the requested language has changed in the meantime, we might need to reload another dictionary!
                         if (!language.equals(getLanguage())) {
