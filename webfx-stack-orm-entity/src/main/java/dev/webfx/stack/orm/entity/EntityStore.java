@@ -32,6 +32,8 @@ public interface EntityStore extends HasDataSourceModel {
 
     EntityDomainWriter<Entity> getEntityDataWriter();
 
+    EntityStore getUnderlyingStore();
+
     default DomainClass getDomainClass(Object domainClassId) {
         return domainClassId instanceof DomainClass ? (DomainClass) domainClassId : getDomainModel().getClass(domainClassId);
     }

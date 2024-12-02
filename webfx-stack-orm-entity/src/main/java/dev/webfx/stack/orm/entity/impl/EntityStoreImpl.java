@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class EntityStoreImpl implements EntityStore {
 
-    protected final DataSourceModel dataSourceModel;
+    private final DataSourceModel dataSourceModel;
     private final EntityStore underlyingStore;
     protected final Map<EntityId, Entity> entities = new HashMap<>();
     private final Map<Object, EntityList> entityLists = new HashMap<>();
@@ -45,6 +45,11 @@ public class EntityStoreImpl implements EntityStore {
     @Override
     public EntityDomainWriter<Entity> getEntityDataWriter() {
         return entityDataWriter;
+    }
+
+    @Override
+    public EntityStore getUnderlyingStore() {
+        return underlyingStore;
     }
 
     @Override

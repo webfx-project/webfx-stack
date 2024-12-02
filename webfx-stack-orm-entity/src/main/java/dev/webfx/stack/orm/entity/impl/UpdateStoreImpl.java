@@ -23,7 +23,6 @@ import javafx.beans.binding.BooleanExpression;
 public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStore {
 
     private final EntityChangesBuilder changesBuilder = EntityChangesBuilder.create();
-    private EntityResultBuilder previousValues;
     private DataScope submitScope;
 
     public UpdateStoreImpl(DataSourceModel dataSourceModel) {
@@ -54,39 +53,13 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
         return getOrCreateEntity(entityId);
     }
 
-    boolean updateEntity(EntityId id, Object domainFieldId, Object value, Object previousValue) {
-        // Nothing to update if the new value is the same as the previous value
-        if (Objects.areEquals(value, previousValue))
-            return false;
-
+    void onInsertedOrUpdatedEntityFieldChange(EntityId id, Object domainFieldId, Object value, Object underlyingValue, boolean isUnderlyingValueLoaded) {
         // If the user enters back the original value, we completely clear that field from the changes
-        if (previousValues != null && Objects.areEquals(value, previousValues.getFieldValue(id, domainFieldId))) {
-            // Note that if the value is null, we still need to check that the previous value was really null (not just unloaded)
-            if (value != null || previousValues.hasFieldValue(id, domainFieldId)) {
-                changesBuilder.removeFieldChange(id, domainFieldId);
-                return true;
-            }
+        if (isUnderlyingValueLoaded && Objects.areEquals(value, underlyingValue)) {
+            changesBuilder.removeFieldChange(id, domainFieldId);
+        } else {
+            changesBuilder.addFieldChange(id, domainFieldId, value);
         }
-
-        if (!changesBuilder.hasEntityId(id)) { // TODO: remove if no side effect
-            // return false // Commented for Audio Recording & Video Settings (otherwise subsequent changes after submit are ignored)
-            Console.log("[UpdateStoreImpl] WARNING: Changing a field on an entity not known by the changesBuilder");
-        }
-
-        boolean firstFieldChange = updateEntity(id, domainFieldId, value);
-        if (firstFieldChange)
-            rememberPreviousEntityFieldValue(id, domainFieldId, previousValue);
-        return firstFieldChange;
-    }
-
-    boolean updateEntity(EntityId id, Object domainFieldId, Object value) {
-        return changesBuilder.addFieldChange(id, domainFieldId, value);
-    }
-
-    void rememberPreviousEntityFieldValue(EntityId id, Object domainFieldId, Object value) {
-        if (previousValues == null)
-            previousValues = EntityResultBuilder.create();
-        previousValues.setFieldValue(id, domainFieldId, value);
     }
 
     @Override
@@ -97,10 +70,12 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
     @Override
     public Future<Batch<SubmitResult>> submitChanges(SubmitArgument... initialSubmits) {
         try {
-            EntityChangesToSubmitBatchGenerator.BatchGenerator updateBatchGenerator = EntityChangesToSubmitBatchGenerator.createSubmitBatchGenerator(getEntityChanges(), dataSourceModel, submitScope, initialSubmits);
+            EntityChangesToSubmitBatchGenerator.BatchGenerator updateBatchGenerator = EntityChangesToSubmitBatchGenerator.
+                createSubmitBatchGenerator(getEntityChanges(), getDataSourceModel(), submitScope, initialSubmits);
             Batch<SubmitArgument> argBatch = updateBatchGenerator.generate();
             Console.log("Executing submit batch " + Arrays.toStringWithLineFeeds(argBatch.getArray()));
             return SubmitService.executeSubmitBatch(argBatch).compose(resBatch -> {
+                // TODO: perf optimization: make these steps optional if not required by application code
                 markChangesAsCommitted();
                 updateBatchGenerator.applyGeneratedKeys(resBatch, this);
                 return Future.succeededFuture(resBatch);
@@ -127,26 +102,52 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
 
     @Override
     public void cancelChanges() {
+        clearAllUpdatedValuesFromUpdateStore();
         changesBuilder.clear();
-        restorePreviousValues();
-        previousValues = null;
     }
 
-    private void restorePreviousValues() {
-        if (previousValues != null) {
-            EntityResult rs = previousValues.build();
-            for (EntityId id : rs.getEntityIds()) {
-                Entity entity = getEntity(id);
-                for (Object fieldId : rs.getFieldIds(id))
-                    entity.setFieldValue(fieldId, rs.getFieldValue(id, fieldId));
+    private void clearAllUpdatedValuesFromUpdateStore() {
+        EntityChanges changes = changesBuilder.build();
+        EntityResult insertedUpdatedEntityResult = changes.getInsertedUpdatedEntityResult();
+        if (insertedUpdatedEntityResult != null) {
+            for (EntityId entityId : insertedUpdatedEntityResult.getEntityIds()) {
+                clearAllUpdatedValuesFromUpdatedEntity(entityId);
             }
-            previousValues = null;
+        }
+    }
+
+    private void clearAllUpdatedValuesFromUpdatedEntity(EntityId entityId) {
+        if (!entityId.isNew()) {
+            Entity updateEntity = getEntity(entityId);
+            if (updateEntity instanceof DynamicEntity) {
+                ((DynamicEntity) updateEntity).clearAllFields();
+            }
         }
     }
 
     @Override
     public void markChangesAsCommitted() {
-        previousValues = null;
+        applyCommittedChangesToUnderlyingStore();
         changesBuilder.clear();
+    }
+
+    private void applyCommittedChangesToUnderlyingStore() {
+        EntityStore underlyingStore = getUnderlyingStore();
+        if (underlyingStore != null) {
+            EntityChanges changes = changesBuilder.build();
+            EntityResult insertedUpdatedEntityResult = changes.getInsertedUpdatedEntityResult();
+            for (EntityId entityId : insertedUpdatedEntityResult.getEntityIds()) {
+                Entity underlyingEntity = underlyingStore.getEntity(entityId);
+                if (underlyingEntity != null) {
+                    for (Object fieldId : insertedUpdatedEntityResult.getFieldIds(entityId)) {
+                        if (fieldId != null) {
+                            Object fieldValue = insertedUpdatedEntityResult.getFieldValue(entityId, fieldId);
+                            underlyingEntity.setFieldValue(fieldId, fieldValue);
+                        }
+                    }
+                }
+                clearAllUpdatedValuesFromUpdatedEntity(entityId);
+            }
+        }
     }
 }

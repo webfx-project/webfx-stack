@@ -62,7 +62,8 @@ public interface UpdateStore extends EntityStore {
     }
 
     default void deleteEntity(Entity entity) {
-        deleteEntity(entity.getId());
+        if (entity != null)
+            deleteEntity(entity.getId());
     }
 
     void deleteEntity(EntityId entityId);
