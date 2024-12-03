@@ -24,7 +24,7 @@ public class DynamicEntity implements Entity {
     protected DynamicEntity(EntityId id, EntityStore store) {
         this.id = id;
         this.store = store;
-        EntityStore underlyingStore = store.getUnderlyingStore();
+        EntityStore underlyingStore = store == null ? null : store.getUnderlyingStore();
         underlyingEntity = underlyingStore != null ? underlyingStore.getEntity(id) : null;
     }
 
