@@ -4,6 +4,7 @@ module webfx.stack.orm.entity.binding {
 
     // Direct dependencies modules
     requires javafx.base;
+    requires webfx.platform.util;
     requires webfx.stack.orm.entity;
 
     // Exported packages
