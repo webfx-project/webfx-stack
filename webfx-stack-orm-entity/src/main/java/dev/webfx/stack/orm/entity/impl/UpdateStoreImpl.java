@@ -14,8 +14,10 @@ import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.EntityStore;
 import dev.webfx.stack.orm.entity.UpdateStore;
-import dev.webfx.stack.orm.entity.result.*;
-import javafx.beans.binding.BooleanExpression;
+import dev.webfx.stack.orm.entity.result.EntityChanges;
+import dev.webfx.stack.orm.entity.result.EntityChangesBuilder;
+import dev.webfx.stack.orm.entity.result.EntityChangesToSubmitBatchGenerator;
+import dev.webfx.stack.orm.entity.result.EntityResult;
 
 /**
  * @author Bruno Salmon
@@ -24,6 +26,7 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
 
     private final EntityChangesBuilder changesBuilder = EntityChangesBuilder.create();
     private DataScope submitScope;
+    private Object hasChangesProperty; // managed by EntityBindings
 
     public UpdateStoreImpl(DataSourceModel dataSourceModel) {
         super(dataSourceModel);
@@ -96,11 +99,6 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
     }
 
     @Override
-    public BooleanExpression hasChangesProperty() {
-        return changesBuilder.hasChangesProperty();
-    }
-
-    @Override
     public void cancelChanges() {
         clearAllUpdatedValuesFromUpdateStore();
         changesBuilder.clear();
@@ -149,5 +147,20 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
                 clearAllUpdatedValuesFromUpdatedEntity(entityId);
             }
         }
+    }
+
+    // methods meant to be used by EntityBindings only
+
+
+    public EntityChangesBuilder getChangesBuilder() {
+        return changesBuilder;
+    }
+
+    public void setHasChangesProperty(Object hasChangesProperty) {
+        this.hasChangesProperty = hasChangesProperty;
+    }
+
+    public Object getHasChangesProperty() {
+        return hasChangesProperty;
     }
 }

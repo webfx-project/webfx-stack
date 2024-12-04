@@ -135,6 +135,7 @@
         <module>webfx-stack-orm-dql-querypush-interceptor</module>
         <module>webfx-stack-orm-dql-submit-interceptor</module>
         <module>webfx-stack-orm-entity</module>
+        <module>webfx-stack-orm-entity-binding</module>
         <module>webfx-stack-orm-entity-controls</module>
         <module>webfx-stack-orm-expression</module>
         <module>webfx-stack-orm-reactive-call</module>
