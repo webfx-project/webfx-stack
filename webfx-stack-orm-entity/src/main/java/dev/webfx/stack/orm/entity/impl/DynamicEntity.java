@@ -1,15 +1,16 @@
 package dev.webfx.stack.orm.entity.impl;
 
 
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.EntityStore;
 import dev.webfx.stack.orm.entity.UpdateStore;
-import dev.webfx.platform.console.Console;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 
 /**
  * @author Bruno Salmon
@@ -19,7 +20,10 @@ public class DynamicEntity implements Entity {
     private EntityId id;
     private final EntityStore store;
     private final Entity underlyingEntity;
-    private final Map<Object, Object> fieldValues = new HashMap<>();
+    private final Map<Object /*fieldId*/, Object /*fieldValue*/> fieldValues = new HashMap<>();
+    // fields used by EntityBindings only:
+    private Map<Object/*fieldId*/, Object /*fieldProperty*/> fieldProperties; // lazy instantiation
+    private static BiConsumer<Object/*fieldProperty*/, Object /*fieldValue*/> FIELD_PROPERTY_UPDATER;
 
     protected DynamicEntity(EntityId id, EntityStore store) {
         this.id = id;
@@ -101,6 +105,11 @@ public class DynamicEntity implements Entity {
             boolean isUnderlyingValueLoaded = underlyingValue != null || underlyingEntity != null && underlyingEntity.isFieldLoaded(domainFieldId);
             ((UpdateStoreImpl) store).onInsertedOrUpdatedEntityFieldChange(id, domainFieldId, value, underlyingValue, isUnderlyingValueLoaded);
         }
+        if (FIELD_PROPERTY_UPDATER != null) {
+            Object fieldProperty = getFieldProperty(domainFieldId);
+            if (fieldProperty != null)
+                FIELD_PROPERTY_UPDATER.accept(fieldProperty, value);
+        }
     }
 
     public void copyAllFieldsFrom(Entity entity) {
@@ -146,5 +155,21 @@ public class DynamicEntity implements Entity {
         if (pk)
             sb.append(')');
         return sb;
+    }
+
+    // methods meant to be used by EntityBindings only
+
+    public Object getFieldProperty(Object fieldId) {
+        return fieldProperties == null ? null : fieldProperties.get(fieldId);
+    }
+
+    public void setFieldProperty(Object fieldId, Object fieldProperty) {
+        if (fieldProperties == null)
+            fieldProperties = new HashMap<>();
+        fieldProperties.put(fieldId, fieldProperty);
+    }
+
+    public static void setFieldPropertyUpdater(BiConsumer<Object, Object> fieldPropertyUpdater) {
+        FIELD_PROPERTY_UPDATER = fieldPropertyUpdater;
     }
 }

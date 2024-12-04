@@ -1,11 +1,11 @@
 package dev.webfx.stack.orm.entity.result;
 
-import dev.webfx.platform.async.Handler;
 import dev.webfx.platform.util.collection.HashList;
 import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.result.impl.EntityChangesImpl;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 /**
  * @author Bruno Salmon
@@ -15,7 +15,7 @@ public final class EntityChangesBuilder {
     private EntityResultBuilder rsb;
     private Collection<EntityId> deletedEntities;
     private boolean hasChanges;
-    private Handler<Boolean> hasChangesHandler; // used by EntityBindings only
+    private Consumer<Boolean> hasChangesPropertyUpdater; // used by EntityBindings only
 
     private EntityChangesBuilder() {}
 
@@ -79,8 +79,8 @@ public final class EntityChangesBuilder {
     private void updateHasChanges() {
         if (hasChanges != hasChanges()) {
             hasChanges = !hasChanges;
-            if (hasChangesHandler != null)
-                hasChangesHandler.handle(hasChanges);
+            if (hasChangesPropertyUpdater != null)
+                hasChangesPropertyUpdater.accept(hasChanges);
         }
     }
 
@@ -100,7 +100,7 @@ public final class EntityChangesBuilder {
 
     // method meant to be used by EntityBindings only
 
-    public void setHasChangesHandler(Handler<Boolean> hasChangesHandler) {
-        this.hasChangesHandler = hasChangesHandler;
+    public void setHasChangesPropertyUpdater(Consumer<Boolean> hasChangesPropertyUpdater) {
+        this.hasChangesPropertyUpdater = hasChangesPropertyUpdater;
     }
 }
