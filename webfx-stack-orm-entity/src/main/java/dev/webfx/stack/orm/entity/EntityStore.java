@@ -56,6 +56,10 @@ public interface EntityStore extends HasDataSourceModel {
 
     // Entity management
 
+    default <E extends Entity> E createEntity(Class<E> entityClass) {
+        return createEntity((Object) entityClass);
+    }
+
     default <E extends Entity> E createEntity(Object domainClassId) {
         return createEntity(EntityId.create(getDomainClass(domainClassId)));
     }
@@ -66,11 +70,19 @@ public interface EntityStore extends HasDataSourceModel {
 
     <E extends Entity> E createEntity(EntityId id);
 
+    default <E extends Entity> E getEntity(Class<E> entityClass, Object primaryKey) {
+        return getEntity((Object) entityClass, primaryKey);
+    }
+
     default <E extends Entity> E getEntity(Object domainClassId, Object primaryKey) {
         return primaryKey == null ? null : getEntity(getEntityId(domainClassId, primaryKey));
     }
 
     <E extends Entity> E getEntity(EntityId entityId);
+
+    default <E extends Entity> E getOrCreateEntity(Class<E> entityClass, Object primaryKey) {
+        return getOrCreateEntity((Object) entityClass, primaryKey);
+    }
 
     default <E extends Entity> E getOrCreateEntity(Object domainClassId, Object primaryKey) {
         return primaryKey == null ? null : getOrCreateEntity(getEntityId(domainClassId, primaryKey));
