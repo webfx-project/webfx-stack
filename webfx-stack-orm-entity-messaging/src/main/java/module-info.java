@@ -8,8 +8,6 @@ module webfx.stack.orm.entity.messaging {
     requires webfx.platform.util;
     requires webfx.stack.com.bus;
     requires webfx.stack.com.serial;
-    requires webfx.stack.orm.datasourcemodel.service;
-    requires webfx.stack.orm.domainmodel;
     requires webfx.stack.orm.entity;
     requires webfx.stack.orm.entity.binding;
     requires webfx.stack.session.state.client.fx;
