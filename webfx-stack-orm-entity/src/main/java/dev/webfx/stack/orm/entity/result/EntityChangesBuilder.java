@@ -1,6 +1,8 @@
 package dev.webfx.stack.orm.entity.result;
 
 import dev.webfx.platform.util.collection.HashList;
+import dev.webfx.stack.orm.domainmodel.DomainClass;
+import dev.webfx.stack.orm.entity.EntityDomainClassIdRegistry;
 import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.result.impl.EntityChangesImpl;
 
@@ -19,7 +21,7 @@ public final class EntityChangesBuilder {
 
     private EntityChangesBuilder() {}
 
-    public void addDeletedEntityId(EntityId id) {
+    public EntityChangesBuilder addDeletedEntityId(EntityId id) {
         if (id.isNew()) {
             cancelEntityChanges(id);
         } else {
@@ -27,19 +29,19 @@ public final class EntityChangesBuilder {
                 deletedEntities = new HashList<>(); // Hash for uniqueness and List for keeping sequence order
             deletedEntities.add(id);
         }
-        updateHasChanges();
+        return updateHasChanges();
     }
 
-    public void addInsertedEntityId(EntityId id) {
+    public EntityChangesBuilder addInsertedEntityId(EntityId id) {
         if (id.isNew())
             addFieldChange(id, null, null);
-        updateHasChanges();
+        return updateHasChanges();
     }
 
-    public void addUpdatedEntityId(EntityId id) {
+    public EntityChangesBuilder addUpdatedEntityId(EntityId id) {
         if (!id.isNew())
             addFieldChange(id, null, null);
-        updateHasChanges();
+        return updateHasChanges();
     }
 
     public boolean hasEntityId(EntityId id) {
@@ -52,36 +54,57 @@ public final class EntityChangesBuilder {
         return fieldChanged;
     }
 
-    public void removeFieldChange(EntityId id, Object fieldId) {
+    public EntityChangesBuilder removeFieldChange(EntityId id, Object fieldId) {
         if (rsb != null)
             rsb.unsetFieldValue(id, fieldId);
-        updateHasChanges();
+        return updateHasChanges();
     }
 
-    public void cancelEntityChanges(EntityId id) {
+    public EntityChangesBuilder cancelEntityChanges(EntityId id) {
         if (deletedEntities != null)
             deletedEntities.remove(id);
         if (rsb != null)
             rsb.removeEntityId(id);
-        updateHasChanges();
+        return updateHasChanges();
     }
 
-    public void clear() {
+    public EntityChangesBuilder addFilteredEntityChanges(EntityChanges ec, Object domainClassId, Object... fieldIds) {
+        return addFilteredEntityResult(ec.getInsertedUpdatedEntityResult(), domainClassId, fieldIds);
+    }
+
+    public EntityChangesBuilder addFilteredEntityResult(EntityResult er, Object domainClassId, Object... fieldIds) {
+        if (er != null) {
+            DomainClass domainClass = EntityDomainClassIdRegistry.getDomainClass(domainClassId);
+            for (EntityId id : er.getEntityIds()) {
+                if (domainClass.equals(id.getDomainClass())) {
+                    for (Object fieldId : fieldIds) {
+                        Object fieldValue = er.getFieldValue(id, fieldId);
+                        if (fieldValue != null || er.getFieldIds(id).contains(fieldId))
+                            addFieldChange(id, fieldId, fieldValue);
+                    }
+                }
+            }
+        }
+        return this;
+    }
+
+    public EntityChangesBuilder clear() {
         rsb = null;
         deletedEntities = null;
-        updateHasChanges();
+        return updateHasChanges();
     }
 
     public boolean hasChanges() {
         return deletedEntities != null && !deletedEntities.isEmpty() || rsb != null && !rsb.isEmpty();
     }
 
-    private void updateHasChanges() {
+    private EntityChangesBuilder updateHasChanges() {
         if (hasChanges != hasChanges()) {
             hasChanges = !hasChanges;
             if (hasChangesPropertyUpdater != null)
                 hasChangesPropertyUpdater.accept(hasChanges);
         }
+        return this;
     }
 
     private EntityResultBuilder rsb() {
