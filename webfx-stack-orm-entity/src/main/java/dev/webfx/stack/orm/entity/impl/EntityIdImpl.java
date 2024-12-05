@@ -1,8 +1,9 @@
 package dev.webfx.stack.orm.entity.impl;
 
 import dev.webfx.platform.util.Numbers;
-import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
+import dev.webfx.stack.orm.entity.EntityDomainClassIdRegistry;
+import dev.webfx.stack.orm.entity.EntityId;
 
 import java.util.Objects;
 
@@ -60,11 +61,11 @@ public final class EntityIdImpl implements EntityId {
 
     private static int newPk;
 
-    public static EntityIdImpl create(DomainClass domainClassId) {
-        return create(domainClassId, null);
+    public static EntityIdImpl create(Object domainClassId, Object primaryKey) {
+        return new EntityIdImpl(EntityDomainClassIdRegistry.getDomainClass(domainClassId), primaryKey != null ? primaryKey : --newPk);
     }
 
-    public static EntityIdImpl create(DomainClass domainClassId, Object primaryKey) {
-        return new EntityIdImpl(domainClassId, primaryKey != null ? primaryKey : --newPk);
+    public static EntityIdImpl create(Object domainClassId) {
+        return create(domainClassId, null);
     }
 }
