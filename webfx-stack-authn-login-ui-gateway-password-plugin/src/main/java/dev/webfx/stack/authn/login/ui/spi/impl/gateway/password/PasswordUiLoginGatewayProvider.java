@@ -23,18 +23,27 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.text.Text;
 
+import java.util.function.Supplier;
+
 /**
  * @author Bruno Salmon
  */
 public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProviderBase implements MaterialFactoryMixin {
 
-    private final static String GATEWAY_ID = "Password";
+   private final static String GATEWAY_ID = "Password";
+
+   private static Supplier<Node> CREATE_ACCOUNT_UI_SUPPLIER;
 
    private UILoginView uiLoginView;
 
     // SignInMode = true => username/password, false => magic link
     private final Property<Boolean> signInModeProperty = new SimpleObjectProperty<>(true);
     //private final ModalityValidationSupport validationSupport = new ModalityValidationSupport();
+
+
+    public static void setCreateAccountUiSupplier(Supplier<Node> createAccountUiSupplier) {
+        CREATE_ACCOUNT_UI_SUPPLIER = createAccountUiSupplier;
+    }
 
     public PasswordUiLoginGatewayProvider() {
         super(GATEWAY_ID);
