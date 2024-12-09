@@ -17,6 +17,6 @@ module webfx.stack.authn {
     uses dev.webfx.stack.authn.spi.AuthenticationServiceProvider;
 
     // Provided services
-    provides dev.webfx.stack.com.serial.spi.SerialCodec with dev.webfx.stack.authn.serial.SendMagicLinkCredentialsSerialCodec, dev.webfx.stack.authn.serial.RenewMagicLinkCredentialsSerialCodec, dev.webfx.stack.authn.serial.MagicLinkCredentialsSerialCodec, dev.webfx.stack.authn.serial.UpdatePasswordMagicLinkCredentialsSerialCodec, dev.webfx.stack.authn.serial.UpdatePasswordCredentialsSerialCodec, dev.webfx.stack.authn.serial.UserClaimsSerialCodec, dev.webfx.stack.authn.serial.UsernamePasswordCredentialsSerialCodec;
+    provides dev.webfx.stack.com.serial.spi.SerialCodec with dev.webfx.stack.authn.serial.InitiateAccountCreationCredentialsSerialCodec, dev.webfx.stack.authn.serial.MagicLinkCredentialsSerialCodec, dev.webfx.stack.authn.serial.RenewMagicLinkCredentialsSerialCodec, dev.webfx.stack.authn.serial.SendMagicLinkCredentialsSerialCodec, dev.webfx.stack.authn.serial.UpdatePasswordCredentialsSerialCodec, dev.webfx.stack.authn.serial.UpdatePasswordMagicLinkCredentialsSerialCodec, dev.webfx.stack.authn.serial.UserClaimsSerialCodec, dev.webfx.stack.authn.serial.UsernamePasswordCredentialsSerialCodec;
 
 }
