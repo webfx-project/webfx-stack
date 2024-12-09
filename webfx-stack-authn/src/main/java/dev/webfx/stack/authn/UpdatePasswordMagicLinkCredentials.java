@@ -3,11 +3,11 @@ package dev.webfx.stack.authn;
 /**
  * @author Bruno Salmon
  */
-public final class MagicLinkPasswordUpdate {
+public final class UpdatePasswordMagicLinkCredentials {
 
     private final String newPassword;
 
-    public MagicLinkPasswordUpdate(String newPassword) {
+    public UpdatePasswordMagicLinkCredentials(String newPassword) {
         this.newPassword = newPassword;
     }
 

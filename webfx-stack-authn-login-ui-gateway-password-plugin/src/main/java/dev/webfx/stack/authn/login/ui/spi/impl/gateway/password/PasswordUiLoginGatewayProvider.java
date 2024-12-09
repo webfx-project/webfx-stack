@@ -6,7 +6,7 @@ import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.windowlocation.WindowLocation;
 import dev.webfx.stack.authn.AuthenticationRequest;
-import dev.webfx.stack.authn.MagicLinkRequest;
+import dev.webfx.stack.authn.SendMagicLinkCredentials;
 import dev.webfx.stack.authn.UsernamePasswordCredentials;
 import dev.webfx.stack.authn.login.ui.FXLoginContext;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProviderBase;
@@ -83,7 +83,7 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
         uiLoginView.getActionButton().setOnAction(event -> {
             Object credentials = signInModeProperty.getValue() ?
                 new UsernamePasswordCredentials(uiLoginView.getEmailTextField().getText(), uiLoginView.getPasswordField().getText())
-                : new MagicLinkRequest(uiLoginView.getEmailTextField().getText(), WindowLocation.getOrigin(), WindowLocation.getPath(), I18n.getLanguage(), FXLoginContext.getLoginContext());
+                : new SendMagicLinkCredentials(uiLoginView.getEmailTextField().getText(), WindowLocation.getOrigin(), WindowLocation.getPath(), I18n.getLanguage(), FXLoginContext.getLoginContext());
             OperationUtil.turnOnButtonsWaitMode(uiLoginView.getActionButton());
             new AuthenticationRequest()
                 .setUserCredentials(credentials)

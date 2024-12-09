@@ -74,7 +74,7 @@ public class MagicLinkUi implements MaterialFactoryMixin {
         uiLoginView.showMessageForPasswordField();
         uiLoginView.hideGraphicFromActionButton();
         uiLoginView.getActionButton().setDisable(false);
-        uiLoginView.getActionButton().setOnAction(l -> AuthenticationService.updateCredentials(new MagicLinkPasswordUpdate(uiLoginView.getPasswordField().getText()))
+        uiLoginView.getActionButton().setOnAction(l -> AuthenticationService.updateCredentials(new UpdatePasswordMagicLinkCredentials(uiLoginView.getPasswordField().getText()))
             .onFailure(e -> {
                 Console.log("Error Updating password: " + e);
                 Platform.runLater(()->onFailure(e));
@@ -124,7 +124,7 @@ public class MagicLinkUi implements MaterialFactoryMixin {
                 uiLoginView.hideGraphicFromActionButton();
                 uiLoginView.getActionButton().setDisable(false);
                 uiLoginView.getActionButton().setOnAction(event -> {
-                    Object credentials = new MagicLinkRenewalRequest(tokenProperty.get());
+                    Object credentials = new RenewMagicLinkCredentials(tokenProperty.get());
                     OperationUtil.turnOnButtonsWaitMode(uiLoginView.getActionButton());
                     new AuthenticationRequest()
                         .setUserCredentials(credentials)
