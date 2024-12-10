@@ -5,9 +5,9 @@ import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.windowlocation.WindowLocation;
+import dev.webfx.stack.authn.AuthenticateWithUsernamePasswordCredentials;
 import dev.webfx.stack.authn.AuthenticationRequest;
 import dev.webfx.stack.authn.SendMagicLinkCredentials;
-import dev.webfx.stack.authn.UsernamePasswordCredentials;
 import dev.webfx.stack.authn.login.ui.FXLoginContext;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProviderBase;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginPortalCallback;
@@ -82,7 +82,7 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
         }, signInModeProperty);
         uiLoginView.getActionButton().setOnAction(event -> {
             Object credentials = signInModeProperty.getValue() ?
-                new UsernamePasswordCredentials(uiLoginView.getEmailTextField().getText(), uiLoginView.getPasswordField().getText())
+                new AuthenticateWithUsernamePasswordCredentials(uiLoginView.getEmailTextField().getText(), uiLoginView.getPasswordField().getText())
                 : new SendMagicLinkCredentials(uiLoginView.getEmailTextField().getText(), WindowLocation.getOrigin(), WindowLocation.getPath(), I18n.getLanguage(), FXLoginContext.getLoginContext());
             OperationUtil.turnOnButtonsWaitMode(uiLoginView.getActionButton());
             new AuthenticationRequest()

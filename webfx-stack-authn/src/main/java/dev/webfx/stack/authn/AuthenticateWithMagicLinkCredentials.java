@@ -3,11 +3,11 @@ package dev.webfx.stack.authn;
 /**
  * @author Bruno Salmon
  */
-public final class MagicLinkCredentials {
+public final class AuthenticateWithMagicLinkCredentials {
 
     private final String token;
 
-    public MagicLinkCredentials(String token) {
+    public AuthenticateWithMagicLinkCredentials(String token) {
         this.token = token;
     }
 
