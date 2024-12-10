@@ -14,6 +14,7 @@
     <providers>
         <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.serial.AuthenticateWithMagicLinkCredentialsSerialCodec</provider>
         <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.serial.AuthenticateWithUsernamePasswordCredentialsSerialCodec</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.serial.ContinueAccountCreationCredentialsSerialCodec</provider>
         <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.serial.InitiateAccountCreationCredentialsSerialCodec</provider>
         <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.serial.RenewMagicLinkCredentialsSerialCodec</provider>
         <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.serial.SendMagicLinkCredentialsSerialCodec</provider>
