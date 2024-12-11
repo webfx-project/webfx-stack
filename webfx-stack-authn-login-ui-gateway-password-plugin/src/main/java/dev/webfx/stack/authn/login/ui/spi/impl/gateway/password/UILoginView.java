@@ -28,7 +28,7 @@ public class UILoginView implements MaterialFactoryMixin {
 
     private static final String CHECKMARK_PATH = "M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z M14.7 8.39l-3.78 5-1.63-2.11a1 1 0 0 0-1.58 1.23l2.43 3.11a1 1 0 0 0 .79.38 1 1 0 0 0 .79-.39l4.57-6a1 1 0 1 0-1.6-1.22z";
 
-    public void initializeComponents() { // Reminder: called only once (rebuild = bad UX) => UI is reacting to parameter changes
+    public void initializeComponents() {
         container = new BorderPane();
         container.setMaxWidth(Double.MAX_VALUE); // so it fills the whole width of the main frame VBox (with text centered)
         VBox loginVBox = new VBox();
@@ -38,7 +38,6 @@ public class UILoginView implements MaterialFactoryMixin {
         loginVBox.setSpacing(60);
         container.setCenter(loginVBox);
     }
-
 
     private void initialiseMainVBox(VBox container) {
         mainVBox = new VBox();
@@ -50,7 +49,7 @@ public class UILoginView implements MaterialFactoryMixin {
         int vSpacing = 10;
         loginTitleLabel.setPadding(new Insets(vSpacing, 0, 0, 0));
 
-        mainMessageLabel = Bootstrap.textSuccess(new javafx.scene.control.Label("Success Message"));
+        mainMessageLabel = Bootstrap.textSuccess(new Label("Success Message"));
         mainMessageLabel.setPadding(new Insets(40, 0, 0, 0));
         mainMessageLabel.setTextAlignment(TextAlignment.CENTER);
         mainMessageLabel.setWrapText(true);
@@ -63,15 +62,11 @@ public class UILoginView implements MaterialFactoryMixin {
         emailAndPasswordContainer.setMinHeight(vBoxHeight);
         emailAndPasswordContainer.setMaxHeight(vBoxHeight);
         emailTextField = newMaterialTextField(PasswordI18nKeys.Email);
-        emailTextField.getStyleClass().clear();
-        emailTextField.getStyleClass().add("transparent-input");
         VBox.setMargin(emailTextField, new Insets(40, 0, 0, 0));
         emailTextField.setMaxWidth(300);
 
         passwordFieldAndMessageVbox = new VBox(10);
         passwordField = newMaterialPasswordField(PasswordI18nKeys.Password);
-        passwordField.getStyleClass().clear();
-        passwordField.getStyleClass().add("transparent-input");
         passwordField.setMaxWidth(300);
         VBox.setMargin(passwordField, new Insets(15, 0, 0, 0));
         passwordFieldAndMessageVbox.setMaxWidth(300);
@@ -81,9 +76,7 @@ public class UILoginView implements MaterialFactoryMixin {
         passwordFieldAndMessageVbox.getChildren().addAll(passwordField, infoMessageForPasswordFieldLabel);
 
         emailAndPasswordContainer.getChildren().setAll(emailTextField,passwordFieldAndMessageVbox);
-        hyperlink = new Hyperlink();
-        I18nControls.bindI18nProperties(hyperlink, PasswordI18nKeys.GoToLogin);
-        hyperlink.getStyleClass().setAll(Bootstrap.TEXT_SECONDARY);
+        hyperlink = Bootstrap.textSecondary(I18nControls.newHyperlink(PasswordI18nKeys.GoToLogin));
         hyperlink.setVisible(true);
         VBox.setMargin(hyperlink, new Insets(40, 0, 0, 0));
 
@@ -185,6 +178,7 @@ public class UILoginView implements MaterialFactoryMixin {
         hideHyperlink();
         hideActionButton();
     }
+
     public Hyperlink getHyperlink() {
         return hyperlink;
     }
