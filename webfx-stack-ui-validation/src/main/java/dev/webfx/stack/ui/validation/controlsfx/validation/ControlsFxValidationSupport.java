@@ -76,7 +76,7 @@ import java.util.function.Predicate;
  *  </pre>
  *   
  */
-public class ValidationSupport {
+public class ControlsFxValidationSupport {
     
 
     private static final String CTRL_REQUIRED_FLAG    = "$org.controlsfx.validation.required$"; //$NON-NLS-1$
@@ -111,7 +111,7 @@ public class ValidationSupport {
      * Creates validation support instance. <br>
      * If initial decoration is desired invoke {@link #initInitialDecoration()}.
      */
-    public ValidationSupport() {
+    public ControlsFxValidationSupport() {
 
         validationResultProperty().addListener( (o, oldValue, validationResult) -> {
             invalidProperty.set(!validationResult.getErrors().isEmpty());

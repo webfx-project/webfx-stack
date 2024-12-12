@@ -30,7 +30,7 @@ import dev.webfx.stack.ui.validation.controlsfx.control.decoration.Decoration;
 import dev.webfx.stack.ui.validation.controlsfx.control.decoration.Decorator;
 import dev.webfx.stack.ui.validation.controlsfx.validation.ValidationMessage;
 import javafx.scene.control.Control;
-import dev.webfx.stack.ui.validation.controlsfx.validation.ValidationSupport;
+import dev.webfx.stack.ui.validation.controlsfx.validation.ControlsFxValidationSupport;
 
 import java.util.Collection;
 import java.util.List;
@@ -93,7 +93,7 @@ public abstract class AbstractValidationDecoration implements ValidationDecorati
 	 */
 	@Override
 	public void applyRequiredDecoration(Control target) {
-		if ( ValidationSupport.isRequired(target)) {
+		if ( ControlsFxValidationSupport.isRequired(target)) {
 			// createRequiredDecorations(target).stream().forEach( d -> decorate( target, d )); // stream don't work on Android
 			for (Decoration decoration : createRequiredDecorations(target))
 				decorate(target, decoration);
