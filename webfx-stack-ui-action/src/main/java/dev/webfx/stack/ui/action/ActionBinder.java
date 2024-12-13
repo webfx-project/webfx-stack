@@ -2,6 +2,7 @@ package dev.webfx.stack.ui.action;
 
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.ObservableLists;
+import dev.webfx.kit.util.properties.Unregisterable;
 import dev.webfx.platform.util.function.Converter;
 import dev.webfx.stack.ui.action.impl.WritableAction;
 import javafx.beans.property.ObjectProperty;
@@ -87,18 +88,16 @@ public final class ActionBinder {
     }
 
 
-    public static <P extends Pane> P bindChildrenToVisibleActions(P parent, Collection<Action> actions, Converter<Action, Node> nodeFactory) {
+    public static <P extends Pane> Unregisterable bindChildrenToVisibleActions(P parent, Collection<Action> actions, Converter<Action, Node> nodeFactory) {
         ActionGroup actionGroup = new ActionGroupBuilder().setActions(actions).build();
         return bindChildrenToActionGroup(parent, actionGroup, nodeFactory);
     }
 
-    public static <P extends Pane> P bindChildrenToActionGroup(P parent, ActionGroup actionGroup, Converter<Action, Node> nodeFactory) {
-        bindChildrenToActionGroup(parent.getChildren(), actionGroup, nodeFactory);
-        return parent;
+    public static <P extends Pane> Unregisterable bindChildrenToActionGroup(P parent, ActionGroup actionGroup, Converter<Action, Node> nodeFactory) {
+        return bindChildrenToActionGroup(parent.getChildren(), actionGroup, nodeFactory);
     }
 
-    public static <T extends Node> ObservableList<T> bindChildrenToActionGroup(ObservableList<T> children, ActionGroup actionGroup, Converter<Action, T> nodeFactory) {
-        ObservableLists.bindConverted(children, actionGroup.getVisibleActions(), nodeFactory);
-        return children;
+    public static <T extends Node> Unregisterable bindChildrenToActionGroup(ObservableList<T> children, ActionGroup actionGroup, Converter<Action, T> nodeFactory) {
+        return ObservableLists.bindConverted(children, actionGroup.getVisibleActions(), nodeFactory);
     }
 }
