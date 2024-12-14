@@ -17,3 +17,8 @@
     -fx-border-radius: 20px;
     -fx-effect: dropshadow(gaussian, lightgray, 10, 0, 0, 0);
 }
+
+.login .h2 {
+    -fx-font-family: 'Poppins', sans-serif;
+    -fx-line-spacing: 0;
+}

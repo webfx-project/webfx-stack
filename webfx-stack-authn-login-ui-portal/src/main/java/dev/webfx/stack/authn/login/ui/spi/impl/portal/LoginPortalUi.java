@@ -76,7 +76,7 @@ final class LoginPortalUi implements UiLoginPortalCallback {
 
         {
             setMinHeight(USE_PREF_SIZE);
-            setMaxSize(400, Region.USE_PREF_SIZE);
+            setMaxSize(586, Region.USE_PREF_SIZE);
         }
 
         @Override

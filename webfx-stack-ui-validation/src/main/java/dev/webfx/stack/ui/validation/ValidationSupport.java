@@ -379,6 +379,58 @@ public final class ValidationSupport {
         );
     }
 
+    public void addPasswordMatchValidation(TextField passwordField, TextField repeatPasswordField, Node where, String errorMessage) {
+        addValidationRule(
+            Bindings.createBooleanBinding(
+                () -> passwordField.getText().equals(repeatPasswordField.getText()),
+                passwordField.textProperty(),
+                repeatPasswordField.textProperty()
+            ),
+            where,
+            errorMessage
+        );
+    }
+    public void addPasswordStrengthValidation(TextField passwordField, Node where, String errorMessage) {
+        addValidationRule(
+            Bindings.createBooleanBinding(
+                () -> checkPasswordStrength(passwordField.getText()),
+                passwordField.textProperty()
+            ),
+            where,
+            errorMessage
+        );
+    }
+    /**
+     * Checks if a password meets strength requirements.
+     * @param password the password to validate.
+     * @return true if the password meets the requirements, false otherwise.
+     */
+    private boolean checkPasswordStrength(String password) {
+        if (password == null || password.isEmpty()) {
+            return false;
+        }
+        // Minimum length
+        if (password.length() < 8) {
+            return false;
+        }
+        // Contains at least one uppercase letter
+        if (!password.matches(".*[A-Z].*")) {
+            return false;
+        }
+        // Contains at least one lowercase letter
+        if (!password.matches(".*[a-z].*")) {
+            return false;
+        }
+        // Contains at least one digit
+        if (!password.matches(".*\\d.*")) {
+            return false;
+        }
+        // Contains at least one special character
+        if (!password.matches(".*[@#$%^&+=!().,*?-].*")) {
+            return false;
+        }
+        return true;
+    }
 
 /*
     private PopOver popOver;

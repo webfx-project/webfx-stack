@@ -21,7 +21,7 @@ public final class FinaliseAccountCreationCredentialsSerialCodec extends SerialC
     @Override
     public void encode(FinaliseAccountCreationCredentials arg, AstObject serial) {
         encodeString(serial, TOKEN_KEY, arg.getToken());
-        encodeString(serial, PASSWORD_KEY, arg.getToken());
+        encodeString(serial, PASSWORD_KEY, arg.getPassword());
     }
 
     @Override
