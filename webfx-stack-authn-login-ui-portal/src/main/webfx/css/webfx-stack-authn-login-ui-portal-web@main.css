@@ -26,7 +26,7 @@ input[type="password"]:not([value=""]) {
 }
 
 .login input {
-     font-size: 20px;
+     font-size: 13px;
        }
 
 .login-child {
@@ -40,6 +40,7 @@ input[type="password"]:not([value=""]) {
 
 .login .h2 {
     font-family: 'Poppins', sans-serif; /* Sets the font to Poppins, with a fallback to sans-serif */
+    line-height: 0.5;
 }
 
 .login .or {
