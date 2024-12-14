@@ -8,13 +8,17 @@ import dev.webfx.stack.authn.*;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.password.PasswordI18nKeys;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.password.UILoginView;
 import dev.webfx.stack.i18n.I18n;
+import dev.webfx.stack.i18n.controls.I18nControls;
 import dev.webfx.stack.ui.controls.MaterialFactoryMixin;
 import dev.webfx.stack.ui.operation.OperationUtil;
+import dev.webfx.stack.ui.validation.ValidationSupport;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
+import one.modality.crm.client.activities.login.LoginRouting;
+import one.modality.crm.frontoffice.activities.createaccount.CreateAccountI18nKeys;
 
 import java.util.function.Consumer;
 
@@ -27,18 +31,20 @@ public class MagicLinkUi implements MaterialFactoryMixin {
     private String pathToBeRedirected;
     private final StringProperty tokenProperty;
     private final Consumer<String> pathConsumer;
+    private final ValidationSupport validationSupport = new ValidationSupport();
+    private boolean validationSupportInitialised = false;
 
     public MagicLinkUi(StringProperty tokenProperty, Consumer<String> requestedPathConsumer) {
         this.tokenProperty = tokenProperty;
         pathConsumer = requestedPathConsumer;
-        uiLoginView = new UILoginView();
+        uiLoginView = new UILoginView(null);
         uiLoginView.initializeComponents();
         uiLoginView.setTitle(MagicLinkI18nKeys.Recovery);
         uiLoginView.setMainMessage(MagicLinkI18nKeys.ChangeYourPassword, Bootstrap.STRONG);
         uiLoginView.setLabelOnActionButton(MagicLinkI18nKeys.ConfirmChange);
         uiLoginView.showMainMessage();
         uiLoginView.hideEmailField();
-        uiLoginView.hideHyperlink();
+        uiLoginView.hideForgetPasswordHyperlink();
         uiLoginView.showMessageForPasswordField();
         uiLoginView.hideGraphicFromActionButton();
         Button actionButton = uiLoginView.getActionButton();
@@ -68,13 +74,15 @@ public class MagicLinkUi implements MaterialFactoryMixin {
         uiLoginView.setLabelOnActionButton(MagicLinkI18nKeys.ConfirmChange);
         uiLoginView.showMainMessage();
         uiLoginView.hideEmailField();
-        uiLoginView.hideHyperlink();
+        uiLoginView.hideForgetPasswordHyperlink();
         uiLoginView.showMessageForPasswordField();
         uiLoginView.showPasswordField();
         uiLoginView.showMessageForPasswordField();
         uiLoginView.hideGraphicFromActionButton();
         uiLoginView.getActionButton().setDisable(false);
-        uiLoginView.getActionButton().setOnAction(l -> AuthenticationService.updateCredentials(new UpdatePasswordFromMagicLinkCredentials(uiLoginView.getPasswordField().getText()))
+        uiLoginView.getActionButton().setOnAction(l -> {
+            if(validateForm()) {
+            AuthenticationService.updateCredentials(new UpdatePasswordFromMagicLinkCredentials(uiLoginView.getPasswordField().getText()))
             .onFailure(e -> {
                 Console.log("Error Updating password: " + e);
                 Platform.runLater(()->onFailure(e));
@@ -84,15 +92,17 @@ public class MagicLinkUi implements MaterialFactoryMixin {
                 Platform.runLater(()->{
                     uiLoginView.setMainMessage(PasswordI18nKeys.PasswordUpdated,Bootstrap.TEXT_SUCCESS);
                     uiLoginView.showMainMessage();
-                    uiLoginView.getActionButton().setDisable(true);
+                    I18nControls.bindI18nProperties(uiLoginView.getActionButton(),PasswordI18nKeys.GoToLogin);
+                    uiLoginView.getActionButton().setOnAction(e2-> pathConsumer.accept(LoginRouting.getPath()));
                     uiLoginView.getPasswordField().setDisable(true);
-                    uiLoginView.setHyperlink(MagicLinkI18nKeys.BackToNavigation);
-                    uiLoginView.showHyperlink();
-                    uiLoginView.getHyperlink().setOnAction(e2-> pathConsumer.accept(pathToBeRedirected));
-                    uiLoginView.showGraphicFromActionButton();
+                    uiLoginView.setForgetRememberPasswordHyperlink(MagicLinkI18nKeys.BackToNavigation);
+                    uiLoginView.hideForgetPasswordHyperlink();
+                    //uiLoginView.getForgetRememberPasswordHyperlink().setOnAction(e2-> pathConsumer.accept(pathToBeRedirected));
+                    uiLoginView.hideGraphicFromActionButton();
                 });
-            }));
+            });}});
     }
+
 
     private void onFailure(Throwable e) {
         String technicalMessage = e.getMessage();
@@ -117,7 +127,7 @@ public class MagicLinkUi implements MaterialFactoryMixin {
                 }
                 uiLoginView.setLabelOnActionButton(PasswordI18nKeys.SendLink);
                 uiLoginView.showMainMessage();
-                uiLoginView.hideHyperlink();
+                uiLoginView.hideForgetPasswordHyperlink();
                 uiLoginView.hideMessageForPasswordField();
                 uiLoginView.hidePasswordField();
                 uiLoginView.showEmailField();
@@ -136,7 +146,7 @@ public class MagicLinkUi implements MaterialFactoryMixin {
                             uiLoginView.showMainMessage();
                             uiLoginView.getActionButton().setDisable(true);
                             uiLoginView.getEmailTextField().setDisable(true);
-                            uiLoginView.hideHyperlink();
+                            uiLoginView.hideForgetPasswordHyperlink();
                             uiLoginView.showGraphicFromActionButton();
                         }));
                 });
@@ -156,4 +166,38 @@ public class MagicLinkUi implements MaterialFactoryMixin {
         }
     }
 
-}
+        /**
+         * This method is used to initialise the parameters for the form validation
+         */
+        private void initFormValidation() {
+            if (!validationSupportInitialised) {
+                FXProperties.runNowAndOnPropertyChange(dictionary -> {
+                    if (dictionary != null) {
+                        validationSupport.reset();
+                        validationSupport.addPasswordStrengthValidation(uiLoginView.getPasswordField(),uiLoginView.getPasswordField(), I18n.getI18nText(CreateAccountI18nKeys.PasswordStrength));
+                    }
+                }, I18n.dictionaryProperty());
+                validationSupportInitialised = true;
+            }
+        }
+
+        private void resetValidationSupport() {
+            validationSupport.reset();
+            validationSupportInitialised = false;
+        }
+
+        /**
+         * We validate the form
+         *
+         * @return true if all the validation is success, false otherwise
+         */
+        public boolean validateForm() {
+            if (!validationSupportInitialised) {
+                initFormValidation();
+                validationSupportInitialised = true;
+            }
+            return validationSupport.isValid();
+        }
+
+
+    }
