@@ -20,6 +20,7 @@ module webfx.stack.authn.login.ui.gateway.password.plugin {
     requires webfx.stack.session.state.client.fx;
     requires webfx.stack.ui.controls;
     requires webfx.stack.ui.operation;
+    requires webfx.stack.ui.validation;
 
     // Exported packages
     exports dev.webfx.stack.authn.login.ui.spi.impl.gateway.password;
