@@ -174,7 +174,7 @@ public class UILoginView implements MaterialFactoryMixin {
         I18nControls.bindI18nProperties(actionButton, PasswordI18nKeys.SendEmailToValidate);
         actionButton.setOnAction(event -> {
             if (validateForm()) {
-                Object credentials = new InitiateAccountCreationCredentials(emailTextField.getText(), WindowLocation.getOrigin(), WindowLocation.getPath(), I18n.getLanguage(), FXLoginContext.getLoginContext());
+                Object credentials = new InitiateAccountCreationCredentials(emailTextField.getText().trim().toLowerCase(), WindowLocation.getOrigin(), WindowLocation.getPath(), I18n.getLanguage(), FXLoginContext.getLoginContext());
                 OperationUtil.turnOnButtonsWaitMode(actionButton);
                 new AuthenticationRequest()
                     .setUserCredentials(credentials)
@@ -249,7 +249,7 @@ public class UILoginView implements MaterialFactoryMixin {
 
         actionButton.setOnAction(event -> {
             if (validateForm()) {
-                Object credentials = new AuthenticateWithUsernamePasswordCredentials(emailTextField.getText(), passwordField.getText());
+                Object credentials = new AuthenticateWithUsernamePasswordCredentials(emailTextField.getText().trim().toLowerCase(), passwordField.getText().trim());
                 OperationUtil.turnOnButtonsWaitMode(actionButton);
                 new AuthenticationRequest()
                     .setUserCredentials(credentials)
@@ -287,7 +287,7 @@ public class UILoginView implements MaterialFactoryMixin {
 
         actionButton.setOnAction(event -> {
             if(validateForm()) {
-                Object credentials = new SendMagicLinkCredentials(emailTextField.getText(), WindowLocation.getOrigin(), WindowLocation.getPath(), I18n.getLanguage(), FXLoginContext.getLoginContext());
+                Object credentials = new SendMagicLinkCredentials(emailTextField.getText().trim().toLowerCase(), WindowLocation.getOrigin(), WindowLocation.getPath(), I18n.getLanguage(), FXLoginContext.getLoginContext());
                 OperationUtil.turnOnButtonsWaitMode(actionButton);
                 new AuthenticationRequest()
                     .setUserCredentials(credentials)
