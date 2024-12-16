@@ -236,6 +236,18 @@ public final class ValidationSupport {
         );
     }
 
+    public void addEmailNotEqualValidation(TextField emailInput, String forbiddenValue, Node where, String errorMessage) {
+        // Create the validation rule
+        addValidationRule(
+            Bindings.createBooleanBinding(
+                () -> !emailInput.getText().equalsIgnoreCase(forbiddenValue),
+                emailInput.textProperty()
+            ),
+            where,
+            errorMessage
+        );
+    }
+
     public void addUrlValidation(TextField urlInput, Node where, String errorMessage) {
         // Define the URL pattern (basic)
         String urlPattern = "^(https?://)(www\\.)?[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}(/.*)?$";
