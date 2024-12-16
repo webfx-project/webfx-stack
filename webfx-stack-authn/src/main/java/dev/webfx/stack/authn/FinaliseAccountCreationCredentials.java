@@ -3,7 +3,7 @@ package dev.webfx.stack.authn;
 /**
  * @author Bruno Salmon
  */
-public class FinaliseAccountCreationCredentials {
+public final class FinaliseAccountCreationCredentials {
 
     private final String token;
     private final String password;
