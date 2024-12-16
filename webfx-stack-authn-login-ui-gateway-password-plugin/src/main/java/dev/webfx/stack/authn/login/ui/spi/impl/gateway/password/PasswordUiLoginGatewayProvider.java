@@ -69,14 +69,10 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
         return uiLoginView.getContainer();
     }
 
-    /*private void initValidation() {
-        validationSupport.addRequiredInput(usernameField, "Username is required");
-        validationSupport.addRequiredInput(passwordField, "Password is required");
-    }*/
-
     private void resetUXToLogin() {
         signInModeProperty.setValue(true);
-        uiLoginView.transformPaneToInitialState(uiLoginPortalcallback);
+        //We wait one second to reset the UXLogin (otherwise it change to quickly, and we notice it on the UI if we have go to the password page to the home page (which take 1s), this change occurs between the two, and we don't want it to be noticed
+        UiScheduler.scheduleDelay(1000,()->uiLoginView.transformPaneToInitialState(uiLoginPortalcallback));
     }
 
     public void prepareShowing() {

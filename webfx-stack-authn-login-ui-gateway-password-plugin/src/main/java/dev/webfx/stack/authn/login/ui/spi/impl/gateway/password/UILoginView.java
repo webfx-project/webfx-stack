@@ -20,10 +20,8 @@ import dev.webfx.stack.ui.validation.ValidationSupport;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.text.TextAlignment;
@@ -46,7 +44,7 @@ public class UILoginView implements MaterialFactoryMixin {
     private final ValidationSupport validationSupport = new ValidationSupport();
 
     private BorderPane container;
-    private Consumer<String> createAccountEmailConsumer;
+    private final Consumer<String> createAccountEmailConsumer;
 
 
     private static final String CHECKMARK_PATH = "M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z M14.7 8.39l-3.78 5-1.63-2.11a1 1 0 0 0-1.58 1.23l2.43 3.11a1 1 0 0 0 .79.38 1 1 0 0 0 .79-.39l4.57-6a1 1 0 1 0-1.6-1.22z";
@@ -79,7 +77,7 @@ public class UILoginView implements MaterialFactoryMixin {
         loginTitleLabel.setPadding(new Insets(vSpacing, 0, 0, 0));
 
         mainMessageLabel = Bootstrap.textSuccess(new Label("Success Message"));
-        mainMessageLabel.setPadding(new Insets(40, 0, 0, 0));
+        mainMessageLabel.setPadding(new Insets(60, 0, 0, 0));
         mainMessageLabel.setTextAlignment(TextAlignment.CENTER);
         mainMessageLabel.setWrapText(true);
         mainMessageLabel.setGraphicTextGap(15);
@@ -121,18 +119,12 @@ public class UILoginView implements MaterialFactoryMixin {
         I18nControls.bindI18nProperties(createAccountHyperlink, PasswordI18nKeys.CreateAccount);
         createAccountHyperlink.getStyleClass().setAll(Bootstrap.TEXT_SECONDARY);
         createAccountHyperlink.setVisible(true);
-        Node createAccountContainer = new Region();
-        if (createAccountEmailConsumer != null) {
-            createAccountHyperlink.setVisible(true);
-            createAccountHyperlink.setManaged(true);
-        } else {
+        if (createAccountEmailConsumer == null) {
             createAccountHyperlink.setVisible(false);
             createAccountHyperlink.setManaged(false);
         }
         createAccountHyperlink.setOnAction(null);
         VBox.setMargin(createAccountHyperlink, new Insets(20, 0, 0, 0));
-
-        Label createAccountLabel = I18nControls.bindI18nProperties(new Label(), PasswordI18nKeys.CreateAccount);
 
         actionButton = Bootstrap.largePrimaryButton(I18nControls.newButton(PasswordI18nKeys.Continue));
         VBox.setMargin(actionButton, new Insets(30, 0, 0, 0));
@@ -165,7 +157,7 @@ public class UILoginView implements MaterialFactoryMixin {
         hideMessageForPasswordField();
         I18nControls.bindI18nProperties(forgetRememberPasswordHyperlink, PasswordI18nKeys.Back);
         showForgetPasswordHyperlink();
-        forgetRememberPasswordHyperlink.setOnAction(e->{transformPaneToInitialState(callback);});
+        forgetRememberPasswordHyperlink.setOnAction(e-> transformPaneToInitialState(callback));
         loginTitleLabel.setWrapText(true);
         I18nControls.bindI18nProperties(mainMessageLabel, PasswordI18nKeys.CreateAccountInfoMessage);
         showMainMessage();
@@ -212,12 +204,13 @@ public class UILoginView implements MaterialFactoryMixin {
     public void transformPaneToInitialState(UiLoginPortalCallback callback) {
         I18nControls.bindI18nProperties(loginTitleLabel, PasswordI18nKeys.Login);
         hidePasswordField();
+        hideMainMessage();
         mainMessageLabel.setManaged(false);
         hideMessageForPasswordField();
         hideForgetPasswordHyperlink();
         I18nControls.bindI18nProperties(actionButton, PasswordI18nKeys.Continue);
         showCreateAccountHyperlink();
-        createAccountHyperlink.setOnAction(e->{transformPaneToCreateAccount(callback);});
+        createAccountHyperlink.setOnAction(e-> transformPaneToCreateAccount(callback));
         actionButton.setOnAction(e->{
             if (validateForm()) {
                 transformPaneToLoginAndPasswordState(callback);
@@ -237,7 +230,6 @@ public class UILoginView implements MaterialFactoryMixin {
     public void transformPaneToLoginAndPasswordState(UiLoginPortalCallback callback) {
         showPasswordField();
         showMessageForPasswordField();
-        mainMessageLabel.setManaged(true);
         showForgetPasswordHyperlink();
         I18nControls.bindI18nProperties(loginTitleLabel, PasswordI18nKeys.Login);
         hideCreateAccountHyperlink();
@@ -262,11 +254,7 @@ public class UILoginView implements MaterialFactoryMixin {
                             showMessageForPasswordField();
                         });
                     })
-                    .onSuccess(ignored -> UiScheduler.runInUiThread(() -> {
-                        emailTextField.clear();
-                        passwordField.clear();
-                        hideGraphicFromActionButton();
-                    }));
+                    .onSuccess(ignored -> UiScheduler.scheduleDelay(1000,() -> passwordField.setText("")));
             }
         });
         moveActionButtonAtTheBottom();
@@ -278,7 +266,6 @@ public class UILoginView implements MaterialFactoryMixin {
     public void transformPaneToForgetPasswordState(UiLoginPortalCallback callback) {
         hidePasswordField();
         hideMessageForPasswordField();
-        mainMessageLabel.setManaged(true);
         I18nControls.bindI18nProperties(loginTitleLabel, PasswordI18nKeys.Recovery);
         hideCreateAccountHyperlink();
         I18nControls.bindI18nProperties(forgetRememberPasswordHyperlink, PasswordI18nKeys.RememberPassword);
@@ -382,7 +369,7 @@ public class UILoginView implements MaterialFactoryMixin {
 
     public void hideMainMessage() {
         mainMessageLabel.setVisible(false);
-        // mainMessageLabel.setManaged(false);
+        mainMessageLabel.setManaged(false);
     }
 
     public void showPasswordField() {
@@ -422,17 +409,11 @@ public class UILoginView implements MaterialFactoryMixin {
         hideActionButton();
     }
 
-    public Hyperlink getForgetRememberPasswordHyperlink() {
-        return forgetRememberPasswordHyperlink;
-    }
 
     public Label getInfoMessageForPasswordFieldLabel() {
         return infoMessageForPasswordFieldLabel;
     }
 
-    public Label getLoginTitleLabel() {
-        return loginTitleLabel;
-    }
 
     public BorderPane getContainer() {
         return container;
