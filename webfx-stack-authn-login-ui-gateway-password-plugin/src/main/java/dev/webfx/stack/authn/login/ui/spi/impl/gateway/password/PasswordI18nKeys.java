@@ -28,5 +28,6 @@ public interface PasswordI18nKeys {
     String SendEmailToValidate = "SendEmailToValidate";
     String InvalidEmail = "InvalidEmail";
     String YouMayCloseThisWindow = "YouMayCloseThisWindow";
+    String EditUserAccount = "EditUserAccount";
 
 }
