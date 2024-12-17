@@ -48,12 +48,14 @@ public final class EntityResultBuilder {
 
     void unsetFieldValue(EntityId id, Object fieldId) {
         Map fieldMap = entityFieldMap(id);
-        if (fieldId != null)
-            fieldMap.remove(fieldId);
-        else
-            fieldMap.clear();
-        if (hasEntityNoChange(id, fieldMap))
-            changedEntitiesCount--;
+        if (!hasEntityNoChange(id, fieldMap)) {
+            if (fieldId != null)
+                fieldMap.remove(fieldId);
+            else
+                fieldMap.clear();
+            if (hasEntityNoChange(id, fieldMap))
+                changedEntitiesCount--;
+        }
     }
 
     boolean isEmpty() {
