@@ -74,12 +74,14 @@ public class ControlsFxVisualizer extends ValidationVisualizerBase {
 			}
 			
 		} else {
-			decoration.removeDecorations(control);
+			removeDecorations(control);
 		}
-		
-		if (required) {
-			decoration.applyRequiredDecoration(control);
-		}
+
+		applyRequiredVisualization(control, required);
 	}
-	
+
+	@Override
+	public void removeDecorations(Control control) {
+		decoration.removeDecorations(control);
+	}
 }

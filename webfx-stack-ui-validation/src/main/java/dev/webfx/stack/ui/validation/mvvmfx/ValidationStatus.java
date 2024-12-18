@@ -37,11 +37,11 @@ import java.util.Optional;
  */
 public class ValidationStatus {
 	
-	private ListProperty<ValidationMessage> messages = new SimpleListProperty<>(FXCollections.observableArrayList());
+	private final ListProperty<ValidationMessage> messages = new SimpleListProperty<>(FXCollections.observableArrayList());
 
-	private ObservableList<ValidationMessage> unmodifiableMessages = FXCollections.unmodifiableObservableList(messages);
-	private ObservableList<ValidationMessage> errorMessages = new FilteredList<>(unmodifiableMessages, message -> message.getSeverity().equals(Severity.ERROR));
-	private ObservableList<ValidationMessage> warningMessages = new FilteredList<>(unmodifiableMessages, message -> message.getSeverity().equals(Severity.WARNING));
+	private final ObservableList<ValidationMessage> unmodifiableMessages = FXCollections.unmodifiableObservableList(messages);
+	private final ObservableList<ValidationMessage> errorMessages = new FilteredList<>(unmodifiableMessages, message -> message.getSeverity().equals(Severity.ERROR));
+	private final ObservableList<ValidationMessage> warningMessages = new FilteredList<>(unmodifiableMessages, message -> message.getSeverity().equals(Severity.WARNING));
 
 	/**
 	 * Intended for subclasses used by special validator implementations.

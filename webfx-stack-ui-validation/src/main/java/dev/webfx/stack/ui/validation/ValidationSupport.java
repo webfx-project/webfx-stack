@@ -73,6 +73,22 @@ public final class ValidationSupport {
         validatingProperty.setValue(false);
     }
 
+    public void clear() {
+        reset(); // hiding possible validation messages
+        validatorErrorDecorationNodes.forEach(this::uninstallNodeDecorator);
+        validatorErrorDecorationNodes.clear();
+        validators.forEach(validator -> {
+            if (validator instanceof ObservableRuleBasedValidator) {
+                ((ObservableRuleBasedValidator) validator).clear();
+            }
+        });
+        validators.clear();
+    }
+
+    public boolean isEmpty() {
+        return validators.isEmpty();
+    }
+
     private Validator firstInvalidValidator() {
         return Collections.findFirst(validators, validator -> !validator.getValidationStatus().isValid());
     }
@@ -108,14 +124,30 @@ public final class ValidationSupport {
 
     public ObservableBooleanValue addValidationRule(ObservableValue<Boolean> validProperty, Node node, String errorMessage, boolean required) {
         ObservableRuleBasedValidator validator = new ObservableRuleBasedValidator();
-        ObservableBooleanValue rule =
+        ObservableBooleanValue finalValidProperty = // when true, no decorations are displayed on the node
                 Bindings.createBooleanBinding(() ->
-                    !validatingProperty.get() || validProperty.getValue() || !isShowing(node)
+                    !validatingProperty.get() // no decoration displayed if not validation
+                    || validProperty.getValue() // no decoration displayed if the node is valid
+                    || !isShowing(node) // no decoration displayed if the node is not showing
                 , validProperty, validatingProperty);
-        validator.addRule(rule, ValidationMessage.error(errorMessage));
+        ValidationMessage errorValidationMessage = ValidationMessage.error(errorMessage);
+        validator.addRule(finalValidProperty, errorValidationMessage);
         validators.add(validator);
         validatorErrorDecorationNodes.add(node);
+        installNodeDecorator(node, validator, required);
+        // The following code is to remove the error message after being displayed and the user is re-typing
+        if (node instanceof TextInputControl) {
+            FXProperties.runOnPropertiesChange(
+                () -> {
+                    validator.validateBooleanRule(true, errorValidationMessage);
+                    uninstallNodeDecorator(node);
+                }
+            , ((TextInputControl) node).textProperty()); // ex of dependencies: textField.textProperty()
+        }
+        return finalValidProperty;
+    }
 
+    private void installNodeDecorator(Node node, ObservableRuleBasedValidator validator, boolean required) {
         if (node instanceof Control) {
             Control control = (Control) node;
             ControlsFxVisualizer validationVisualizer = new ControlsFxVisualizer();
@@ -142,28 +174,36 @@ public final class ValidationSupport {
                     double xRelativeOffset = isInside ? -1 : 1; // positioning the decoration inside the control for button and text input
                     double xOffset = isInside && isButton ?  -20 : 0; // moving the decoration before the drop down arrow
                     return java.util.Collections.singletonList(
-                            new GraphicDecoration(createDecorationNode(message),
-                                    Pos.CENTER_RIGHT,
-                                    xOffset,
-                                    0,
-                                    xRelativeOffset,
-                                    0)
+                        new GraphicDecoration(createDecorationNode(message),
+                            Pos.CENTER_RIGHT,
+                            xOffset,
+                            0,
+                            xRelativeOffset,
+                            0)
                     );
                 }
 
                 @Override
                 protected Collection<Decoration> createRequiredDecorations(Control target) {
                     return java.util.Collections.singletonList(
-                            new GraphicDecoration(ImageStore.createImageView(ValidationIcons.validationRequiredIcon16Url),
-                                    Pos.CENTER_LEFT,
-                                    -10,
-                                    0));
+                        new GraphicDecoration(ImageStore.createImageView(ValidationIcons.validationRequiredIcon16Url),
+                            Pos.CENTER_LEFT,
+                            -10,
+                            0));
                 }
             });
             validationVisualizer.initVisualization(validator.getValidationStatus(), control, required);
             node.getProperties().put("validationVisualizer", validationVisualizer);
         }
-        return rule;
+    }
+
+    private void uninstallNodeDecorator(Node node) {
+        if (node instanceof Control) {
+            Control control = (Control) node;
+            ControlsFxVisualizer validationVisualizer = (ControlsFxVisualizer) node.getProperties().get("validationVisualizer");
+            if (validationVisualizer != null)
+                validationVisualizer.removeDecorations(control);
+        }
     }
 
     private void showValidatorErrorPopOver(Validator validator) {
@@ -391,25 +431,28 @@ public final class ValidationSupport {
         );
     }
 
-    public void addPasswordMatchValidation(TextField passwordField, TextField repeatPasswordField, Node where, String errorMessage) {
+    public void addPasswordMatchValidation(TextField passwordField, TextField repeatPasswordField, String errorMessage) {
         addValidationRule(
             Bindings.createBooleanBinding(
                 () -> passwordField.getText().equals(repeatPasswordField.getText()),
                 passwordField.textProperty(),
                 repeatPasswordField.textProperty()
             ),
-            where,
-            errorMessage
+            repeatPasswordField,
+            errorMessage,
+            true
         );
     }
-    public void addPasswordStrengthValidation(TextField passwordField, Node where, String errorMessage) {
+
+    public void addPasswordStrengthValidation(TextField passwordField, String errorMessage) {
         addValidationRule(
             Bindings.createBooleanBinding(
                 () -> checkPasswordStrength(passwordField.getText()),
                 passwordField.textProperty()
             ),
-            where,
-            errorMessage
+            passwordField,
+            errorMessage,
+            true
         );
     }
     /**
@@ -492,7 +535,7 @@ public final class ValidationSupport {
     }
 
     private static boolean isShowing(Node node) {
-        if (!node.isVisible())
+        if (node == null || !node.isVisible())
             return false;
         Parent parent = node.getParent();
         if (parent != null)

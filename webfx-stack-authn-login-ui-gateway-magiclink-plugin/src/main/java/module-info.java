@@ -6,7 +6,6 @@ module webfx.stack.authn.login.ui.gateway.magiclink.plugin {
     requires javafx.base;
     requires javafx.controls;
     requires javafx.graphics;
-    requires modality.crm.client.activity.login.plugin;
     requires modality.crm.frontoffice.activity.createaccount.plugin;
     requires webfx.extras.styles.bootstrap;
     requires webfx.kit.util;
