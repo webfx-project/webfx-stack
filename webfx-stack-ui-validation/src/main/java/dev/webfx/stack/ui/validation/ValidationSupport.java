@@ -327,7 +327,7 @@ public final class ValidationSupport {
     }
 
 
-    public void addUrlOrEmptyValidation(TextField urlInput, Node where, String errorMessage) {
+    public void addUrlOrEmptyValidation(TextField urlInput, String errorMessage) {
         // Define the URL pattern (basic)
         String urlPattern = "^(https?|srt|rtmp|rtsp)://[\\w.-]+(:\\d+)?(/[\\w./-]*)?(\\?[\\w=&%.-]*)?(#[\\w!:.=&,-]*)?$";
         Pattern pattern = Pattern.compile(urlPattern);
@@ -341,7 +341,7 @@ public final class ValidationSupport {
                 },
                 urlInput.textProperty()
             ),
-            where,
+            urlInput,
             errorMessage
         );
     }
