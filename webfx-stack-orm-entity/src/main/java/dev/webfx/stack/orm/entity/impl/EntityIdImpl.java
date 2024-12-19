@@ -10,7 +10,7 @@ import java.util.Objects;
 /**
  * @author Bruno Salmon
  */
-public final class EntityIdImpl implements EntityId {
+public final class EntityIdImpl implements EntityId, Comparable<EntityId> {
 
     private final DomainClass domainClass;
     private final Object primaryKey;
@@ -56,6 +56,16 @@ public final class EntityIdImpl implements EntityId {
     public int hashCode() {
         int result = domainClass != null ? domainClass.hashCode() : 0;
         result = 31 * result + (primaryKey != null ? primaryKey.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public int compareTo(EntityId id2) {
+        if (id2 == null)
+            return -1;
+        int result = domainClass.getName().compareTo(id2.getDomainClass().getName());
+        if (result == 0)
+            result = Numbers.compareObjectsOrNumbers(primaryKey, id2.getPrimaryKey());
         return result;
     }
 
