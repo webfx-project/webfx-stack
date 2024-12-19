@@ -1,6 +1,7 @@
 package dev.webfx.stack.orm.expression.terms.function;
 
 import dev.webfx.extras.type.Type;
+import dev.webfx.platform.util.Numbers;
 import dev.webfx.stack.orm.expression.CollectOptions;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.lci.DomainReader;
@@ -130,18 +131,16 @@ public final class Call<T> extends UnaryExpression<T> {
             for (Expression<T> orderExpression : orderExpressions) {
                 Object o1 = orderExpression.evaluate(e1, domainReader);
                 Object o2 = orderExpression.evaluate(e2, domainReader);
-                Ordered<T> ordered = orderExpression instanceof Ordered ? (Ordered<T>) orderExpression : null;
-                int result;
                 if (o1 == o2)
-                    result = 0;
-                else if (!(o1 instanceof Comparable))
-                    result = ordered == null || ordered.isNullsLast() ? 1 : -1;
-                else if (!(o2 instanceof Comparable))
-                    result = ordered == null || ordered.isNullsLast() ? -1 : 1;
-                else {
-                    result = ((Comparable) o1).compareTo(o2);
-                    if (ordered != null && ordered.isDescending())
-                        result = -result;
+                    return 0;
+                Ordered ordered = orderExpression instanceof Ordered ? (Ordered) orderExpression : null;
+                if (o1 == null)
+                    return ordered != null && ordered.isNullsFirst() ? -1 : 1;
+                if (o2 == null)
+                    return ordered != null && ordered.isNullsFirst() ? 1 : -1;
+                int result = Numbers.compareObjectsOrNumbers(o1, o2);
+                if (result != 0 && ordered != null && ordered.isDescending()) {
+                    result = -result;
                 }
                 if (result != 0)
                     return result;

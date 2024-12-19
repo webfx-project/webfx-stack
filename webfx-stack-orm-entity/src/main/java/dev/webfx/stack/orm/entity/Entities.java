@@ -1,5 +1,6 @@
 package dev.webfx.stack.orm.entity;
 
+import dev.webfx.platform.util.Arrays;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.terms.Select;
 import dev.webfx.stack.orm.expression.terms.function.Call;
@@ -86,7 +87,15 @@ public final class Entities {
 
     public static <E extends Entity> List<E> orderBy(List<E> entityList, Expression<E>... orderExpressions) {
         if (Collections.isEmpty(entityList))
-            return Collections.emptyList();
-        return Call.orderBy(entityList, new EntityDomainReader<>(entityList.get(0).getStore()), orderExpressions);
+            return entityList;
+        EntityStore store = entityList.get(0).getStore();
+        return Call.orderBy(entityList, new EntityDomainReader<>(store), orderExpressions);
+    }
+
+    public static <E extends Entity> List<E> orderBy(List<E> entityList, String... orderExpressions) {
+        if (Collections.isEmpty(entityList))
+            return entityList;
+        DomainClass domainClass = entityList.get(0).getDomainClass();
+        return orderBy(entityList, Arrays.map(orderExpressions, oe -> domainClass.parseExpression(oe.startsWith("order by") ? oe : "order by " + oe), Expression[]::new));
     }
 }
