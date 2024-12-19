@@ -4,7 +4,7 @@ import dev.webfx.platform.async.Batch;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.Arrays;
-import dev.webfx.platform.util.Objects;
+import dev.webfx.platform.util.Numbers;
 import dev.webfx.stack.db.datascope.DataScope;
 import dev.webfx.stack.db.submit.SubmitArgument;
 import dev.webfx.stack.db.submit.SubmitResult;
@@ -58,7 +58,7 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
 
     void onInsertedOrUpdatedEntityFieldChange(EntityId id, Object domainFieldId, Object value, Object underlyingValue, boolean isUnderlyingValueLoaded) {
         // If the user enters back the original value, we completely clear that field from the changes
-        if (isUnderlyingValueLoaded && Objects.areEquals(value, underlyingValue)) {
+        if (isUnderlyingValueLoaded && Numbers.identicalObjectsOrNumberValues(value, underlyingValue)) {
             changesBuilder.removeFieldChange(id, domainFieldId);
         } else {
             changesBuilder.addFieldChange(id, domainFieldId, value);
