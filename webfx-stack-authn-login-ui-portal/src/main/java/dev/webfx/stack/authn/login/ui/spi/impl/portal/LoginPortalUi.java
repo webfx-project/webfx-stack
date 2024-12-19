@@ -8,7 +8,7 @@ import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.os.OperatingSystem;
 import dev.webfx.platform.uischeduler.UiScheduler;
-import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProvider;
+import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGateway;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginPortalCallback;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.magiclink.MagicLinkUi;
 import javafx.application.Platform;
@@ -97,13 +97,13 @@ final class LoginPortalUi implements UiLoginPortalCallback {
         if (magicLinkTokenProperty != null)
             userUI = new MagicLinkUi(magicLinkTokenProperty, requestedPathConsumer).getUi();
         else {
-            for (UiLoginGatewayProvider gatewayProvider : UiLoginPortalProvider.getProviders()) {
-                Object gatewayId = gatewayProvider.getGatewayId();
+            for (UiLoginGateway gateway : UiLoginPortalProvider.getGateways()) {
+                Object gatewayId = gateway.getGatewayId();
                 if ("Password".equals(gatewayId)) {
-                    userUI = gatewayProvider.createLoginUi(this);
+                    userUI = gateway.createLoginUi(this);
                 } else {
                     //If we have magicklink to true, we do nothing
-                    StackPane loginButton = new StackPane(gatewayProvider.createLoginButton());
+                    StackPane loginButton = new StackPane(gateway.createLoginButton());
                     loginButton.setPadding(new Insets(13));
                     loginButton.setPrefSize(50, 50);
                     loginButton.setOnMouseClicked(e -> {
@@ -115,7 +115,7 @@ final class LoginPortalUi implements UiLoginPortalCallback {
                         BorderPane borderPane = new BorderPane();
                         borderPane.setBottom(backButton);
                         flipPane.setBack(borderPane);
-                        Node loginUi = gatewayProvider.createLoginUi(this); // probably a web-view
+                        Node loginUi = gateway.createLoginUi(this); // probably a web-view
                         if (!OperatingSystem.isMobile()) {
                             borderPane.setCenter(loginUi);
                             flipPane.flipToBack();

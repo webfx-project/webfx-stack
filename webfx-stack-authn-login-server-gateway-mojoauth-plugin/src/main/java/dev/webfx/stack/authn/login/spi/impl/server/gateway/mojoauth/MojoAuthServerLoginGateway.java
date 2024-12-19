@@ -6,7 +6,7 @@ import dev.webfx.platform.conf.ConfigLoader;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.tuples.Pair;
 import dev.webfx.stack.authn.AuthenticationService;
-import dev.webfx.stack.authn.login.spi.impl.server.gateway.ServerLoginGatewayProvider;
+import dev.webfx.stack.authn.login.spi.impl.server.gateway.ServerLoginGateway;
 import dev.webfx.stack.push.server.PushServerService;
 import dev.webfx.stack.routing.router.Router;
 import dev.webfx.stack.routing.router.RoutingContext;
@@ -19,7 +19,7 @@ import dev.webfx.stack.session.state.ThreadLocalStateHolder;
 /**
  * @author Bruno Salmon
  */
-public class MojoAuthServerLoginGatewayProvider implements ServerLoginGatewayProvider {
+public class MojoAuthServerLoginGateway implements ServerLoginGateway {
 
     private final static String CONFIG_PATH = "webfx.stack.authn.server.mojoauth";
     private final static String API_KEY_CONF_KEY = "apiKey";

@@ -6,15 +6,15 @@ import dev.webfx.platform.async.Promise;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.fetch.json.JsonFetch;
 import dev.webfx.stack.authn.UserClaims;
-import dev.webfx.stack.authn.server.gateway.spi.impl.ServerAuthenticationGatewayProviderBase;
+import dev.webfx.stack.authn.server.gateway.spi.impl.ServerAuthenticationGatewayBase;
 import dev.webfx.stack.session.state.ThreadLocalStateHolder;
 
-import static dev.webfx.stack.authn.login.spi.impl.server.gateway.facebook.FacebookServerLoginGatewayProvider.*;
+import static dev.webfx.stack.authn.login.spi.impl.server.gateway.facebook.FacebookServerLoginGateway.*;
 
 /**
  * @author Bruno Salmon
  */
-public final class FacebookServerAuthenticationGatewayProvider extends ServerAuthenticationGatewayProviderBase {
+public final class FacebookServerAuthenticationGateway extends ServerAuthenticationGatewayBase {
 
     private final static String FACEBOOK_AUTH_TOKEN_PREFIX = "Facebook.";
     private static final String FB_JSON_API_APP_TOKEN_URL_TEMPLATE = "https://graph.facebook.com/oauth/access_token?client_id={{CLIENT_ID}}&client_secret={{CLIENT_SECRET}}&grant_type=client_credentials";
@@ -24,7 +24,7 @@ public final class FacebookServerAuthenticationGatewayProvider extends ServerAut
 
     private String appAccessToken;
 
-    public FacebookServerAuthenticationGatewayProvider() {
+    public FacebookServerAuthenticationGateway() {
         super(FACEBOOK_AUTH_TOKEN_PREFIX);
     }
 

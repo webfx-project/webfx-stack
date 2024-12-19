@@ -2,7 +2,7 @@ package dev.webfx.stack.authn.login.ui.spi.impl.portal;
 
 import dev.webfx.platform.service.MultipleServiceProviders;
 import dev.webfx.stack.authn.login.ui.spi.UiLoginServiceProvider;
-import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProvider;
+import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGateway;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginPortalCallback;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
@@ -19,8 +19,8 @@ import java.util.function.Consumer;
  */
 public class UiLoginPortalProvider implements UiLoginServiceProvider, UiLoginPortalCallback {
 
-    static List<UiLoginGatewayProvider> getProviders() {
-        return MultipleServiceProviders.getProviders(UiLoginGatewayProvider.class, () -> ServiceLoader.load(UiLoginGatewayProvider.class));
+    static List<UiLoginGateway> getGateways() {
+        return MultipleServiceProviders.getProviders(UiLoginGateway.class, () -> ServiceLoader.load(UiLoginGateway.class));
     }
 
     // Several login ui may be instantiated in different activities, but only one should be visible at a time (= active login)

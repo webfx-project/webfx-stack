@@ -3,7 +3,7 @@ package dev.webfx.stack.authn.server.gateway.spi;
 import dev.webfx.platform.async.Future;
 import dev.webfx.stack.authn.UserClaims;
 
-public interface ServerAuthenticationGatewayProvider {
+public interface ServerAuthenticationGateway {
 
     default void boot() {}
 

@@ -1,6 +1,6 @@
 package dev.webfx.stack.authn.login.ui.spi.impl.gateway.mojoauth;
 
-import dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.WebViewBasedUiLoginGatewayProvider;
+import dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.WebViewBasedUiLoginGateway;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
@@ -8,11 +8,11 @@ import javafx.scene.shape.SVGPath;
 /**
  * @author Bruno Salmon
  */
-public final class MojoAuthUiLoginGatewayProvider extends WebViewBasedUiLoginGatewayProvider {
+public final class MojoAuthUiLoginGateway extends WebViewBasedUiLoginGateway {
 
     private final static String GATEWAY_ID = "MojoAuth";
 
-    public MojoAuthUiLoginGatewayProvider() {
+    public MojoAuthUiLoginGateway() {
         super(GATEWAY_ID);
     }
 

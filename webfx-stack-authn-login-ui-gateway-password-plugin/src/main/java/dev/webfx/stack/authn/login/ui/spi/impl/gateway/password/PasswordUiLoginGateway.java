@@ -3,7 +3,7 @@ package dev.webfx.stack.authn.login.ui.spi.impl.gateway.password;
 import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;
-import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProviderBase;
+import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayBase;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginPortalCallback;
 import dev.webfx.stack.i18n.controls.I18nControls;
 import dev.webfx.stack.session.state.client.fx.FXUserId;
@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 /**
  * @author Bruno Salmon
  */
-public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProviderBase implements MaterialFactoryMixin {
+public final class PasswordUiLoginGateway extends UiLoginGatewayBase implements MaterialFactoryMixin {
 
    private final static String GATEWAY_ID = "Password";
 
@@ -36,7 +36,7 @@ public final class PasswordUiLoginGatewayProvider extends UiLoginGatewayProvider
         CREATE_ACCOUNT_EMAIL_CONSUMER = createAccountEmailConsumer;
     }
 
-    public PasswordUiLoginGatewayProvider() {
+    public PasswordUiLoginGateway() {
         super(GATEWAY_ID);
         FXProperties.runOnPropertiesChange(() -> {
             if (FXUserId.getUserId() != null)

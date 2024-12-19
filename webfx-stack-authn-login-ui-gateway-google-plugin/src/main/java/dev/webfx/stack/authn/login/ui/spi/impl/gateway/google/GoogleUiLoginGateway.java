@@ -1,18 +1,18 @@
 package dev.webfx.stack.authn.login.ui.spi.impl.gateway.google;
 
 import dev.webfx.platform.resource.Resource;
-import dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.WebViewBasedUiLoginGatewayProvider;
+import dev.webfx.stack.authn.login.ui.spi.impl.gateway.webview.WebViewBasedUiLoginGateway;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 
 /**
  * @author Bruno Salmon
  */
-public final class GoogleUiLoginGatewayProvider extends WebViewBasedUiLoginGatewayProvider {
+public final class GoogleUiLoginGateway extends WebViewBasedUiLoginGateway {
 
     private final static String GATEWAY_ID = "Google";
 
-    public GoogleUiLoginGatewayProvider() {
+    public GoogleUiLoginGateway() {
         super(GATEWAY_ID);
     }
 

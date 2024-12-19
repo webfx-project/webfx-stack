@@ -4,16 +4,16 @@ import dev.webfx.platform.async.Promise;
 import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.authn.UserClaims;
 import dev.webfx.stack.authn.server.gateway.spi.impl.Jwt;
-import dev.webfx.stack.authn.server.gateway.spi.impl.ServerAuthenticationGatewayProviderBase;
+import dev.webfx.stack.authn.server.gateway.spi.impl.ServerAuthenticationGatewayBase;
 
 /**
  * @author Bruno Salmon
  */
-public final class GoogleServerAuthenticationGatewayProvider extends ServerAuthenticationGatewayProviderBase {
+public final class GoogleServerAuthenticationGateway extends ServerAuthenticationGatewayBase {
 
     private final static String GOOGLE_GATEWAY_AUTH_PREFIX = "Google.";
 
-    public GoogleServerAuthenticationGatewayProvider() {
+    public GoogleServerAuthenticationGateway() {
         super(GOOGLE_GATEWAY_AUTH_PREFIX);
     }
 

@@ -3,11 +3,11 @@ package dev.webfx.stack.authn.login.ui.spi.impl.gateway;
 /**
  * @author Bruno Salmon
  */
-public abstract class UiLoginGatewayProviderBase implements UiLoginGatewayProvider {
+public abstract class UiLoginGatewayBase implements UiLoginGateway {
 
     private final Object gatewayId;
 
-    public UiLoginGatewayProviderBase(Object gatewayId) {
+    public UiLoginGatewayBase(Object gatewayId) {
         this.gatewayId = gatewayId;
     }
 

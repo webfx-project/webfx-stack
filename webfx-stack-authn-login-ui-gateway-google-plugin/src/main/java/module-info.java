@@ -15,6 +15,6 @@ module webfx.stack.authn.login.ui.gateway.google.plugin {
     opens dev.webfx.stack.authn.login.ui.spi.impl.gateway.google;
 
     // Provided services
-    provides dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProvider with dev.webfx.stack.authn.login.ui.spi.impl.gateway.google.GoogleUiLoginGatewayProvider;
+    provides dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGateway with dev.webfx.stack.authn.login.ui.spi.impl.gateway.google.GoogleUiLoginGateway;
 
 }

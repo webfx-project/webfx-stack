@@ -10,24 +10,24 @@ import com.mojoauth.sdk.util.MojoAuthSDK;
 import dev.webfx.platform.async.Promise;
 import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.authn.UserClaims;
-import dev.webfx.stack.authn.login.spi.impl.server.gateway.mojoauth.MojoAuthServerLoginGatewayProvider;
+import dev.webfx.stack.authn.login.spi.impl.server.gateway.mojoauth.MojoAuthServerLoginGateway;
 import dev.webfx.stack.authn.server.gateway.spi.impl.Jwt;
-import dev.webfx.stack.authn.server.gateway.spi.impl.ServerAuthenticationGatewayProviderBase;
+import dev.webfx.stack.authn.server.gateway.spi.impl.ServerAuthenticationGatewayBase;
 
 /**
  * @author Bruno Salmon
  */
-public final class MojoAuthServerAuthenticationGatewayProvider extends ServerAuthenticationGatewayProviderBase {
+public final class MojoAuthServerAuthenticationGateway extends ServerAuthenticationGatewayBase {
 
     private final static String MOJO_AUTH_PREFIX = "MojoAuth.";
     //private final static String USERS_STATUS_URL = "https://api.mojoauth.com/users/status";
 
     private MojoAuthApi mojoAuthApi;
 
-    public MojoAuthServerAuthenticationGatewayProvider() {
+    public MojoAuthServerAuthenticationGateway() {
         super(MOJO_AUTH_PREFIX);
-        MojoAuthServerLoginGatewayProvider.onValidConfig(() -> {
-            MojoAuthSDK.Initialize.setApiKey(MojoAuthServerLoginGatewayProvider.MOJO_AUTH_API_KEY);
+        MojoAuthServerLoginGateway.onValidConfig(() -> {
+            MojoAuthSDK.Initialize.setApiKey(MojoAuthServerLoginGateway.MOJO_AUTH_API_KEY);
             mojoAuthApi = new MojoAuthApi();
         });
     }

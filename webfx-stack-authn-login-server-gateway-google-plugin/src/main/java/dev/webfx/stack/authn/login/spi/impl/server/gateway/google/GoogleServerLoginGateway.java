@@ -5,7 +5,7 @@ import dev.webfx.platform.async.Future;
 import dev.webfx.platform.conf.ConfigLoader;
 import dev.webfx.platform.console.Console;
 import dev.webfx.stack.authn.AuthenticationService;
-import dev.webfx.stack.authn.login.spi.impl.server.gateway.ServerLoginGatewayProvider;
+import dev.webfx.stack.authn.login.spi.impl.server.gateway.ServerLoginGateway;
 import dev.webfx.stack.authn.oauth2.OAuth2Service;
 import dev.webfx.stack.push.server.PushServerService;
 import dev.webfx.stack.routing.router.Router;
@@ -18,7 +18,7 @@ import dev.webfx.stack.session.state.ThreadLocalStateHolder;
 /**
  * @author Bruno Salmon
  */
-public class GoogleServerLoginGatewayProvider implements ServerLoginGatewayProvider {
+public class GoogleServerLoginGateway implements ServerLoginGateway {
 
     private final static String CONFIG_PATH = "webfx.stack.authn.server.google";
     private final static String CLIENT_ID_CONF_KEY = "clientId";

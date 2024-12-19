@@ -4,15 +4,15 @@ import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.Promise;
 import dev.webfx.stack.authn.UserClaims;
 import dev.webfx.stack.authn.logout.server.LogoutPush;
-import dev.webfx.stack.authn.server.gateway.spi.ServerAuthenticationGatewayProvider;
+import dev.webfx.stack.authn.server.gateway.spi.ServerAuthenticationGateway;
 import dev.webfx.stack.session.state.ThreadLocalStateHolder;
 /**
  * @author Bruno Salmon
  */
-public abstract class ServerAuthenticationGatewayProviderBase implements ServerAuthenticationGatewayProvider {
+public abstract class ServerAuthenticationGatewayBase implements ServerAuthenticationGateway {
     private final String gatewayAuthPrefix;
 
-    public ServerAuthenticationGatewayProviderBase(String gatewayAuthPrefix) {
+    public ServerAuthenticationGatewayBase(String gatewayAuthPrefix) {
         this.gatewayAuthPrefix = gatewayAuthPrefix;
     }
 

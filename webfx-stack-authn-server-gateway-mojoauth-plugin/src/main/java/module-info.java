@@ -14,6 +14,6 @@ module webfx.stack.authn.server.gateway.mojoauth.plugin {
     exports dev.webfx.stack.authn.server.gateway.spi.mojoauth;
 
     // Provided services
-    provides dev.webfx.stack.authn.server.gateway.spi.ServerAuthenticationGatewayProvider with dev.webfx.stack.authn.server.gateway.spi.mojoauth.MojoAuthServerAuthenticationGatewayProvider;
+    provides dev.webfx.stack.authn.server.gateway.spi.ServerAuthenticationGateway with dev.webfx.stack.authn.server.gateway.spi.mojoauth.MojoAuthServerAuthenticationGateway;
 
 }

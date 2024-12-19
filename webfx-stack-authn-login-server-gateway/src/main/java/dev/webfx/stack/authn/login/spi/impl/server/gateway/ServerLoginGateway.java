@@ -5,7 +5,7 @@ import dev.webfx.platform.async.Future;
 /**
  * @author Bruno Salmon
  */
-public interface ServerLoginGatewayProvider {
+public interface ServerLoginGateway {
 
     void boot();
 

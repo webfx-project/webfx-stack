@@ -24,7 +24,7 @@ module webfx.stack.authn.login.ui.portal {
     opens dev.webfx.kit.css.fonts.password;
 
     // Used services
-    uses dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProvider;
+    uses dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGateway;
 
     // Provided services
     provides dev.webfx.stack.authn.login.ui.spi.UiLoginServiceProvider with dev.webfx.stack.authn.login.ui.spi.impl.portal.UiLoginPortalProvider;

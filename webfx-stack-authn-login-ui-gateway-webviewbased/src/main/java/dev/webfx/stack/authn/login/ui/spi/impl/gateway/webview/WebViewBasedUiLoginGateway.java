@@ -4,7 +4,7 @@ import dev.webfx.platform.console.Console;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.stack.authn.login.LoginService;
 import dev.webfx.stack.authn.login.LoginUiContext;
-import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProviderBase;
+import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayBase;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginPortalCallback;
 import javafx.scene.Node;
 import javafx.scene.web.WebEngine;
@@ -13,11 +13,11 @@ import javafx.scene.web.WebView;
 /**
  * @author Bruno Salmon
  */
-public abstract class WebViewBasedUiLoginGatewayProvider extends UiLoginGatewayProviderBase {
+public abstract class WebViewBasedUiLoginGateway extends UiLoginGatewayBase {
 
     private final static String ERROR_HTML_TEMPLATE = "<html><body><center>{{ERROR}}</center></body></html>";
 
-    public WebViewBasedUiLoginGatewayProvider(Object gatewayId) {
+    public WebViewBasedUiLoginGateway(Object gatewayId) {
         super(gatewayId);
     }
 
