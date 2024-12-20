@@ -53,7 +53,7 @@ public class HistoryRouter {
         this.defaultInitialHistoryPath = defaultInitialHistoryPath;
     }
 
-    private void replaceCurrentHistoryWithInitialDefaultPath() {
+    protected void replaceCurrentHistoryWithInitialDefaultPath() {
         if (defaultInitialHistoryPath != null)
             history.replace(defaultInitialHistoryPath);
     }
@@ -68,16 +68,25 @@ public class HistoryRouter {
     }
 
     protected void onNewHistoryLocation(BrowsingHistoryLocation browsingHistoryLocation) {
-        String path = null;
-        Object state = null;
+        String path;
+        Object state;
         // On first call, browsingHistoryLocation might be null when not running in the browser
-        if (browsingHistoryLocation != null) {
+        if (browsingHistoryLocation == null) { // in-memory history not yet initialised
+            path = defaultInitialHistoryPath;
+            state = null;
+            history.push(path); // initialising in-memory history to the default initial path
+        } else { // general case (browser history or in-memory history but initialised)
             path = history.getPath(browsingHistoryLocation);
             state = browsingHistoryLocation.getState();
         }
         // Also on first call, the path might be empty in the browser if the location is just the domain name
-        if (path == null || path.isEmpty()) // In both cases, we route to the initial default path
+        if (path == null || path.isEmpty()) { // In that case, we route to the initial default path
             path = defaultInitialHistoryPath;
+        }
+        // Submitting the new path & state to the router, and this even if the path & state didn't change, as the router
+        // may behave differently in dependence on other factors (ex: it may show a login window on first attempt, then
+        // the actual requested page on second attend (if logged in and authorized) or the unauthorized page (if logged
+        // in but not authorized).
         router.accept(path, state);
     }
 

@@ -10,7 +10,10 @@
     </dependencies>
 
     <providers>
-        <provider interface="dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProvider">dev.webfx.stack.authn.login.ui.spi.impl.gateway.password.PasswordUiLoginGatewayProvider</provider>
+        <provider interface="dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGateway">dev.webfx.stack.authn.login.ui.spi.impl.gateway.password.PasswordUiLoginGateway</provider>
     </providers>
+
+    <i18n javaKeysClass="dev.webfx.stack.authn.login.ui.spi.impl.gateway.password.PasswordI18nKeys"/>
+
 
 </project>

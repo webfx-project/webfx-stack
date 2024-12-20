@@ -8,7 +8,7 @@ import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 /**
  * @author Bruno Salmon
  */
-public class UserClaimsSerialCodec extends SerialCodecBase<UserClaims> {
+public final class UserClaimsSerialCodec extends SerialCodecBase<UserClaims> {
 
     private static final String CODEC_ID = "UserClaims";
     private static final String USERNAME_KEY = "username";

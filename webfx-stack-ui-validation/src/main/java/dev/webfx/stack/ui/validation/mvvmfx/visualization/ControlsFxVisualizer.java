@@ -17,7 +17,7 @@ package dev.webfx.stack.ui.validation.mvvmfx.visualization;
 
 import dev.webfx.stack.ui.validation.mvvmfx.Severity;
 import dev.webfx.stack.ui.validation.mvvmfx.ValidationMessage;
-import dev.webfx.stack.ui.validation.controlsfx.validation.ValidationSupport;
+import dev.webfx.stack.ui.validation.controlsfx.validation.ControlsFxValidationSupport;
 import dev.webfx.stack.ui.validation.controlsfx.validation.decoration.GraphicValidationDecoration;
 import dev.webfx.stack.ui.validation.controlsfx.validation.decoration.ValidationDecoration;
 import javafx.scene.control.Control;
@@ -52,7 +52,7 @@ public class ControlsFxVisualizer extends ValidationVisualizerBase {
 	
 	@Override
 	void applyRequiredVisualization(Control control, boolean required) {
-		ValidationSupport.setRequired(control, required);
+		ControlsFxValidationSupport.setRequired(control, required);
 		if (required) {
 			decoration.applyRequiredDecoration(control);
 		}
@@ -74,12 +74,14 @@ public class ControlsFxVisualizer extends ValidationVisualizerBase {
 			}
 			
 		} else {
-			decoration.removeDecorations(control);
+			removeDecorations(control);
 		}
-		
-		if (required) {
-			decoration.applyRequiredDecoration(control);
-		}
+
+		applyRequiredVisualization(control, required);
 	}
-	
+
+	@Override
+	public void removeDecorations(Control control) {
+		decoration.removeDecorations(control);
+	}
 }

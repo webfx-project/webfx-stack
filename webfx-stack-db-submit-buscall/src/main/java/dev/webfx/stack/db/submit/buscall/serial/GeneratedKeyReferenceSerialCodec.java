@@ -18,7 +18,7 @@ public final class GeneratedKeyReferenceSerialCodec extends SerialCodecBase<Gene
     @Override
     public void encode(GeneratedKeyReference arg, AstObject serial) {
         encodeInteger(serial, STATEMENT_BATCH_INDEX_KEY, arg.getStatementBatchIndex());
-        encodeInteger(serial, STATEMENT_BATCH_INDEX_KEY, arg.getGeneratedKeyIndex(), 0);
+        encodeInteger(serial, GENERATED_KEY_INDEX_KEY, arg.getGeneratedKeyIndex(), 0);
     }
 
     @Override

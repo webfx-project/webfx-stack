@@ -1,21 +1,18 @@
 package dev.webfx.stack.session.state.client.fx;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 
 /**
  * @author Bruno Salmon
  */
 public final class FXConnectionLost {
 
-    private final static BooleanProperty connectionLostProperty = new SimpleBooleanProperty(false) {
-        @Override
-        protected void invalidated() {
-            Console.log("FXConnectionLost = " + get());
-        }
-    };
+    private final static BooleanProperty connectionLostProperty = FXProperties.newBooleanProperty(lost ->
+        Console.log("FXConnectionLost = " + lost)
+    );
 
     public static ReadOnlyBooleanProperty connectionLostProperty() {
         return connectionLostProperty;
@@ -34,6 +31,10 @@ public final class FXConnectionLost {
 
     private static void setConnectionLost(boolean connectionLost) {
         connectionLostProperty.set(connectionLost);
+    }
+
+    static { // All FXClass in this package should call FXInit.init() in their static initializer
+        FXInit.init(); // See FXInit comments to understand why
     }
 
 }

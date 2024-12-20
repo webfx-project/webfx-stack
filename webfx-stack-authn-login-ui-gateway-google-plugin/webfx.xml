@@ -11,7 +11,7 @@
     </dependencies>
 
     <providers>
-        <provider interface="dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProvider">dev.webfx.stack.authn.login.ui.spi.impl.gateway.google.GoogleUiLoginGatewayProvider</provider>
+        <provider interface="dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGateway">dev.webfx.stack.authn.login.ui.spi.impl.gateway.google.GoogleUiLoginGateway</provider>
     </providers>
 
 </project>

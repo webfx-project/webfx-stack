@@ -67,11 +67,15 @@ public final class EntityChangesToSubmitBatchGenerator {
         }
 
         public Batch<SubmitArgument> generate() {
-            // First generating delete statements
-            generateDeletes();
-            // Then insert and update statements. Statements parameters values may temporary contains EntityId objects,
-            // which will be replaced on next step while sorting statements.
+            // Generating insert and update statements. Statements parameters values may temporary contains EntityId
+            // objects, which will be replaced on next step while sorting statements.
             generateInsertUpdates();
+            // Then generating delete statements. Better to execute after update statements, because some updates may
+            // clear the foreign keys pointing the rows we are about to delete. If deletes are executed before this
+            // clearing, it's very likely that the database will raise a reference constraint error. Note that these
+            // delete statements will be executed in the same order as called by the application code, which therefore
+            // is responsible for this order (in case there are references between deleted objects).
+            generateDeletes();
             // Finally sorting the statements so that any statement (insert or update) that is referring to a new entity
             // will be executed after that entity has been inserted into the database. For such statements, the parameter
             // value referring to the new entity is replaced with a GeneratedKeyReference object that contains the index

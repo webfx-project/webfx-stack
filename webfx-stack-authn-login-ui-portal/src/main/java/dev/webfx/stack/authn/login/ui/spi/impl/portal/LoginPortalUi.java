@@ -1,15 +1,18 @@
 package dev.webfx.stack.authn.login.ui.spi.impl.portal;
 
 import dev.webfx.extras.panes.FlipPane;
+import dev.webfx.extras.panes.GoldenRatioPane;
 import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.os.OperatingSystem;
 import dev.webfx.platform.uischeduler.UiScheduler;
-import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProvider;
+import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGateway;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginPortalCallback;
+import dev.webfx.stack.authn.login.ui.spi.impl.gateway.magiclink.MagicLinkUi;
 import javafx.application.Platform;
+import javafx.beans.property.StringProperty;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -23,6 +26,7 @@ import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author Bruno Salmon
@@ -34,9 +38,10 @@ final class LoginPortalUi implements UiLoginPortalCallback {
     private final Region leftLine = new Region();
     private final Text orText = new Text("OR");
     private final Region rightLine = new Region();
-    private Node userPasswordUI;
+    private Node userUI;
     private final List<Node> otherLoginButtons = new ArrayList<>();
 
+    private final GoldenRatioPane loginPaneContainer = new GoldenRatioPane();
     private final Pane loginPane = new Pane(backgroundRegion, leftLine, orText, rightLine) {
 
         @Override
@@ -44,7 +49,7 @@ final class LoginPortalUi implements UiLoginPortalCallback {
             double width = getWidth(), height = getHeight();
             double margin = 40, x = margin, y = margin, w = width - 2 * margin, h, wor = orText.prefWidth(w), wl = w * 0.5 - wor;
             layoutInArea(backgroundRegion, 0, 0, width, height, 0, null, HPos.LEFT, VPos.TOP);
-            layoutInArea(userPasswordUI, x, y, w, h = Math.min(userPasswordUI.prefHeight(w), height - 2 * margin), 0, Insets.EMPTY, false, false, HPos.CENTER, VPos.TOP);
+            layoutInArea(userUI, x, y, w, h = Math.min(userUI.prefHeight(w), height - 2 * margin), 0, Insets.EMPTY, false, false, HPos.CENTER, VPos.TOP);
             int n = otherLoginButtons.size();
             boolean hasOtherLoginButtons = n > 0;
             orText.setVisible(hasOtherLoginButtons);
@@ -71,13 +76,13 @@ final class LoginPortalUi implements UiLoginPortalCallback {
 
         {
             setMinHeight(USE_PREF_SIZE);
-            setMaxSize(400, Region.USE_PREF_SIZE);
+            setMaxSize(586, Region.USE_PREF_SIZE);
         }
 
         @Override
         protected double computePrefHeight(double width) {
             double margin = 40, y = margin, w = Math.max(-1 , width - 2 * margin);
-            double h = userPasswordUI.prefHeight(w); // userPasswordUI
+            double h = userUI.prefHeight(w); // userPasswordUI
             y += h;
             if (!otherLoginButtons.isEmpty()) {
                 y += margin; // orText
@@ -87,41 +92,49 @@ final class LoginPortalUi implements UiLoginPortalCallback {
         }
     };
 
-    public LoginPortalUi() {
-        for (UiLoginGatewayProvider gatewayProvider : UiLoginPortalProvider.getProviders()) {
-            if ("Password".equals(gatewayProvider.getGatewayId())) {
-                userPasswordUI = gatewayProvider.createLoginUi(this);
-            } else {
-                StackPane loginButton = new StackPane(gatewayProvider.createLoginButton());
-                loginButton.setPadding(new Insets(13));
-                loginButton.setPrefSize(50, 50);
-                loginButton.setOnMouseClicked(e -> {
-                    Button backButton = new Button("« Use another method to sign in");
-                    backButton.setPadding(new Insets(15));
-                    BorderPane.setAlignment(backButton, Pos.CENTER);
-                    BorderPane.setMargin(backButton, new Insets(10));
-                    backButton.setOnAction(e2 -> showLoginHome());
-                    BorderPane borderPane = new BorderPane();
-                    borderPane.setBottom(backButton);
-                    flipPane.setBack(borderPane);
-                    Node loginUi = gatewayProvider.createLoginUi(this); // probably a web-view
-                    if (!OperatingSystem.isMobile()) {
-                        borderPane.setCenter(loginUi);
-                        flipPane.flipToBack();
-                    } else {
-                        // On mobiles, we wait the flip animation to be finished (borderPane in stable position) before
-                        // attaching the web-view (otherwise the web view is not visible).
-                        flipPane.flipToBack(() -> borderPane.setCenter(loginUi));
-                        // Now the "Sign in with Google" button appears, but it is not reacting (no popup)...
-                        // 2 possible causes:
-                        // 1) Popup is not working on the web-view (or required setup)
-                        // 2) Google doesn't allow SSO in web-view (see https://developers.googleblog.com/2016/08/modernizing-oauth-interactions-in-native-apps.html)
-                    }
-                });
-                otherLoginButtons.add(loginButton);
+    public LoginPortalUi(StringProperty magicLinkTokenProperty, Consumer<String> requestedPathConsumer) {
+        //If MagicLink, we display only the MagikLink panel
+        if (magicLinkTokenProperty != null)
+            userUI = new MagicLinkUi(magicLinkTokenProperty, requestedPathConsumer).getUi();
+        else {
+            for (UiLoginGateway gateway : UiLoginPortalProvider.getGateways()) {
+                Object gatewayId = gateway.getGatewayId();
+                if ("Password".equals(gatewayId)) {
+                    userUI = gateway.createLoginUi(this);
+                } else {
+                    //If we have magicklink to true, we do nothing
+                    StackPane loginButton = new StackPane(gateway.createLoginButton());
+                    loginButton.setPadding(new Insets(13));
+                    loginButton.setPrefSize(50, 50);
+                    loginButton.setOnMouseClicked(e -> {
+                        Button backButton = new Button("« Use another method to sign in");
+                        backButton.setPadding(new Insets(15));
+                        BorderPane.setAlignment(backButton, Pos.CENTER);
+                        BorderPane.setMargin(backButton, new Insets(10));
+                        backButton.setOnAction(e2 -> showLoginHome());
+                        BorderPane borderPane = new BorderPane();
+                        borderPane.setBottom(backButton);
+                        flipPane.setBack(borderPane);
+                        Node loginUi = gateway.createLoginUi(this); // probably a web-view
+                        if (!OperatingSystem.isMobile()) {
+                            borderPane.setCenter(loginUi);
+                            flipPane.flipToBack();
+                        } else {
+                            // On mobiles, we wait the flip animation to be finished (borderPane in stable position) before
+                            // attaching the web-view (otherwise the web view is not visible).
+                            flipPane.flipToBack(() -> borderPane.setCenter(loginUi));
+                            // Now the "Sign in with Google" button appears, but it is not reacting (no popup)...
+                            // 2 possible causes:
+                            // 1) Popup is not working on the web-view (or required setup)
+                            // 2) Google doesn't allow SSO in web-view (see https://developers.googleblog.com/2016/08/modernizing-oauth-interactions-in-native-apps.html)
+                        }
+                    });
+                    otherLoginButtons.add(loginButton);
+                }
             }
         }
-        loginPane.getChildren().add(userPasswordUI);
+        loginPaneContainer.setContent(loginPane);
+        loginPane.getChildren().add(userUI);
         loginPane.getChildren().addAll(otherLoginButtons);
         orText.getStyleClass().add("or");
         leftLine.setMinHeight(1);
@@ -129,8 +142,9 @@ final class LoginPortalUi implements UiLoginPortalCallback {
         rightLine.setMinHeight(1);
         rightLine.getStyleClass().add("line");
         backgroundRegion.getStyleClass().addAll("background", "fx-border");
-        FXProperties.runNowAndOnPropertiesChange(this::showLoginHome, flipPane.sceneProperty());
+        FXProperties.runNowAndOnPropertyChange(this::showLoginHome, flipPane.sceneProperty());
         flipPane.getStyleClass().add("login");
+        loginPane.getStyleClass().add("login-child");
     }
 
     public FlipPane getFlipPane() {
@@ -138,7 +152,7 @@ final class LoginPortalUi implements UiLoginPortalCallback {
     }
 
     void showLoginHome() {
-        flipPane.setFront(loginPane);
+        flipPane.setFront(loginPaneContainer);
         if (flipPane.getScene() != null)
             flipPane.flipToFront();
     }

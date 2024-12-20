@@ -15,6 +15,8 @@
  ******************************************************************************/
 package dev.webfx.stack.ui.validation.mvvmfx;
 
+import javafx.beans.value.ObservableStringValue;
+
 import java.util.Objects;
 
 /**
@@ -25,26 +27,30 @@ import java.util.Objects;
  */
 public class ValidationMessage {
 	
-	private final String message;
+	private final ObservableStringValue messageProperty;
 	
 	private final Severity severity;
 	
-	public ValidationMessage(Severity severity, String message) {
+	public ValidationMessage(Severity severity, ObservableStringValue messageProperty) {
 		this.severity = Objects.requireNonNull(severity);
-		this.message = Objects.requireNonNull(message);
+		this.messageProperty = Objects.requireNonNull(messageProperty);
 	}
 	
 	
-	public static ValidationMessage warning(String message) {
-		return new ValidationMessage(Severity.WARNING, message);
+	public static ValidationMessage warning(ObservableStringValue messageProperty) {
+		return new ValidationMessage(Severity.WARNING, messageProperty);
 	}
 	
-	public static ValidationMessage error(String message) {
-		return new ValidationMessage(Severity.ERROR, message);
+	public static ValidationMessage error(ObservableStringValue messageProperty) {
+		return new ValidationMessage(Severity.ERROR, messageProperty);
 	}
 	
+	public ObservableStringValue messageProperty() {
+		return messageProperty;
+	}
+
 	public String getMessage() {
-		return message;
+		return messageProperty.get();
 	}
 	
 	public Severity getSeverity() {
@@ -54,27 +60,27 @@ public class ValidationMessage {
 	@Override
 	public String toString() {
 		return "ValidationMessage{" +
-				"message='" + message + '\'' +
-				", severity=" + severity +
-				'}';
+			   "messageProperty='" + messageProperty + '\'' +
+			   ", severity=" + severity +
+			   '}';
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (o == null || !(o instanceof ValidationMessage))
+		if (!(o instanceof ValidationMessage))
 			return false;
 
 		ValidationMessage that = (ValidationMessage) o;
 
-		return message.equals(that.message) && severity == that.severity;
+		return messageProperty.equals(that.messageProperty) && severity == that.severity;
 
 	}
 
 	@Override
 	public int hashCode() {
-		int result = message.hashCode();
+		int result = messageProperty.hashCode();
 		result = 31 * result + severity.hashCode();
 		return result;
 	}

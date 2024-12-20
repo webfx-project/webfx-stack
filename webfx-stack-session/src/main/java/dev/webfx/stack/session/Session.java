@@ -1,5 +1,7 @@
 package dev.webfx.stack.session;
 
+import dev.webfx.platform.async.Future;
+
 /**
  * @author Bruno Salmon
  */
@@ -36,4 +38,8 @@ public interface Session {
     <T> T remove(String key);
 
     boolean isEmpty();
+
+    default Future<Boolean> store() {
+        return SessionService.getSessionStore().put(this);
+    }
 }

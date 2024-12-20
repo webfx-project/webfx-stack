@@ -179,4 +179,8 @@ public final class I18n {
         return text;
     }
 
+    public static Text newText(Object i18nKey, Object... args) {
+        return bindI18nProperties(new Text(), i18nKey, args);
+    }
+
 }

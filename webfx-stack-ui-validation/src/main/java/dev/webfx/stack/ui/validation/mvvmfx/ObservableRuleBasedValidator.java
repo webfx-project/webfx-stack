@@ -15,6 +15,8 @@
  ******************************************************************************/
 package dev.webfx.stack.ui.validation.mvvmfx;
 
+import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.kit.util.properties.Unregisterable;
 import javafx.beans.value.ObservableValue;
 
 import java.util.ArrayList;
@@ -32,7 +34,7 @@ import java.util.List;
  * </ul>
  *
  * <h2>Boolean Rules of type ObservableValue&lt;Boolean&gt;</h2>
- *
+ * <p>
  * The first variant uses an {@link ObservableValue<Boolean>} together with a static message. If this observable
  * has a value of <code>false</code> the validation status will be "invalid" and the given message will be present in the {@link ValidationStatus}
  * of this validator.
@@ -40,35 +42,27 @@ import java.util.List;
  *
  *
  * <h2>Complex Rules of type ObservableValue&lt;ValidationMessage&gt;</h2>
- *
+ * <p>
  * The second variant allows more complex rules. It uses a {@link ObservableValue<ValidationMessage>} as rule.
  * If this observable has a value other then <code>null</code> it is considered to be invalid. The {@link ValidationMessage}
  * value will be present in the {@link ValidationStatus} of this validator.
  *
  * <p>
- *
+ * <p>
  * You can add multiple rules via the {@link #addRule(ObservableValue, ValidationMessage)} and {@link #addRule(ObservableValue)} method.
  * If multiple rules are violated, each message will be present.
  */
 public class ObservableRuleBasedValidator implements Validator {
 
-    /*
-    These lists are used to store the rules that this validator is working with.
-    The reason for this is to prevent problems with garbage collection.
-    If the validator wouldn't keep references to all given rules it would be possible that they are
-    removed by the garbage collector which would result in wrong validation results.
-    To prevent this we store references to all given rules here.
-    Don't get confused by the fact that no values are only added to these lists but not obtained.
-     */
-	private List<ObservableValue<Boolean>> booleanRules = new ArrayList<>();
-    private List<ObservableValue<ValidationMessage>> complexRules = new ArrayList<>();
-	
-	private ValidationStatus validationStatus = new ValidationStatus();
+    private final List<Unregisterable> unregisterableRules = new ArrayList<>();
+
+    private final ValidationStatus validationStatus = new ValidationStatus();
 
     /**
      * Creates an instance of the Validator without any rules predefined.
      */
-    public ObservableRuleBasedValidator() {}
+    public ObservableRuleBasedValidator() {
+    }
 
     /**
      * Creates an instance of the Validator with the given rule predefined.
@@ -86,50 +80,49 @@ public class ObservableRuleBasedValidator implements Validator {
      * Creates an instance of the Validator with the given complex rules predefined.
      * It's a shortcut for creating an empty validator and
      * adding one or multiple complex rules with {@link #addRule(ObservableValue)}.
+     *
      * @param rules
      */
-    public ObservableRuleBasedValidator(ObservableValue<ValidationMessage> ... rules) {
+    public ObservableRuleBasedValidator(ObservableValue<ValidationMessage>... rules) {
         for (ObservableValue<ValidationMessage> rule : rules) {
             addRule(rule);
         }
     }
 
-	/**
-	 * Add a rule for this validator.
-	 * <p>
-	 * The rule defines a condition that has to be fulfilled.
-	 * <p>
-	 * A rule is defined by an observable boolean value. If the rule has a value of <code>true</code> the rule is
-	 * "fulfilled". If the rule has a value of <code>false</code> the rule is violated. In this case the given message
-	 * object will be added to the status of this validator.
-	 * <p>
-	 * There are some predefined rules for common use cases in the {@link ObservableRules} class that can be used.
-	 * 
-	 * @param rule
-	 * @param message
-	 */
-	public void addRule(ObservableValue<Boolean> rule, ValidationMessage message) {
-	    booleanRules.add(rule);
+    /**
+     * Add a rule for this validator.
+     * <p>
+     * The rule defines a condition that has to be fulfilled.
+     * <p>
+     * A rule is defined by an observable boolean value. If the rule has a value of <code>true</code> the rule is
+     * "fulfilled". If the rule has a value of <code>false</code> the rule is violated. In this case the given message
+     * object will be added to the status of this validator.
+     * <p>
+     * There are some predefined rules for common use cases in the {@link ObservableRules} class that can be used.
+     *
+     * @param validProperty
+     * @param message
+     */
+    public void addRule(ObservableValue<Boolean> validProperty, ValidationMessage message) {
+        unregisterableRules.add(
+            FXProperties.runNowAndOnPropertyChange((observable, oldValue, newValue) ->
+                    validateBooleanRule(newValue, message)
+                , validProperty)
+        );
+    }
 
-		rule.addListener((observable, oldValue, newValue) -> {
-			validateBooleanRule(newValue, message);
-		});
+    public void validateBooleanRule(boolean isValid, ValidationMessage message) {
+        if (isValid) {
+            hideMessage(message);
+        } else {
+            showMessage(message);
+        }
+    }
 
-		validateBooleanRule(rule.getValue(), message);
-	}
-	
-	private void validateBooleanRule(boolean isValid, ValidationMessage message) {
-		if (isValid) {
-			validationStatus.removeMessage(message);
-		} else {
-			validationStatus.addMessage(message);
-		}
-	}
-	
-	@Override
-	public ValidationStatus getValidationStatus() {
-		return validationStatus;
-	}
+    @Override
+    public ValidationStatus getValidationStatus() {
+        return validationStatus;
+    }
 
     /**
      * Add a complex rule for this validator.
@@ -140,26 +133,37 @@ public class ObservableRuleBasedValidator implements Validator {
      * If the observable doesn't contain a value (in other words it contains <code>null</code>) the rule is considered to
      * be fulfilled and the validation status of this validator will be valid (given that no other rule is violated).
      * <p>
-     *
-     *  This method allows some more complex rules compared to {@link #addRule(ObservableValue, ValidationMessage)}.
-     *  This way you can define rules that have different messages for specific cases.
+     * <p>
+     * This method allows some more complex rules compared to {@link #addRule(ObservableValue, ValidationMessage)}.
+     * This way you can define rules that have different messages for specific cases.
      *
      * @param rule
      */
     public void addRule(ObservableValue<ValidationMessage> rule) {
-        complexRules.add(rule);
+        unregisterableRules.add(
+            FXProperties.runNowAndOnPropertyChange((observable, oldValue, newValue) -> {
+                hideMessage(oldValue); // does nothing if oldValue is null
+                showMessage(newValue); // does nothing if newValue is null
+            }, rule)
+        );
+    }
 
-        rule.addListener((observable, oldValue, newValue) -> {
-            if(oldValue != null) {
-               validationStatus.removeMessage(oldValue);
-            }
-            if(newValue != null) {
-                validationStatus.addMessage(newValue);
-            }
-        });
-
-        if(rule.getValue() != null) {
-            validationStatus.addMessage(rule.getValue());
+    private void showMessage(ValidationMessage message) {
+        if (message != null) {
+            validationStatus.addMessage(message);
         }
     }
+
+    private void hideMessage(ValidationMessage message) {
+        if (message != null) {
+            validationStatus.removeMessage(message);
+        }
+    }
+
+    public void clear() {
+        unregisterableRules.forEach(Unregisterable::unregister);
+        unregisterableRules.clear();
+        validationStatus.clearMessages();
+    }
+
 }

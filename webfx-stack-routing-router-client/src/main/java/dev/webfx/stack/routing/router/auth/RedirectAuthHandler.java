@@ -9,7 +9,7 @@ import dev.webfx.platform.async.Handler;
  */
 public interface RedirectAuthHandler extends Handler<RoutingContext> {
 
-    static RedirectAuthHandler create(String loginPath, String unauthorizedPath) {
-        return new RedirectAuthHandlerImpl(loginPath, unauthorizedPath);
+    static RedirectAuthHandler create(String loginPath, String unauthorizedPath, Runnable onUnnecessaryLoginHandler) {
+        return new RedirectAuthHandlerImpl(loginPath, unauthorizedPath, onUnnecessaryLoginHandler);
     }
 }

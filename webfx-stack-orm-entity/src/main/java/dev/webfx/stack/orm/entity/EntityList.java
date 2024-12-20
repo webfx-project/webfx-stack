@@ -1,13 +1,13 @@
 package dev.webfx.stack.orm.entity;
 
+import dev.webfx.platform.util.collection.Collections;
+import dev.webfx.stack.orm.entity.impl.EntityListImpl;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.terms.Select;
-import dev.webfx.stack.orm.entity.impl.EntityListImpl;
-
-import java.util.function.Predicate;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * @author Bruno Salmon
@@ -15,8 +15,6 @@ import java.util.List;
 public interface EntityList<E extends Entity> extends List<E>, HasEntityStore {
 
     Object getListId();
-
-    void orderBy(Expression<E>... orderExpressions);
 
     default List<E> filter(String filterExpression) {
         return Entities.filter(this, filterExpression);
@@ -42,8 +40,16 @@ public interface EntityList<E extends Entity> extends List<E>, HasEntityStore {
         return Entities.select(this, select);
     }
 
+    default List<E> orderBy(Expression<E>... orderExpressions) {
+        return Entities.orderBy(this, orderExpressions);
+    }
 
-    // static factoy methods
+    default List<E> orderBy(String... orderExpressions) {
+        return Entities.orderBy(this, orderExpressions);
+    }
+
+
+    // static factory methods
 
     static <E extends Entity> EntityList<E> create(Object listId, EntityStore store) {
         return new EntityListImpl<>(listId, store);
@@ -51,8 +57,7 @@ public interface EntityList<E extends Entity> extends List<E>, HasEntityStore {
 
     static <E extends Entity> EntityList<E> create(Object listId, EntityStore store, Collection<E> collections) {
         EntityList<E> entities = create(listId, store);
-        for (E e : collections)
-            entities.add(e);
+        Collections.setAll(entities, collections);
         return entities;
     }
 }

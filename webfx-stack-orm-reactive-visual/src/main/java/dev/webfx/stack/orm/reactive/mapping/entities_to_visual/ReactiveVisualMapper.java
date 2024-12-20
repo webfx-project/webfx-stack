@@ -17,7 +17,6 @@ import dev.webfx.stack.orm.reactive.mapping.entities_to_visual.conventions.*;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -58,57 +57,50 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
     // set selectedEntities (and consequently the visual selection), and if the application code changes selectedEntities
     // (or if the user changes the visual selection -> which changes selectedEntities), this will also set
     // selectedEntityProperty.
-    private final ObjectProperty<E> selectedEntityProperty = new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-            // System.out.println("selectedEntity = " + get());
-            // Preventing reentrant calls from internal operations
-            if (syncingFromSelectedEntity)
-                return;
+    private final ObjectProperty<E> selectedEntityProperty = FXProperties.newObjectProperty(selectedEntity -> {
+        // System.out.println("selectedEntity = " + selectedEntity);
+        // Preventing reentrant calls from internal operations
+        if (syncingFromSelectedEntity)
+            return;
 
-            syncingFromSelectedEntity = true;
-            E selectedEntity = getSelectedEntity(); // Getting the selected entity asked by the application code
-            // Managing the sync selectedEntityProperty -> selectedEntities
-            if (!syncingFromSelectedEntities) { // already done if syncing from selectedEntities
-                // As this change is coming from the application code - which preferred to work with selectedEntity rather
-                // than selectedEntities - we need to update selectedEntities to this single selection.
-                if (selectedEntity == null) // If it's null, we clear selectedEntities
-                    selectedEntities.clear();
-                else // If it's not null, we apply it as a single element to selectedEntities
-                    selectedEntities.setAll(selectedEntity);
-                // Note: this code above has triggered the selectedEntities listener that did the sync in the opposite
-                // direction (selectedEntities -> selectedEntityProperty) but the reentrant call will be prevented.
-                // However, it's possible that the value of selectedEntityProperty has changed if the entity asked by the
-                // application was not valid (i.e. not present in the loaded entities). So we refresh the value.
-                selectedEntity = getSelectedEntity();
-            }
-
-            // If the change doesn't come from requestedSelectedEntity but is a subsequent change from the application
-            // code or from the user selection, we do the back sync selectedEntity -> requestedSelectedEntity
-            if (!syncingFromRequestedSelectedEntity)
-                requestSelectedEntity(selectedEntity); // reentrant call will be prevented by syncingFromSelectedEntity
-
-            // Finally, we call the selectedEntityHandler (if set)
-            if (selectedEntityHandler != null) {
-                //System.out.println("Calling selectedEntityHandler");
-                selectedEntityHandler.accept(selectedEntity);
-            }
-
-            syncingFromSelectedEntity = false;
+        syncingFromSelectedEntity = true;
+        // Managing the sync selectedEntityProperty -> selectedEntities
+        if (!syncingFromSelectedEntities) { // already done if syncing from selectedEntities
+            // As this change is coming from the application code - which preferred to work with selectedEntity rather
+            // than selectedEntities - we need to update selectedEntities to this single selection.
+            if (selectedEntity == null) // If it's null, we clear selectedEntities
+                selectedEntities.clear();
+            else // If it's not null, we apply it as a single element to selectedEntities
+                selectedEntities.setAll(selectedEntity);
+            // Note: this code above has triggered the selectedEntities listener that did the sync in the opposite
+            // direction (selectedEntities -> selectedEntityProperty) but the reentrant call will be prevented.
+            // However, it's possible that the value of selectedEntityProperty has changed if the entity asked by the
+            // application was not valid (i.e. not present in the loaded entities). So we refresh the value.
+            selectedEntity = getSelectedEntity();
         }
-    };
 
-    private final ObjectProperty<E> requestedSelectedEntityProperty = new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-            //System.out.println("requestedSelectedEntity = " + get());
-            // Preventing reentrant calls from internal operations
-            if (syncingFromSelectedEntity)
-                return;
-            // Syncing selected entity from the requested selected entity (if appropriate at this time)
-            syncFromRequestedSelectedEntity();
+        // If the change doesn't come from requestedSelectedEntity but is a subsequent change from the application
+        // code or from the user selection, we do the back sync selectedEntity -> requestedSelectedEntity
+        if (!syncingFromRequestedSelectedEntity)
+            requestSelectedEntity(selectedEntity); // reentrant call will be prevented by syncingFromSelectedEntity
+
+        // Finally, we call the selectedEntityHandler (if set)
+        if (selectedEntityHandler != null) {
+            //System.out.println("Calling selectedEntityHandler");
+            selectedEntityHandler.accept(selectedEntity);
         }
-    };
+
+        syncingFromSelectedEntity = false;
+    });
+
+    private final ObjectProperty<E> requestedSelectedEntityProperty = FXProperties.newObjectProperty(() -> {
+        //System.out.println("requestedSelectedEntity = " + get());
+        // Preventing reentrant calls from internal operations
+        if (syncingFromSelectedEntity)
+            return;
+        // Syncing selected entity from the requested selected entity (if appropriate at this time)
+        syncFromRequestedSelectedEntity();
+    });
 
     private void syncFromRequestedSelectedEntity() {
         // We don't do anything if the reactive visual mapper is not active (which happens when its associated activity
@@ -131,7 +123,7 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
                 if (entityIndex < 0)
                     requestedSelectedEntity = null;
                 else // if yes, we get that loaded entity (which can be a different instance if requestedSelectedEntity
-                     // come from another entity store.
+                    // come from another entity store.
                     requestedSelectedEntity = getEntityAt(entityIndex);
             }
             // We apply the new selection
@@ -141,33 +133,24 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
         }
     }
 
-    private final ObjectProperty<VisualResult> visualResultProperty = new SimpleObjectProperty<VisualResult/*GWT*/>() {
-        @Override
-        protected void invalidated() {
-            // When the whole visual result has changed, we need to update the selection. We try to keep the selection
-            // unchanged, which happens when the selected entities are still in that new result (for example when this
-            // comes from a server push where just some fields have changed but the entity list remains the same).
-            // Otherwise, we reduce the selected entities to those that are still present in the new result.
-            if (autoSelectSingleRow && get() != null && get().getRowCount() == 1) {
-                setVisualSelection(VisualSelection.createSingleRowSelection(0));
-                clearAutoSelectSingleRowOnNextResultSet = true;
-            } else if (clearAutoSelectSingleRowOnNextResultSet) {
-                setVisualSelection(null);
-            } else if (selectedEntities.isEmpty() && getRequestedSelectedEntity() != null) {
-                syncFromRequestedSelectedEntity();
-            } else {
-                syncFromSelectedEntities();
-            }
+    private final ObjectProperty<VisualResult> visualResultProperty = FXProperties.newObjectProperty(visualResult -> {
+        // When the whole visual result has changed, we need to update the selection. We try to keep the selection
+        // unchanged, which happens when the selected entities are still in that new result (for example when this
+        // comes from a server push where just some fields have changed but the entity list remains the same).
+        // Otherwise, we reduce the selected entities to those that are still present in the new result.
+        if (autoSelectSingleRow && visualResult != null &&visualResult.getRowCount() == 1) {
+            setVisualSelection(VisualSelection.createSingleRowSelection(0));
+            clearAutoSelectSingleRowOnNextResultSet = true;
+        } else if (clearAutoSelectSingleRowOnNextResultSet) {
+            setVisualSelection(null);
+        } else if (selectedEntities.isEmpty() && getRequestedSelectedEntity() != null) {
+            syncFromRequestedSelectedEntity();
+        } else {
+            syncFromSelectedEntities();
         }
-    };
+    });
 
-    private final ObjectProperty<VisualSelection> visualSelectionProperty = new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-            //System.out.println("visualSelection = " + (get() == null ? "null" : get().getSelectedRow()));
-            syncFromVisualSelection();
-        }
-    };
+    private final ObjectProperty<VisualSelection> visualSelectionProperty = FXProperties.newObjectProperty(this::syncFromVisualSelection);
 
     private void syncFromVisualSelection() {
         // Preventing reentrant calls from internal operations
@@ -191,9 +174,9 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
         super(reactiveEntitiesMapper);
         // Calling syncFromSelectedEntities() on selected entities changes
         selectedEntities.addListener((InvalidationListener) observable ->
-                syncFromSelectedEntities());
+            syncFromSelectedEntities());
         // Calling syncFromRequestedSelectedEntity() on active changes (to possibly show the confirm dialog on activity resume)
-        FXProperties.runOnPropertiesChange(this::syncFromRequestedSelectedEntity, activeProperty());
+        FXProperties.runOnPropertyChange(this::syncFromRequestedSelectedEntity, activeProperty());
     }
 
     // Exposing selectedEntities and selectedEntityProperty in public methods
@@ -460,7 +443,7 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
     }
 
     // Master
-    
+
     public static <E extends Entity> ReactiveVisualMapper<E> createMasterReactiveChain(Object pm) {
         return createMaster(pm, ReactiveEntitiesMapper.createMasterReactiveChain(pm));
     }
@@ -478,7 +461,7 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
     }
 
     // Group
-    
+
     public static <E extends Entity> ReactiveVisualMapper<E> createGroupReactiveChain(Object pm) {
         return createGroup(pm, ReactiveEntitiesMapper.createGroupReactiveChain(pm));
     }

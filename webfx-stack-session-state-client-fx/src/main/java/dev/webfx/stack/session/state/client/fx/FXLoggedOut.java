@@ -5,19 +5,15 @@ import dev.webfx.platform.console.Console;
 import dev.webfx.stack.session.state.LogoutUserId;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 
 /**
  * @author Bruno Salmon
  */
 public final class FXLoggedOut {
 
-    private final static BooleanProperty loggedOutProperty = new SimpleBooleanProperty() {
-        @Override
-        protected void invalidated() {
-            Console.log("FXLoggedOut = " + get());
-        }
-    };
+    private final static BooleanProperty loggedOutProperty = FXProperties.newBooleanProperty(loggedOut ->
+        Console.log("FXLoggedOut = " + loggedOut)
+    );
 
     public static ReadOnlyBooleanProperty loggedOutProperty() {
         return loggedOutProperty;
@@ -42,8 +38,12 @@ public final class FXLoggedOut {
         setLoggedOut(LogoutUserId.isLogoutUserIdOrNull(userId));
     }
 
-    static {
-        FXProperties.runNowAndOnPropertiesChange(FXLoggedOut::updateLoggedOut, FXUserId.userIdProperty());
+    static { // All FXClass in this package should call FXInit.init() in their static initializer
+        FXInit.init(); // See FXInit comments to understand why
+    }
+
+    static void init() { // Called back (only once) by FXInit in a controlled overall sequence
+        FXProperties.runNowAndOnPropertyChange(FXLoggedOut::updateLoggedOut, FXUserId.userIdProperty());
     }
 
 }

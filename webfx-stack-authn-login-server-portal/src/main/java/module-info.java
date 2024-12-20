@@ -12,7 +12,7 @@ module webfx.stack.authn.login.server.portal {
     exports dev.webfx.stack.authn.login.spi.impl.server.portal;
 
     // Used services
-    uses dev.webfx.stack.authn.login.spi.impl.server.gateway.ServerLoginGatewayProvider;
+    uses dev.webfx.stack.authn.login.spi.impl.server.gateway.ServerLoginGateway;
 
     // Provided services
     provides dev.webfx.stack.authn.login.spi.LoginServiceProvider with dev.webfx.stack.authn.login.spi.impl.server.portal.ServerLoginPortalProvider;

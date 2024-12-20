@@ -41,14 +41,21 @@ public final class EntityResultBuilder {
         return fieldMap.get(fieldId);
     }
 
+    public boolean hasFieldValue(EntityId id, Object fieldId) {
+        Map fieldMap = entityFieldMap(id);
+        return fieldMap != null && fieldMap.containsKey(fieldId);
+    }
+
     void unsetFieldValue(EntityId id, Object fieldId) {
         Map fieldMap = entityFieldMap(id);
-        if (fieldId != null)
-            fieldMap.remove(fieldId);
-        else
-            fieldMap.clear();
-        if (hasEntityNoChange(id, fieldMap))
-            changedEntitiesCount--;
+        if (!hasEntityNoChange(id, fieldMap)) {
+            if (fieldId != null)
+                fieldMap.remove(fieldId);
+            else
+                fieldMap.clear();
+            if (hasEntityNoChange(id, fieldMap))
+                changedEntitiesCount--;
+        }
     }
 
     boolean isEmpty() {

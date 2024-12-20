@@ -31,19 +31,12 @@ public interface EntityId {
         return EntityId.create(getDomainClass(), newPrimaryKey);
     }
 
-    static EntityId create(DomainClass domainClass, Object primaryKey) {
-        return EntityIdImpl.create(domainClass, primaryKey);
+    static EntityId create(Object domainClassId, Object primaryKey) {
+        return EntityIdImpl.create(domainClassId, primaryKey);
     }
 
-    static EntityId create(DomainClass domainClass) {
-        return EntityIdImpl.create(domainClass);
+    static EntityId create(Object domainClassId) {
+        return EntityIdImpl.create(domainClassId);
     }
 
-    static EntityId create(Class<? extends Entity> entityClass, Object primaryKey) {
-        return EntityIdImpl.create(EntityDomainClassIdRegistry.getEntityDomainClass(entityClass), primaryKey);
-    }
-
-    static EntityId create(Class<? extends Entity> entityClass) {
-        return EntityIdImpl.create(EntityDomainClassIdRegistry.getEntityDomainClass(entityClass));
-    }
 }

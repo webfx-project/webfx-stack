@@ -2,9 +2,8 @@ package dev.webfx.stack.com.bus.call;
 
 import dev.webfx.platform.async.AsyncResult;
 import dev.webfx.platform.async.Future;
+import dev.webfx.platform.async.Handler;
 import dev.webfx.platform.async.Promise;
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleObjectProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,12 +13,11 @@ import java.util.List;
  */
 public final class PendingBusCall<T> {
 
-    private static final List<PendingBusCall> pendingCalls = new ArrayList<>();
-    private static final Property<Integer> pendingCallsCountProperty = new SimpleObjectProperty<>(0);
-    // Note: this is the only javafx property used so far in the Platform module
-    // TODO: decide if we keep it or replace it with something else to remove the dependency to javafx bindings
-    public static Property<Integer> pendingCallsCountProperty() {
-        return pendingCallsCountProperty;
+    private static final List<PendingBusCall> PENDING_CALLS = new ArrayList<>();
+    private static final List<Handler<Integer>> PENDING_CALLS_COUNT_HANDLERS = new ArrayList<>();
+
+    public static void addPendingCallsCountHandler(Handler<Integer> pendingCallsCountHandler) {
+        PENDING_CALLS_COUNT_HANDLERS.add(pendingCallsCountHandler);
     }
 
     private final Promise<T> promise = Promise.promise();
@@ -57,9 +55,10 @@ public final class PendingBusCall<T> {
 
     private void updatePendingCalls(boolean addition) {
         if (addition)
-            pendingCalls.add(this);
+            PENDING_CALLS.add(this);
         else
-            pendingCalls.remove(this);
-        pendingCallsCountProperty.setValue(pendingCalls.size());
+            PENDING_CALLS.remove(this);
+        int pendingCallsCount = PENDING_CALLS.size();
+        PENDING_CALLS_COUNT_HANDLERS.forEach(h -> h.handle(pendingCallsCount));
     }
 }

@@ -15,7 +15,11 @@ final class ClientRoutingContextImpl extends ClientRoutingContextBase {
     private int statusCode = -1;
 
     ClientRoutingContextImpl(String mountPoint, ClientRouter router, String path, Collection<ClientRoute> routes, Object state) {
-        super(mountPoint, path, routes, state);
+        this(mountPoint, router, path, routes, state, false);
+    }
+
+    ClientRoutingContextImpl(String mountPoint, ClientRouter router, String path, Collection<ClientRoute> routes, Object state, boolean redirected) {
+        super(mountPoint, path, routes, state, redirected);
         this.router = router;
     }
 

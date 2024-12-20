@@ -4,7 +4,7 @@ import dev.webfx.platform.async.Batch;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.Arrays;
-import dev.webfx.platform.util.Objects;
+import dev.webfx.platform.util.Numbers;
 import dev.webfx.stack.db.datascope.DataScope;
 import dev.webfx.stack.db.submit.SubmitArgument;
 import dev.webfx.stack.db.submit.SubmitResult;
@@ -14,8 +14,10 @@ import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.EntityStore;
 import dev.webfx.stack.orm.entity.UpdateStore;
-import dev.webfx.stack.orm.entity.result.*;
-import javafx.beans.binding.BooleanExpression;
+import dev.webfx.stack.orm.entity.result.EntityChanges;
+import dev.webfx.stack.orm.entity.result.EntityChangesBuilder;
+import dev.webfx.stack.orm.entity.result.EntityChangesToSubmitBatchGenerator;
+import dev.webfx.stack.orm.entity.result.EntityResult;
 
 /**
  * @author Bruno Salmon
@@ -23,8 +25,8 @@ import javafx.beans.binding.BooleanExpression;
 public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStore {
 
     private final EntityChangesBuilder changesBuilder = EntityChangesBuilder.create();
-    private EntityResultBuilder previousValues;
     private DataScope submitScope;
+    private Object hasChangesProperty; // managed by EntityBindings
 
     public UpdateStoreImpl(DataSourceModel dataSourceModel) {
         super(dataSourceModel);
@@ -54,40 +56,12 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
         return getOrCreateEntity(entityId);
     }
 
-    boolean updateEntity(EntityId id, Object domainFieldId, Object value, Object previousValue) {
-        if (!Objects.areEquals(value, previousValue) && changesBuilder.hasEntityId(id)) {
-            if (previousValues != null && Objects.areEquals(value, previousValues.getFieldValue(id, domainFieldId))) {
-                changesBuilder.removeFieldChange(id, domainFieldId);
-                return true;
-            } else {
-                boolean firstFieldChange = updateEntity(id, domainFieldId, value);
-                if (firstFieldChange)
-                    rememberPreviousEntityFieldValue(id, domainFieldId, previousValue);
-                return firstFieldChange;
-            }
-        }
-        return false;
-    }
-
-    boolean updateEntity(EntityId id, Object domainFieldId, Object value) {
-        return changesBuilder.addFieldChange(id, domainFieldId, value);
-    }
-
-    void rememberPreviousEntityFieldValue(EntityId id, Object domainFieldId, Object value) {
-        if (previousValues == null)
-            previousValues = EntityResultBuilder.create();
-        previousValues.setFieldValue(id, domainFieldId, value);
-    }
-
-    void restorePreviousValues() {
-        if (previousValues != null) {
-            EntityResult rs = previousValues.build();
-            for (EntityId id : rs.getEntityIds()) {
-                Entity entity = getEntity(id);
-                for (Object fieldId : rs.getFieldIds(id))
-                    entity.setFieldValue(fieldId, rs.getFieldValue(id, fieldId));
-            }
-            previousValues = null;
+    void onInsertedOrUpdatedEntityFieldChange(EntityId id, Object domainFieldId, Object value, Object underlyingValue, boolean isUnderlyingValueLoaded) {
+        // If the user enters back the original value, we completely clear that field from the changes
+        if (isUnderlyingValueLoaded && Numbers.identicalObjectsOrNumberValues(value, underlyingValue)) {
+            changesBuilder.removeFieldChange(id, domainFieldId);
+        } else {
+            changesBuilder.addFieldChange(id, domainFieldId, value);
         }
     }
 
@@ -99,10 +73,12 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
     @Override
     public Future<Batch<SubmitResult>> submitChanges(SubmitArgument... initialSubmits) {
         try {
-            EntityChangesToSubmitBatchGenerator.BatchGenerator updateBatchGenerator = EntityChangesToSubmitBatchGenerator.createSubmitBatchGenerator(getEntityChanges(), dataSourceModel, submitScope, initialSubmits);
+            EntityChangesToSubmitBatchGenerator.BatchGenerator updateBatchGenerator = EntityChangesToSubmitBatchGenerator.
+                createSubmitBatchGenerator(getEntityChanges(), getDataSourceModel(), submitScope, initialSubmits);
             Batch<SubmitArgument> argBatch = updateBatchGenerator.generate();
             Console.log("Executing submit batch " + Arrays.toStringWithLineFeeds(argBatch.getArray()));
             return SubmitService.executeSubmitBatch(argBatch).compose(resBatch -> {
+                // TODO: perf optimization: make these steps optional if not required by application code
                 markChangesAsCommitted();
                 updateBatchGenerator.applyGeneratedKeys(resBatch, this);
                 return Future.succeededFuture(resBatch);
@@ -123,19 +99,68 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
     }
 
     @Override
-    public BooleanExpression hasChangesProperty() {
-        return changesBuilder.hasChangesProperty();
+    public void cancelChanges() {
+        clearAllUpdatedValuesFromUpdateStore();
+        changesBuilder.clear();
     }
 
-    @Override
-    public void cancelChanges() {
-        changesBuilder.clear();
-        restorePreviousValues();
+    private void clearAllUpdatedValuesFromUpdateStore() {
+        EntityChanges changes = changesBuilder.build();
+        EntityResult insertedUpdatedEntityResult = changes.getInsertedUpdatedEntityResult();
+        if (insertedUpdatedEntityResult != null) {
+            for (EntityId entityId : insertedUpdatedEntityResult.getEntityIds()) {
+                clearAllUpdatedValuesFromUpdatedEntity(entityId);
+            }
+        }
+    }
+
+    private void clearAllUpdatedValuesFromUpdatedEntity(EntityId entityId) {
+        if (!entityId.isNew()) {
+            Entity updateEntity = getEntity(entityId);
+            if (updateEntity instanceof DynamicEntity) {
+                ((DynamicEntity) updateEntity).clearAllFields();
+            }
+        }
     }
 
     @Override
     public void markChangesAsCommitted() {
-        previousValues = null;
+        applyCommittedChangesToUnderlyingStore();
         changesBuilder.clear();
+    }
+
+    private void applyCommittedChangesToUnderlyingStore() {
+        EntityStore underlyingStore = getUnderlyingStore();
+        if (underlyingStore != null) {
+            EntityChanges changes = changesBuilder.build();
+            EntityResult insertedUpdatedEntityResult = changes.getInsertedUpdatedEntityResult();
+            for (EntityId entityId : insertedUpdatedEntityResult.getEntityIds()) {
+                Entity underlyingEntity = underlyingStore.getEntity(entityId);
+                if (underlyingEntity != null) {
+                    for (Object fieldId : insertedUpdatedEntityResult.getFieldIds(entityId)) {
+                        if (fieldId != null) {
+                            Object fieldValue = insertedUpdatedEntityResult.getFieldValue(entityId, fieldId);
+                            underlyingEntity.setFieldValue(fieldId, fieldValue);
+                        }
+                    }
+                }
+                clearAllUpdatedValuesFromUpdatedEntity(entityId);
+            }
+        }
+    }
+
+    // methods meant to be used by EntityBindings only
+
+
+    public EntityChangesBuilder getChangesBuilder() {
+        return changesBuilder;
+    }
+
+    public void setHasChangesProperty(Object hasChangesProperty) {
+        this.hasChangesProperty = hasChangesProperty;
+    }
+
+    public Object getHasChangesProperty() {
+        return hasChangesProperty;
     }
 }

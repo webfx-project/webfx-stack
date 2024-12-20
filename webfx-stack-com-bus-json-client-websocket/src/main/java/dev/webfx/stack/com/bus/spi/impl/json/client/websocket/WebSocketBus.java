@@ -38,6 +38,9 @@ import dev.webfx.stack.com.websocket.WebSocketService;
 @SuppressWarnings("rawtypes")
 public class WebSocketBus extends JsonClientBus {
 
+    // Can be set to true when debugging Scheduler for other purposes than this class (reduces Scheduler sollicitations)
+    private static final boolean SKIP_SCHEDULER_DEBUG_FLAG = false;
+
     private WebSocketListener internalWebSocketHandler;
     String serverUri;
     WebSocket webSocket;
@@ -83,7 +86,8 @@ public class WebSocketBus extends JsonClientBus {
                 // link app (which can be open in a separate tab in the same browser, making this app hidden) to ensure
                 // we send back the acknowledgement, so the magic link app can confirm the user it reached out this app
                 // with a successful login.
-                Scheduler.wakeUp();
+                if (!SKIP_SCHEDULER_DEBUG_FLAG)
+                    Scheduler.wakeUp();
             }
 
             @Override
@@ -167,7 +171,8 @@ public class WebSocketBus extends JsonClientBus {
 
     private void scheduleNextPing() {
         cancelPingTimer();
-        pingScheduled = Scheduler.scheduleDelay(pingInterval, this::sendPing);
+        if (!SKIP_SCHEDULER_DEBUG_FLAG)
+            pingScheduled = Scheduler.scheduleDelay(pingInterval, this::sendPing);
     }
 
     private void cancelPingTimer() {

@@ -32,27 +32,16 @@ public interface EntityStore extends HasDataSourceModel {
 
     EntityDomainWriter<Entity> getEntityDataWriter();
 
+    EntityStore getUnderlyingStore();
+
     default DomainClass getDomainClass(Object domainClassId) {
-        return domainClassId instanceof DomainClass ? (DomainClass) domainClassId : getDomainModel().getClass(domainClassId);
+        return EntityDomainClassIdRegistry.getDomainClass(domainClassId, getDomainModel());
     }
-
-    default DomainClass getDomainClass(Class<? extends Entity> entityClass) {
-        return getDomainClass(getDomainClassId(entityClass));
-    }
-
-    default Object getDomainClassId(Class<? extends Entity> entityClass) {
-        return EntityDomainClassIdRegistry.getEntityDomainClassId(entityClass);
-    }
-
 
     // EntityId management
 
     default EntityId getEntityId(Object domainClassId, Object primaryKey) {
         return EntityId.create(getDomainClass(domainClassId), primaryKey);
-    }
-
-    default EntityId getEntityId(DomainClass domainClass, Object primaryKey) {
-        return EntityId.create(domainClass, primaryKey);
     }
 
     void applyEntityIdRefactor(EntityId oldId, EntityId newId);
@@ -68,55 +57,35 @@ public interface EntityStore extends HasDataSourceModel {
     // Entity management
 
     default <E extends Entity> E createEntity(Class<E> entityClass) {
-        return createEntity(getDomainClass(entityClass));
+        return createEntity((Object) entityClass);
     }
 
     default <E extends Entity> E createEntity(Object domainClassId) {
-        return createEntity(getDomainClass(domainClassId));
-    }
-
-    default <E extends Entity> E createEntity(DomainClass domainClass) {
-        return createEntity(EntityId.create(domainClass));
-    }
-
-    default <E extends Entity> E createEntity(Class<E> entityClass, Object primaryKey) {
-        return createEntity(getDomainClass(entityClass), primaryKey);
+        return createEntity(EntityId.create(getDomainClass(domainClassId)));
     }
 
     default <E extends Entity> E createEntity(Object domainClassId, Object primaryKey) {
         return primaryKey == null ? null : createEntity(getEntityId(domainClassId, primaryKey));
     }
 
-    default <E extends Entity> E createEntity(DomainClass domainClass, Object primaryKey) {
-        return primaryKey == null ? null : createEntity(getEntityId(domainClass, primaryKey));
-    }
-
     <E extends Entity> E createEntity(EntityId id);
 
     default <E extends Entity> E getEntity(Class<E> entityClass, Object primaryKey) {
-        return getEntity(getDomainClass(entityClass), primaryKey);
+        return getEntity((Object) entityClass, primaryKey);
     }
 
     default <E extends Entity> E getEntity(Object domainClassId, Object primaryKey) {
         return primaryKey == null ? null : getEntity(getEntityId(domainClassId, primaryKey));
     }
 
-    default <E extends Entity> E getEntity(DomainClass domainClass, Object primaryKey) {
-        return primaryKey == null ? null : getEntity(getEntityId(domainClass, primaryKey));
-    }
-
     <E extends Entity> E getEntity(EntityId entityId);
 
     default <E extends Entity> E getOrCreateEntity(Class<E> entityClass, Object primaryKey) {
-        return getOrCreateEntity(getDomainClass(entityClass), primaryKey);
+        return getOrCreateEntity((Object) entityClass, primaryKey);
     }
 
     default <E extends Entity> E getOrCreateEntity(Object domainClassId, Object primaryKey) {
         return primaryKey == null ? null : getOrCreateEntity(getEntityId(domainClassId, primaryKey));
-    }
-
-    default <E extends Entity> E getOrCreateEntity(DomainClass domainClass, Object primaryKey) {
-        return primaryKey == null ? null : getOrCreateEntity(getEntityId(domainClass, primaryKey));
     }
 
     default <E extends Entity> E getOrCreateEntity(EntityId id) {
@@ -166,7 +135,7 @@ public interface EntityStore extends HasDataSourceModel {
     // Query methods
 
     default <E extends Entity> Future<EntityList<E>> executeQuery(String dqlQuery, Object... parameters) {
-        return executeListQuery(dqlQuery, dqlQuery, parameters);
+        return executeListQuery(null, dqlQuery, parameters);
     }
 
     default <E extends Entity> Future<EntityList<E>> executeCachedQuery(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, Consumer<EntityList<E>> cacheListConsumer, String dqlQuery, Object... parameters) {

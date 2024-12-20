@@ -4,6 +4,7 @@ module webfx.stack.orm.reactive.call {
 
     // Direct dependencies modules
     requires javafx.base;
+    requires webfx.kit.util;
     requires webfx.platform.async;
     requires webfx.platform.console;
     requires webfx.platform.scheduler;

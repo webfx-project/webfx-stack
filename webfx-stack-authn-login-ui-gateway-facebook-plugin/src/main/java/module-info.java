@@ -15,6 +15,6 @@ module webfx.stack.authn.login.ui.gateway.facebook.plugin {
     opens dev.webfx.stack.authn.login.ui.spi.impl.gateway.facebook;
 
     // Provided services
-    provides dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProvider with dev.webfx.stack.authn.login.ui.spi.impl.gateway.facebook.FacebookUiLoginGatewayProvider;
+    provides dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGateway with dev.webfx.stack.authn.login.ui.spi.impl.gateway.facebook.FacebookUiLoginGateway;
 
 }

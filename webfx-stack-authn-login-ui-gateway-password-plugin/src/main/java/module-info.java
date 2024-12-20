@@ -7,8 +7,7 @@ module webfx.stack.authn.login.ui.gateway.password.plugin {
     requires javafx.controls;
     requires javafx.graphics;
     requires webfx.extras.panes;
-    requires webfx.extras.util.animation;
-    requires webfx.extras.util.layout;
+    requires webfx.extras.styles.bootstrap;
     requires webfx.extras.util.scene;
     requires webfx.kit.util;
     requires webfx.platform.uischeduler;
@@ -18,13 +17,15 @@ module webfx.stack.authn.login.ui.gateway.password.plugin {
     requires webfx.stack.authn.login.ui.gateway;
     requires webfx.stack.i18n;
     requires webfx.stack.i18n.controls;
+    requires webfx.stack.session.state.client.fx;
     requires webfx.stack.ui.controls;
     requires webfx.stack.ui.operation;
+    requires webfx.stack.ui.validation;
 
     // Exported packages
     exports dev.webfx.stack.authn.login.ui.spi.impl.gateway.password;
 
     // Provided services
-    provides dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProvider with dev.webfx.stack.authn.login.ui.spi.impl.gateway.password.PasswordUiLoginGatewayProvider;
+    provides dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGateway with dev.webfx.stack.authn.login.ui.spi.impl.gateway.password.PasswordUiLoginGateway;
 
 }

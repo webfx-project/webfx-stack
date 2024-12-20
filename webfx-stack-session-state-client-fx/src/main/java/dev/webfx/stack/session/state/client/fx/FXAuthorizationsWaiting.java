@@ -4,7 +4,6 @@ import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 
 import java.util.Objects;
 
@@ -13,12 +12,9 @@ import java.util.Objects;
  */
 public final class FXAuthorizationsWaiting {
 
-    private final static BooleanProperty authorizationsWaitingProperty = new SimpleBooleanProperty(false) {
-        @Override
-        protected void invalidated() {
-            Console.log("FXAuthorizationsWaiting = " + get());
-        }
-    };
+    private final static BooleanProperty authorizationsWaitingProperty = FXProperties.newBooleanProperty(waiting ->
+        Console.log("FXAuthorizationsWaiting = " + waiting)
+    );
 
     public static ReadOnlyBooleanProperty authorizationsWaitingProperty() {
         return authorizationsWaitingProperty;
@@ -38,18 +34,18 @@ public final class FXAuthorizationsWaiting {
 
     public static void runOnAuthorizationsChangedOrWaiting(Runnable runnable) {
         FXAuthorizationsChanged.runOnAuthorizationsChanged(runnable);
-        FXProperties.runOnPropertiesChange(() -> {
-            if (isAuthorizationsWaiting() || FXLoggedOut.isLoggedOut())
+        FXProperties.runOnPropertyChange(loggedOut -> {
+            if (isAuthorizationsWaiting() || loggedOut)
                 runnable.run();
         }, FXLoggedOut.loggedOutProperty());
     }
 
-    public static void init() {
-        // The first call will trigger the static initializer below, and subsequent calls won't do anything
+    static { // All FXClass in this package should call FXInit.init() in their static initializer
+        FXInit.init(); // See FXInit comments to understand why
     }
 
-    static {
-        FXProperties.runNowAndOnPropertiesChange(FXAuthorizationsWaiting::updateAuthorizationsWaiting, FXLoggedOut.loggedOutProperty());
+    static void init() { // Called back (only once) by FXInit in a controlled overall sequence
+        FXProperties.runNowAndOnPropertyChange(FXAuthorizationsWaiting::updateAuthorizationsWaiting, FXLoggedOut.loggedOutProperty());
         FXAuthorizationsChanged.runOnAuthorizationsChanged(FXAuthorizationsWaiting::updateAuthorizationsWaiting);
     }
 

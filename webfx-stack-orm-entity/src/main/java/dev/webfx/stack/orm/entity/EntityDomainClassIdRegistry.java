@@ -24,21 +24,17 @@ public final class EntityDomainClassIdRegistry {
 
     // Utility methods
 
-    public static DomainClass getEntityDomainClass(Class<? extends Entity> entityClass) {
-        return getEntityDomainClass(entityClass, null);
-    }
-
-    public static DomainClass getEntityDomainClass(Class<? extends Entity> entityClass, DomainModel domainModel) {
-        return getDomainClass(getEntityDomainClassId(entityClass), domainModel);
-    }
-
     public static DomainClass getDomainClass(Object domainClassId) {
         return getDomainClass(domainClassId, null);
     }
 
     public static DomainClass getDomainClass(Object domainClassId, DomainModel domainModel) {
+        if (domainClassId instanceof DomainClass)
+            return (DomainClass) domainClassId;
         if (domainModel == null)
             domainModel = DataSourceModelService.getDefaultDataSourceModel().getDomainModel();
+        if (domainClassId.getClass().equals(Class.class))
+            domainClassId = getEntityDomainClassId((Class<? extends Entity>) domainClassId);
         return domainModel.getClass(domainClassId);
     }
 

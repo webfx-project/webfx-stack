@@ -1,5 +1,6 @@
 package dev.webfx.stack.orm.reactive.call.query.push;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.querypush.QueryPushArgument;
@@ -11,7 +12,6 @@ import dev.webfx.stack.session.state.client.fx.FXConnectionLost;
 import dev.webfx.stack.session.state.client.fx.FXReconnected;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 import java.util.ArrayList;
@@ -36,22 +36,16 @@ public final class ReactiveQueryPushCall extends ReactiveQueryCall {
 
 
     // Property used to memorize that a lost connection occurred - bound to FXConnectionLost in onStarted()
-    private final BooleanProperty lostConnectionProperty = new SimpleBooleanProperty() {
-        @Override
-        protected void invalidated() {
-            if (get()) // Means that we just lost connection to the server
-                lostConnection = true; // memorising this event for further decisions
-        }
-    };
+    private final BooleanProperty lostConnectionProperty = FXProperties.newBooleanProperty(lost -> {
+        if (lost) // Means that we just lost connection to the server
+            lostConnection = true; // memorising this event for further decisions
+    });
 
     // Property used to react to reconnections - bound to FXReconnected in onStarted()
-    private final BooleanProperty reconnectedProperty = new SimpleBooleanProperty() {
-        @Override
-        protected void invalidated() {
-            if (get()) // Means that the connection to the server is just back now
-                scheduleFireCallNowIfRequired(); // We schedule a server call if required to refresh the data
-        }
-    };
+    private final BooleanProperty reconnectedProperty = FXProperties.newBooleanProperty(reconnected -> {
+        if (reconnected) // Means that the connection to the server is just back now
+            scheduleFireCallNowIfRequired(); // We schedule a server call if required to refresh the data
+    });
 
     private final ObjectProperty<ReactiveQueryPushCall> activeParentProperty = new SimpleObjectProperty<ReactiveQueryPushCall/*GWT*/>() {
         private ReactiveQueryPushCall previousActiveParent;
@@ -82,12 +76,12 @@ public final class ReactiveQueryPushCall extends ReactiveQueryCall {
         if (waitingQueryStreamId) // If we already wait the queryStreamId, we won't make a new call now (we can't update the stream without its id)
             queryHasChangeWhileWaitingQueryStreamId |= hasArgumentChangedSinceLastCall(); // but we mark this flag in order to update the stream (if modified) when receiving its id
         ReactiveQueryPushCall parent = getActiveParent();
-        return  isStarted()
-                        && getArgument() != null
-                        && !waitingQueryStreamId
-                        // Skipping new stream not yet active (waiting it becomes active before calling the server)
-                        && (queryStreamId != null || isActive())
-                        && (parent == null || parent.queryStreamId != null && !parent.lostConnection);
+        return isStarted()
+               && getArgument() != null
+               && !waitingQueryStreamId
+               // Skipping new stream not yet active (waiting it becomes active before calling the server)
+               && (queryStreamId != null || isActive())
+               && (parent == null || parent.queryStreamId != null && !parent.lostConnection);
     }
 
     @Override
@@ -114,19 +108,19 @@ public final class ReactiveQueryPushCall extends ReactiveQueryCall {
         Object parentQueryStreamId = parent == null ? null : parent.queryStreamId;
         waitingQueryStreamId = queryStreamId == null; // Setting the waitingQueryStreamId flag to true when queryStreamId is not yet known
         QueryPushService.executeQueryPush(QueryPushArgument.builder()
-                .setQueryStreamId(queryStreamId)
-                .setParentQueryStreamId(parentQueryStreamId)
-                .setQueryArgument(transmittedQueryArgument)
-                .setActive(isActive())
-                .setResend(resend)
-                // This consumer will be called each time the server will push a change notification on the result
-                .setQueryPushResultConsumer(queryPushResult -> onCallResult(computeQueryResult(queryPushResult), null))
-                .build()
+            .setQueryStreamId(queryStreamId)
+            .setParentQueryStreamId(parentQueryStreamId)
+            .setQueryArgument(transmittedQueryArgument)
+            .setActive(isActive())
+            .setResend(resend)
+            // This consumer will be called each time the server will push a change notification on the result
+            .setQueryPushResultConsumer(queryPushResult -> onCallResult(computeQueryResult(queryPushResult), null))
+            .build()
         ).onComplete(ar -> { // This handler is called only once when the query push service call returns
             boolean refreshChildren = false;
             // Cases where we need to trigger a new query push service call:
             if (ar.failed() // 1) on failure (this may happen if queryStreamId is not registered on the server anymore, for ex after server restart with a non-persistent query push provider such as the in-memory default one)
-                    || queryHasChangeWhileWaitingQueryStreamId) { // 2) when the query has changed while we were waiting for the query stream id
+                || queryHasChangeWhileWaitingQueryStreamId) { // 2) when the query has changed while we were waiting for the query stream id
                 log((isActive() ? "Refreshing queryStreamId=" + queryStreamId : "queryStreamId=" + queryStreamId + " will be refreshed when active") + (queryHasChangeWhileWaitingQueryStreamId ? " because the query has changed while waiting the queryStreamId" : " because a failure occurred while updating the query (may be an unrecognized queryStreamId after server restart)"));
                 queryHasChangeWhileWaitingQueryStreamId = false; // Resetting the flag
                 fireCallWhenReady(); // This will trigger a new pass (when active) leading to a new call to the query push service
@@ -202,6 +196,7 @@ public final class ReactiveQueryPushCall extends ReactiveQueryCall {
 
     private static int SEQ;
     private final int seq = ++SEQ;
+
     @Override
     protected void log(String message) {
         super.log("ReactiveQueryPushCall-" + seq + "[queryStreamId=" + queryStreamId + "]: " + message);

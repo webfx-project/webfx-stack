@@ -1,11 +1,9 @@
 package dev.webfx.stack.orm.entity.impl;
 
-import dev.webfx.stack.orm.entity.Entities;
+import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.entity.EntityList;
 import dev.webfx.stack.orm.entity.EntityStore;
-import dev.webfx.platform.util.collection.Collections;
-import dev.webfx.stack.orm.expression.Expression;
 
 import java.util.ArrayList;
 
@@ -33,12 +31,7 @@ public final class EntityListImpl<E extends Entity> extends ArrayList<E> impleme
     }
 
     @Override
-    public void orderBy(Expression<E>... orderExpressions) {
-        Entities.orderBy(this, orderExpressions);
-    }
-
-    @Override
     public String toString() {
-        return Collections.toStringWithLineFeeds(this);
+        return Collections.toStringCommaSeparatedWithBracketsAndLineFeeds(this);
     }
 }

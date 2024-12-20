@@ -6,6 +6,7 @@ import dev.webfx.platform.vertx.common.VertxInstance;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.bridge.PermittedOptions;
+import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeEvent;
 import io.vertx.ext.web.handler.sockjs.SockJSBridgeOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
@@ -49,21 +50,22 @@ public class VertxBusModuleBooter implements ApplicationModuleBooter {
 
             VertxInstance.setBridgeInstaller(() -> {
                 VertxInstance.getHttpRouter()
-                        .route("/" + busPrefix + "/*")
-                        .subRouter(SockJSHandler.create(VertxInstance.getVertx())
-                                .bridge(new SockJSBridgeOptions()
-                                                .setPingTimeout(pingTimeout) // Should be higher than client WebSocketBusOptions.pingInterval (which is set to 30_000 at the time of writing this code)
-                                                .addInboundPermitted(new PermittedOptions(new JsonObject()))
-                                                .addOutboundPermitted(new PermittedOptions(new JsonObject()))
-                                        , bridgeEvent -> { // Calling the VertxInstance bridge event handler if set
-                                            Handler<BridgeEvent> bridgeEventHandler = VertxInstance.getBridgeEventHandler();
-                                            if (bridgeEventHandler != null)
-                                                bridgeEventHandler.handle(bridgeEvent);
-                                            else
-                                                bridgeEvent.complete(true);
-                                        }
-                                )
-                        );
+                    .route("/" + busPrefix + "/*")
+                    .handler(BodyHandler.create()) // Required since Vert.x 4.3.0 to handle XHR POST requests (see https://github.com/vert-x3/vertx-web/issues/2188)
+                    .subRouter(SockJSHandler.create(VertxInstance.getVertx())
+                        .bridge(new SockJSBridgeOptions()
+                                .setPingTimeout(pingTimeout) // Should be higher than client WebSocketBusOptions.pingInterval (which is set to 30_000 at the time of writing this code)
+                                .addInboundPermitted(new PermittedOptions(new JsonObject()))
+                                .addOutboundPermitted(new PermittedOptions(new JsonObject()))
+                            , bridgeEvent -> { // Calling the VertxInstance bridge event handler if set
+                                Handler<BridgeEvent> bridgeEventHandler = VertxInstance.getBridgeEventHandler();
+                                if (bridgeEventHandler != null)
+                                    bridgeEventHandler.handle(bridgeEvent);
+                                else
+                                    bridgeEvent.complete(true);
+                            }
+                        )
+                    );
                 log("✓ Vert.x bus configured with prefix = '" + busPrefix + "' & timeout = " + pingTimeout + " ms");
             });
 

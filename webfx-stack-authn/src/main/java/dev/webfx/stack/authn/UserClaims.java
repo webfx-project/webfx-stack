@@ -5,7 +5,7 @@ import dev.webfx.platform.ast.ReadOnlyAstObject;
 /**
  * @author Bruno Salmon
  */
-public class UserClaims {
+public final class UserClaims {
 
     private final String username;
     private final String email;

@@ -29,7 +29,7 @@ public abstract class PrimitiveBinaryBooleanExpression<T> extends BinaryBooleanE
         if (leftPrimType != null) {
             leftValue = domainReader.prepareValueBeforeTypeConversion(leftValue, leftPrimType);
             rightValue = domainReader.prepareValueBeforeTypeConversion(rightValue, leftPrimType);
-            if (leftValue != null && rightValue != null)
+            if (leftValue != null && rightValue != null) {
                 switch (leftPrimType) {
                     case BOOLEAN:
                         return evaluateBoolean(Booleans.toBoolean(leftValue), Booleans.toBoolean(rightValue));
@@ -46,6 +46,7 @@ public abstract class PrimitiveBinaryBooleanExpression<T> extends BinaryBooleanE
                     case DATE:
                         return evaluateDate(Times.toInstant(leftValue), Times.toInstant(rightValue));
                 }
+            }
         }
         return evaluateObject(leftValue, rightValue);
     }

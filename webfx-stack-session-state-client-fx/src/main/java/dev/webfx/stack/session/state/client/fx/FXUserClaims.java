@@ -27,12 +27,16 @@ public final class FXUserClaims {
         FXProperties.setIfNotEquals(userClaimsProperty, userClaims);
     }
 
+    static { // All FXClass in this package should call FXInit.init() in their static initializer
+        FXInit.init(); // See FXInit comments to understand why
+    }
+
     static {
-        FXProperties.runNowAndOnPropertiesChange(() -> {
+        FXProperties.runNowAndOnPropertyChange(() -> {
             // Forgetting the previous user claims on user change
             setUserClaims(null);
             // Asking the new user claim if the user is logged in (ignored if the user just logged out)
-            if (FXLoggedIn.isLoggedIn()) {
+            if (FXUserId.getUserId() != null) {
                 AuthenticationService.getUserClaims()
                         .onFailure(Console::log)
                         .onSuccess(userClaims -> UiScheduler.runInUiThread(() -> setUserClaims(userClaims)));

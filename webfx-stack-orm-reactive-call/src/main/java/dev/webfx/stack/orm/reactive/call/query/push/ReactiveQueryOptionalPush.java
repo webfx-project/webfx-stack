@@ -1,11 +1,11 @@
 package dev.webfx.stack.orm.reactive.call.query.push;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import dev.webfx.stack.orm.reactive.call.query.ReactiveQueryCall;
-import dev.webfx.stack.orm.reactive.call.SwitchableReactiveCall;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
+import dev.webfx.stack.orm.reactive.call.SwitchableReactiveCall;
+import dev.webfx.stack.orm.reactive.call.query.ReactiveQueryCall;
+import javafx.beans.property.BooleanProperty;
 
 /**
  * @author Bruno Salmon
@@ -28,12 +28,7 @@ public final class ReactiveQueryOptionalPush extends SwitchableReactiveCall<Quer
         return reactiveQueryPush;
     }
 
-    private final BooleanProperty pushProperty = new SimpleBooleanProperty(false) {
-        @Override
-        protected void invalidated() {
-            updateDelegate();
-        }
-    };
+    private final BooleanProperty pushProperty = FXProperties.newBooleanProperty(false, this::updateDelegate);
 
     public BooleanProperty pushProperty() {
         return pushProperty;

@@ -1,10 +1,12 @@
 package dev.webfx.stack.i18n.spi.impl;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.util.collection.Collections;
+import dev.webfx.stack.i18n.DefaultTokenKey;
 import dev.webfx.stack.i18n.Dictionary;
 import dev.webfx.stack.i18n.TokenKey;
 import dev.webfx.stack.i18n.spi.I18nProvider;
@@ -103,12 +105,7 @@ public class I18nProviderImpl implements I18nProvider {
         return null;
     }
 
-    private final ObjectProperty<Object> languageProperty = new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-            onLanguageChanged();
-        }
-    };
+    private final ObjectProperty<Object> languageProperty = FXProperties.newObjectProperty(this::onLanguageChanged);
 
     @Override
     public ObjectProperty<Object> languageProperty() {
@@ -140,74 +137,118 @@ public class I18nProviderImpl implements I18nProvider {
     public <TK extends Enum<?> & TokenKey> Object getDictionaryTokenValue(Object i18nKey, TK tokenKey, Dictionary dictionary) {
         if (dictionary == null)
             dictionary = getDictionary();
-        return getDictionaryTokenValueImpl(i18nKey, tokenKey, dictionary, false, false, false);
+        return getDictionaryTokenValueImpl(i18nKey, tokenKey, dictionary, false, dictionary, false, false);
     }
 
-    protected <TK extends Enum<?> & TokenKey> Object getDictionaryTokenValueImpl(Object i18nKey, TK tokenKey, Dictionary dictionary, boolean skipDefaultDictionary, boolean skipMessageKeyInterpretation, boolean skipMessageLoading) {
+    protected <TK extends Enum<?> & TokenKey> Object getDictionaryTokenValueImpl(Object i18nKey, TK tokenKey, Dictionary dictionary, boolean skipDefaultDictionary, Dictionary originalDictionary, boolean skipMessageKeyInterpretation, boolean skipMessageLoading) {
         Object tokenValue = null;
-        if (dictionary != null && i18nKey != null) {
+        String tokenValuePrefix = null, tokenValueSuffix = null;
+        if (i18nKey != null) {
             Object messageKey = i18nKeyToDictionaryMessageKey(i18nKey);
-            tokenValue = dictionary.getMessageTokenValue(messageKey, tokenKey);
+            tokenValue = dictionary == null ? null : dictionary.getMessageTokenValue(messageKey, tokenKey, false);
+            // Message key prefix & suffix interpretation
             if (tokenValue == null && !skipMessageKeyInterpretation && messageKey instanceof String) {
                 String sKey = (String) messageKey;
                 int length = Strings.length(sKey);
+                // Prefix interpretation (only << for now)
                 if (length > 1) {
                     int index = 0;
                     while (index < length && !Character.isLetterOrDigit(sKey.charAt(index)))
                         index++;
                     if (index > 0) {
-                        String prefix = sKey.substring(0, index);
-                        switch (prefix) {
+                        String sKeyPrefix = sKey.substring(0, index);
+                        switch (sKeyPrefix) {
                             case "<<":
                                 // Reading the token value of the remaining key (after <<)
-                                tokenValue = getDictionaryTokenValueImpl(new I18nSubKey(sKey.substring(prefix.length(), length), i18nKey), tokenKey, dictionary, skipDefaultDictionary, false, skipMessageLoading);
+                                tokenValue = getDictionaryTokenValueImpl(new I18nSubKey(sKey.substring(sKeyPrefix.length(), length), i18nKey), tokenKey, dictionary, skipDefaultDictionary, originalDictionary, true, skipMessageLoading);
                                 if (tokenValue != null && isAssignableFrom(tokenKey.expectedClass(), String.class))
-                                    tokenValue = "" + getDictionaryTokenValueImpl(prefix, tokenKey, dictionary, skipDefaultDictionary, true, skipMessageLoading) + tokenValue;
+                                    tokenValuePrefix = "" + getDictionaryTokenValueImpl(sKeyPrefix, tokenKey, dictionary, skipDefaultDictionary, originalDictionary, true, skipMessageLoading);
                         }
                     }
                 }
+                // Suffix interpretation (:, ?, >>, ...)
                 if (tokenValue == null && length > 1) {
                     int index = length;
                     while (index > 0 && !Character.isLetterOrDigit(sKey.charAt(index - 1)))
                         index--;
                     if (index < length) {
-                        String suffix = sKey.substring(index, length);
-                        switch (suffix) {
+                        String sKeySuffix = sKey.substring(index, length);
+                        switch (sKeySuffix) {
                             case ":":
                             case "?":
                             case ">>":
                             case "...":
                                 // Reading the token value of the remaining key (before the suffix)
-                                tokenValue = getDictionaryTokenValueImpl(new I18nSubKey(sKey.substring(0, length - suffix.length()), i18nKey), tokenKey, dictionary, skipDefaultDictionary, true, skipMessageLoading);
+                                tokenValue = getDictionaryTokenValueImpl(new I18nSubKey(sKey.substring(0, length - sKeySuffix.length()), i18nKey), tokenKey, dictionary, skipDefaultDictionary, originalDictionary, true, skipMessageLoading);
                                 if (tokenValue != null && isAssignableFrom(tokenKey.expectedClass(), String.class))
-                                    tokenValue = "" + tokenValue + getDictionaryTokenValueImpl(suffix, tokenKey, dictionary, skipDefaultDictionary, true, skipMessageLoading);
+                                    tokenValueSuffix = "" + getDictionaryTokenValueImpl(sKeySuffix, tokenKey, dictionary, skipDefaultDictionary, originalDictionary, true, skipMessageLoading);
+                        }
+                    }
+                }
+                // Case transformer keys
+                if (tokenValue == null && length > 1 && dictionary != null) {
+                    // Second search but ignoring case
+                    tokenValue = dictionary.getMessageTokenValue(messageKey, tokenKey, true);
+                    if (tokenValue != null) { // Yes, we found a value this time!
+                        String sValue = Strings.toString(tokenValue);
+                        if (sKey.equals(sKey.toUpperCase())) // key was upper case ? => we upper case the value
+                            tokenValue = sValue.toUpperCase();
+                        else if (sKey.equals(sKey.toLowerCase())) // key was lower case ? => we lower case the value
+                            tokenValue = sValue.toLowerCase();
+                        else if (!sValue.isEmpty()) {
+                            char firstCharKey = sKey.charAt(0);
+                            char firstCharValue = sValue.charAt(0);
+                            if (Character.isUpperCase(firstCharKey)) { // first letter uppercase ? => we upper case first letter in value
+                                if (!Character.isUpperCase(firstCharValue))
+                                    tokenValue = Character.toUpperCase(firstCharValue) + sValue.substring(1);
+                            } else { // first letter lowercase ? => we lower case first letter in value
+                                if (!Character.isLowerCase(firstCharValue))
+                                    tokenValue = Character.toLowerCase(firstCharValue) + sValue.substring(1);
+                            }
                         }
                     }
                 }
             }
-            if (tokenValue instanceof String || tokenValue == null && messageKey instanceof String) {
-                String sToken = (String) (tokenValue == null ? messageKey : tokenValue);
-                int i1 = sToken.indexOf('[');
-                if (i1 >= 0) {
-                    int i2 = i1 == 0 && sToken.endsWith("]") ? sToken.length() - 1 : sToken.indexOf(']', i1 + 1);
-                    if (i2 > 0) {
-                        Object resolvedValue = getDictionaryTokenValueImpl(new I18nSubKey(sToken.substring(i1 + 1, i2), i18nKey), tokenKey, dictionary, false, false, skipMessageLoading);
-                        // If the bracket token has been resolved, we return it with the parts before and after the brackets
-                        if (resolvedValue != null)
-                            tokenValue = (i1 == 0 ? "" : sToken.substring(0, i1 - 1)) + resolvedValue + sToken.substring(i2 + 1);
-                    }
+            tokenValue = interpretBracketsAndDefaultInTokenValue(tokenValue, messageKey, i18nKey, tokenKey, dictionary, skipDefaultDictionary, originalDictionary, skipMessageLoading);
+        }
+        // Temporary code which is a workaround for the yaml parser not able to parse line feeds in strings.
+        if (tokenValue instanceof String) // TODO: remove this workaround once yaml parser is fixed
+            tokenValue = ((String) tokenValue).replace("\\n", "\n");
+        if (tokenValuePrefix != null)
+            tokenValue = tokenValuePrefix + tokenValue;
+        if (tokenValueSuffix != null)
+            tokenValue = tokenValue + tokenValueSuffix;
+        return tokenValue;
+    }
+
+    // public because called by AstDictionary to interpret token values within Ast objects as well
+    public <TK extends Enum<?> & TokenKey> Object interpretBracketsAndDefaultInTokenValue(Object tokenValue, Object messageKey, Object i18nKey, TK tokenKey, Dictionary dictionary, boolean skipDefaultDictionary, Dictionary originalDictionary, boolean skipMessageLoading) {
+        // Token value bracket interpretation: if the value contains an i18n key in bracket, we interpret it
+        if (tokenValue instanceof String || tokenValue == null && messageKey instanceof String) {
+            String sToken = (String) (tokenValue == null ? messageKey : tokenValue);
+            int i1 = sToken.indexOf('[');
+            if (i1 >= 0) {
+                int i2 = i1 == 0 && sToken.endsWith("]") ? sToken.length() - 1 : sToken.indexOf(']', i1 + 1);
+                if (i2 > 0) {
+                    // Note: we always use originalDictionary for the resolution, because even if that token value
+                    // comes from the default dictionary (ex: EN), we still want the brackets to be interpreted in
+                    // the original language (ex: FR).
+                    Object resolvedValue = getDictionaryTokenValueImpl(new I18nSubKey(sToken.substring(i1 + 1, i2), i18nKey), tokenKey, originalDictionary, false, originalDictionary, false, skipMessageLoading);
+                    // If the bracket token has been resolved, we return it with the parts before and after the brackets
+                    if (resolvedValue != null)
+                        tokenValue = (i1 == 0 ? "" : sToken.substring(0, i1)) + resolvedValue + sToken.substring(i2 + 1);
                 }
             }
-            if (tokenValue == null && !skipDefaultDictionary) {
-                Dictionary defaultDictionary = getDefaultDictionary();
-                if (dictionary != defaultDictionary && defaultDictionary != null)
-                    tokenValue = getDictionaryTokenValueImpl(i18nKey, tokenKey, defaultDictionary, true, skipMessageKeyInterpretation, skipMessageLoading); //getI18nPartValue(tokenSnapshot.i18nKey, part, defaultDictionary, skipPrefixOrSuffix);
-                if (tokenValue == null) {
-                    if (!skipMessageLoading)
-                        scheduleMessageLoading(i18nKey, true);
-                    //if (tokenKey == DefaultTokenKey.TEXT) // Commented as we use it also for graphic in Modality after evaluating an expression that gives the path to the icon
+        }
+        if (tokenValue == null && !skipDefaultDictionary) {
+            Dictionary defaultDictionary = getDefaultDictionary();
+            if (dictionary != defaultDictionary && defaultDictionary != null)
+                tokenValue = getDictionaryTokenValueImpl(i18nKey, tokenKey, defaultDictionary, true, originalDictionary, false, skipMessageLoading); //getI18nPartValue(tokenSnapshot.i18nKey, part, defaultDictionary, skipPrefixOrSuffix);
+            if (tokenValue == null) {
+                if (!skipMessageLoading)
+                    scheduleMessageLoading(i18nKey, true);
+                if (tokenKey == DefaultTokenKey.TEXT || tokenKey == DefaultTokenKey.GRAPHIC) // we use it also for graphic in Modality after evaluating an expression that gives the path to the icon
                     tokenValue = messageKey; //;whatToReturnWhenI18nTextIsNotFound(tokenSnapshot.i18nKey, tokenSnapshot.tokenKey);
-                }
             }
         }
         return tokenValue;
@@ -265,7 +306,7 @@ public class I18nProviderImpl implements I18nProvider {
     private Object getFreshTokenValueFromSnapshot(TokenSnapshot tokenSnapshot, Dictionary dictionary) {
         Object i18nKey = tokenSnapshot.i18nKey;
         TokenKey tokenKey = tokenSnapshot.tokenKey;
-        return getDictionaryTokenValueImpl(i18nKey, (Enum<?> & TokenKey) tokenKey, dictionary, false, false, true);
+        return getDictionaryTokenValueImpl(i18nKey, (Enum<?> & TokenKey) tokenKey, dictionary, false, dictionary, false, true);
     }
 
     public boolean refreshMessageTokenProperties(Object freshI18nKey) {
@@ -304,7 +345,10 @@ public class I18nProviderImpl implements I18nProvider {
                     .map(this::i18nKeyToDictionaryMessageKey).collect(Collectors.toSet());
                 // Asking the dictionary loader to load these messages in that language
                 dictionaryLoader.loadDictionary(language, messageKeysToLoad)
-                    .onFailure(Console::log)
+                    .onFailure(e -> {
+                        Console.log(e);
+                        dictionaryProperty.set(null); // necessary to force default dictionary fallback and not keep previous language applied
+                    })
                     .onSuccess(dictionary -> {
                         // Once the dictionary is loaded, we take it as the current dictionary if it's in the current language
                         if (language.equals(getLanguage())) // unless the load was a fallback to the default language
@@ -312,6 +356,8 @@ public class I18nProviderImpl implements I18nProvider {
                         // Also taking it as the default dictionary if it's in the default language
                         if (language.equals(getDefaultLanguage()))
                             defaultDictionaryProperty.setValue(dictionary);
+                    })
+                    .onComplete(ar -> {
                         // Turning off dictionaryLoadRequired
                         dictionaryLoadRequired = false;
                         // Refreshing all loaded keys in the user interface
@@ -326,10 +372,8 @@ public class I18nProviderImpl implements I18nProvider {
                         }
                         if (unfoundKeys != null) {
                             blacklistedKeys.addAll(unfoundKeys);
-                            Console.log("⚠️ I18n keys not found (now blacklisted): " + Collections.toString(unfoundKeys, false, false));
+                            Console.log("⚠️ I18n keys not found (now blacklisted): " + Collections.toStringCommaSeparated(unfoundKeys));
                         }
-                    })
-                    .onComplete(ar -> {
                         // If the requested language has changed in the meantime, we might need to reload another dictionary!
                         if (!language.equals(getLanguage())) {
                             // We postpone the call to be sure that dictionaryLoadingScheduled will be finished

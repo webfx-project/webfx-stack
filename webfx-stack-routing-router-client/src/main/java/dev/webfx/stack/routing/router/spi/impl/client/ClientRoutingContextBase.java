@@ -17,16 +17,22 @@ public abstract class ClientRoutingContextBase implements RoutingContext {
     protected final String mountPoint;
     protected final String path;
     protected final Collection<ClientRoute> routes;
+    private final boolean redirected;
     protected Iterator<ClientRoute> iter;
     protected Route currentRoute;
     private AstObject params;
 
-    ClientRoutingContextBase(String mountPoint, String path, Collection<ClientRoute> routes, Object state) {
+    ClientRoutingContextBase(String mountPoint, String path, Collection<ClientRoute> routes, Object state, boolean redirected) {
         this.mountPoint = mountPoint;
         this.path = path;
         this.routes = routes;
         this.params = (AstObject) state; // Is merging state and params the right thing to do?
         iter = routes.iterator();
+        this.redirected = redirected;
+    }
+
+    public boolean isRedirected() {
+        return redirected;
     }
 
     @Override
@@ -112,12 +118,12 @@ public abstract class ClientRoutingContextBase implements RoutingContext {
     public static RoutingContext newRedirectedContext(RoutingContext context, String redirectPath) {
         if (context instanceof ClientRoutingContextImpl) {
             ClientRoutingContextImpl ctx = (ClientRoutingContextImpl) context;
-            return new ClientRoutingContextImpl(ctx.mountPoint(), ctx.router(), redirectPath, ctx.routes, ctx.getParams());
+            return new ClientRoutingContextImpl(ctx.mountPoint(), ctx.router(), redirectPath, ctx.routes, ctx.getParams(), true);
         }
         if (context instanceof SubClientRoutingContext) {
             SubClientRoutingContext ctx = (SubClientRoutingContext) context;
             return new SubClientRoutingContext(null, redirectPath, ctx.routes, // trying first to find the login page in the sub-router
-                    new SubClientRoutingContext(ctx.mountPoint(), redirectPath, ctx.routes, ctx.inner) // otherwise in the parent router
+                    new SubClientRoutingContext(ctx.mountPoint(), redirectPath, ctx.routes, ctx.inner, true), true // otherwise in the parent router
             );
         }
         return null; // Shouldn't happen

@@ -2,8 +2,9 @@ package dev.webfx.stack.authn.login.ui.spi.impl.portal;
 
 import dev.webfx.platform.service.MultipleServiceProviders;
 import dev.webfx.stack.authn.login.ui.spi.UiLoginServiceProvider;
-import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayProvider;
+import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGateway;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginPortalCallback;
+import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -11,14 +12,15 @@ import javafx.scene.Scene;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.function.Consumer;
 
 /**
  * @author Bruno Salmon
  */
 public class UiLoginPortalProvider implements UiLoginServiceProvider, UiLoginPortalCallback {
 
-    static List<UiLoginGatewayProvider> getProviders() {
-        return MultipleServiceProviders.getProviders(UiLoginGatewayProvider.class, () -> ServiceLoader.load(UiLoginGatewayProvider.class));
+    static List<UiLoginGateway> getGateways() {
+        return MultipleServiceProviders.getProviders(UiLoginGateway.class, () -> ServiceLoader.load(UiLoginGateway.class));
     }
 
     // Several login ui may be instantiated in different activities, but only one should be visible at a time (= active login)
@@ -26,7 +28,16 @@ public class UiLoginPortalProvider implements UiLoginServiceProvider, UiLoginPor
 
     @Override
     public Node createLoginUi() { // Called each time a login window is required
-        LoginPortalUi loginPortalUi = new LoginPortalUi();
+        return createLoginPortalUi(null, null);
+    }
+
+    @Override
+    public Node createMagicLinkUi(StringProperty magicLinkTokenProperty, Consumer<String> requestedPathConsumer) { // Called each time a magic link window is required
+        return createLoginPortalUi(magicLinkTokenProperty, requestedPathConsumer);
+    }
+
+    private Node createLoginPortalUi(StringProperty magicLinkTokenProperty, Consumer<String> requestedPathConsumer) {
+        LoginPortalUi loginPortalUi = new LoginPortalUi(magicLinkTokenProperty, requestedPathConsumer);
         loginPortalUis.add(loginPortalUi);
         return loginPortalUi.getFlipPane();
     }

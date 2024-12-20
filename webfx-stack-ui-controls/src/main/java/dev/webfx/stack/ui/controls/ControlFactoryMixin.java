@@ -110,11 +110,11 @@ public interface ControlFactoryMixin extends ActionFactoryMixin {
     }
 
     default CheckBox newCheckBox(Object i18nKey) {
-        return I18nControls.bindI18nProperties(new CheckBox(), i18nKey);
+        return I18nControls.newCheckBox(i18nKey);
     }
 
     default RadioButton newRadioButton(Object i18nKey) {
-        return I18nControls.bindI18nProperties(new RadioButton(), i18nKey);
+        return I18nControls.newRadioButton(i18nKey);
     }
 
     default RadioButton newRadioButton(Object i18nKey, ToggleGroup toggleGroup) {
@@ -124,7 +124,7 @@ public interface ControlFactoryMixin extends ActionFactoryMixin {
     }
 
     default Label newLabel(Object i18nKey) {
-        return I18nControls.bindI18nProperties(new Label(), i18nKey);
+        return I18nControls.newLabel(i18nKey);
     }
 
     default TextField newTextField() {
@@ -144,7 +144,7 @@ public interface ControlFactoryMixin extends ActionFactoryMixin {
     }
 
     default Hyperlink newHyperlink(Object i18nKey) {
-        return I18nControls.bindI18nProperties(newHyperlink(), i18nKey);
+        return I18nControls.newHyperlink(i18nKey);
     }
 
     default Hyperlink newHyperlink(Object i18nKey, EventHandler<ActionEvent> onAction) {
@@ -158,7 +158,7 @@ public interface ControlFactoryMixin extends ActionFactoryMixin {
     }
 
     default Text newText(Object i18nKey) {
-        return I18n.bindI18nProperties(new Text(), i18nKey);
+        return I18n.newText(i18nKey);
     }
 
 }

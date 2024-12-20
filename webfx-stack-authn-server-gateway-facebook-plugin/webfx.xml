@@ -10,7 +10,7 @@
     </dependencies>
 
     <providers>
-        <provider interface="dev.webfx.stack.authn.server.gateway.spi.ServerAuthenticationGatewayProvider">dev.webfx.stack.authn.server.gateway.spi.impl.facebook.FacebookServerAuthenticationGatewayProvider</provider>
+        <provider interface="dev.webfx.stack.authn.server.gateway.spi.ServerAuthenticationGateway">dev.webfx.stack.authn.server.gateway.spi.impl.facebook.FacebookServerAuthenticationGateway</provider>
     </providers>
 
 </project>

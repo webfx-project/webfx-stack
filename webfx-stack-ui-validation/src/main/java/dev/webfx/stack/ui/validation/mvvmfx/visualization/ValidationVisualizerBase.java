@@ -15,11 +15,12 @@
  ******************************************************************************/
 package dev.webfx.stack.ui.validation.mvvmfx.visualization;
 
+import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.kit.util.properties.ObservableLists;
+import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.stack.ui.validation.mvvmfx.Severity;
 import dev.webfx.stack.ui.validation.mvvmfx.ValidationMessage;
 import dev.webfx.stack.ui.validation.mvvmfx.ValidationStatus;
-import javafx.application.Platform;
-import javafx.collections.ListChangeListener;
 import javafx.scene.control.Control;
 
 import java.util.Optional;
@@ -42,20 +43,13 @@ public abstract class ValidationVisualizerBase implements ValidationVisualizer {
 	@Override
 	public void initVisualization(final ValidationStatus result, final Control control, boolean required) {
 		if (control.getSkin() == null) {
-			control.skinProperty().addListener((observable, oldValue, newValue) -> initVisualization(result, control, required));
+			FXProperties.onPropertySet(control.skinProperty(), skin -> initVisualization(result, control, required));
 			return;
 		}
-		if (required) {
-			applyRequiredVisualization(control, required);
-		}
-		
-		applyVisualization(control, result.getHighestMessage(), required);
-		
-		result.getMessages().addListener((ListChangeListener<ValidationMessage>) c -> {
-			while (c.next()) {
-				Platform.runLater(() -> applyVisualization(control, result.getHighestMessage(), required));
-			}
-		});
+
+		ObservableLists.runNowAndOnListChange(c -> UiScheduler.runInUiThread(() ->
+			applyVisualization(control, result.getHighestMessage(), required)
+		), result.getMessages());
 	}
 	
 	/**
@@ -93,5 +87,7 @@ public abstract class ValidationVisualizerBase implements ValidationVisualizer {
 	 *            a boolean flag indicating whether this control is mandatory or not.
 	 */
 	abstract void applyVisualization(Control control, Optional<ValidationMessage> messageOptional, boolean required);
+
+	public abstract void removeDecorations(Control control);
 	
 }

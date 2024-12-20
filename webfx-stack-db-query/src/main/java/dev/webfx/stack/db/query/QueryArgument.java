@@ -1,5 +1,6 @@
 package dev.webfx.stack.db.query;
 
+import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.util.Numbers;
 import dev.webfx.stack.db.datascope.DataScope;
 
@@ -91,11 +92,11 @@ public final class QueryArgument {
     @Override
     public String toString() {
         return "QueryArgument{" +
-                "dataSourceId=" + dataSourceId +
-                ", language='" + language + '\'' +
-                ", statement='" + statement + '\'' +
-                ", parameters=" + java.util.Arrays.toString(parameters) +
-                '}';
+               "dataSourceId=" + dataSourceId +
+               ", language='" + language + '\'' +
+               ", statement='" + statement + '\'' +
+               ", parameters=" + Arrays.toString(parameters) +
+               '}';
     }
 
     public static QueryArgumentBuilder builder() {

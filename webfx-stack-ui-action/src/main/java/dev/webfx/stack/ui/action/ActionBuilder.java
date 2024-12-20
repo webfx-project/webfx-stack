@@ -1,17 +1,20 @@
 package dev.webfx.stack.ui.action;
 
+import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.stack.i18n.I18n;
+import dev.webfx.stack.ui.json.JsonImageView;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableBooleanValue;
-import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableStringValue;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-import dev.webfx.stack.i18n.I18n;
-import dev.webfx.stack.ui.json.JsonImageView;
+
+import java.util.function.Supplier;
 
 /**
  * @author Bruno Salmon
@@ -24,8 +27,8 @@ public class ActionBuilder {
     private String text;
     private Object i18nKey;
 
-    private ObservableObjectValue<Node> graphicProperty;
-    private Node graphic;
+    private ObservableValue<Supplier<Node>> graphicFactoryProperty;
+    private Supplier<Node> graphicFactory;
     private Object graphicUrlOrJson;
 
     private ObservableBooleanValue disabledProperty;
@@ -39,6 +42,8 @@ public class ActionBuilder {
 
     private EventHandler<ActionEvent> actionHandler;
 
+    private Object userData;
+
     private ActionBuilderRegistry registry;
 
     public ActionBuilder() {
@@ -46,6 +51,18 @@ public class ActionBuilder {
 
     public ActionBuilder(Object actionKey) {
         this.actionKey = actionKey;
+    }
+
+    public ActionBuilder(Action action) {
+        setTextProperty(action.textProperty());
+        setText(action.getText());
+        setGraphicFactoryProperty(action.graphicFactoryProperty());
+        setGraphicFactory(action.getGraphicFactory());
+        setDisabledProperty(action.disabledProperty());
+        setVisibleProperty(action.visibleProperty());
+        setActionHandler(action);
+        setUserData(action.getUserData());
+        //setHiddenWhenDisabled(visibleProperty == disabledProperty || visibleProperty instanceof BooleanBinding && ((BooleanBinding) visibleProperty).getDependencies().contains(disabledProperty));
     }
 
     public Object getActionKey() {
@@ -84,21 +101,21 @@ public class ActionBuilder {
         return this;
     }
 
-    public ObservableObjectValue<Node> getGraphicProperty() {
-        return graphicProperty;
+    public ObservableValue<Supplier<Node>> getGraphicFactoryProperty() {
+        return graphicFactoryProperty;
     }
 
-    public ActionBuilder setGraphicProperty(ObservableObjectValue<Node> graphicProperty) {
-        this.graphicProperty = graphicProperty;
+    public ActionBuilder setGraphicFactoryProperty(ObservableValue<Supplier<Node>> graphicFactoryProperty) {
+        this.graphicFactoryProperty = graphicFactoryProperty;
         return this;
     }
 
-    public Node getGraphic() {
-        return graphic;
+    public Supplier<Node> getGraphicFactory() {
+        return graphicFactory;
     }
 
-    public ActionBuilder setGraphic(Node graphic) {
-        this.graphic = graphic;
+    public ActionBuilder setGraphicFactory(Supplier<Node> graphicFactory) {
+        this.graphicFactory = graphicFactory;
         return this;
     }
 
@@ -169,6 +186,15 @@ public class ActionBuilder {
         return setActionHandler(e -> actionHandler.run());
     }
 
+    public Object getUserData() {
+        return userData;
+    }
+
+    public ActionBuilder setUserData(Object userData) {
+        this.userData = userData;
+        return this;
+    }
+
     public ActionBuilder setRegistry(ActionBuilderRegistry registry) {
         this.registry = registry;
         return this;
@@ -184,8 +210,8 @@ public class ActionBuilder {
                 .setTextProperty(textProperty)
                 .setText(text)
                 .setI18nKey(i18nKey)
-                .setGraphicProperty(graphicProperty)
-                .setGraphic(graphic)
+                .setGraphicFactoryProperty(graphicFactoryProperty)
+                .setGraphicFactory(graphicFactory)
                 .setGraphicUrlOrJson(graphicUrlOrJson)
                 .setDisabledProperty(disabledProperty)
                 .setVisibleProperty(visibleProperty)
@@ -209,7 +235,9 @@ public class ActionBuilder {
 
     public Action build() {
         completePropertiesForBuild();
-        return Action.create(textProperty, graphicProperty, disabledProperty, visibleProperty, actionHandler);
+        Action action = Action.create(textProperty, graphicFactoryProperty, disabledProperty, visibleProperty, actionHandler);
+        action.setUserData(userData);
+        return action;
     }
 
     void completePropertiesForBuild() {
@@ -229,13 +257,14 @@ public class ActionBuilder {
     }
 
     private void completeGraphicProperty() {
-        if (graphicProperty == null) {
-            if (graphic == null && graphicUrlOrJson != null)
-                graphic = JsonImageView.createImageView(graphicUrlOrJson);
-            if (graphic != null || i18nKey == null)
-                graphicProperty = new SimpleObjectProperty<>(graphic);
+        if (graphicFactoryProperty == null) {
+            if (graphicFactory == null && graphicUrlOrJson != null)
+                graphicFactory = () -> JsonImageView.createImageView(graphicUrlOrJson);
+            if (graphicFactory != null || i18nKey == null)
+                graphicFactoryProperty = new SimpleObjectProperty<>(graphicFactory);
             else
-                graphicProperty = I18n.i18nGraphicProperty(i18nKey);
+                graphicFactoryProperty = FXProperties.compute(I18n.dictionaryProperty(), dictionary ->
+                    () -> I18n.getI18nGraphic(i18nKey));
         }
     }
 

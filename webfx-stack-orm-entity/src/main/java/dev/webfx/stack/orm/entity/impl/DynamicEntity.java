@@ -1,15 +1,16 @@
 package dev.webfx.stack.orm.entity.impl;
 
 
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.EntityStore;
 import dev.webfx.stack.orm.entity.UpdateStore;
-import dev.webfx.platform.console.Console;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 
 /**
  * @author Bruno Salmon
@@ -18,11 +19,17 @@ public class DynamicEntity implements Entity {
 
     private EntityId id;
     private final EntityStore store;
-    private final Map<Object, Object> fieldValues = new HashMap<>();
+    private final Entity underlyingEntity;
+    private final Map<Object /*fieldId*/, Object /*fieldValue*/> fieldValues = new HashMap<>();
+    // fields used by EntityBindings only:
+    private Map<Object/*fieldId*/, Object /*fieldProperty*/> fieldProperties; // lazy instantiation
+    private static BiConsumer<Object/*fieldProperty*/, Object /*fieldValue*/> FIELD_PROPERTY_UPDATER;
 
     protected DynamicEntity(EntityId id, EntityStore store) {
         this.id = id;
         this.store = store;
+        EntityStore underlyingStore = store == null ? null : store.getUnderlyingStore();
+        underlyingEntity = underlyingStore != null ? underlyingStore.getEntity(id) : null;
     }
 
     @Override
@@ -45,12 +52,20 @@ public class DynamicEntity implements Entity {
 
     @Override
     public Object getFieldValue(Object domainFieldId) {
-        return fieldValues.get(domainFieldId);
+        Object value = fieldValues.get(domainFieldId);
+        if (value == null && underlyingEntity != null && !fieldValues.containsKey(domainFieldId)) {
+            return underlyingEntity.getFieldValue(domainFieldId);
+        }
+        return value;
     }
 
     @Override
     public boolean isFieldLoaded(Object domainFieldId) {
-        return fieldValues.containsKey(domainFieldId);
+        if (fieldValues.containsKey(domainFieldId))
+            return true;
+        if (underlyingEntity != null)
+            return underlyingEntity.isFieldLoaded(domainFieldId);
+        return false;
     }
 
     @Override
@@ -84,29 +99,26 @@ public class DynamicEntity implements Entity {
 
     @Override
     public void setFieldValue(Object domainFieldId, Object value) {
-        if (store instanceof UpdateStore) {
-            Object previousValue = fieldValues.get(domainFieldId);
-            ((UpdateStoreImpl) this.store).updateEntity(id, domainFieldId, value, previousValue);
-        }
         fieldValues.put(domainFieldId, value);
-    }
-
-    @Override
-    public String toString() {
-        return toString(new StringBuilder()).toString();
-    }
-
-    public StringBuilder toString(StringBuilder sb) {
-        sb.append(id.getDomainClass()).append("(pk: ").append(id.getPrimaryKey());
-        for (Map.Entry<?, ?> entry : fieldValues.entrySet())
-            sb.append(", ").append(entry.getKey()).append(": ").append(entry.getValue());
-        sb.append(')');
-        return sb;
+        if (store instanceof UpdateStore) {
+            Object underlyingValue = underlyingEntity != null ? underlyingEntity.getFieldValue(domainFieldId) : null;
+            boolean isUnderlyingValueLoaded = underlyingValue != null || underlyingEntity != null && underlyingEntity.isFieldLoaded(domainFieldId);
+            ((UpdateStoreImpl) store).onInsertedOrUpdatedEntityFieldChange(id, domainFieldId, value, underlyingValue, isUnderlyingValueLoaded);
+        }
+        if (FIELD_PROPERTY_UPDATER != null) {
+            Object fieldProperty = getFieldProperty(domainFieldId);
+            if (fieldProperty != null)
+                FIELD_PROPERTY_UPDATER.accept(fieldProperty, value);
+        }
     }
 
     public void copyAllFieldsFrom(Entity entity) {
         DynamicEntity dynamicEntity = (DynamicEntity) entity;
         fieldValues.putAll(dynamicEntity.fieldValues);
+    }
+
+    public void clearAllFields() {
+        fieldValues.clear();
     }
 
     // Implementing equals() and hashCode() -- Ex: entities are used as keys in GanttLayout parent/grandparent cache
@@ -122,5 +134,42 @@ public class DynamicEntity implements Entity {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return toString(new StringBuilder(), true).toString();
+    }
+
+    private StringBuilder toString(StringBuilder sb, boolean pk) {
+        if (pk)
+            sb.append(id.getDomainClass()).append("(pk: ").append(id.getPrimaryKey());
+        String separator = pk ? ", " : " | ";
+        for (Map.Entry<?, ?> entry : fieldValues.entrySet()) {
+            sb.append(separator).append(entry.getKey()).append(": ").append(entry.getValue());
+            separator = ", ";
+        }
+        if (underlyingEntity instanceof DynamicEntity) {
+            ((DynamicEntity) underlyingEntity).toString(sb, false);
+        }
+        if (pk)
+            sb.append(')');
+        return sb;
+    }
+
+    // methods meant to be used by EntityBindings only
+
+    public Object getFieldProperty(Object fieldId) {
+        return fieldProperties == null ? null : fieldProperties.get(fieldId);
+    }
+
+    public void setFieldProperty(Object fieldId, Object fieldProperty) {
+        if (fieldProperties == null)
+            fieldProperties = new HashMap<>();
+        fieldProperties.put(fieldId, fieldProperty);
+    }
+
+    public static void setFieldPropertyUpdater(BiConsumer<Object, Object> fieldPropertyUpdater) {
+        FIELD_PROPERTY_UPDATER = fieldPropertyUpdater;
     }
 }

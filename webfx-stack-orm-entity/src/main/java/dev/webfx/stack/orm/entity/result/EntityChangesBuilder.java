@@ -1,13 +1,13 @@
 package dev.webfx.stack.orm.entity.result;
 
 import dev.webfx.platform.util.collection.HashList;
+import dev.webfx.stack.orm.domainmodel.DomainClass;
+import dev.webfx.stack.orm.entity.EntityDomainClassIdRegistry;
 import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.result.impl.EntityChangesImpl;
-import javafx.beans.binding.BooleanExpression;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 /**
  * @author Bruno Salmon
@@ -16,11 +16,12 @@ public final class EntityChangesBuilder {
 
     private EntityResultBuilder rsb;
     private Collection<EntityId> deletedEntities;
-    private BooleanProperty hasChangesProperty; // lazy instantiation
+    private boolean hasChanges;
+    private Consumer<Boolean> hasChangesPropertyUpdater; // used by EntityBindings only
 
     private EntityChangesBuilder() {}
 
-    public void addDeletedEntityId(EntityId id) {
+    public EntityChangesBuilder addDeletedEntityId(EntityId id) {
         if (id.isNew()) {
             cancelEntityChanges(id);
         } else {
@@ -28,19 +29,19 @@ public final class EntityChangesBuilder {
                 deletedEntities = new HashList<>(); // Hash for uniqueness and List for keeping sequence order
             deletedEntities.add(id);
         }
-        updateHasChangesProperty();
+        return updateHasChanges();
     }
 
-    public void addInsertedEntityId(EntityId id) {
+    public EntityChangesBuilder addInsertedEntityId(EntityId id) {
         if (id.isNew())
             addFieldChange(id, null, null);
-        updateHasChangesProperty();
+        return updateHasChanges();
     }
 
-    public void addUpdatedEntityId(EntityId id) {
+    public EntityChangesBuilder addUpdatedEntityId(EntityId id) {
         if (!id.isNew())
             addFieldChange(id, null, null);
-        updateHasChangesProperty();
+        return updateHasChanges();
     }
 
     public boolean hasEntityId(EntityId id) {
@@ -49,42 +50,61 @@ public final class EntityChangesBuilder {
 
     public boolean addFieldChange(EntityId id, Object fieldId, Object fieldValue) {
         boolean fieldChanged = rsb().setFieldValue(id, fieldId, fieldValue);
-        updateHasChangesProperty();
+        updateHasChanges();
         return fieldChanged;
     }
 
-    public void removeFieldChange(EntityId id, Object fieldId) {
+    public EntityChangesBuilder removeFieldChange(EntityId id, Object fieldId) {
         if (rsb != null)
             rsb.unsetFieldValue(id, fieldId);
-        updateHasChangesProperty();
+        return updateHasChanges();
     }
 
-    public void cancelEntityChanges(EntityId id) {
+    public EntityChangesBuilder cancelEntityChanges(EntityId id) {
         if (deletedEntities != null)
             deletedEntities.remove(id);
         if (rsb != null)
             rsb.removeEntityId(id);
-        updateHasChangesProperty();
+        return updateHasChanges();
     }
 
-    public void clear() {
+    public EntityChangesBuilder addFilteredEntityChanges(EntityChanges ec, Object domainClassId, Object... fieldIds) {
+        return addFilteredEntityResult(ec.getInsertedUpdatedEntityResult(), domainClassId, fieldIds);
+    }
+
+    public EntityChangesBuilder addFilteredEntityResult(EntityResult er, Object domainClassId, Object... fieldIds) {
+        if (er != null) {
+            DomainClass domainClass = EntityDomainClassIdRegistry.getDomainClass(domainClassId);
+            for (EntityId id : er.getEntityIds()) {
+                if (domainClass.equals(id.getDomainClass())) {
+                    for (Object fieldId : fieldIds) {
+                        Object fieldValue = er.getFieldValue(id, fieldId);
+                        if (fieldValue != null || er.getFieldIds(id).contains(fieldId))
+                            addFieldChange(id, fieldId, fieldValue);
+                    }
+                }
+            }
+        }
+        return this;
+    }
+
+    public EntityChangesBuilder clear() {
         rsb = null;
         deletedEntities = null;
+        return updateHasChanges();
     }
 
     public boolean hasChanges() {
         return deletedEntities != null && !deletedEntities.isEmpty() || rsb != null && !rsb.isEmpty();
     }
 
-    public BooleanExpression hasChangesProperty() {
-        if (hasChangesProperty == null)
-            hasChangesProperty = new SimpleBooleanProperty(hasChanges());
-        return hasChangesProperty;
-    }
-
-    private void updateHasChangesProperty() {
-        if (hasChangesProperty != null)
-            hasChangesProperty.set(hasChanges());
+    private EntityChangesBuilder updateHasChanges() {
+        if (hasChanges != hasChanges()) {
+            hasChanges = !hasChanges;
+            if (hasChangesPropertyUpdater != null)
+                hasChangesPropertyUpdater.accept(hasChanges);
+        }
+        return this;
     }
 
     private EntityResultBuilder rsb() {
@@ -99,5 +119,11 @@ public final class EntityChangesBuilder {
 
     public static EntityChangesBuilder create() {
         return new EntityChangesBuilder();
+    }
+
+    // method meant to be used by EntityBindings only
+
+    public void setHasChangesPropertyUpdater(Consumer<Boolean> hasChangesPropertyUpdater) {
+        this.hasChangesPropertyUpdater = hasChangesPropertyUpdater;
     }
 }

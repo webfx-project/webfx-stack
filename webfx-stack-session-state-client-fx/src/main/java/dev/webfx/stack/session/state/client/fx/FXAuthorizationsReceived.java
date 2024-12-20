@@ -4,7 +4,6 @@ import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 
 import java.util.Objects;
 
@@ -13,12 +12,9 @@ import java.util.Objects;
  */
 public final class FXAuthorizationsReceived {
 
-    private final static BooleanProperty authorizationsReceivedProperty = new SimpleBooleanProperty(false) {
-        @Override
-        protected void invalidated() {
-            Console.log("FXAuthorizationsReceived = " + get());
-        }
-    };
+    private final static BooleanProperty authorizationsReceivedProperty = FXProperties.newBooleanProperty(received ->
+        Console.log("FXAuthorizationsReceived = " + received)
+    );
 
     public static ReadOnlyBooleanProperty authorizationsReceivedProperty() {
         return authorizationsReceivedProperty;
@@ -39,8 +35,12 @@ public final class FXAuthorizationsReceived {
             setAuthorizationsReceived(true);
     }
 
-    static {
-        FXProperties.runNowAndOnPropertiesChange(FXAuthorizationsReceived::updateAuthorizationsReceived, FXLoggedOut.loggedOutProperty());
+    static { // All FXClass in this package should call FXInit.init() in their static initializer
+        FXInit.init(); // See FXInit comments to understand why
+    }
+
+    static void init() { // Called back (only once) by FXInit in a controlled overall sequence
+        FXProperties.runNowAndOnPropertyChange(FXAuthorizationsReceived::updateAuthorizationsReceived, FXLoggedOut.loggedOutProperty());
         FXAuthorizationsChanged.runOnAuthorizationsChanged(FXAuthorizationsReceived::updateAuthorizationsReceived);
     }
 

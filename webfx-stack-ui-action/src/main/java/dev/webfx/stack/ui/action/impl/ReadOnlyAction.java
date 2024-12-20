@@ -1,12 +1,14 @@
 package dev.webfx.stack.ui.action.impl;
 
+import dev.webfx.stack.ui.action.Action;
 import javafx.beans.value.ObservableBooleanValue;
-import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableStringValue;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-import dev.webfx.stack.ui.action.Action;
+
+import java.util.function.Supplier;
 
 /**
  * A read-only action where properties are observable values.
@@ -15,9 +17,9 @@ import dev.webfx.stack.ui.action.Action;
  */
 public class ReadOnlyAction implements Action {
 
-    public ReadOnlyAction(ObservableStringValue textProperty, ObservableObjectValue<Node> graphicProperty, ObservableBooleanValue disabledProperty, ObservableBooleanValue visibleProperty, EventHandler<ActionEvent> actionHandler) {
+    public ReadOnlyAction(ObservableStringValue textProperty, ObservableValue<Supplier<Node>> graphicFactoryProperty, ObservableBooleanValue disabledProperty, ObservableBooleanValue visibleProperty, EventHandler<ActionEvent> actionHandler) {
         this.textProperty = textProperty;
-        this.graphicProperty = graphicProperty;
+        this.graphicFactoryProperty = graphicFactoryProperty;
         this.disabledProperty = disabledProperty;
         this.visibleProperty = visibleProperty;
         this.actionHandler = actionHandler;
@@ -29,10 +31,10 @@ public class ReadOnlyAction implements Action {
         return textProperty;
     }
 
-    private final ObservableObjectValue<Node> graphicProperty;
+    private final ObservableValue<Supplier<Node>> graphicFactoryProperty;
     @Override
-    public ObservableObjectValue<Node> graphicProperty() {
-        return graphicProperty;
+    public ObservableValue<Supplier<Node>> graphicFactoryProperty() {
+        return graphicFactoryProperty;
     }
 
     private final ObservableBooleanValue disabledProperty;

@@ -17,7 +17,7 @@ module webfx.stack.authn.server.portal {
     exports dev.webfx.stack.authn.spi.impl.server.portal;
 
     // Used services
-    uses dev.webfx.stack.authn.server.gateway.spi.ServerAuthenticationGatewayProvider;
+    uses dev.webfx.stack.authn.server.gateway.spi.ServerAuthenticationGateway;
 
     // Provided services
     provides dev.webfx.platform.boot.spi.ApplicationJob with dev.webfx.stack.authn.spi.impl.server.ServerAuthenticationJob;

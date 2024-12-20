@@ -59,6 +59,7 @@
         <module>webfx-stack-authn-login-ui-gateway</module>
         <module>webfx-stack-authn-login-ui-gateway-facebook-plugin</module>
         <module>webfx-stack-authn-login-ui-gateway-google-plugin</module>
+        <module>webfx-stack-authn-login-ui-gateway-magiclink-plugin</module>
         <module>webfx-stack-authn-login-ui-gateway-mojoauth-plugin</module>
         <module>webfx-stack-authn-login-ui-gateway-password-plugin</module>
         <module>webfx-stack-authn-login-ui-gateway-webviewbased</module>
@@ -134,7 +135,9 @@
         <module>webfx-stack-orm-dql-querypush-interceptor</module>
         <module>webfx-stack-orm-dql-submit-interceptor</module>
         <module>webfx-stack-orm-entity</module>
+        <module>webfx-stack-orm-entity-binding</module>
         <module>webfx-stack-orm-entity-controls</module>
+        <module>webfx-stack-orm-entity-messaging</module>
         <module>webfx-stack-orm-expression</module>
         <module>webfx-stack-orm-reactive-call</module>
         <module>webfx-stack-orm-reactive-dql</module>
@@ -159,6 +162,7 @@
         <module>webfx-stack-session-state-server</module>
         <module>webfx-stack-session-vertx</module>
         <module>webfx-stack-ui-action</module>
+        <module>webfx-stack-ui-action-tuner</module>
         <module>webfx-stack-ui-controls</module>
         <module>webfx-stack-ui-dialog</module>
         <module>webfx-stack-ui-exceptions</module>

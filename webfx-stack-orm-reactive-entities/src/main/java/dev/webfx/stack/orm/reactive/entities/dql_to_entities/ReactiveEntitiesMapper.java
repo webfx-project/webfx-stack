@@ -1,17 +1,16 @@
 package dev.webfx.stack.orm.reactive.entities.dql_to_entities;
 
 import dev.webfx.extras.util.OptimizedObservableListWrapper;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.ObservableLists;
-import dev.webfx.stack.orm.reactive.dql.query.ReactiveDqlQuery;
-import dev.webfx.stack.orm.reactive.dql.querypush.ReactiveDqlQueryPush;
+import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.SqlCompiled;
 import dev.webfx.stack.orm.entity.*;
 import dev.webfx.stack.orm.entity.query_result_to_entities.QueryResultToEntitiesMapper;
-import dev.webfx.kit.util.properties.FXProperties;
-import dev.webfx.stack.db.query.QueryResult;
+import dev.webfx.stack.orm.reactive.dql.query.ReactiveDqlQuery;
+import dev.webfx.stack.orm.reactive.dql.querypush.ReactiveDqlQueryPush;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
@@ -24,12 +23,7 @@ import java.util.function.Consumer;
 public final class ReactiveEntitiesMapper<E extends Entity> implements HasEntityStore, ReactiveEntitiesMapperAPI<E, ReactiveEntitiesMapper<E>> {
 
     private final ReactiveDqlQuery<E> reactiveDqlQuery;
-    private final ObjectProperty<EntityList<E>> entitiesProperty = new SimpleObjectProperty<EntityList<E>/*GWT*/>() {
-        @Override
-        protected void invalidated() {
-            scheduleOnEntitiesChanged();
-        }
-    };
+    private final ObjectProperty<EntityList<E>> entitiesProperty = FXProperties.newObjectProperty(this::scheduleOnEntitiesChanged);
     private ObservableList<E> observableEntities;
     private List<E> restrictedFilterList;
     private EntityStore store;
@@ -41,7 +35,7 @@ public final class ReactiveEntitiesMapper<E extends Entity> implements HasEntity
 
     public ReactiveEntitiesMapper(ReactiveDqlQuery<E> reactiveDqlQuery) {
         this.reactiveDqlQuery = reactiveDqlQuery;
-        FXProperties.runOnPropertiesChange(p -> onNewQueryResult((QueryResult) p.getValue()), reactiveDqlQuery.resultProperty());
+        FXProperties.runOnPropertyChange(this::onNewQueryResult, reactiveDqlQuery.resultProperty());
     }
 
     @Override

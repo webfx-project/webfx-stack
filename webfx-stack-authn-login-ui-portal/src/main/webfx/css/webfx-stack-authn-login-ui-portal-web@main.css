@@ -1,26 +1,5 @@
-.login * {
-    font-size: 18px;
-}
-
-.login fx-button {
-    cursor: pointer;
-}
-
-.login fx-button > fx-background {
-    background: #0096D6FF;
-    border-radius: 15px;
-}
-
-.login fx-button > fx-border {
-    --fx-border-color: transparent;
-}
-
-.login fx-button .text {
-    color: white;
-}
-
-.login fx-button fx-svgpath {
-    --fx-svg-path-fill: white;
+:root {
+    --webfx-login-portal-background-image: none;
 }
 
 /* Montserrat password dots are tiny! So we use another font for passwords, but we don't want that font for the placeholder!
@@ -38,6 +17,32 @@ input[type="password"]:not([value=""]) {
     font-weight: 100 900;
 }
 
+.login {
+    background-image: var(--webfx-login-portal-background-image); /* Specify the path to your image */
+    background-repeat: no-repeat;               /* Prevents the image from repeating */
+    background-size: cover;                     /* Scales the image to cover the area */
+    background-position: center;                /* Centers the image */
+    --fx-border-radius: 21px;
+}
+
+.login input {
+     font-size: 13px;
+       }
+
+.login-child {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 21px;
+   /* border: 1px solid lightgray;*/
+   /* box-shadow: 0px 0px 10px lightgray;*/
+    width: 586px; /* Sets the fixed width */
+    height: 506px; /* Sets the fixed height */
+}
+
+.login .h2 {
+    font-family: 'Poppins', sans-serif; /* Sets the font to Poppins, with a fallback to sans-serif */
+    line-height: 0.5;
+}
+
 .login .or {
     color: #888;
 }
@@ -46,13 +51,11 @@ input[type="password"]:not([value=""]) {
     background-color: lightgray;
 }
 
-.login .background > fx-background {
-    background-color: white;
-    border-radius: 20px;
+.transparent-input > fx-background{
+    background-color: transparent;
 }
 
-.login .fx-border > fx-border {
-    --fx-border-color: lightgray;
-    --fx-border-radius: 20px;
-    box-shadow: lightgray 0 0 10px;
+.transparent-input > fx-border{
+    border-style: none;
 }
+

@@ -18,6 +18,6 @@ module webfx.stack.authn.login.server.gateway.facebook.plugin {
     exports dev.webfx.stack.authn.login.spi.impl.server.gateway.facebook;
 
     // Provided services
-    provides dev.webfx.stack.authn.login.spi.impl.server.gateway.ServerLoginGatewayProvider with dev.webfx.stack.authn.login.spi.impl.server.gateway.facebook.FacebookServerLoginGatewayProvider;
+    provides dev.webfx.stack.authn.login.spi.impl.server.gateway.ServerLoginGateway with dev.webfx.stack.authn.login.spi.impl.server.gateway.facebook.FacebookServerLoginGateway;
 
 }

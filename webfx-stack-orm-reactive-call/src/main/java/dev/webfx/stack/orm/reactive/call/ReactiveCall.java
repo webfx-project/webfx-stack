@@ -1,5 +1,6 @@
 package dev.webfx.stack.orm.reactive.call;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.tuples.Pair;
 import dev.webfx.stack.cache.CacheEntry;
@@ -26,36 +27,18 @@ public class ReactiveCall<A, R> {
     private CacheEntry<Pair<A, R>> resultCacheEntry;
     private Scheduled fireCallNowIfRequiredScheduled;
 
-    private final BooleanProperty startedProperty = new SimpleBooleanProperty() {
-        @Override
-        protected void invalidated() {
-            if (get())
-                onStarted();
-            else
-                onStopped();
-        }
-    };
+    private final BooleanProperty startedProperty = FXProperties.newBooleanProperty(started -> {
+        if (started)
+            onStarted();
+        else
+            onStopped();
+    });
 
-    private final BooleanProperty activeProperty = new SimpleBooleanProperty(true) {
-        @Override
-        protected void invalidated() {
-            onActiveChanged();
-        }
-    };
+    private final BooleanProperty activeProperty = FXProperties.newBooleanProperty(true, this::onActiveChanged);
 
-    private final ObjectProperty<A> argumentProperty = new SimpleObjectProperty<A/*GWT*/>() {
-        @Override
-        protected void invalidated() {
-            onArgumentChanged();
-        }
-    };
+    private final ObjectProperty<A> argumentProperty = FXProperties.newObjectProperty(this::onArgumentChanged);
 
-    protected final ObjectProperty<R> resultProperty = new SimpleObjectProperty<R/*GWT*/>() {
-        @Override
-        protected void invalidated() {
-            onResultChanged();
-        }
-    };
+    protected final ObjectProperty<R> resultProperty = FXProperties.newObjectProperty(this::onResultChanged);
 
     public ReactiveCall(AsyncFunction<A, R> asyncFunction) {
         this.asyncFunction = asyncFunction;
@@ -329,6 +312,7 @@ public class ReactiveCall<A, R> {
     }
 
     private Scheduled autoRefreshScheduled;
+
     private void rescheduleAutoRefresh() {
         stopAutoRefresh();
         long autoRefreshDelay = getAutoRefreshDelay();

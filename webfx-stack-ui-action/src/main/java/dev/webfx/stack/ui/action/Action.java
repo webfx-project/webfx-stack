@@ -2,11 +2,13 @@ package dev.webfx.stack.ui.action;
 
 import dev.webfx.stack.ui.action.impl.ReadOnlyAction;
 import javafx.beans.value.ObservableBooleanValue;
-import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableStringValue;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
+
+import java.util.function.Supplier;
 
 /**
  * An action compatible with standard JavaFX API (ex: can be passed to Button.setOnAction()) but enriched with graphical
@@ -22,9 +24,14 @@ public interface Action extends EventHandler<ActionEvent> {
         return textProperty().get();
     }
 
-    ObservableObjectValue<Node> graphicProperty();
-    default Node getGraphic() {
-        return graphicProperty().get();
+    ObservableValue<Supplier<Node>> graphicFactoryProperty(); // TODO: should it be rather Supplier<ObservableValue<Node>>?
+    default Supplier<Node> getGraphicFactory() {
+        return graphicFactoryProperty().getValue();
+    }
+
+    default Node createGraphic() {
+        Supplier<Node> graphicFactory = getGraphicFactory();
+        return graphicFactory == null ? null : graphicFactory.get();
     }
 
     ObservableBooleanValue disabledProperty();
@@ -41,7 +48,7 @@ public interface Action extends EventHandler<ActionEvent> {
 
     Object getUserData();
 
-    static Action create(ObservableStringValue textProperty, ObservableObjectValue<Node> graphicProperty, ObservableBooleanValue disabledProperty, ObservableBooleanValue visibleProperty, EventHandler<ActionEvent> actionHandler) {
-        return new ReadOnlyAction(textProperty, graphicProperty, disabledProperty, visibleProperty, actionHandler);
+    static Action create(ObservableStringValue textProperty, ObservableValue<Supplier<Node>> graphicFactoryProperty, ObservableBooleanValue disabledProperty, ObservableBooleanValue visibleProperty, EventHandler<ActionEvent> actionHandler) {
+        return new ReadOnlyAction(textProperty, graphicFactoryProperty, disabledProperty, visibleProperty, actionHandler);
     }
 }

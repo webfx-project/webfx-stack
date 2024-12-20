@@ -12,6 +12,6 @@ module webfx.stack.authn.server.gateway.google.plugin {
     exports dev.webfx.stack.authn.server.gateway.spi.impl.google;
 
     // Provided services
-    provides dev.webfx.stack.authn.server.gateway.spi.ServerAuthenticationGatewayProvider with dev.webfx.stack.authn.server.gateway.spi.impl.google.GoogleServerAuthenticationGatewayProvider;
+    provides dev.webfx.stack.authn.server.gateway.spi.ServerAuthenticationGateway with dev.webfx.stack.authn.server.gateway.spi.impl.google.GoogleServerAuthenticationGateway;
 
 }

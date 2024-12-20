@@ -5,21 +5,16 @@ import dev.webfx.platform.console.Console;
 import dev.webfx.stack.session.state.client.ClientSideStateSession;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 
 /**
  * @author Bruno Salmon
  */
 public final class FXServerSessionId {
 
-    private final static ObjectProperty<Object> serverSessionIdProperty = new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-            Object serverSessionId = get();
-            Console.log("FxServerSessionId = " + serverSessionId);
-            ClientSideStateSession.getInstance().changeServerSessionId(serverSessionId.toString(), true, false);
-        }
-    };
+    private final static ObjectProperty<Object> serverSessionIdProperty = FXProperties.newObjectProperty(serverSessionId -> {
+        Console.log("FxServerSessionId = " + serverSessionId);
+        ClientSideStateSession.getInstance().changeServerSessionId(serverSessionId.toString(), true, false);
+    });
 
     public static ReadOnlyObjectProperty<Object> serverSessionIdProperty() {
         return serverSessionIdProperty;
@@ -33,8 +28,8 @@ public final class FXServerSessionId {
         FXProperties.setIfNotEquals(serverSessionIdProperty, serverSessionId);
     }
 
-    static {
-        FXInit.init();
+    static { // All FXClass in this package should call FXInit.init() in their static initializer
+        FXInit.init(); // See FXInit comments to understand why
     }
 
 }

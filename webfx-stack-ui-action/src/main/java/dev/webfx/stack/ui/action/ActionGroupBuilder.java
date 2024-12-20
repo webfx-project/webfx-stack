@@ -1,14 +1,15 @@
 package dev.webfx.stack.ui.action;
 
+import dev.webfx.platform.util.collection.Collections;
 import javafx.beans.value.ObservableBooleanValue;
-import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableStringValue;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-import dev.webfx.platform.util.collection.Collections;
 
 import java.util.Collection;
+import java.util.function.Supplier;
 
 /**
  * @author Bruno Salmon
@@ -43,7 +44,7 @@ public final class ActionGroupBuilder extends ActionBuilder {
     @Override
     public ActionGroup build() {
         completePropertiesForBuild();
-        return ActionGroup.create(actions, getTextProperty(), getGraphicProperty(), getDisabledProperty(), getVisibleProperty(), hasSeparators, getActionHandler());
+        return ActionGroup.create(actions, getTextProperty(), getGraphicFactoryProperty(), getDisabledProperty(), getVisibleProperty(), hasSeparators, getActionHandler());
     }
 
     // --- Overriding fluent API methods to return ActionGroupBuilder instead of ActionBuilder ---
@@ -69,13 +70,13 @@ public final class ActionGroupBuilder extends ActionBuilder {
     }
 
     @Override
-    public ActionGroupBuilder setGraphicProperty(ObservableObjectValue<Node> graphicProperty) {
-        return (ActionGroupBuilder) super.setGraphicProperty(graphicProperty);
+    public ActionGroupBuilder setGraphicFactoryProperty(ObservableValue<Supplier<Node>> graphicFactoryProperty) {
+        return (ActionGroupBuilder) super.setGraphicFactoryProperty(graphicFactoryProperty);
     }
 
     @Override
-    public ActionGroupBuilder setGraphic(Node graphic) {
-        return (ActionGroupBuilder) super.setGraphic(graphic);
+    public ActionGroupBuilder setGraphicFactory(Supplier<Node> graphicFactory) {
+        return (ActionGroupBuilder) super.setGraphicFactory(graphicFactory);
     }
 
     @Override

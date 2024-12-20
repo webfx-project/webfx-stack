@@ -23,7 +23,6 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
 
     private final static boolean LOG_RAW_MESSAGES = false;
     private final static boolean LOG_STATES = false;
-    private final static String ASSOCIATED_SESSION_KEY = "$associatedSession";
 
     public static void initialiseStateManagement(Bus serverJsonBus) {
         // We register at PING_STATE_ADDRESS a handler that just replies with an empty body (but the states mechanism will automatically apply - which is the main purpose of that call)
