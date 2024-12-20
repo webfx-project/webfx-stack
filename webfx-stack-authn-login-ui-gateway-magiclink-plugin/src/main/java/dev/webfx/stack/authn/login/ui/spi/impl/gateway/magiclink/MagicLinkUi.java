@@ -16,7 +16,6 @@ import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.text.Text;
 
 import java.util.function.Consumer;
 
@@ -48,7 +47,7 @@ public class MagicLinkUi implements MaterialFactoryMixin {
 
         FXProperties.runNowAndOnPropertyChange(token -> {
             if (token == null) {
-                I18n.bindI18nProperties(new Text(), MagicLinkI18nKeys.MagicLinkUnrecognisedError);
+                uiLoginView.setMainMessage(MagicLinkI18nKeys.MagicLinkUnrecognisedError, Bootstrap.TEXT_DANGER);
             } else {
                 AuthenticationService.authenticate(new AuthenticateWithMagicLinkCredentials(token))
                     .onFailure(e -> UiScheduler.runInUiThread(() -> onFailure(e)))
