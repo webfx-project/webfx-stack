@@ -3,7 +3,6 @@ package dev.webfx.stack.authn.login.ui.spi.impl.gateway.password;
 
 import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.styles.bootstrap.Bootstrap;
-import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.windowlocation.WindowLocation;
 import dev.webfx.stack.authn.AuthenticateWithUsernamePasswordCredentials;
@@ -48,7 +47,6 @@ public class UILoginView implements MaterialFactoryMixin {
 
 
     private static final String CHECKMARK_PATH = "M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z M14.7 8.39l-3.78 5-1.63-2.11a1 1 0 0 0-1.58 1.23l2.43 3.11a1 1 0 0 0 .79.38 1 1 0 0 0 .79-.39l4.57-6a1 1 0 1 0-1.6-1.22z";
-    private boolean validationSupportInitialised;
 
     public UILoginView(Consumer<String> emailConsumer) {
         createAccountEmailConsumer = emailConsumer;
@@ -132,23 +130,14 @@ public class UILoginView implements MaterialFactoryMixin {
     }
 
     private void initFormValidation() {
-        if (!validationSupportInitialised) {
-            FXProperties.runNowAndOnPropertyChange(dictionary -> {
-                if (dictionary != null) {
-                    validationSupport.reset();
-                    validationSupport.addEmailValidation(emailTextField, emailTextField, I18n.getI18nText(PasswordI18nKeys.InvalidEmail));
-                    validationSupport.addRequiredInput(emailTextField);
-                }
-            }, I18n.dictionaryProperty());
-            validationSupportInitialised = true;
+        if (validationSupport.isEmpty()) {
+            validationSupport.addEmailValidation(emailTextField, emailTextField, I18n.i18nTextProperty(PasswordI18nKeys.InvalidEmail));
+            validationSupport.addRequiredInput(emailTextField);
         }
     }
 
     public boolean validateForm() {
-        if (!validationSupportInitialised) {
-            initFormValidation();
-            validationSupportInitialised = true;
-        }
+        initFormValidation();
         return validationSupport.isValid();
     }
 

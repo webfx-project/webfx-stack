@@ -16,9 +16,9 @@ import dev.webfx.stack.ui.validation.mvvmfx.Validator;
 import dev.webfx.stack.ui.validation.mvvmfx.visualization.ControlsFxVisualizer;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableStringValue;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -48,7 +48,7 @@ import java.util.regex.Pattern;
  */
 public final class ValidationSupport {
 
-    private static final String DEFAULT_REQUIRED_MESSAGE = "This field is required";
+    private static final ObservableStringValue DEFAULT_REQUIRED_MESSAGE = new SimpleStringProperty("This field is required");
 
     private final List<Validator> validators = new ArrayList<>();
     private final List<Node> validatorErrorDecorationNodes = new ArrayList<>();
@@ -102,15 +102,15 @@ public final class ValidationSupport {
         addRequiredInput(textInputControl, DEFAULT_REQUIRED_MESSAGE);
     }
 
-    public void addRequiredInput(TextInputControl textInputControl, String errorMessage) {
+    public void addRequiredInput(TextInputControl textInputControl, ObservableStringValue errorMessage) {
         addRequiredInput(textInputControl.textProperty(), textInputControl, errorMessage);
     }
 
-    public void addRequiredInput(ObservableValue valueProperty, Node inputNode) {
+    public void addRequiredInput(ObservableValue<?> valueProperty, Node inputNode) {
         addRequiredInput(valueProperty, inputNode, DEFAULT_REQUIRED_MESSAGE);
     }
 
-    public void addRequiredInput(ObservableValue valueProperty, Node inputNode, String errorMessage) {
+    public void addRequiredInput(ObservableValue<?> valueProperty, Node inputNode, ObservableStringValue errorMessage) {
         addValidationRule(Bindings.createBooleanBinding(() -> testNotEmpty(valueProperty.getValue()), valueProperty), inputNode, errorMessage, true);
     }
 
@@ -118,11 +118,11 @@ public final class ValidationSupport {
         return value != null && (!(value instanceof String) || !((String) value).trim().isEmpty());
     }
 
-    public ObservableBooleanValue addValidationRule(ObservableValue<Boolean> validProperty, Node node, String errorMessage) {
+    public ObservableBooleanValue addValidationRule(ObservableValue<Boolean> validProperty, Node node, ObservableStringValue errorMessage) {
         return addValidationRule(validProperty, node, errorMessage, false);
     }
 
-    public ObservableBooleanValue addValidationRule(ObservableValue<Boolean> validProperty, Node node, String errorMessage, boolean required) {
+    public ObservableBooleanValue addValidationRule(ObservableValue<Boolean> validProperty, Node node, ObservableStringValue errorMessageProperty, boolean required) {
         ObservableRuleBasedValidator validator = new ObservableRuleBasedValidator();
         ObservableBooleanValue finalValidProperty = // when true, no decorations are displayed on the node
                 Bindings.createBooleanBinding(() ->
@@ -130,7 +130,7 @@ public final class ValidationSupport {
                     || validProperty.getValue() // no decoration displayed if the node is valid
                     || !isShowing(node) // no decoration displayed if the node is not showing
                 , validProperty, validatingProperty);
-        ValidationMessage errorValidationMessage = ValidationMessage.error(errorMessage);
+        ValidationMessage errorValidationMessage = ValidationMessage.error(errorMessageProperty);
         validator.addRule(finalValidProperty, errorValidationMessage);
         validators.add(validator);
         validatorErrorDecorationNodes.add(node);
@@ -218,7 +218,8 @@ public final class ValidationSupport {
     private void showValidatorErrorPopOver(Validator validator, Node errorDecorationNode) {
         ValidationMessage errorMessage = Collections.first(validator.getValidationStatus().getErrorMessages());
         if (errorMessage != null) {
-            Label label = new Label(errorMessage.getMessage());
+            Label label = new Label();
+            label.textProperty().bind(errorMessage.messageProperty());
             label.setPadding(new Insets(8));
             label.setFont(Font.font("Verdana", 11.5));
             label.setTextFill(Color.WHITE);
@@ -261,7 +262,7 @@ public final class ValidationSupport {
         }
     }
 
-    public void addEmailValidation(TextField emailInput, Node where, String errorMessage) {
+    public void addEmailValidation(TextField emailInput, Node where, ObservableStringValue errorMessage) {
         // Define the email pattern
         String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
         Pattern pattern = Pattern.compile(emailPattern);
@@ -276,7 +277,7 @@ public final class ValidationSupport {
         );
     }
 
-    public void addEmailNotEqualValidation(TextField emailInput, String forbiddenValue, Node where, String errorMessage) {
+    public void addEmailNotEqualValidation(TextField emailInput, String forbiddenValue, Node where, ObservableStringValue errorMessage) {
         // Create the validation rule
         addValidationRule(
             Bindings.createBooleanBinding(
@@ -288,7 +289,7 @@ public final class ValidationSupport {
         );
     }
 
-    public void addUrlValidation(TextField urlInput, Node where, String errorMessage) {
+    public void addUrlValidation(TextField urlInput, Node where, ObservableStringValue errorMessage) {
         // Define the URL pattern (basic)
         String urlPattern = "^(https?://)(www\\.)?[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}(/.*)?$";
         Pattern pattern = Pattern.compile(urlPattern);
@@ -306,7 +307,7 @@ public final class ValidationSupport {
         );
     }
 
-    public void addMinimumDurationValidation(TextField timeInput, Node where, String errorMessage) {
+    public void addMinimumDurationValidation(TextField timeInput, Node where, ObservableStringValue errorMessage) {
         addValidationRule(
             Bindings.createBooleanBinding(
                 () -> {
@@ -327,7 +328,7 @@ public final class ValidationSupport {
     }
 
 
-    public void addUrlOrEmptyValidation(TextField urlInput, String errorMessage) {
+    public void addUrlOrEmptyValidation(TextField urlInput, ObservableStringValue errorMessage) {
         // Define the URL pattern (basic)
         String urlPattern = "^(https?|srt|rtmp|rtsp)://[\\w.-]+(:\\d+)?(/[\\w./-]*)?(\\?[\\w=&%.-]*)?(#[\\w!:.=&,-]*)?$";
         Pattern pattern = Pattern.compile(urlPattern);
@@ -346,7 +347,7 @@ public final class ValidationSupport {
         );
     }
 
-    public void addNonEmptyValidation(TextField textField, Node where,String errorMessage) {
+    public void addNonEmptyValidation(TextField textField, Node where, ObservableStringValue errorMessage) {
         // Create the validation rule
         addValidationRule(
                 Bindings.createBooleanBinding(
@@ -357,7 +358,7 @@ public final class ValidationSupport {
                 errorMessage);
     }
 
-    public void addDateValidation(TextField textField,String dateFormat, Node where, String errorMessage) {
+    public void addDateValidation(TextField textField,String dateFormat, Node where, ObservableStringValue errorMessage) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(dateFormat);
         // Create the validation rule
         addValidationRule(
@@ -373,7 +374,7 @@ public final class ValidationSupport {
         );
     }
 
-    public void addDateOrEmptyValidation(TextField textField, String dateFormat, Node where, String errorMessage) {
+    public void addDateOrEmptyValidation(TextField textField, String dateFormat, Node where, ObservableStringValue errorMessage) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(dateFormat);
 
         // Create the validation rule
@@ -396,7 +397,7 @@ public final class ValidationSupport {
         );
     }
 
-    public void addIntegerValidation(TextField textField, Node where, String errorMessage) {
+    public void addIntegerValidation(TextField textField, Node where, ObservableStringValue errorMessage) {
         // Create the validation rule
         addValidationRule(
             Bindings.createBooleanBinding(() -> {
@@ -413,7 +414,7 @@ public final class ValidationSupport {
         );
     }
 
-    public void addLegalAgeValidation(TextField textField, String dateFormat, int legalAge, Node where, String errorMessage) {
+    public void addLegalAgeValidation(TextField textField, String dateFormat, int legalAge, Node where, ObservableStringValue errorMessage) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(dateFormat);
         // Create the validation rule
         addValidationRule(
@@ -431,7 +432,7 @@ public final class ValidationSupport {
         );
     }
 
-    public void addPasswordMatchValidation(TextField passwordField, TextField repeatPasswordField, String errorMessage) {
+    public void addPasswordMatchValidation(TextField passwordField, TextField repeatPasswordField, ObservableStringValue errorMessageProperty) {
         addValidationRule(
             Bindings.createBooleanBinding(
                 () -> passwordField.getText().equals(repeatPasswordField.getText()),
@@ -439,12 +440,12 @@ public final class ValidationSupport {
                 repeatPasswordField.textProperty()
             ),
             repeatPasswordField,
-            errorMessage,
+            errorMessageProperty,
             true
         );
     }
 
-    public void addPasswordStrengthValidation(TextField passwordField, String errorMessage) {
+    public void addPasswordStrengthValidation(TextField passwordField, ObservableStringValue errorMessage) {
         addValidationRule(
             Bindings.createBooleanBinding(
                 () -> checkPasswordStrength(passwordField.getText()),
@@ -544,7 +545,7 @@ public final class ValidationSupport {
         return scene != null && scene.getRoot() == node;
     }
 
-    public void addPasswordValidation(TextField passwordInput, Label passwordLabel, String errorMessage) {
+    public void addPasswordValidation(TextField passwordInput, Label passwordLabel, ObservableStringValue errorMessage) {
         addValidationRule(
                 Bindings.createBooleanBinding(
                         () -> passwordInput.getText().length() >= 8,

@@ -35,28 +35,24 @@ import java.util.Comparator;
  */
 public interface ValidationMessage extends Comparable<ValidationMessage>{
 
-	public static final Comparator<ValidationMessage> COMPARATOR = new Comparator<ValidationMessage>() {
-
-		@Override
-		public int compare(ValidationMessage vm1, ValidationMessage vm2) {
-			if ( vm1 == vm2 ) return  0;
-			if ( vm1 == null) return  1;
-			if ( vm2 == null) return -1;
-			return vm1.compareTo(vm2);
-		}
-	};
+	Comparator<ValidationMessage> COMPARATOR = (vm1, vm2) -> {
+        if ( vm1 == vm2 ) return  0;
+        if ( vm1 == null) return  1;
+        if ( vm2 == null) return -1;
+        return vm1.compareTo(vm2);
+    };
 	
     /**
      * Message text
      * @return message text
      */
-    public String getText();
+    String getText();
 
     /**
      * Message {@link Severity}
      * @return message severity
      */
-    public Severity getSeverity();
+    Severity getSeverity();
 
 
     /**
@@ -71,7 +67,7 @@ public interface ValidationMessage extends Comparable<ValidationMessage>{
      * @param text message text 
      * @return error message
      */
-    public static ValidationMessage error(Control target, String text) {
+    static ValidationMessage error(Control target, String text) {
         return new SimpleValidationMessage(target, text, Severity.ERROR);
     }
 
@@ -81,11 +77,11 @@ public interface ValidationMessage extends Comparable<ValidationMessage>{
      * @param text message text
      * @return warning message
      */
-    public static ValidationMessage warning(Control target, String text) {
+    static ValidationMessage warning(Control target, String text) {
         return new SimpleValidationMessage(target, text, Severity.WARNING);
     }
 
-    @Override default public int compareTo(ValidationMessage msg) {
+    @Override default int compareTo(ValidationMessage msg) {
         return msg == null || getTarget() != msg.getTarget() ? -1: getSeverity().compareTo(msg.getSeverity());
     }
 }

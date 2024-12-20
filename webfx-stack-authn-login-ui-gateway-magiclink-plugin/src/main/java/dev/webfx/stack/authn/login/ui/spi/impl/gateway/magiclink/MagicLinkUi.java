@@ -166,12 +166,7 @@ public class MagicLinkUi implements MaterialFactoryMixin {
      */
     private void initFormValidation() {
         if (validationSupport.isEmpty()) {
-            FXProperties.runNowAndOnPropertyChange(dictionary -> {
-                if (dictionary != null) {
-                    validationSupport.clear();
-                    validationSupport.addPasswordStrengthValidation(uiLoginView.getPasswordField(), I18n.getI18nText(CreateAccountI18nKeys.PasswordStrength));
-                }
-            }, I18n.dictionaryProperty());
+            validationSupport.addPasswordStrengthValidation(uiLoginView.getPasswordField(), I18n.i18nTextProperty(CreateAccountI18nKeys.PasswordStrength));
         }
     }
 
