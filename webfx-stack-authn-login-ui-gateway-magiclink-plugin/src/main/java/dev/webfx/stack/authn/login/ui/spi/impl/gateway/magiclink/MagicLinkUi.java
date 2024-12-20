@@ -17,7 +17,6 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
-import one.modality.crm.frontoffice.activities.createaccount.CreateAccountI18nKeys;
 
 import java.util.function.Consumer;
 
@@ -166,7 +165,7 @@ public class MagicLinkUi implements MaterialFactoryMixin {
      */
     private void initFormValidation() {
         if (validationSupport.isEmpty()) {
-            validationSupport.addPasswordStrengthValidation(uiLoginView.getPasswordField(), I18n.i18nTextProperty(CreateAccountI18nKeys.PasswordStrength));
+            validationSupport.addPasswordStrengthValidation(uiLoginView.getPasswordField(), I18n.i18nTextProperty(MagicLinkI18nKeys.PasswordStrength));
         }
     }
 
