@@ -89,4 +89,8 @@ public final class I18nControls {
         return bindI18nProperties(new CheckBox(), i18nKey, args);
     }
 
+    public static ToggleButton newToggleButton(Object i18nKey, Object... args) {
+        return bindI18nProperties(new ToggleButton(), i18nKey, args);
+    }
+
 }
