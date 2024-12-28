@@ -1,8 +1,7 @@
 package dev.webfx.stack.cloud.image;
 
-import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.file.File;
+import dev.webfx.platform.blob.Blob;
 
 /**
  * @author Bruno Salmon
@@ -11,7 +10,7 @@ public interface CloudImageService {
 
     Future<Boolean> exists(String id);
 
-    Future<Void> upload(File file, String id, boolean overwrite);
+    Future<Void> upload(Blob file, String id, boolean overwrite);
 
     Future<Void> delete(String id, boolean invalidate);
 
