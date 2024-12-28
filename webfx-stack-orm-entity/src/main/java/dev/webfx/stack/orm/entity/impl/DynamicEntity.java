@@ -128,7 +128,11 @@ public class DynamicEntity implements Entity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DynamicEntity that = (DynamicEntity) o;
-        return id.equals(that.id);
+        if (!id.equals(that.id))
+            return false;
+//        if (!fieldValues.equals(that.fieldValues))
+//            return false;
+        return Objects.equals(underlyingEntity, that.underlyingEntity);
     }
 
     @Override
