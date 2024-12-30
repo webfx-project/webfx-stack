@@ -6,6 +6,7 @@ import dev.webfx.stack.db.datascope.DataScope;
 import dev.webfx.stack.db.submit.SubmitArgument;
 import dev.webfx.stack.db.submit.SubmitResult;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
+import dev.webfx.stack.orm.entity.impl.DynamicEntity;
 import dev.webfx.stack.orm.entity.impl.UpdateStoreImpl;
 import dev.webfx.stack.orm.entity.result.EntityChanges;
 
@@ -25,8 +26,12 @@ public interface UpdateStore extends EntityStore {
     <E extends Entity> E insertEntity(EntityId entityId);
 
     default <E extends Entity> E updateEntity(E entity) {
-        updateEntity(entity.getId());
-        return copyEntity(entity);
+        E updatedEntity = updateEntity(entity.getId());
+        if (updatedEntity instanceof DynamicEntity && entity != updatedEntity) {
+            DynamicEntity dynamicEntity = (DynamicEntity) updatedEntity;
+            dynamicEntity.setUnderlyingEntity(entity);
+        }
+        return updatedEntity;
     }
 
     <E extends Entity> E updateEntity(EntityId entityId);
