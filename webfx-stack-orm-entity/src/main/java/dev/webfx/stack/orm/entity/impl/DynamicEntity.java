@@ -19,7 +19,7 @@ public class DynamicEntity implements Entity {
 
     private EntityId id;
     private final EntityStore store;
-    private final Entity underlyingEntity;
+    private Entity underlyingEntity;
     private final Map<Object /*fieldId*/, Object /*fieldValue*/> fieldValues = new HashMap<>();
     // fields used by EntityBindings only:
     private Map<Object/*fieldId*/, Object /*fieldProperty*/> fieldProperties; // lazy instantiation
@@ -30,6 +30,10 @@ public class DynamicEntity implements Entity {
         this.store = store;
         EntityStore underlyingStore = store == null ? null : store.getUnderlyingStore();
         underlyingEntity = underlyingStore != null ? underlyingStore.getEntity(id) : null;
+    }
+
+    public void setUnderlyingEntity(Entity underlyingEntity) { // meant to be called by UpdateStore.updateEntity() only
+        this.underlyingEntity = underlyingEntity;
     }
 
     @Override
@@ -95,6 +99,14 @@ public class DynamicEntity implements Entity {
         if (value instanceof EntityId)
             return (EntityId) value;
         return null;
+    }
+
+    @Override
+    public <E extends Entity> E getForeignEntity(Object foreignFieldId) {
+        E foreignEntity = Entity.super.getForeignEntity(foreignFieldId);
+        if (foreignEntity == null && underlyingEntity != null)
+            foreignEntity = underlyingEntity.getForeignEntity(foreignFieldId);
+        return foreignEntity;
     }
 
     @Override
