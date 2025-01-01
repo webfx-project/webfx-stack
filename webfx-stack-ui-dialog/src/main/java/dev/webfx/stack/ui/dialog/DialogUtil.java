@@ -67,12 +67,14 @@ public final class DialogUtil {
     }
 
     public static BorderPane decorate(Node content) {
+        /* Commented out because the content may set its own max width/height (ex: Festival creator dialog)
+        // TODO: completely remove if no side effect, or set the max size to pref size only if the content has no max size set
         // Setting max width/height to pref width/height (otherwise the grid pane takes all space with cells in top left corner)
         if (content instanceof Region) {
             Region region = (Region) content;
             LayoutUtil.setMaxSizeToPref(region);
-        }
-        BorderPane decorator = LayoutUtil.createPadding(new BorderPane(content), 10);
+        }*/
+        BorderPane decorator = LayoutUtil.createPadding(new BorderPane(content), 0);
         decorator.backgroundProperty().bind(dialogBackgroundProperty());
         decorator.borderProperty().bind(dialogBorderProperty());
         decorator.setMinHeight(0d);
