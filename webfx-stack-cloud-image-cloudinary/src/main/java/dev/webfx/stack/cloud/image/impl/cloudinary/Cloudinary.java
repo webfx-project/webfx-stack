@@ -1,17 +1,20 @@
 package dev.webfx.stack.cloud.image.impl.cloudinary;
 
 import dev.webfx.platform.async.Future;
+import dev.webfx.platform.blob.Blob;
 import dev.webfx.platform.conf.ConfigLoader;
 import dev.webfx.platform.fetch.*;
-import dev.webfx.platform.file.File;
-import dev.webfx.platform.util.http.HttpHeaders;
-import dev.webfx.platform.util.http.HttpMethod;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.util.collection.Collections;
+import dev.webfx.platform.util.http.HttpHeaders;
+import dev.webfx.platform.util.http.HttpMethod;
 import dev.webfx.stack.cloud.image.impl.fetchbased.FetchBasedCloudImageService;
 import dev.webfx.stack.hash.sha1.Sha1;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Bruno Salmon
@@ -43,7 +46,7 @@ public class Cloudinary extends FetchBasedCloudImageService {
                 .map(Response::ok);
     }
 
-    public Future<Void> upload(File file, String id, boolean overwrite) {
+    public Future<Void> upload(Blob file, String id, boolean overwrite) {
         return fetchJsonObject(
                 "https://api.cloudinary.com/v1_1/" + cloudName + "/image/upload",
                 HttpMethod.POST,

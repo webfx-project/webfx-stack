@@ -1,13 +1,13 @@
 package dev.webfx.stack.cloud.image.impl.client;
 
 import dev.webfx.platform.async.Future;
+import dev.webfx.platform.blob.Blob;
 import dev.webfx.platform.conf.ConfigLoader;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.fetch.CorsMode;
 import dev.webfx.platform.fetch.Fetch;
 import dev.webfx.platform.fetch.FetchOptions;
 import dev.webfx.platform.fetch.FormData;
-import dev.webfx.platform.file.File;
 import dev.webfx.platform.util.http.HttpMethod;
 import dev.webfx.platform.util.http.HttpResponseStatus;
 import dev.webfx.stack.cloud.image.CloudImageService;
@@ -51,7 +51,7 @@ public class ClientImageService implements CloudImageService {
         });
     }
 
-    public Future<Void> upload(File file, String id, boolean overwrite) {
+    public Future<Void> upload(Blob file, String id, boolean overwrite) {
         return Fetch.fetch(uploadUrl, new FetchOptions()
                 .setMethod(HttpMethod.POST)
                 .setMode(CorsMode.NO_CORS)
