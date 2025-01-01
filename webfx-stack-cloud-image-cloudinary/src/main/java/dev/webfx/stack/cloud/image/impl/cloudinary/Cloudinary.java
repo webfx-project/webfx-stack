@@ -54,6 +54,7 @@ public class Cloudinary extends FetchBasedCloudImageService {
                         signFormData(new FormData()
                             .append("public_id", id)
                             .append("overwrite", overwrite)
+                            .append("invalidate", true) // Otherwise the new image might not be displayed immediately after upload
                         ).append("file", file, id)
                 )
         ).map(json -> null);
