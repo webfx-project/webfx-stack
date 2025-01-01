@@ -15,7 +15,10 @@ public interface CloudImageService {
     Future<Void> delete(String id, boolean invalidate);
 
     default String url(String source, int width, int height) {
-        String url = urlPattern().replace(":source", source);
+        String urlPattern = urlPattern();
+        if (urlPattern == null)
+            throw new IllegalStateException("[CloudImageService] urlPattern is null");
+        String url = urlPattern.replace(":source", source);
         if (width > 0)
             url = url.replace(":width", "" + width);
         else
