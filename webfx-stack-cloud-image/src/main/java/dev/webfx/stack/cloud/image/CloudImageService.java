@@ -24,6 +24,9 @@ public interface CloudImageService {
             url = url.replace(":height", "" + height);
         else
             url = url.replace("/h_:height", ""); // temporary
+
+        //We add a random parameter to prevent the cache to display an old image
+        url = url + "?t=" + System.currentTimeMillis();
         return url;
     }
 
