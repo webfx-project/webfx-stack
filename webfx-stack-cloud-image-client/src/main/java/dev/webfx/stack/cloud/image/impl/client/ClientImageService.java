@@ -62,14 +62,14 @@ public class ClientImageService implements CloudImageService {
         }));
     }
 
-    public Future<Void> upload(Blob file, String id, boolean overwrite) {
+    public Future<Void> upload(Blob blob, String id, boolean overwrite) {
         return whenUrlPatternLoaded(Fetch.fetch(uploadUrl, new FetchOptions()
             .setMethod(HttpMethod.POST)
             .setMode(CorsMode.NO_CORS)
             .setBody(new FormData()
                 .append("id", id)
                 .append("overwrite", overwrite)
-                .append("file", file, id)
+                .append("file", blob, id)
             )
         ).map(response -> null));
     }

@@ -10,7 +10,7 @@ public interface CloudImageService {
 
     Future<Boolean> exists(String id);
 
-    Future<Void> upload(Blob file, String id, boolean overwrite);
+    Future<Void> upload(Blob blob, String id, boolean overwrite);
 
     Future<Void> delete(String id, boolean invalidate);
 
