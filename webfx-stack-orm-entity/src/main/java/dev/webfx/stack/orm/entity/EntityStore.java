@@ -71,27 +71,51 @@ public interface EntityStore extends HasDataSourceModel {
     <E extends Entity> E createEntity(EntityId id);
 
     default <E extends Entity> E getEntity(Class<E> entityClass, Object primaryKey) {
-        return getEntity((Object) entityClass, primaryKey);
+        return getEntity(entityClass, primaryKey, false);
     }
 
     default <E extends Entity> E getEntity(Object domainClassId, Object primaryKey) {
-        return primaryKey == null ? null : getEntity(getEntityId(domainClassId, primaryKey));
+        return getEntity(domainClassId, primaryKey, false);
     }
 
-    <E extends Entity> E getEntity(EntityId entityId);
+    default <E extends Entity> E getEntity(EntityId entityId) {
+        return getEntity(entityId, false);
+    }
+
+    default <E extends Entity> E getEntity(Class<E> entityClass, Object primaryKey, boolean includeUnderlyingStore) {
+        return getEntity((Object) entityClass, primaryKey, includeUnderlyingStore);
+    }
+
+    default <E extends Entity> E getEntity(Object domainClassId, Object primaryKey, boolean includeUnderlyingStore) {
+        return primaryKey == null ? null : getEntity(getEntityId(domainClassId, primaryKey), includeUnderlyingStore);
+    }
+
+    <E extends Entity> E getEntity(EntityId entityId, boolean includeUnderlyingStore);
 
     default <E extends Entity> E getOrCreateEntity(Class<E> entityClass, Object primaryKey) {
-        return getOrCreateEntity((Object) entityClass, primaryKey);
+        return getOrCreateEntity(entityClass, primaryKey, false);
     }
 
     default <E extends Entity> E getOrCreateEntity(Object domainClassId, Object primaryKey) {
-        return primaryKey == null ? null : getOrCreateEntity(getEntityId(domainClassId, primaryKey));
+        return getOrCreateEntity(domainClassId, primaryKey, false);
     }
 
     default <E extends Entity> E getOrCreateEntity(EntityId id) {
+        return getOrCreateEntity(id, false);
+    }
+
+    default <E extends Entity> E getOrCreateEntity(Class<E> entityClass, Object primaryKey, boolean includeUnderlyingStore) {
+        return getOrCreateEntity((Object) entityClass, primaryKey, includeUnderlyingStore);
+    }
+
+    default <E extends Entity> E getOrCreateEntity(Object domainClassId, Object primaryKey, boolean includeUnderlyingStore) {
+        return primaryKey == null ? null : getOrCreateEntity(getEntityId(domainClassId, primaryKey), includeUnderlyingStore);
+    }
+
+    default <E extends Entity> E getOrCreateEntity(EntityId id, boolean includeUnderlyingStore) {
         if (id == null)
             return null;
-        E entity = getEntity(id);
+        E entity = getEntity(id, includeUnderlyingStore);
         if (entity == null)
             entity = createEntity(id);
         return entity;
@@ -100,9 +124,7 @@ public interface EntityStore extends HasDataSourceModel {
     default <E extends Entity> E copyEntity(E entity) {
         if (entity == null)
             return null;
-        E copy = getOrCreateEntity(entity.getId());
-        if (copy.getStore() != this) // Ensuring the copy is in this store
-            copy = createEntity(entity.getId());
+        E copy = getOrCreateEntity(entity.getId(), false); // Ensuring the copy is in this store
         if (copy != entity)
             ((DynamicEntity) copy).copyAllFieldsFrom(entity);
         return copy;
