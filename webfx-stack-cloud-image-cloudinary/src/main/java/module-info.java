@@ -3,9 +3,11 @@
 module webfx.stack.cloud.image.cloudinary {
 
     // Direct dependencies modules
+    requires webfx.platform.ast;
     requires webfx.platform.async;
     requires webfx.platform.blob;
     requires webfx.platform.conf;
+    requires webfx.platform.console;
     requires webfx.platform.fetch;
     requires webfx.platform.util;
     requires webfx.platform.util.http;
