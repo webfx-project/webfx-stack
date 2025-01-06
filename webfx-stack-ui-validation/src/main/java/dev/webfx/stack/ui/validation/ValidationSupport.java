@@ -330,7 +330,7 @@ public final class ValidationSupport {
 
     public void addUrlOrEmptyValidation(TextField urlInput, ObservableStringValue errorMessage) {
         // Define the URL pattern (basic)
-        String urlPattern = "^((https?|srt|rtmp|rtsp)://[\\w.-]+(:\\d+)?(/[\\w.%/-]*)?(\\\\?[\\w=&%.-]*)?(#[\\w!:.=&,-]*)?)?$\n";
+        String urlPattern = "^(https|srt|rtmp|rtsp)://(www\\.)?[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}(/[a-zA-Z0-9%._/-]*)$";
         Pattern pattern = Pattern.compile(urlPattern);
 
         // Create the validation rule
