@@ -12,8 +12,10 @@ import dev.webfx.stack.orm.dql.sqlcompiler.ExpressionSqlCompiler;
 import dev.webfx.stack.orm.dql.sqlcompiler.lci.CompilerDomainModelReader;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.SqlCompiled;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.dbms.DbmsSqlSyntax;
+import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.EntityStore;
+import dev.webfx.stack.orm.entity.UpdateStore;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.parser.lci.ParserDomainModelReader;
 import dev.webfx.stack.orm.expression.terms.*;
@@ -272,11 +274,10 @@ public final class EntityChangesToSubmitBatchGenerator {
         void generateDeletes() {
             Collection<EntityId> deletedEntities = changes.getDeletedEntityIds();
             if (deletedEntities != null && !deletedEntities.isEmpty()) {
-                /* Commented delete sort (not working), so for now the application code is responsible for sequencing deletes
-                List<EntityId> deletedList = new ArrayList<>(deletedEntities);
-                // Sorting according to classes references
-                deletedList.sort(comparing(id -> id.getDomainClass().getName()));
-                */
+                UpdateStore updateStore = changes.getUpdateStore();
+                if (updateStore != null) {
+                    deletedEntities = new TopologicalSort(deletedEntities, updateStore).sort();
+                }
                 deletedEntities.forEach(this::generateDelete);
             }
         }
@@ -339,6 +340,41 @@ public final class EntityChangesToSubmitBatchGenerator {
                     .setStatement(statement)
                     .setParameters(parameters)
                     .build();
+        }
+    }
+
+    private static class TopologicalSort {
+        private final Collection<EntityId> entityIds;
+        private final UpdateStore updateStore;
+        private final Set<EntityId> visited = new HashSet<>();
+        private final List<EntityId> sorted = new ArrayList<>();
+
+        public TopologicalSort(Collection<EntityId> entityIds, UpdateStore updateStore) {
+            this.entityIds = entityIds;
+            this.updateStore = updateStore;
+        }
+
+        public List<EntityId> sort() {
+            for (EntityId entityId : entityIds) {
+                if (!visited.contains(entityId)) {
+                    deepFirstSearch(entityId);
+                }
+            }
+            return sorted;
+        }
+
+        private void deepFirstSearch(EntityId entityId) {
+            visited.add(entityId);
+            Entity entity = updateStore.getEntity(entityId);
+            if (entity != null) {
+                for (Object loadedField : entity.getLoadedFields()) {
+                    Object fieldValue = entity.getFieldValue(loadedField);
+                    if (entityIds.contains(fieldValue) && !visited.contains(fieldValue)) {
+                        deepFirstSearch((EntityId) fieldValue);
+                    }
+                }
+            }
+            sorted.add(entityId);
         }
     }
 }

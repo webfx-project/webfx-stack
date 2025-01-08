@@ -7,9 +7,7 @@ import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.EntityStore;
 import dev.webfx.stack.orm.entity.UpdateStore;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 /**
@@ -70,6 +68,14 @@ public class DynamicEntity implements Entity {
         if (underlyingEntity != null)
             return underlyingEntity.isFieldLoaded(domainFieldId);
         return false;
+    }
+
+    @Override
+    public Collection<Object> getLoadedFields() {
+        Set<Object> loadFields = fieldValues.keySet();
+        if (underlyingEntity != null)
+            loadFields.addAll(underlyingEntity.getLoadedFields());
+        return loadFields;
     }
 
     @Override
@@ -173,7 +179,7 @@ public class DynamicEntity implements Entity {
         return sb;
     }
 
-    // methods meant to be used by EntityBindings only
+    // methods are public but meant to be used by EntityBindings only
 
     public Object getFieldProperty(Object fieldId) {
         return fieldProperties == null ? null : fieldProperties.get(fieldId);

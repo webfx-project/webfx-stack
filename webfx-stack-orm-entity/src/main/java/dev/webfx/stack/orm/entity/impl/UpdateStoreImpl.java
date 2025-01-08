@@ -24,7 +24,7 @@ import dev.webfx.stack.orm.entity.result.EntityResult;
  */
 public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStore {
 
-    private final EntityChangesBuilder changesBuilder = EntityChangesBuilder.create();
+    private final EntityChangesBuilder changesBuilder = EntityChangesBuilder.create().setUpdateStore(this);
     private DataScope submitScope;
     private Object hasChangesProperty; // managed by EntityBindings
 
