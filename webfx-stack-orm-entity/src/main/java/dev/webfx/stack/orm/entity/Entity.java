@@ -1,15 +1,15 @@
 package dev.webfx.stack.orm.entity;
 
+import dev.webfx.platform.async.Future;
+import dev.webfx.platform.util.Booleans;
+import dev.webfx.platform.util.Numbers;
+import dev.webfx.platform.util.Strings;
+import dev.webfx.platform.util.time.Times;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.domainmodel.DomainField;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.terms.Dot;
 import dev.webfx.stack.orm.expression.terms.ExpressionArray;
-import dev.webfx.platform.util.Booleans;
-import dev.webfx.platform.util.time.Times;
-import dev.webfx.platform.util.Numbers;
-import dev.webfx.platform.util.Strings;
-import dev.webfx.platform.async.Future;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -66,6 +66,8 @@ public interface Entity {
     Object getFieldValue(Object domainFieldId);
 
     boolean isFieldLoaded(Object domainFieldId);
+
+    Collection<Object> getLoadedFields();
 
     /**
      * Return the field value as a boolean. If the type is not a boolean, this can result in runtime errors.
