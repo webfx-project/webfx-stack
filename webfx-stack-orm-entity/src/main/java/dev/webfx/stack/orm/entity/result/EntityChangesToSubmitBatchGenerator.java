@@ -334,12 +334,12 @@ public final class EntityChangesToSubmitBatchGenerator {
 
         SubmitArgument newSubmitArgument(String language, String statement, Object... parameters) {
             return SubmitArgument.builder()
-                    .setDataSourceId(dataSourceId)
-                    .setDataScope(dataScope)
-                    .setLanguage(language)
-                    .setStatement(statement)
-                    .setParameters(parameters)
-                    .build();
+                .setDataSourceId(dataSourceId)
+                .setDataScope(dataScope)
+                .setLanguage(language)
+                .setStatement(statement)
+                .setParameters(parameters)
+                .build();
         }
     }
 
@@ -355,21 +355,28 @@ public final class EntityChangesToSubmitBatchGenerator {
         }
 
         public List<EntityId> sort() {
+            // Doing a deep first search, which will sort the independent entities first, and then the entities referring
+            // to them.
             for (EntityId entityId : entityIds) {
                 if (!visited.contains(entityId)) {
                     deepFirstSearch(entityId);
                 }
             }
+            // We reverse the previous sort, because if we delete first the independent entities whose other entities
+            // refer to (meaning that there are foreign keys pointing to them), then the database will raise a constraint
+            // exception. We need to proceed the deletes in the exact opposite order (deleting first the entities
+            // referring to other entities).
+            Collections.reverse(sorted);
             return sorted;
         }
 
         private void deepFirstSearch(EntityId entityId) {
             visited.add(entityId);
-            Entity entity = updateStore.getEntity(entityId);
+            Entity entity = updateStore.getEntity(entityId, true);
             if (entity != null) {
                 for (Object loadedField : entity.getLoadedFields()) {
                     Object fieldValue = entity.getFieldValue(loadedField);
-                    if (entityIds.contains(fieldValue) && !visited.contains(fieldValue)) {
+                    if (fieldValue instanceof EntityId && entityIds.contains(fieldValue) && !visited.contains(fieldValue)) {
                         deepFirstSearch((EntityId) fieldValue);
                     }
                 }
