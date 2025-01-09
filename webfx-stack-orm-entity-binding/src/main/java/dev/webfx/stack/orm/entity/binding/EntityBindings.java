@@ -26,7 +26,13 @@ public final class EntityBindings {
         BooleanProperty hasChangesProperty = (BooleanProperty) updateStoreImpl.getHasChangesProperty();
         if (hasChangesProperty == null) {
             EntityChangesBuilder changesBuilder = updateStoreImpl.getChangesBuilder();
-            hasChangesProperty = new SimpleBooleanProperty(changesBuilder.hasChanges());
+            hasChangesProperty = new SimpleBooleanProperty(changesBuilder.hasChanges()) {
+                @Override
+                protected void invalidated() {
+                    get(); // For some reason, it's necessary to call get() here, otherwise the bindings depending on
+                    // this property might not be called 🤷
+                }
+            };
             changesBuilder.setHasChangesPropertyUpdater(hasChangesProperty::set);
         }
         return hasChangesProperty;
