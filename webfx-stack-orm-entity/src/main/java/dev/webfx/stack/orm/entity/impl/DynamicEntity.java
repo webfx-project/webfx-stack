@@ -73,8 +73,10 @@ public class DynamicEntity implements Entity {
     @Override
     public Collection<Object> getLoadedFields() {
         Set<Object> loadFields = fieldValues.keySet();
-        if (underlyingEntity != null)
+        if (underlyingEntity != null) {
+            loadFields = new HashSet<>(loadFields); // because ketSet() returns an immutable set
             loadFields.addAll(underlyingEntity.getLoadedFields());
+        }
         return loadFields;
     }
 
