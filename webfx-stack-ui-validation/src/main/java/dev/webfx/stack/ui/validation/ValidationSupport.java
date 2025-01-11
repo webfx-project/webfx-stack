@@ -291,7 +291,7 @@ public final class ValidationSupport {
 
     public void addUrlValidation(TextField urlInput, Node where, ObservableStringValue errorMessage) {
         // Define the URL pattern (basic)
-        String urlPattern = "^(https?://)(www\\.)?[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}(/[a-zA-Z0-9%._/-]*)?$\n";
+        String urlPattern = "^(https?://).+\\..+$";
         Pattern pattern = Pattern.compile(urlPattern);
 
         addValidationRule(
