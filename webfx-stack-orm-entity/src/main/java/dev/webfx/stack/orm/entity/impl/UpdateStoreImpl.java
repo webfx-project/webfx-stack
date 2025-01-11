@@ -134,17 +134,19 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
         if (underlyingStore != null) {
             EntityChanges changes = changesBuilder.build();
             EntityResult insertedUpdatedEntityResult = changes.getInsertedUpdatedEntityResult();
-            for (EntityId entityId : insertedUpdatedEntityResult.getEntityIds()) {
-                Entity underlyingEntity = underlyingStore.getEntity(entityId);
-                if (underlyingEntity != null) {
-                    for (Object fieldId : insertedUpdatedEntityResult.getFieldIds(entityId)) {
-                        if (fieldId != null) {
-                            Object fieldValue = insertedUpdatedEntityResult.getFieldValue(entityId, fieldId);
-                            underlyingEntity.setFieldValue(fieldId, fieldValue);
+            if (insertedUpdatedEntityResult != null) {
+                for (EntityId entityId : insertedUpdatedEntityResult.getEntityIds()) {
+                    Entity underlyingEntity = underlyingStore.getEntity(entityId);
+                    if (underlyingEntity != null) {
+                        for (Object fieldId : insertedUpdatedEntityResult.getFieldIds(entityId)) {
+                            if (fieldId != null) {
+                                Object fieldValue = insertedUpdatedEntityResult.getFieldValue(entityId, fieldId);
+                                underlyingEntity.setFieldValue(fieldId, fieldValue);
+                            }
                         }
                     }
+                    clearAllUpdatedValuesFromUpdatedEntity(entityId);
                 }
-                clearAllUpdatedValuesFromUpdatedEntity(entityId);
             }
         }
     }
