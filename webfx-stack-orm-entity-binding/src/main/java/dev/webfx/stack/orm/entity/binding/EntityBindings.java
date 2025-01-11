@@ -11,6 +11,7 @@ import dev.webfx.stack.orm.entity.result.EntityChangesBuilder;
 import dev.webfx.stack.orm.entity.result.EntityResult;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.*;
+import javafx.scene.Node;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,12 +31,23 @@ public final class EntityBindings {
                 @Override
                 protected void invalidated() {
                     get(); // For some reason, it's necessary to call get() here, otherwise the bindings depending on
-                    // this property might not be called 🤷
+                    // this property might not be updated 🤷
                 }
             };
             changesBuilder.setHasChangesPropertyUpdater(hasChangesProperty::set);
         }
         return hasChangesProperty;
+    }
+
+    public static BooleanExpression hasNoChangesProperty(UpdateStore updateStore) {
+        return hasChangesProperty(updateStore).not();
+    }
+
+    public static void disableNodesWhenUpdateStoreHasNoChanges(UpdateStore updateStore, Node... nodes) {
+        BooleanExpression hasNoChanges = hasNoChangesProperty(updateStore);
+        for (Node node : nodes)
+            node.disableProperty().bind(hasNoChanges);
+
     }
 
     public static BooleanProperty getBooleanFieldProperty(Entity entity, String fieldId) {
