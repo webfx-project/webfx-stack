@@ -152,7 +152,7 @@ public class DynamicEntity implements Entity {
             return false;
 //        if (!fieldValues.equals(that.fieldValues))
 //            return false;
-        return Objects.equals(underlyingEntity, that.underlyingEntity);
+        return underlyingEntity == null || that.underlyingEntity == null || Objects.equals(underlyingEntity, that.underlyingEntity);
     }
 
     @Override
