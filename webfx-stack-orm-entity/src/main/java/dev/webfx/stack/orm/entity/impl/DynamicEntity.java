@@ -118,9 +118,18 @@ public class DynamicEntity implements Entity {
     }
 
     @Override
+    public void setLoadedFieldValue(Object domainFieldId, Object value) {
+        setFieldValue(domainFieldId, value, true);
+    }
+
+    @Override
     public void setFieldValue(Object domainFieldId, Object value) {
-        fieldValues.put(domainFieldId, value);
-        if (store instanceof UpdateStore) {
+        setFieldValue(domainFieldId, value, false);
+    }
+
+    private void setFieldValue(Object domainFieldId, Object value, boolean loaded) {
+        fieldValues.put(domainFieldId, value); // TODO: what if it's a loaded value and previous value was not?
+        if (!loaded && store instanceof UpdateStore) {
             Object underlyingValue = underlyingEntity != null ? underlyingEntity.getFieldValue(domainFieldId) : null;
             boolean isUnderlyingValueLoaded = underlyingValue != null || underlyingEntity != null && underlyingEntity.isFieldLoaded(domainFieldId);
             ((UpdateStoreImpl) store).onInsertedOrUpdatedEntityFieldChange(id, domainFieldId, value, underlyingValue, isUnderlyingValueLoaded);
@@ -131,6 +140,7 @@ public class DynamicEntity implements Entity {
                 FIELD_PROPERTY_UPDATER.accept(fieldProperty, value);
         }
     }
+
 
     public void copyAllFieldsFrom(Entity entity) {
         DynamicEntity dynamicEntity = (DynamicEntity) entity;

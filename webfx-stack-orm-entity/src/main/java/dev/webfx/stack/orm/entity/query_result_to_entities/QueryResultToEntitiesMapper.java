@@ -68,7 +68,7 @@ public final class QueryResultToEntitiesMapper {
                         }
                     }
                 }
-                targetEntity.setFieldValue(fieldId, value);
+                targetEntity.setLoadedFieldValue(fieldId, value);
                 //System.out.println(targetEntity.getId().toString() + '.' + columnMapping.getDomainFieldId() + " = " + value);
             }
             // And finally adding this entity to the list
