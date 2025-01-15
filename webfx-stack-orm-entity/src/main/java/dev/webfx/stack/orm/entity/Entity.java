@@ -119,9 +119,7 @@ public interface Entity {
      * @param domainFieldId the domain field unique id in the domain model
      * @param value the value to store in this entity field
      */
-    void setFieldValue(Object domainFieldId, Object value); // considers this value change for submit in UpdateStore
-
-    void setLoadedFieldValue(Object domainFieldId, Object value); // ignores this value change for submit in UpdateStore
+    void setFieldValue(Object domainFieldId, Object value);
 
     void setForeignField(Object foreignFieldId, Object foreignFieldValue);
 
