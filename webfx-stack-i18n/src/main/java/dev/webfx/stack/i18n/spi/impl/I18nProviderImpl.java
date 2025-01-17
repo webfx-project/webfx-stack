@@ -235,8 +235,12 @@ public class I18nProviderImpl implements I18nProvider {
                     // the original language (ex: FR).
                     Object resolvedValue = getDictionaryTokenValueImpl(new I18nSubKey(sToken.substring(i1 + 1, i2), i18nKey), tokenKey, originalDictionary, false, originalDictionary, false, skipMessageLoading);
                     // If the bracket token has been resolved, we return it with the parts before and after the brackets
-                    if (resolvedValue != null)
-                        tokenValue = (i1 == 0 ? "" : sToken.substring(0, i1)) + resolvedValue + sToken.substring(i2 + 1);
+                    if (resolvedValue != null) {
+                        if (i1 == 0 && i2 == sToken.length() - 1) // except if there are no parts before and after the brackets
+                            tokenValue = resolvedValue; // in which case we return the resolved object as is (possibly not a String)
+                        else
+                            tokenValue = (i1 == 0 ? "" : sToken.substring(0, i1)) + resolvedValue + sToken.substring(i2 + 1);
+                    }
                 }
             }
         }
@@ -338,7 +342,7 @@ public class I18nProviderImpl implements I18nProvider {
             // (presumably in the same animation frame) we do the actual load of these keys.
             dictionaryLoadingScheduled = UiScheduler.scheduleDeferred(() -> {
                 // Making a copy of the keys before clearing it for the next possible schedule
-                Set<Object> loadingKeys = new HashSet<>(keysToLoad);
+                Set<Object> loadingKeys = new HashSet<>(keysToLoad); // ConcurrentModificationException observed
                 keysToLoad.clear();
                 // Extracting the message keys to load from them (in case they are different)
                 Set<Object> messageKeysToLoad = loadingKeys.stream()

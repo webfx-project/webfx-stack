@@ -24,9 +24,10 @@ import dev.webfx.stack.orm.entity.result.EntityResult;
  */
 public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStore {
 
-    private final EntityChangesBuilder changesBuilder = EntityChangesBuilder.create();
+    private final EntityChangesBuilder changesBuilder = EntityChangesBuilder.create().setUpdateStore(this);
     private DataScope submitScope;
     private Object hasChangesProperty; // managed by EntityBindings
+    private boolean submitting;
 
     public UpdateStoreImpl(DataSourceModel dataSourceModel) {
         super(dataSourceModel);
@@ -45,6 +46,7 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
     public <E extends Entity> E insertEntity(EntityId entityId) {
         if (!entityId.isNew())
             throw new IllegalArgumentException("entityId must be new");
+        logWarningIfChangesDuringSubmit();
         E entity = createEntity(entityId);
         changesBuilder.addInsertedEntityId(entityId);
         return entity;
@@ -52,11 +54,13 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
 
     @Override
     public <E extends Entity> E updateEntity(EntityId entityId) {
+        logWarningIfChangesDuringSubmit();
         changesBuilder.addUpdatedEntityId(entityId);
         return getOrCreateEntity(entityId);
     }
 
     void onInsertedOrUpdatedEntityFieldChange(EntityId id, Object domainFieldId, Object value, Object underlyingValue, boolean isUnderlyingValueLoaded) {
+        logWarningIfChangesDuringSubmit();
         // If the user enters back the original value, we completely clear that field from the changes
         if (isUnderlyingValueLoaded && Numbers.identicalObjectsOrNumberValues(value, underlyingValue)) {
             changesBuilder.removeFieldChange(id, domainFieldId);
@@ -77,19 +81,23 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
                 createSubmitBatchGenerator(getEntityChanges(), getDataSourceModel(), submitScope, initialSubmits);
             Batch<SubmitArgument> argBatch = updateBatchGenerator.generate();
             Console.log("Executing submit batch " + Arrays.toStringWithLineFeeds(argBatch.getArray()));
+            submitting = true;
             return SubmitService.executeSubmitBatch(argBatch).compose(resBatch -> {
                 // TODO: perf optimization: make these steps optional if not required by application code
                 markChangesAsCommitted();
                 updateBatchGenerator.applyGeneratedKeys(resBatch, this);
+                submitting = false;
                 return Future.succeededFuture(resBatch);
             });
         } catch (Exception e) {
+            submitting = false;
             return Future.failedFuture(e);
         }
     }
 
     @Override
     public void deleteEntity(EntityId entityId) {
+        logWarningIfChangesDuringSubmit();
         changesBuilder.addDeletedEntityId(entityId);
     }
 
@@ -134,19 +142,26 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
         if (underlyingStore != null) {
             EntityChanges changes = changesBuilder.build();
             EntityResult insertedUpdatedEntityResult = changes.getInsertedUpdatedEntityResult();
-            for (EntityId entityId : insertedUpdatedEntityResult.getEntityIds()) {
-                Entity underlyingEntity = underlyingStore.getEntity(entityId);
-                if (underlyingEntity != null) {
-                    for (Object fieldId : insertedUpdatedEntityResult.getFieldIds(entityId)) {
-                        if (fieldId != null) {
-                            Object fieldValue = insertedUpdatedEntityResult.getFieldValue(entityId, fieldId);
-                            underlyingEntity.setFieldValue(fieldId, fieldValue);
+            if (insertedUpdatedEntityResult != null) {
+                for (EntityId entityId : insertedUpdatedEntityResult.getEntityIds()) {
+                    Entity underlyingEntity = underlyingStore.getEntity(entityId);
+                    if (underlyingEntity != null) {
+                        for (Object fieldId : insertedUpdatedEntityResult.getFieldIds(entityId)) {
+                            if (fieldId != null) {
+                                Object fieldValue = insertedUpdatedEntityResult.getFieldValue(entityId, fieldId);
+                                underlyingEntity.setFieldValue(fieldId, fieldValue);
+                            }
                         }
                     }
+                    clearAllUpdatedValuesFromUpdatedEntity(entityId);
                 }
-                clearAllUpdatedValuesFromUpdatedEntity(entityId);
             }
         }
+    }
+
+    private void logWarningIfChangesDuringSubmit() {
+        if (submitting)
+            Console.log("[UpdateStore][WARNING] ⚠️ Making changes during submitChanges() is not yet supported, and leads to inconsistent UpdateStore state.", new Exception("Please use this exception stacktrace to identify the faulty call"));
     }
 
     // methods meant to be used by EntityBindings only

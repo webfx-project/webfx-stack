@@ -64,9 +64,9 @@ public class EntityStoreImpl implements EntityStore {
     // Entity management
 
     @Override
-    public <E extends Entity> E getEntity(EntityId entityId) {
+    public <E extends Entity> E getEntity(EntityId entityId, boolean includeUnderlyingStore) {
         E entity = (E) entities.get(entityId);
-        if (entity == null && underlyingStore != null)
+        if (entity == null && underlyingStore != null && includeUnderlyingStore)
             entity = underlyingStore.getEntity(entityId);
         return entity;
     }

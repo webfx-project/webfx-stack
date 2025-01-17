@@ -12,7 +12,6 @@ import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.HPos;
-import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
@@ -42,9 +41,10 @@ public final class DialogUtil {
     }
 
     public static DialogCallback showModalNodeInGoldLayout(Region modalNode, Pane parent, double percentageWidth, double percentageHeight) {
-        Insets padding = modalNode.getPadding();
+        //Insets padding = modalNode.getPadding();
         return showModalNode(LayoutUtil.createGoldLayout(decorate(modalNode), percentageWidth, percentageHeight), parent)
-            .addCloseHook(() -> modalNode.setPadding(padding));
+            //.addCloseHook(() -> modalNode.setPadding(padding))
+            ;
     }
 
     public static DialogCallback showModalNode(Region modalNode, Pane parent) {
@@ -67,10 +67,14 @@ public final class DialogUtil {
     }
 
     public static BorderPane decorate(Node content) {
+        /* Commented out because the content may set its own max width/height (ex: Festival creator dialog)
+        // TODO: completely remove if no side effect, or set the max size to pref size only if the content has no max size set
         // Setting max width/height to pref width/height (otherwise the grid pane takes all space with cells in top left corner)
-        if (content instanceof Region)
-            LayoutUtil.setMaxSizeToPref(LayoutUtil.createPadding((Region) content, 10));
-        BorderPane decorator = new BorderPane(content);
+        if (content instanceof Region) {
+            Region region = (Region) content;
+            LayoutUtil.setMaxSizeToPref(region);
+        }*/
+        BorderPane decorator = LayoutUtil.createPadding(new BorderPane(content), 0);
         decorator.backgroundProperty().bind(dialogBackgroundProperty());
         decorator.borderProperty().bind(dialogBorderProperty());
         decorator.setMinHeight(0d);

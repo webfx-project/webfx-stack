@@ -7,9 +7,7 @@ import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.EntityStore;
 import dev.webfx.stack.orm.entity.UpdateStore;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 /**
@@ -19,7 +17,7 @@ public class DynamicEntity implements Entity {
 
     private EntityId id;
     private final EntityStore store;
-    private final Entity underlyingEntity;
+    private Entity underlyingEntity;
     private final Map<Object /*fieldId*/, Object /*fieldValue*/> fieldValues = new HashMap<>();
     // fields used by EntityBindings only:
     private Map<Object/*fieldId*/, Object /*fieldProperty*/> fieldProperties; // lazy instantiation
@@ -30,6 +28,10 @@ public class DynamicEntity implements Entity {
         this.store = store;
         EntityStore underlyingStore = store == null ? null : store.getUnderlyingStore();
         underlyingEntity = underlyingStore != null ? underlyingStore.getEntity(id) : null;
+    }
+
+    public void setUnderlyingEntity(Entity underlyingEntity) { // meant to be called by UpdateStore.updateEntity() only
+        this.underlyingEntity = underlyingEntity;
     }
 
     @Override
@@ -69,6 +71,16 @@ public class DynamicEntity implements Entity {
     }
 
     @Override
+    public Collection<Object> getLoadedFields() {
+        Set<Object> loadFields = fieldValues.keySet();
+        if (underlyingEntity != null) {
+            loadFields = new HashSet<>(loadFields); // because ketSet() returns an immutable set
+            loadFields.addAll(underlyingEntity.getLoadedFields());
+        }
+        return loadFields;
+    }
+
+    @Override
     public void setForeignField(Object foreignFieldId, Object foreignFieldValue) {
         EntityId foreignEntityId;
         if (foreignFieldValue == null)
@@ -98,9 +110,17 @@ public class DynamicEntity implements Entity {
     }
 
     @Override
+    public <E extends Entity> E getForeignEntity(Object foreignFieldId) {
+        E foreignEntity = Entity.super.getForeignEntity(foreignFieldId);
+        if (foreignEntity == null && underlyingEntity != null)
+            foreignEntity = underlyingEntity.getForeignEntity(foreignFieldId);
+        return foreignEntity;
+    }
+
     public void setFieldValue(Object domainFieldId, Object value) {
-        fieldValues.put(domainFieldId, value);
-        if (store instanceof UpdateStore) {
+        boolean loadedValue = ThreadLocalEntityLoadingContext.isThreadLocalEntityLoading();
+        fieldValues.put(domainFieldId, value); // TODO: what if it's a loaded value and previous value was not?
+        if (!loadedValue && store instanceof UpdateStore) {
             Object underlyingValue = underlyingEntity != null ? underlyingEntity.getFieldValue(domainFieldId) : null;
             boolean isUnderlyingValueLoaded = underlyingValue != null || underlyingEntity != null && underlyingEntity.isFieldLoaded(domainFieldId);
             ((UpdateStoreImpl) store).onInsertedOrUpdatedEntityFieldChange(id, domainFieldId, value, underlyingValue, isUnderlyingValueLoaded);
@@ -111,6 +131,7 @@ public class DynamicEntity implements Entity {
                 FIELD_PROPERTY_UPDATER.accept(fieldProperty, value);
         }
     }
+
 
     public void copyAllFieldsFrom(Entity entity) {
         DynamicEntity dynamicEntity = (DynamicEntity) entity;
@@ -128,7 +149,11 @@ public class DynamicEntity implements Entity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DynamicEntity that = (DynamicEntity) o;
-        return id.equals(that.id);
+        if (!id.equals(that.id))
+            return false;
+//        if (!fieldValues.equals(that.fieldValues))
+//            return false;
+        return underlyingEntity == null || that.underlyingEntity == null || Objects.equals(underlyingEntity, that.underlyingEntity);
     }
 
     @Override
@@ -157,7 +182,7 @@ public class DynamicEntity implements Entity {
         return sb;
     }
 
-    // methods meant to be used by EntityBindings only
+    // methods are public but meant to be used by EntityBindings only
 
     public Object getFieldProperty(Object fieldId) {
         return fieldProperties == null ? null : fieldProperties.get(fieldId);

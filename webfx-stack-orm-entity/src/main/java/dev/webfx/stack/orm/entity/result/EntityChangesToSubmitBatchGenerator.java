@@ -12,8 +12,10 @@ import dev.webfx.stack.orm.dql.sqlcompiler.ExpressionSqlCompiler;
 import dev.webfx.stack.orm.dql.sqlcompiler.lci.CompilerDomainModelReader;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.SqlCompiled;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.dbms.DbmsSqlSyntax;
+import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.EntityStore;
+import dev.webfx.stack.orm.entity.UpdateStore;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.parser.lci.ParserDomainModelReader;
 import dev.webfx.stack.orm.expression.terms.*;
@@ -272,11 +274,10 @@ public final class EntityChangesToSubmitBatchGenerator {
         void generateDeletes() {
             Collection<EntityId> deletedEntities = changes.getDeletedEntityIds();
             if (deletedEntities != null && !deletedEntities.isEmpty()) {
-                /* Commented delete sort (not working), so for now the application code is responsible for sequencing deletes
-                List<EntityId> deletedList = new ArrayList<>(deletedEntities);
-                // Sorting according to classes references
-                deletedList.sort(comparing(id -> id.getDomainClass().getName()));
-                */
+                UpdateStore updateStore = changes.getUpdateStore();
+                if (updateStore != null) {
+                    deletedEntities = new TopologicalSort(deletedEntities, updateStore).sort();
+                }
                 deletedEntities.forEach(this::generateDelete);
             }
         }
@@ -333,12 +334,54 @@ public final class EntityChangesToSubmitBatchGenerator {
 
         SubmitArgument newSubmitArgument(String language, String statement, Object... parameters) {
             return SubmitArgument.builder()
-                    .setDataSourceId(dataSourceId)
-                    .setDataScope(dataScope)
-                    .setLanguage(language)
-                    .setStatement(statement)
-                    .setParameters(parameters)
-                    .build();
+                .setDataSourceId(dataSourceId)
+                .setDataScope(dataScope)
+                .setLanguage(language)
+                .setStatement(statement)
+                .setParameters(parameters)
+                .build();
+        }
+    }
+
+    private static class TopologicalSort {
+        private final Collection<EntityId> entityIds;
+        private final UpdateStore updateStore;
+        private final Set<EntityId> visited = new HashSet<>();
+        private final List<EntityId> sorted = new ArrayList<>();
+
+        public TopologicalSort(Collection<EntityId> entityIds, UpdateStore updateStore) {
+            this.entityIds = entityIds;
+            this.updateStore = updateStore;
+        }
+
+        public List<EntityId> sort() {
+            // Doing a deep first search, which will sort the independent entities first, and then the entities referring
+            // to them.
+            for (EntityId entityId : entityIds) {
+                if (!visited.contains(entityId)) {
+                    deepFirstSearch(entityId);
+                }
+            }
+            // We reverse the previous sort, because if we delete first the independent entities whose other entities
+            // refer to (meaning that there are foreign keys pointing to them), then the database will raise a constraint
+            // exception. We need to proceed the deletes in the exact opposite order (deleting first the entities
+            // referring to other entities).
+            Collections.reverse(sorted);
+            return sorted;
+        }
+
+        private void deepFirstSearch(EntityId entityId) {
+            visited.add(entityId);
+            Entity entity = updateStore.getEntity(entityId, true);
+            if (entity != null) {
+                for (Object loadedField : entity.getLoadedFields()) {
+                    Object fieldValue = entity.getFieldValue(loadedField);
+                    if (fieldValue instanceof EntityId && entityIds.contains(fieldValue) && !visited.contains(fieldValue)) {
+                        deepFirstSearch((EntityId) fieldValue);
+                    }
+                }
+            }
+            sorted.add(entityId);
         }
     }
 }

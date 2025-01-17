@@ -166,6 +166,8 @@ public final class OperationActionRegistry {
         // The binding is possible only if a graphical action has been registered for that operation
         // Instantiating an operation request just to have the request class or operation code
         A operationRequest = newOperationActionRequest(executableOperationAction);
+        if (operationRequest == null)
+            return false;
 
         // Registering the operation action (should it be done only once?)
         Class<?> operationRequestClass = operationRequest.getClass();
