@@ -1,8 +1,6 @@
 package dev.webfx.stack.authn.login.ui.spi.impl.portal;
 
-import dev.webfx.extras.panes.FlipPane;
-import dev.webfx.extras.panes.GoldenRatioPane;
-import dev.webfx.extras.panes.ScalePane;
+import dev.webfx.extras.panes.*;
 import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
@@ -42,13 +40,12 @@ final class LoginPortalUi implements UiLoginPortalCallback {
     private final List<Node> otherLoginButtons = new ArrayList<>();
 
     private final GoldenRatioPane loginPaneContainer = new GoldenRatioPane();
-    private final Pane loginPane = new Pane(backgroundRegion, leftLine, orText, rightLine) {
+    private final Pane loginPane = new HorizontalBiasLayoutPane(backgroundRegion, leftLine, orText, rightLine) {
 
         @Override
-        protected void layoutChildren() {
-            double width = getWidth(), height = getHeight();
+        protected void layoutChildren(double width, double height) {
             double margin = 40, x = margin, y = margin, w = width - 2 * margin, h, wor = orText.prefWidth(w), wl = w * 0.5 - wor;
-            layoutInArea(backgroundRegion, 0, 0, width, height, 0, null, HPos.LEFT, VPos.TOP);
+            layoutInArea(backgroundRegion, 0, 0, width, height);
             layoutInArea(userUI, x, y, w, h = Math.min(userUI.prefHeight(w), height - 2 * margin), 0, Insets.EMPTY, false, false, HPos.CENTER, VPos.TOP);
             int n = otherLoginButtons.size();
             boolean hasOtherLoginButtons = n > 0;
@@ -57,8 +54,8 @@ final class LoginPortalUi implements UiLoginPortalCallback {
             rightLine.setVisible(hasOtherLoginButtons);
             if (hasOtherLoginButtons) {
                 layoutInArea(orText, x, y += h + margin, w, 0, 0, null, false, false, HPos.CENTER, VPos.CENTER);
-                layoutInArea(leftLine, x, y, wl, 1, 0, HPos.LEFT, VPos.CENTER);
-                layoutInArea(rightLine, x + w -wl, y, wl, 1, 0, HPos.RIGHT, VPos.CENTER);
+                layoutInArea(leftLine, x, y, wl, 1, Pos.CENTER_LEFT);
+                layoutInArea(rightLine, x + w -wl, y, wl, 1, Pos.CENTER_RIGHT);
                 double[] prefWidths = new double[n];
                 double prefWidthTotal = 24 * (n - 1);
                 for (int i = 0; i < n; i++) {
