@@ -40,7 +40,7 @@ final class LoginPortalUi implements UiLoginPortalCallback {
     private final List<Node> otherLoginButtons = new ArrayList<>();
 
     private final GoldenRatioPane loginPaneContainer = new GoldenRatioPane();
-    private final Pane loginPane = new HorizontalBiasLayoutPane(backgroundRegion, leftLine, orText, rightLine) {
+    private final Pane loginPane = new HPane(backgroundRegion, leftLine, orText, rightLine) {
 
         @Override
         protected void layoutChildren(double width, double height) {
