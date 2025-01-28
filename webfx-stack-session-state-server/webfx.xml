@@ -7,7 +7,8 @@
 
     <dependencies>
         <used-by-source-modules>
-            <module transitive="true">webfx-platform-async</module>
+            <module transitive="true">webfx-platform-async</module> <!-- for Future -->
+            <module transitive="true">webfx-platform-util</module> <!-- for Pair -->
         </used-by-source-modules>
     </dependencies>
 
