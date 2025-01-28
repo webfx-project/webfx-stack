@@ -7,6 +7,7 @@ module webfx.stack.session.state {
     requires webfx.platform.ast.json.plugin;
     requires transitive webfx.platform.async;
     requires webfx.platform.console;
+    requires webfx.platform.util;
     requires webfx.stack.com.serial;
     requires webfx.stack.session;
 

@@ -56,4 +56,12 @@ public final class ThreadLocalStateHolder implements AutoCloseable {
         return StateAccessor.getUserId(getThreadLocalState());
     }
 
+    public static Boolean getBackoffice() { // returns null if not specified
+        return StateAccessor.getBackoffice(getThreadLocalState());
+    }
+
+    public static boolean isBackoffice() { // returns false if not specified
+        return Boolean.TRUE.equals(getBackoffice());
+    }
+
 }

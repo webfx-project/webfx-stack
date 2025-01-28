@@ -7,7 +7,6 @@ module webfx.stack.com.bus.json.client {
     requires webfx.platform.ast.json.plugin;
     requires webfx.platform.async;
     requires webfx.platform.boot;
-    requires webfx.platform.console;
     requires webfx.stack.com.bus;
     requires webfx.stack.com.bus.client;
     requires webfx.stack.com.bus.json;
