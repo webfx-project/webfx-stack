@@ -2,7 +2,6 @@ package dev.webfx.stack.session.state.client.fx;
 
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
-import dev.webfx.stack.session.state.client.ClientSideStateSession;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 
@@ -13,7 +12,7 @@ public final class FXRunId {
 
     private final static ObjectProperty<Object> runIdProperty = FXProperties.newObjectProperty(runId -> {
         Console.log("FxRunId = " +runId);
-        ClientSideStateSession.getInstance().changeRunId(runId.toString(), true, false);
+        //ClientSideStateSession.getInstance().changeRunId(runId.toString(), true); // commented because runId is a constant (set only once)
     });
 
     public static ReadOnlyObjectProperty<Object> runIdProperty() {

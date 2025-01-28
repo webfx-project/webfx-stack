@@ -2,7 +2,6 @@ package dev.webfx.stack.com.bus.spi.impl.json.client;
 
 import dev.webfx.platform.async.AsyncResult;
 import dev.webfx.platform.async.Handler;
-import dev.webfx.platform.console.Console;
 import dev.webfx.stack.com.bus.DeliveryOptions;
 import dev.webfx.stack.com.bus.Message;
 import dev.webfx.stack.session.state.ThreadLocalStateHolder;
@@ -12,8 +11,6 @@ import dev.webfx.stack.session.state.client.ClientSideStateSessionSyncer;
  * @author Bruno Salmon
  */
 public abstract class JsonClientBus extends JsonBus {
-
-    private static final boolean LOG_STATES = false;
 
     public JsonClientBus() {
     }
@@ -44,29 +41,25 @@ public abstract class JsonClientBus extends JsonBus {
     protected boolean onMessage(Message message) {
         if (message.options().isLocalOnly())
             return super.onMessage(message);
-        // If the incoming message comes from the server, we update the client holders from it
-        Object state = message.state();
-        Object incomingStateCapture = LOG_STATES ? "" + state : null;
-        // We update the client session from the server state if necessary
-        ClientSideStateSessionSyncer.syncClientSessionFromIncomingServerState(state);
-        // We eventually enrich the server state with information from the client session
-        state = ClientSideStateSessionSyncer.syncIncomingServerStateFromClientSession(state);
-        if (LOG_STATES)
-            Console.log("<< incoming sate: " + state + " << " + incomingStateCapture);
-        return ThreadLocalStateHolder.runWithState(state, () -> super.onMessage(message));
+        Object incomingState = message.state(); // incoming client state coming from the server
+        // We eventually enrich the incoming state with information from the client session, and/or update the client
+        // session with new information coming from the server, with syncIncomingState()
+        incomingState = ClientSideStateSessionSyncer.syncIncomingState(incomingState);
+        // We publish the message with the incoming state in the thread local state holder (message subscribers can
+        // access the incoming state with ThreadLocalStateHolder.getState())
+        return ThreadLocalStateHolder.runWithState(incomingState, () -> super.onMessage(message));
     }
 
     @Override
     protected <T> void sendOrPublishOverNetwork(boolean send, String address, Object body, DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler) {
-        // Completing the state before sending it to the server
-        Object state = options.getState();
-        Object incomingStateCapture = LOG_STATES ? "" + state : null;
-        state = ClientSideStateSessionSyncer.syncOutgoingClientStateFromClientSession(state);
-        if (LOG_STATES)
-            Console.log(">> outgoing sate: " + incomingStateCapture + " >> " + state);
-        options.setState(state);
+        Object outgoingState = options.getState(); // outgoing client state going to the server
+        // We eventually enrich this state with information stored from the client session when it makes sense (ex:
+        // userId, serverSessionId, runId, backoffice...), and update the client session
+        outgoingState = ClientSideStateSessionSyncer.syncOutgoingState(outgoingState);
+        // We pass this state in the delivery options
+        options.setState(outgoingState);
+        // And finally publish the message
         super.sendOrPublishOverNetwork(send, address, body, options, replyHandler);
-        ClientSideStateSessionSyncer.syncClientSessionFromOutgoingClientState(state);
     }
 
 }

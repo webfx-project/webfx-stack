@@ -1,9 +1,13 @@
 package dev.webfx.stack.session.state;
 
-import dev.webfx.platform.ast.*;
+import dev.webfx.platform.ast.AST;
+import dev.webfx.platform.ast.AstObject;
+import dev.webfx.platform.ast.ReadOnlyAstArray;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.ast.json.Json;
 import dev.webfx.platform.console.Console;
 import dev.webfx.stack.com.serial.SerialCodecManager;
+import dev.webfx.stack.session.Session;
 
 /**
  * @author Bruno Salmon
@@ -13,9 +17,19 @@ public final class StateAccessor {
     private final static String SERVER_SESSION_ID_ATTRIBUE_NAME = "sessionId";
     private final static String USER_ID_ATTRIBUE_NAME = "userId";
     private final static String RUN_ID_ATTRIBUE_NAME = "runId";
+    private final static String BACKOFFICE_ATTRIBUTE_NAME = "backoffice";
 
     public static Object createEmptyState() {
         return AST.createObject();
+    }
+
+    public static Object createStateFromSession(Session session) {
+        Object state = createEmptyState();
+        setServerSessionId(state, SessionAccessor.getServerSessionId(session));
+        setUserId(state, SessionAccessor.getUserId(session));
+        setRunId(state, SessionAccessor.getRunId(session));
+        setBackoffice(state, SessionAccessor.isBackoffice(session));
+        return state;
     }
 
     public static Object decodeState(String encodedState) {
@@ -95,12 +109,16 @@ public final class StateAccessor {
         return setStateAttribute(state, RUN_ID_ATTRIBUE_NAME, runId, override);
     }
 
-    public static Object createRunIdState(String runId) {
-        return setRunId(null, runId);
+    public static Boolean getBackoffice(Object state) {
+        return (Boolean) getStateAttribute(state, BACKOFFICE_ATTRIBUTE_NAME);
     }
 
-    public static Object createUserIdRunIdState(Object userId, String runId) {
-        return setRunId(createUserIdState(userId), runId);
+    public static Object setBackoffice(Object state, Boolean backoffice) {
+        return setBackoffice(state, backoffice, true);
+    }
+
+    public static Object setBackoffice(Object state, Boolean backoffice, boolean override) {
+        return setStateAttribute(state, BACKOFFICE_ATTRIBUTE_NAME, backoffice, override);
     }
 
     private static Object getStateAttribute(Object state, String name) {
