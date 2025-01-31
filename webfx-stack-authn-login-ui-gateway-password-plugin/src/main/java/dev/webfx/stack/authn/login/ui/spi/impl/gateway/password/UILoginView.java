@@ -29,6 +29,8 @@ import java.util.function.Consumer;
 
 public class UILoginView implements MaterialFactoryMixin {
 
+    private static final String CHECKMARK_PATH = "M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z M14.7 8.39l-3.78 5-1.63-2.11a1 1 0 0 0-1.58 1.23l2.43 3.11a1 1 0 0 0 .79.38 1 1 0 0 0 .79-.39l4.57-6a1 1 0 1 0-1.6-1.22z";
+
     private Label loginTitleLabel;
     private Label mainMessageLabel;
     private TextField emailTextField;
@@ -41,12 +43,8 @@ public class UILoginView implements MaterialFactoryMixin {
     private VBox passwordFieldAndMessageVbox;
     private VBox emailAndPasswordContainer;
     private final ValidationSupport validationSupport = new ValidationSupport();
-
     private BorderPane container;
     private final Consumer<String> createAccountEmailConsumer;
-
-
-    private static final String CHECKMARK_PATH = "M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z M14.7 8.39l-3.78 5-1.63-2.11a1 1 0 0 0-1.58 1.23l2.43 3.11a1 1 0 0 0 .79.38 1 1 0 0 0 .79-.39l4.57-6a1 1 0 1 0-1.6-1.22z";
 
     public UILoginView(Consumer<String> emailConsumer) {
         createAccountEmailConsumer = emailConsumer;
@@ -62,7 +60,6 @@ public class UILoginView implements MaterialFactoryMixin {
         loginVBox.setSpacing(60);
         container.setCenter(loginVBox);
     }
-
 
     private void initialiseMainVBox(VBox container) {
         mainVBox = new VBox();
@@ -88,18 +85,13 @@ public class UILoginView implements MaterialFactoryMixin {
         emailAndPasswordContainer.setMaxHeight(vBoxHeight);
         emailTextField = newMaterialTextField(PasswordI18nKeys.Email);
         VBox.setMargin(emailTextField, new Insets(40, 0, 0, 0));
-        emailTextField.setMaxWidth(370);
-        emailTextField.setMinWidth(370);
+        emailTextField.setPrefWidth(370);
 
 
         passwordFieldAndMessageVbox = new VBox(10);
         passwordField = newMaterialPasswordField(PasswordI18nKeys.Password);
-        passwordField.setMaxWidth(300);
-        passwordField.setMaxWidth(370);
+        passwordField.setPrefWidth(370);
         VBox.setMargin(passwordField, new Insets(15, 0, 0, 0));
-        passwordFieldAndMessageVbox.setMaxWidth(370);
-        passwordFieldAndMessageVbox.setMinWidth(370);
-
 
         infoMessageForPasswordFieldLabel = Bootstrap.small(I18nControls.newLabel(PasswordI18nKeys.CaseSensitive));
         infoMessageForPasswordFieldLabel.setVisible(true);
