@@ -1,6 +1,7 @@
 package dev.webfx.stack.ui.action;
 
 import dev.webfx.stack.ui.action.impl.ReadOnlyAction;
+import dev.webfx.stack.ui.action.impl.WritableAction;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableStringValue;
 import javafx.beans.value.ObservableValue;
@@ -50,5 +51,9 @@ public interface Action extends EventHandler<ActionEvent> {
 
     static Action create(ObservableStringValue textProperty, ObservableValue<Supplier<Node>> graphicFactoryProperty, ObservableBooleanValue disabledProperty, ObservableBooleanValue visibleProperty, EventHandler<ActionEvent> actionHandler) {
         return new ReadOnlyAction(textProperty, graphicFactoryProperty, disabledProperty, visibleProperty, actionHandler);
+    }
+
+    static Action overrideActionWithAdditionalDisabledProperty(Action action, ObservableBooleanValue additionalDisabledProperty) {
+        return WritableAction.overrideActionWithAdditionalDisabledProperty(action, additionalDisabledProperty);
     }
 }
