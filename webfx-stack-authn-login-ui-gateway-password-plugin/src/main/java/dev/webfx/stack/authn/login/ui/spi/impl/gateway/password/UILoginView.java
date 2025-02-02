@@ -102,18 +102,10 @@ public class UILoginView implements MaterialFactoryMixin {
 
         VBox.setMargin(forgetRememberPasswordHyperlink, new Insets(40, 0, 0, 0));
 
-        createAccountHyperlink = new Hyperlink();
-        //Here we display in a transition pane the content
-        createAccountHyperlink.setOnAction(e -> {
-        });
-        I18nControls.bindI18nProperties(createAccountHyperlink, PasswordI18nKeys.CreateAccount);
-        createAccountHyperlink.getStyleClass().setAll(Bootstrap.TEXT_SECONDARY);
-        createAccountHyperlink.setVisible(true);
+        createAccountHyperlink = I18nControls.newHyperlink(PasswordI18nKeys.CreateAccount);
         if (createAccountEmailConsumer == null) {
-            createAccountHyperlink.setVisible(false);
-            createAccountHyperlink.setManaged(false);
+            hideCreateAccountHyperlink();
         }
-        createAccountHyperlink.setOnAction(null);
         VBox.setMargin(createAccountHyperlink, new Insets(20, 0, 0, 0));
 
         actionButton = Bootstrap.largePrimaryButton(I18nControls.newButton(PasswordI18nKeys.Continue));
