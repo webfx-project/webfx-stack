@@ -149,7 +149,8 @@ public final class OperationActionRegistry {
     private OperationActionRegistry checkPendingOperationActionGraphicalBindings() {
         if (!notYetBoundExecutableOperationActions.isEmpty() && (bindScheduled == null || bindScheduled.isFinished())) {
             bindScheduled = UiScheduler.scheduleDeferred(() -> {
-                notYetBoundExecutableOperationActions.forEach(this::bindOperationActionGraphicalProperties);
+                // Note: using safe forEach to avoid ConcurrentModificationException (observed in OpenJFX)
+                Collections.forEach(notYetBoundExecutableOperationActions, this::bindOperationActionGraphicalProperties);
                 notYetBoundExecutableOperationActions.clear();
             });
         }
