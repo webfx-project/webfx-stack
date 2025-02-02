@@ -136,6 +136,11 @@ public final class OperationActionRegistry {
             processRegisteredOperationActions(operationCodeOrRequestClass, oa -> {
                 if (oa == operationAction)
                     alreadyRegistered[0] = true;
+                // If it's an operation code (and not a request class), we ensure the notifying property is set
+                if (!(operationCodeOrRequestClass instanceof Class<?>)) {
+                    // This will set the notifying property to the operation action if it's not already set
+                    executableOperationActionNotifyingProperty(operationCodeOrRequestClass);
+                }
             });
             if (!alreadyRegistered[0]) {
                 List<WeakReference<OperationAction>> operationActions = registeredOperationActions.computeIfAbsent(operationCodeOrRequestClass, k -> new ArrayList<>());
@@ -230,11 +235,12 @@ public final class OperationActionRegistry {
 
     private ObservableValue<OperationAction> executableOperationActionNotifyingProperty(Object operationCode) {
         ObjectProperty<OperationAction> property = executableOperationActionNotifyingProperties.computeIfAbsent(operationCode, k -> new SimpleObjectProperty<>());
+        // If the property is not yet set to the registration action, we try to do it now (this will cause the authorized
+        // property returned by authorizedOperationActionProperty() to be reevaluated)
         if (property.get() == null) {
-            processRegisteredOperationActions(operationCode, oa -> {
-                if (property.get() == null)
-                    property.set(oa);
-            });
+            // This will work only if the graphical action has been registered, otherwise the property will remain null
+            // but will be set later when registerOperationAction() will be called with that same operation code
+            processRegisteredOperationActions(operationCode, property::set);
         }
         return property;
     }
