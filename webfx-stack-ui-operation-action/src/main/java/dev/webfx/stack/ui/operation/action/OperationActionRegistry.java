@@ -136,16 +136,16 @@ public final class OperationActionRegistry {
             processRegisteredOperationActions(operationCodeOrRequestClass, oa -> {
                 if (oa == operationAction)
                     alreadyRegistered[0] = true;
-                // If it's an operation code (and not a request class), we ensure the notifying property is set
-                if (!(operationCodeOrRequestClass instanceof Class<?>)) {
-                    // This will set the notifying property to the operation action if it's not already set
-                    executableOperationActionNotifyingProperty(operationCodeOrRequestClass);
-                }
             });
             if (!alreadyRegistered[0]) {
                 List<WeakReference<OperationAction>> operationActions = registeredOperationActions.computeIfAbsent(operationCodeOrRequestClass, k -> new ArrayList<>());
                 operationActions.add(new WeakReference<>(operationAction));
                 logDebug("Registering " + operationCodeOrRequestClass + " operation action -> n°" + operationActions.size());
+                // If it's an operation code (and not a request class), we ensure the notifying property is set
+                if (!(operationCodeOrRequestClass instanceof Class<?>)) {
+                    // This will set the notifying property to the operation action if it's not already set
+                    executableOperationActionNotifyingProperty(operationCodeOrRequestClass);
+                }
             }
             return this;
         }
@@ -165,7 +165,7 @@ public final class OperationActionRegistry {
     <A, R> void bindOperationActionGraphicalProperties(OperationAction<A, R> executableOperationAction) {
         if (bindOperationActionGraphicalPropertiesNow(executableOperationAction))
             return;
-        notYetBoundExecutableOperationActions.add(executableOperationAction);
+        Collections.addIfNotContains(executableOperationAction, notYetBoundExecutableOperationActions);
     }
 
     private <A, R> boolean bindOperationActionGraphicalPropertiesNow(OperationAction<A, R> executableOperationAction) {
