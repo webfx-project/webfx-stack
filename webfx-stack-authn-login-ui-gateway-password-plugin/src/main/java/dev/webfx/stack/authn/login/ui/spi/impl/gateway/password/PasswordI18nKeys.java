@@ -20,7 +20,6 @@ public interface PasswordI18nKeys {
     String Back = "Back";
     String Recovery = "Recovery";
     String LinkSent = "LinkSent";
-    String AppTitle = "AppTitle";
     String CaseSensitive = "CaseSensitive";
     String GoToLogin = "GoToLogin";
     String PasswordUpdated = "PasswordUpdated";
