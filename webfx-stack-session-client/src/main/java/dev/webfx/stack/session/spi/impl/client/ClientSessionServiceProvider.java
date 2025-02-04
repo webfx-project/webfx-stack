@@ -9,8 +9,10 @@ import dev.webfx.stack.session.spi.SessionServiceProvider;
 public final class ClientSessionServiceProvider implements SessionServiceProvider {
 
     private final SessionStore sessionStore = new LocalStorageSessionStore();
+
     @Override
     public SessionStore getSessionStore() {
         return sessionStore;
     }
+
 }

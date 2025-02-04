@@ -1,5 +1,6 @@
 package dev.webfx.stack.session.state.client;
 
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.session.Session;
 import dev.webfx.stack.session.state.SessionAccessor;
 import dev.webfx.stack.session.state.StateAccessor;
@@ -8,6 +9,8 @@ import dev.webfx.stack.session.state.StateAccessor;
  * @author Bruno Salmon
  */
 public final class ClientSideStateSessionSyncer {
+
+    private static final boolean LOG_STATES = false; // Set to true to log incoming and outgoing states on client side
 
     private static ClientSideStateSession getClientSideStateSession() {
         return ClientSideStateSession.getInstance();
@@ -25,66 +28,76 @@ public final class ClientSideStateSessionSyncer {
 
 
     // ======================================== INCOMING STATE ON CLIENT ========================================
-    // Sync methods to be used on client side, when the client receives an incoming state from the server
+    // Sync method to be used on client side, when the client receives an incoming state from the server
 
-    public static void syncClientSessionFromIncomingServerState(Object serverState) {
-        syncClientSessionFromIncomingServerState(getClientSideStateSession(), serverState);
-    }
+    public static Object syncIncomingState(Object incomingState) {
+        Object incomingStateCapture = LOG_STATES ? "" + incomingState : null;
 
-    public static void syncClientSessionFromIncomingServerState(ClientSideStateSession clientSideStateSession, Object serverState) {
-        clientSideStateSession.incrementServerMessageSequence();
-        // clientSession.sessionId <= serverState.sessionId ? YES IF SET, because this means the server communicated the session id
-        clientSideStateSession.changeServerSessionId(StateAccessor.getServerSessionId(serverState), true, true);
-        // clientSession.userId <= serverState.userId ? YES IF SET, as this means the server communicates the user id
-        clientSideStateSession.changeUserId(StateAccessor.getUserId(serverState), true, true);
-        // clientSession.runId <= serverState.runId ? NEVER, as the server never communicates it (and is not supposed to)
+        ClientSideStateSession clientSideStateSession = getClientSideStateSession();
+        clientSideStateSession.incrementServerIncomingMessageSequence();
+
+        // ================== 1) We update the client session from the incoming state if necessary =====================
+
+        // clientSession.sessionId <= incomingState.sessionId ? YES IF SET, because this means the server communicated the session id
+        clientSideStateSession.changeServerSessionId(StateAccessor.getServerSessionId(incomingState), true, true);
+        // clientSession.userId <= incomingState.userId ? YES IF SET, as this means the server communicates the user id
+        clientSideStateSession.changeUserId(StateAccessor.getUserId(incomingState), true, true);
+        // clientSession.runId <= incomingState.runId ? NEVER, as the server never communicates it (and is not supposed to)
         // The runId is not stored in the client session anyway (as it's a different id on each run)
-    }
 
-    public static Object syncIncomingServerStateFromClientSession(Object serverState) {
-        return syncIncomingServerStateFromClientSession(serverState, getClientSideStateSession());
-    }
+        // ============ 2) We eventually enrich the incoming state with information from the client session ============
 
-    public static Object syncIncomingServerStateFromClientSession(Object serverState, ClientSideStateSession clientSideStateSession) {
         Session clientSession = clientSideStateSession.getClientSession();
-        // serverState.serverSessionId <= clientSession.serverSessionId ? YES IF NOT SET (ie we keep the session value if the server didn't refresh the sessionId)
-        serverState = StateAccessor.setServerSessionId(serverState, SessionAccessor.getServerSessionId(clientSession), false);
-        // serverState.userId <= clientSession.userId ? YES IF NOT SET (ie we keep the session value if the server didn't refresh the userId)
-        serverState = StateAccessor.setUserId(serverState, SessionAccessor.getUserId(clientSession), false);
-        // serverState.runId <= clientSession.runId ? ALWAYS (but we actually take it from the memory - not the session)
-        serverState = StateAccessor.setRunId(serverState, clientSideStateSession.getRunId(), true);
-        return serverState;
-    }
+        // incomingState.serverSessionId <= clientSession.serverSessionId ? YES IF NOT SET (ie we keep the session value if the server didn't refresh the sessionId)
+        incomingState = StateAccessor.setServerSessionId(incomingState, SessionAccessor.getServerSessionId(clientSession), false);
+        // incomingState.userId <= clientSession.userId ? YES IF NOT SET (ie we keep the session value if the server didn't refresh the userId)
+        incomingState = StateAccessor.setUserId(incomingState, SessionAccessor.getUserId(clientSession), false);
+        // incomingState.runId <= runId ? ALWAYS (but we actually take it from the memory - not the session)
+        incomingState = StateAccessor.setRunId(incomingState, clientSideStateSession.getRunId(), true);
+        // incomingState.backoffice <= backoffice ? ALWAYS (but we actually take it from the memory - not the session)
+        incomingState = StateAccessor.setBackoffice(incomingState, clientSideStateSession.isBackoffice(), true);
 
+        if (LOG_STATES)
+            Console.log("👈👈 Incoming sate: " + incomingState + " << " + incomingStateCapture);
+
+        // We return the enriched incoming state
+        return incomingState;
+    }
 
     // ======================================== OUTGOING STATE ON CLIENT ========================================
-    // Sync methods to be used on client side, when the client is about to send a state generated by the client to the server
+    // Sync method to be used on client side, when the client is about to send an outgoing state to the server
 
-    public static void syncClientSessionFromOutgoingClientState(Object clientState) {
-        syncClientSessionFromOutgoingClientState(getClientSideStateSession(), clientState);
-    }
+    public static Object syncOutgoingState(Object outgoingState) {
+        Object outgoingStateCapture = LOG_STATES ? "" + outgoingState : null;
 
-    public static void syncClientSessionFromOutgoingClientState(ClientSideStateSession clientSideStateSession, Object clientState) {
-        // clientSession.sessionId <= clientState.sessionId ? YES IF SET
-        clientSideStateSession.changeServerSessionId(StateAccessor.getServerSessionId(clientState), true, false);
-        // clientSession.userId <= clientState.userId ? YES IF SET
-        clientSideStateSession.changeUserId(StateAccessor.getUserId(clientState), true, false);
-        // clientSession.runId <= clientState.runId ? YES IF SET
-        clientSideStateSession.changeRunId(StateAccessor.getRunId(clientState), true, false);
-    }
+        ClientSideStateSession clientSideStateSession = getClientSideStateSession();
 
-    public static Object syncOutgoingClientStateFromClientSession(Object clientState) {
-        return syncOutgoingClientStateFromClientSession(clientState, getClientSideStateSession());
-    }
+        // ============ 1) We eventually enrich the outgoing state with information stored from the client =============
 
-    public static Object syncOutgoingClientStateFromClientSession(Object clientState, ClientSideStateSession clientSideStateSession) {
-        // clientState.sessionId <= clientSession.id ? YES IF NOT YET SENT TO SERVER
-        clientState = clientSideStateSession.updateStateServerSessionIdFromClientSessionIfNotYetSynced(clientState);
-        // clientState.userId <= clientSession.userId ? YES IF NOT YET SENT TO SERVER
-        clientState = clientSideStateSession.updateStateUserIdFromClientSessionIfNotYetSynced(clientState);
-        // clientState.runId <= clientSession.runId ? YES IF NOT YET SENT TO SERVER
-        clientState = clientSideStateSession.updateStateRunIdFromClientSessionIfNotYetSynced(clientState);
-        return clientState;
+        // outgoingState.sessionId <= clientSession.id ? YES IF NOT YET SENT TO SERVER
+        outgoingState = clientSideStateSession.setOutgoingServerSessionIdIfNotYetSent(outgoingState);
+        // outgoingState.userId <= clientSession.userId ? YES IF NOT YET SENT TO SERVER
+        outgoingState = clientSideStateSession.setOutgoingUserIdIfNotYetSent(outgoingState);
+        // outgoingState.runId <= clientSession.runId ? YES IF NOT YET SENT TO SERVER
+        outgoingState = clientSideStateSession.setOutgoingRunIdIfNotYetSent(outgoingState);
+        // outgoingState.backoffice <= clientSession.backoffice ? YES IF NOT YET SENT TO SERVER
+        outgoingState = clientSideStateSession.setOutgoingBackofficeIfNotYetSent(outgoingState);
+
+        // 2) We update the client session from the outgoing state if necessary
+
+        // clientSession.sessionId <= outgoingState.sessionId ? YES IF SET
+        clientSideStateSession.changeServerSessionId(StateAccessor.getServerSessionId(outgoingState), true, false);
+        // clientSession.userId <= outgoingState.userId ? YES IF SET
+        clientSideStateSession.changeUserId(StateAccessor.getUserId(outgoingState), true, false);
+        // clientSession.runId <= outgoingState.runId ? YES IF SET
+        clientSideStateSession.changeRunId(StateAccessor.getRunId(outgoingState), true);
+        // clientSession.backoffice <= outgoingState.backoffice ? NEVER (no need to store it in the session as it's inherent to the client)
+
+        if (LOG_STATES)
+            Console.log("👉👉 Outgoing sate: " + outgoingStateCapture + " >> " + outgoingState);
+
+        // We return the enriched outgoing state
+        return outgoingState;
     }
 
 }

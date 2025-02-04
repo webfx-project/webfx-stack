@@ -4,6 +4,7 @@ import dev.webfx.platform.async.AsyncFunction;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.Promise;
 import dev.webfx.platform.console.Console;
+import dev.webfx.platform.util.tuples.Pair;
 import dev.webfx.stack.authn.logout.server.LogoutPush;
 import dev.webfx.stack.session.Session;
 import dev.webfx.stack.session.SessionService;
@@ -19,6 +20,8 @@ import java.util.Objects;
  */
 public final class ServerSideStateSessionSyncer {
 
+    private final static boolean LOG_STATES = false; // Set to true to log incoming and outgoing states on server side
+
     private static AsyncFunction<Object, Object> userIdChecker;
 
     public static void setUserIdChecker(AsyncFunction<Object, Object> userIdChecker) {
@@ -32,25 +35,41 @@ public final class ServerSideStateSessionSyncer {
     }
 
     // ======================================== INCOMING STATE ON SERVER ========================================
-    // Sync methods to be used on server side, when the server receives an incoming state from a client
+    // Sync method to be used on server side, when the server receives an incoming state from a client
 
-    public static Future<Session> syncServerSessionFromIncomingClientState(Session serverSession, Object clientState) {
-        // serverSession.id <= clientState.serverSessionId ? ONLY ON NEW SERVER SESSION
-        String requestedServerSessionId = StateAccessor.getServerSessionId(clientState);
+    public static Future<Pair<Session /* final server session */, Object/* final incoming state*/>> syncIncomingState(Session serverSession, Object incomingState) {
+        String incomingStateCapture = LOG_STATES ? "" + incomingState : null; // capturing state before changes for logs
+
+        Future<Session> sessionFuture;
+
+        // serverSession.id <= incomingState.serverSessionId ? ONLY ON NEW SERVER SESSION
+        String requestedServerSessionId = StateAccessor.getServerSessionId(incomingState);
         String serverSessionRunId = SessionAccessor.getRunId(serverSession);
         boolean isNewServerSession = serverSessionRunId == null;
         if (requestedServerSessionId != null /*&& isNewServerSession*/ && !Objects.equals(requestedServerSessionId, serverSession.id())) {
-            return SessionService.getSessionStore().get(requestedServerSessionId)
+            sessionFuture = SessionService.getSessionStore().get(requestedServerSessionId)
                 .compose(loadedSession ->
-                    syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(loadedSession != null ? loadedSession : serverSession, clientState, false));
-        }
-        return syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(serverSession, clientState, isNewServerSession);
+                    syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(loadedSession != null ? loadedSession : serverSession, incomingState, false));
+        } else
+            sessionFuture = syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(serverSession, incomingState, isNewServerSession);
+
+        return sessionFuture.map(finalServerSession -> {
+            // Finally we enrich the incoming state with possible further info coming from the serverSession
+            Object finalIncomingState = ServerSideStateSessionSyncer.syncIncomingClientStateFromServerSession(incomingState, finalServerSession);
+
+            if (LOG_STATES)
+                Console.log("👉👉 Incoming state: " + incomingStateCapture + " >> " + finalIncomingState);
+
+            return new Pair<>(finalServerSession, finalIncomingState);
+        });
     }
 
     private static Future<Session> syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(Session serverSession, Object clientState, boolean forceStore) {
         Object userId = StateAccessor.getUserId(clientState);
+        // Case when the user hasn't changed (userId == null => not yet logged in or same user as last time in this server session)
         if (userId == null || userIdChecker == null)
             return syncFixedServerSessionFromIncomingClientState(serverSession, clientState, forceStore);
+        // Case when the user is set => login or user switch, or logout (LOGOUT_USER_ID)
         Promise<Session> promise = Promise.promise();
         ThreadLocalStateHolder.runWithState(clientState, () -> userIdChecker.apply(userId))
             .onComplete(ar -> {
@@ -66,11 +85,13 @@ public final class ServerSideStateSessionSyncer {
                 syncFixedServerSessionFromIncomingClientState(serverSession, clientState, forceStore)
                     .onFailure(promise::fail)
                     .onSuccess(promise::complete);
-                // We set the runId from the session if not set in the state
-                if (StateAccessor.getRunId(clientState) == null)
+                // At the same time, we do a push to the client of either the logout userId (if it's a logout), or the
+                // new authorizations (if it's a login or user switch). To prepare this push, we need to ensure that the
+                // userId is set in the client state (the runId is what identifies which client to push to).
+                if (StateAccessor.getRunId(clientState) == null) // // if not, we set it from the server session
                     StateAccessor.setRunId(clientState, SessionAccessor.getRunId(serverSession));
-                // We log out the client or push the authorizations of the user
-                ThreadLocalStateHolder.runWithState(clientState, () -> {
+                // We are now ready for the push
+                ThreadLocalStateHolder.runWithState(clientState, () -> { // we specify which state to use for the push
                     // Special case: invalid user => we force a logout
                     if (LogoutUserId.isLogoutUserId(ThreadLocalStateHolder.getUserId())) {
                         LogoutPush.pushLogoutMessageToClient(); // This will push a logout userId, and subsequently push the new authorizations (see OUTGOING STATE)
@@ -91,11 +112,26 @@ public final class ServerSideStateSessionSyncer {
         // serverSession.runId <= clientState.runId ? YES IF SET, as this means the client is communicating the run id, so we memorise that in the session
         String runId = StateAccessor.getRunId(clientState);
         boolean runIdChanged = SessionAccessor.changeRunId(serverSession, runId, true);
+        // serverSession.backoffice <= clientState.backoffice ? YES IF SET, as this means the client is communicating the client type, so we memorise that in the session
+        Boolean backoffice = StateAccessor.getBackoffice(clientState);
+        boolean backofficeChanged = SessionAccessor.changeBackoffice(serverSession, backoffice, true);
         // Since clients communicate the runId on first connection or reconnection, the sessionId must be synced in both cases (on reconnection, the session id may have changed)
         boolean sessionIdSyncedChanged = runId != null && SessionAccessor.changeServerSessionIdSynced(serverSession, false);
-        if (userIdChanged || runIdChanged || sessionIdSyncedChanged || forceStore)
+        if (userIdChanged || runIdChanged || backofficeChanged || sessionIdSyncedChanged || forceStore)
             return storeServerSession(serverSession);
         return Future.succeededFuture(serverSession);
+    }
+
+    private static Object syncIncomingClientStateFromServerSession(Object clientState, Session serverSession) {
+        // clientState.serverSessionId <= serverSession.id ? ALWAYS, because this is the server session that is responsible for the session id
+        clientState = StateAccessor.setServerSessionId(clientState, serverSession.id(), true);
+        // clientState.userId <= serverSession.userId ? YES IF NOT SET, otherwise this means the client switched user, so we keep that info
+        clientState = StateAccessor.setUserId(clientState, SessionAccessor.getUserId(serverSession), false);
+        // clientState.runId <= serverSession.runId ? YES IF NOT SET, otherwise this means the client communicates it, so we keep that info
+        clientState = StateAccessor.setRunId(clientState, SessionAccessor.getRunId(serverSession), false);
+        // clientState.backoffice <= serverSession.backoffice ? YES IF NOT SET, otherwise this means the client communicates it, so we keep that info
+        clientState = StateAccessor.setBackoffice(clientState, SessionAccessor.isBackoffice(serverSession), false);
+        return clientState;
     }
 
     private static Future<Session> storeServerSession(Session serverSession) {
@@ -104,26 +140,34 @@ public final class ServerSideStateSessionSyncer {
             .map(x -> serverSession);
     }
 
-    public static Object syncIncomingClientStateFromServerSession(Object clientState, Session serverSession) {
-        // clientState.serverSessionId <= serverSession.id ? ALWAYS, because this is the server session that is responsible for the session id
-        clientState = StateAccessor.setServerSessionId(clientState, serverSession.id(), true);
-        // clientState.userId <= serverSession.userId ? YES IF NOT SET, otherwise this means the client switched user, so we keep that info
-        clientState = StateAccessor.setUserId(clientState, SessionAccessor.getUserId(serverSession), false);
-        // clientState.runId <= serverSession.runId ? YES IF NOT SET, otherwise this means the client communicates it, so we keep that info
-        clientState = StateAccessor.setRunId(clientState, SessionAccessor.getRunId(serverSession), false);
-        return clientState;
-    }
-
-
     // ======================================== OUTGOING STATE ON SERVER ========================================
     // Sync methods to be used on server side, when the server is about to send a state generated by the server back to the client
 
-    public static Object syncOutgoingServerStateFromServerSessionAndViceVersa(Object serverState, Session serverSession) {
-        Object userId = StateAccessor.getUserId(serverState);
+    public static Object syncOutgoingState(Object outgoingState, Session serverSession) {
+        String outgoingStateCapture = LOG_STATES ? "" + outgoingState : null; // capturing state before changes for logs
+
+        // serverSession.id <= outgoingState.serverSessionId ? NEVER (serverSession.id can't be changed at this point)
+        // serverSession.userId <= outgoingState.userId ? YES IF SET, as this means the server switched or logged-in user, so we memorise that info in the session
+        boolean userIdChanged = SessionAccessor.changeUserId(serverSession, StateAccessor.getUserId(outgoingState), true);
+        // serverSession.runId <= outgoingState.runId ? NEVER, because this is info can only come from an incoming outgoingState.
+        // outgoingState.sessionId <= serverSession.id ? ONLY if the client doesn't know it already
+        boolean sessionIdSyncedChanged = false;
+        if (!SessionAccessor.isServerSessionIdSynced(serverSession)) {
+            outgoingState = StateAccessor.setServerSessionId(outgoingState, serverSession.id(), true);
+            sessionIdSyncedChanged = SessionAccessor.changeServerSessionIdSynced(serverSession, true);
+        }
+        // outgoingState.userId <= serverSession.userId ? NO, we communicate this info only once to the client (when the server code explicitly sets outgoingState.userId)
+        // outgoingState.runId <= serverSession.runId ? NEVER (ERASED), because it's always communicated in the opposite way (client => server)
+        // outgoingState.backoffice <= serverSession.backoffice ? NEVER (ERASED), because it's always communicated in the opposite way (client => server)
+        outgoingState = StateAccessor.setRunId(outgoingState, null, true);
+        if (userIdChanged || sessionIdSyncedChanged)
+            storeServerSession(serverSession);
+
+        // Authorization push management:
         // If a user id is set in that direction, this means the server switched, logged-in or logged-out the user,
         // so we need in all cases to call the authorizer to push the new authorizations to the client.
         // Note: that authorizations push shouldn't contain the user id to avoid a loop here.
-        if (userId != null && userIdAuthorizer != null) {
+        if (userIdChanged && userIdAuthorizer != null) {
             // It's important to set the userId and runId in ThreadLocalStateHolder before calling userIdAuthorizer
             // because it will load the authorizations from userId and push them to the runId client.
 
@@ -133,26 +177,15 @@ public final class ServerSideStateSessionSyncer {
             // associated with this session. The magic link AuthenticationGatewayProvider indicated this by setting the
             // login client runId in the server state.
 
-            String runId = SessionAccessor.getRunId(serverSession);
-            Object state = StateAccessor.createUserIdRunIdState(userId, runId);
+            // Creating a new state from the session => should contain the userId, runId, and eventually other info (ex: backoffice)
+            Object state = StateAccessor.createStateFromSession(serverSession);
             ThreadLocalStateHolder.runWithState(state, () -> userIdAuthorizer.apply(null));
         }
-        // serverSession.id <= serverState.serverSessionId ? NEVER (serverSession.id can't be changed at this point)
-        // serverSession.userId <= serverState.userId ? YES IF SET, as this means the server switched or logged-in user, so we memorise that info in the session
-        boolean userIdChanged = SessionAccessor.changeUserId(serverSession, userId, true);
-        // serverSession.runId <= serverState.runId ? NEVER, because this is info can only come from an incoming serverState.
-        // serverState.sessionId <= serverSession.id ? ONLY if the client doesn't know it already
-        boolean sessionIdSyncedChanged = false;
-        if (!SessionAccessor.isServerSessionIdSynced(serverSession)) {
-            serverState = StateAccessor.setServerSessionId(serverState, serverSession.id(), true);
-            sessionIdSyncedChanged = SessionAccessor.changeServerSessionIdSynced(serverSession, true);
-        }
-        // serverState.userId <= serverSession.userId ? NO, we communicate this info only once to the client (when the server code explicitly sets serverState.userId)
-        // serverState.runId <= serverSession.runId ? NEVER (ERASED), because it's always communicated in the opposite way (client => server)
-        serverState = StateAccessor.setRunId(serverState, null, true);
-        if (userIdChanged || sessionIdSyncedChanged)
-            storeServerSession(serverSession);
-        return serverState;
+
+        if (LOG_STATES)
+            Console.log("👈👈 Outgoing state: " + outgoingState + " << " + outgoingStateCapture);
+
+        return outgoingState;
     }
 
 }

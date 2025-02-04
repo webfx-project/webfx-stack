@@ -14,8 +14,6 @@ import dev.webfx.stack.session.state.LogoutUserId;
 import dev.webfx.stack.session.state.SessionAccessor;
 import dev.webfx.stack.session.state.StateAccessor;
 
-import java.util.Objects;
-
 /**
  * @author Bruno Salmon
  */
@@ -28,6 +26,7 @@ public final class ClientSideStateSession {
     private static final String ACTIVE_CLIENT_SESSION_ID_PREFIX = UserAgent.isBrowser() ? Meta.getApplicationModuleName() + "-" : "";
     private static final String ACTIVE_CLIENT_SESSION_ID = ACTIVE_CLIENT_SESSION_ID_PREFIX + "activeClientSessionId";
     private static final String RUN_ID = Uuid.randomUuid();
+    private static final Boolean BACKOFFICE = Meta.getBackoffice(); // Backoffice applications should set this flag to true
     private static final ClientSideStateSession INSTANCE = new ClientSideStateSession();
 
     public static ClientSideStateSession getInstance() {
@@ -44,7 +43,7 @@ public final class ClientSideStateSession {
     private boolean connectedChanged;
     private Runnable scheduledSessionStore;
     private Runnable scheduledListenerCall;
-    private int serverMessageSequence;
+    private int serverIncomingMessageSequence;
 
     private ClientSideStateSessionListener clientSideStateSessionListener;
 
@@ -74,8 +73,8 @@ public final class ClientSideStateSession {
         this.clientSession = clientSession;
     }
 
-    public void incrementServerMessageSequence() {
-        serverMessageSequence++;
+    public void incrementServerIncomingMessageSequence() {
+        serverIncomingMessageSequence++;
     }
 
     private void scheduleSessionStoreAndListenerCall() {
@@ -165,8 +164,8 @@ public final class ClientSideStateSession {
     public void changeServerSessionId(String serverSessionId, boolean skipNullValue, boolean fromServer) {
         if (SessionAccessor.changeServerSessionId(clientSession, serverSessionId, skipNullValue)) {
             serverSessionIdChanged = true;
-            lastServerSessionIdSyncedValue = serverSessionId;
-            lastServerSessionIdSyncedFromServer = fromServer;
+            if (!fromServer)
+                nextSessionIdSendingSequence = -1; // forcing a resend of the server session id to the server
             scheduleSessionStoreAndListenerCall();
         }
     }
@@ -178,8 +177,8 @@ public final class ClientSideStateSession {
     public void changeUserId(Object userId, boolean skipNullValue, boolean fromServer) {
         if (SessionAccessor.changeUserId(clientSession, userId, skipNullValue)) {
             userIdChanged = true;
-            lastUserIdSyncedValue = userId;
-            lastUserIdSyncedFromServer = fromServer;
+            if (!fromServer)
+                nextUserIdSendingSequence = -1; // forcing a resend of the user id to the server
             // Erasing userId from client session if logged out
             if (LogoutUserId.isLogoutUserId(userId))
                 SessionAccessor.changeUserId(clientSession, null, false);
@@ -191,13 +190,16 @@ public final class ClientSideStateSession {
         return RUN_ID;
     }
 
-    public void changeRunId(String runId, boolean skipNullValue, boolean fromServer) {
+    public void changeRunId(String runId, boolean skipNullValue) { // Always called on client side
         if (SessionAccessor.changeRunId(clientSession, runId, skipNullValue)) {
-            runIdChanged = true;
-            lastRunIdSyncedValue = runId;
-            lastRunIdSyncedFromServer = fromServer;
+            //runIdChanged = true;
+            //lastRunIdSyncedValue = runId;
             scheduleSessionStoreAndListenerCall();
         }
+    }
+
+    public Boolean isBackoffice() {
+        return BACKOFFICE;
     }
 
     public boolean isConnected() {
@@ -210,53 +212,83 @@ public final class ClientSideStateSession {
             connectedChanged = true;
             scheduleListenerCall();
             if (!connected) {
-                lastServerSessionIdSyncedValue = lastRunIdSyncedValue = null;
-                lastUserIdSyncedValue = null;
+                // forcing a resend of the server session id to the server
+                nextSessionIdSendingSequence =
+                    nextUserIdSendingSequence =
+                        nextRunIdSendingSequence =
+                            nextBackofficeSendingSequence =
+                                -1;
             }
         }
     }
 
+    // The following methods are called by ClientSideStateSessionSyncer.syncOutgoingState() and so this is where we
+    // eventually complete the outgoing client state sent to the server with missing or changed information.
 
-    private String lastServerSessionIdSyncedValue;
-    private boolean lastServerSessionIdSyncedFromServer;
-    private int lastSessionIdSyncedMessageSequence;
+    // Communicating the server session id to the server (when it makes sense)
 
-    public Object updateStateServerSessionIdFromClientSessionIfNotYetSynced(Object clientState) {
-        String serverSessionId = SessionAccessor.getServerSessionId(clientSession);
-        if (!Objects.equals(serverSessionId, lastServerSessionIdSyncedValue) || !lastServerSessionIdSyncedFromServer && serverMessageSequence == lastSessionIdSyncedMessageSequence) {
-            clientState = StateAccessor.setServerSessionId(clientState, serverSessionId, false);
-            lastServerSessionIdSyncedValue = serverSessionId;
-            lastSessionIdSyncedMessageSequence = serverMessageSequence;
+    private int nextSessionIdSendingSequence = -1; // setting this to -1 will cause the server session id to be resent
+
+    public Object setOutgoingServerSessionIdIfNotYetSent(Object outgoingState) {
+        // When do we send the server session id stored in the client session back to the server?
+        if (nextSessionIdSendingSequence == -1) {
+            nextSessionIdSendingSequence = serverIncomingMessageSequence;
         }
-        return clientState;
+        if (nextSessionIdSendingSequence == serverIncomingMessageSequence) {
+            String serverSessionId = SessionAccessor.getServerSessionId(clientSession);
+            outgoingState = StateAccessor.setServerSessionId(outgoingState, serverSessionId, false);
+        }
+        return outgoingState;
     }
 
-    private Object lastUserIdSyncedValue;
-    private boolean lastUserIdSyncedFromServer;
-    private int lastUserIdSyncedMessageSequence;
+    // Communicating the user id to the server (when it makes sense)
 
-    public Object updateStateUserIdFromClientSessionIfNotYetSynced(Object clientState) {
-        Object userId = SessionAccessor.getUserId(clientSession);
-        if (!Objects.equals(userId, lastUserIdSyncedValue) || !lastUserIdSyncedFromServer && serverMessageSequence == lastUserIdSyncedMessageSequence) {
-            clientState = StateAccessor.setUserId(clientState, userId, false);
-            lastUserIdSyncedValue = userId;
-            lastUserIdSyncedMessageSequence = serverMessageSequence;
+    private int nextUserIdSendingSequence = -1;
+
+    public Object setOutgoingUserIdIfNotYetSent(Object outgoingState) {
+        // When do we send the user id stored in the client session back to the server?
+        if (nextUserIdSendingSequence == -1) {
+            nextUserIdSendingSequence = serverIncomingMessageSequence;
         }
-        return clientState;
+        if (nextUserIdSendingSequence == serverIncomingMessageSequence) {
+            Object userId = SessionAccessor.getUserId(clientSession);
+            outgoingState = StateAccessor.setUserId(outgoingState, userId, false);
+        }
+        return outgoingState;
     }
 
-    private String lastRunIdSyncedValue;
-    private boolean lastRunIdSyncedFromServer;
-    private int lastRunIdSyncedMessageSequence;
+    // Communicating the run id to the server (when it makes sense)
+    // Note that the run id is actually not stored in the client session, but is a random constant value on the client side
 
-    public Object updateStateRunIdFromClientSessionIfNotYetSynced(Object clientState) {
-        String runId = getRunId();
-        if (!Objects.equals(runId, lastRunIdSyncedValue) || !lastRunIdSyncedFromServer && serverMessageSequence == lastRunIdSyncedMessageSequence) {
-            clientState = StateAccessor.setRunId(clientState, runId, false);
-            lastRunIdSyncedValue = runId;
-            lastRunIdSyncedMessageSequence = serverMessageSequence;
+    private int nextRunIdSendingSequence = -1;
+
+    public Object setOutgoingRunIdIfNotYetSent(Object outgoingState) {
+        // When do we send the run to the server?
+        if (nextRunIdSendingSequence == -1) {
+            nextRunIdSendingSequence = serverIncomingMessageSequence;
         }
-        return clientState;
+        if (nextRunIdSendingSequence == serverIncomingMessageSequence) {
+            String runId = getRunId();
+            outgoingState = StateAccessor.setRunId(outgoingState, runId, false);
+        }
+        return outgoingState;
+    }
+
+    // Communicating the backoffice flag to the server (when it makes sense)
+    // Note that the backoffice flag is actually not stored in the client session, but is a constant value on the client side
+
+    private int nextBackofficeSendingSequence = -1;
+
+    public Object setOutgoingBackofficeIfNotYetSent(Object outgoingState) {
+        // When do we send the backoffice flag to the server?
+        if (nextBackofficeSendingSequence == -1) {
+            nextBackofficeSendingSequence = serverIncomingMessageSequence;
+        }
+        if (nextRunIdSendingSequence == serverIncomingMessageSequence) {
+            Boolean backoffice = isBackoffice();
+            outgoingState = StateAccessor.setBackoffice(outgoingState, backoffice, false);
+        }
+        return outgoingState;
     }
 
 }

@@ -141,6 +141,11 @@ public final class OperationActionRegistry {
                 List<WeakReference<OperationAction>> operationActions = registeredOperationActions.computeIfAbsent(operationCodeOrRequestClass, k -> new ArrayList<>());
                 operationActions.add(new WeakReference<>(operationAction));
                 logDebug("Registering " + operationCodeOrRequestClass + " operation action -> n°" + operationActions.size());
+                // If it's an operation code (and not a request class), we ensure the notifying property is set
+                if (!(operationCodeOrRequestClass instanceof Class<?>)) {
+                    // This will set the notifying property to the operation action if it's not already set
+                    executableOperationActionNotifyingProperty(operationCodeOrRequestClass);
+                }
             }
             return this;
         }
@@ -149,7 +154,8 @@ public final class OperationActionRegistry {
     private OperationActionRegistry checkPendingOperationActionGraphicalBindings() {
         if (!notYetBoundExecutableOperationActions.isEmpty() && (bindScheduled == null || bindScheduled.isFinished())) {
             bindScheduled = UiScheduler.scheduleDeferred(() -> {
-                notYetBoundExecutableOperationActions.forEach(this::bindOperationActionGraphicalProperties);
+                // Note: using safe forEach to avoid ConcurrentModificationException (observed in OpenJFX)
+                Collections.forEach(notYetBoundExecutableOperationActions, this::bindOperationActionGraphicalProperties);
                 notYetBoundExecutableOperationActions.clear();
             });
         }
@@ -159,7 +165,7 @@ public final class OperationActionRegistry {
     <A, R> void bindOperationActionGraphicalProperties(OperationAction<A, R> executableOperationAction) {
         if (bindOperationActionGraphicalPropertiesNow(executableOperationAction))
             return;
-        notYetBoundExecutableOperationActions.add(executableOperationAction);
+        Collections.addIfNotContains(executableOperationAction, notYetBoundExecutableOperationActions);
     }
 
     private <A, R> boolean bindOperationActionGraphicalPropertiesNow(OperationAction<A, R> executableOperationAction) {
@@ -229,11 +235,12 @@ public final class OperationActionRegistry {
 
     private ObservableValue<OperationAction> executableOperationActionNotifyingProperty(Object operationCode) {
         ObjectProperty<OperationAction> property = executableOperationActionNotifyingProperties.computeIfAbsent(operationCode, k -> new SimpleObjectProperty<>());
+        // If the property is not yet set to the registration action, we try to do it now (this will cause the authorized
+        // property returned by authorizedOperationActionProperty() to be reevaluated)
         if (property.get() == null) {
-            processRegisteredOperationActions(operationCode, oa -> {
-                if (property.get() == null)
-                    property.set(oa);
-            });
+            // This will work only if the graphical action has been registered, otherwise the property will remain null
+            // but will be set later when registerOperationAction() will be called with that same operation code
+            processRegisteredOperationActions(operationCode, property::set);
         }
         return property;
     }

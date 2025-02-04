@@ -64,7 +64,8 @@ public class ReadOnlyAction implements Action {
     private final EventHandler<ActionEvent> actionHandler;
     @Override
     public void handle(ActionEvent event) {
-        if (actionHandler != null)
+        // Calling the action handler unless the action is disabled
+        if (actionHandler != null && !isDisabled())
             actionHandler.handle(event);
     }
 }

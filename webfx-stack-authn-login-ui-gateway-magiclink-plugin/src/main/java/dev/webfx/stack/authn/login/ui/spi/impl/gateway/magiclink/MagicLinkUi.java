@@ -44,6 +44,7 @@ public class MagicLinkUi implements MaterialFactoryMixin {
         uiLoginView.hideGraphicFromActionButton();
         Button actionButton = uiLoginView.getActionButton();
         actionButton.setDisable(false);
+        actionButton.setDefaultButton(true);
 
         FXProperties.runNowAndOnPropertyChange(token -> {
             if (token == null) {
