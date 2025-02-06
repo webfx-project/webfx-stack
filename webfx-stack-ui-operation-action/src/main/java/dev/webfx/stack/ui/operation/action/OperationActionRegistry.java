@@ -120,7 +120,7 @@ public final class OperationActionRegistry {
 
     public OperationActionRegistry registerOperationGraphicalAction(Object operationCodeOrRequestClass, Action graphicalAction) {
         synchronized (registeredGraphicalActions) {
-            logDebug("Registering " + operationCodeOrRequestClass + " graphical action (" + (registeredGraphicalActions.containsKey(operationCodeOrRequestClass) ? "not" : "") + " first time)");
+            logDebug("Registering " + operationCodeOrRequestClass + " graphical action (" + (registeredGraphicalActions.containsKey(operationCodeOrRequestClass) ? "not " : "") + "first time)");
             registeredGraphicalActions.put(operationCodeOrRequestClass, graphicalAction);
             processRegisteredOperationActions(operationCodeOrRequestClass, oa -> {
                 logDebug(operationCodeOrRequestClass + " operation action will be rebound to new graphical action");
@@ -189,6 +189,11 @@ public final class OperationActionRegistry {
             return false;
         // if we reach this point, we can do the binding.
         updateOperationActionGraphicalProperties(executableOperationAction);
+        // If the operation request is also an action tuner, we tune it now, and this is this final tuned action that
+        // will be bound to the executable operation action (the one already passed to the application code).
+        if (operationRequest instanceof ActionTuner) {
+            graphicalAction = ((ActionTuner) operationRequest).tuneAction(graphicalAction);
+        }
         ActionBinder.bindWritableActionToAction(executableOperationAction, graphicalAction);
         // We also notify the application code that we now have an executable operation action associated
         if (!executableOperationActionNotifyingProperties.isEmpty()) {
@@ -208,9 +213,12 @@ public final class OperationActionRegistry {
         Action graphicalAction = getGraphicalActionFromOperationRequestClass(operationRequest.getClass());
         if (graphicalAction == null && operationRequest instanceof HasOperationCode)
             graphicalAction = getGraphicalActionFromOperationCode(((HasOperationCode) operationRequest).getOperationCode());
+/* Commented because this method is also called by ModalityClientOperationActionsLoader which needs to update
+   the graphical action itself (not the possible tuned action built on top).
         if (graphicalAction != null && operationRequest instanceof ActionTuner) {
             graphicalAction = ((ActionTuner) operationRequest).tuneAction(graphicalAction);
         }
+*/
         return graphicalAction;
     }
 
