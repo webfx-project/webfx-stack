@@ -86,7 +86,8 @@ public class UILoginView implements MaterialFactoryMixin {
         emailTextField = newMaterialTextField(PasswordI18nKeys.Email);
         VBox.setMargin(emailTextField, new Insets(40, 0, 0, 0));
         emailTextField.setPrefWidth(370);
-
+        emailTextField.getProperties().put("webfx-input-type", "email");
+        emailTextField.getProperties().put("webfx-input-autocomplete", "email");
 
         passwordFieldAndMessageVbox = new VBox(10);
         passwordField = newMaterialPasswordField(PasswordI18nKeys.Password);
