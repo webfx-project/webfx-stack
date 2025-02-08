@@ -10,6 +10,7 @@ module webfx.stack.ui.controls {
     requires webfx.extras.styles.materialdesign;
     requires webfx.extras.util.background;
     requires webfx.extras.util.border;
+    requires webfx.extras.util.control;
     requires webfx.extras.util.layout;
     requires webfx.extras.util.paint;
     requires webfx.kit.util;
