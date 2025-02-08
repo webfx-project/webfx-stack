@@ -3,6 +3,7 @@ package dev.webfx.stack.authn.login.ui.spi.impl.gateway.password;
 
 import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.styles.bootstrap.Bootstrap;
+import dev.webfx.extras.util.control.ControlUtil;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.windowlocation.WindowLocation;
 import dev.webfx.stack.authn.AuthenticateWithUsernamePasswordCredentials;
@@ -86,8 +87,7 @@ public class UILoginView implements MaterialFactoryMixin {
         emailTextField = newMaterialTextField(PasswordI18nKeys.Email);
         VBox.setMargin(emailTextField, new Insets(40, 0, 0, 0));
         emailTextField.setPrefWidth(370);
-        emailTextField.getProperties().put("webfx-input-type", "email");
-        emailTextField.getProperties().put("webfx-input-autocomplete", "email");
+        ControlUtil.setHtmlInputTypeAndAutocompleteToEmail(emailTextField);
 
         passwordFieldAndMessageVbox = new VBox(10);
         passwordField = newMaterialPasswordField(PasswordI18nKeys.Password);
