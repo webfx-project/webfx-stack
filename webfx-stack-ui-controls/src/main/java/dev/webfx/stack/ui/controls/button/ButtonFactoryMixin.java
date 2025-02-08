@@ -8,7 +8,7 @@ import dev.webfx.stack.ui.action.Action;
 import dev.webfx.extras.util.background.BackgroundFactory;
 import dev.webfx.extras.util.border.BorderFactory;
 import dev.webfx.stack.ui.controls.ControlFactoryMixin;
-import dev.webfx.extras.util.layout.LayoutUtil;
+import dev.webfx.extras.util.layout.Layouts;
 
 /**
  * @author Bruno Salmon
@@ -27,11 +27,11 @@ public interface ButtonFactoryMixin extends ControlFactoryMixin {
     }
 
     default Button newLargeGreenButton(Object i18nKey) {
-        return LayoutUtil.setMaxWidthToInfinite(newLargeGreenButtonBuilder(i18nKey).build());
+        return Layouts.setMaxWidthToInfinite(newLargeGreenButtonBuilder(i18nKey).build());
     }
 
     default Button newLargeGreenButton(Action action) {
-        return LayoutUtil.setMaxWidthToInfinite(newLargeGreenButtonBuilder(action).build());
+        return Layouts.setMaxWidthToInfinite(newLargeGreenButtonBuilder(action).build());
     }
 
     default ButtonBuilder newLargeGreenButtonBuilder(Object i18nKey) {

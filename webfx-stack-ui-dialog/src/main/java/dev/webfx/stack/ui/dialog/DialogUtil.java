@@ -1,7 +1,7 @@
 package dev.webfx.stack.ui.dialog;
 
 import dev.webfx.extras.util.control.Controls;
-import dev.webfx.extras.util.layout.LayoutUtil;
+import dev.webfx.extras.util.layout.Layouts;
 import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.Unregisterable;
@@ -42,13 +42,13 @@ public final class DialogUtil {
 
     public static DialogCallback showModalNodeInGoldLayout(Region modalNode, Pane parent, double percentageWidth, double percentageHeight) {
         //Insets padding = modalNode.getPadding();
-        return showModalNode(LayoutUtil.createGoldLayout(decorate(modalNode), percentageWidth, percentageHeight), parent)
+        return showModalNode(Layouts.createGoldLayout(decorate(modalNode), percentageWidth, percentageHeight), parent)
             //.addCloseHook(() -> modalNode.setPadding(padding))
             ;
     }
 
     public static DialogCallback showModalNode(Region modalNode, Pane parent) {
-        DialogCallback dialogCallback = createDialogCallback(LayoutUtil.setMaxSizeToInfinite(modalNode), parent);
+        DialogCallback dialogCallback = createDialogCallback(Layouts.setMaxSizeToInfinite(modalNode), parent);
         setUpModalNodeResizeRelocate(modalNode, parent, dialogCallback);
         return dialogCallback;
     }
@@ -74,7 +74,7 @@ public final class DialogUtil {
             Region region = (Region) content;
             LayoutUtil.setMaxSizeToPref(region);
         }*/
-        BorderPane decorator = LayoutUtil.createPadding(new BorderPane(content), 0);
+        BorderPane decorator = Layouts.createPadding(new BorderPane(content), 0);
         decorator.backgroundProperty().bind(dialogBackgroundProperty());
         decorator.borderProperty().bind(dialogBorderProperty());
         decorator.setMinHeight(0d);
@@ -142,7 +142,7 @@ public final class DialogUtil {
                 Point2D buttonSceneTopLeft = buttonNode.localToScene(0, 0);
                 Point2D buttonSceneBottomRight = buttonNode.localToScene(buttonNode.getWidth(), buttonNode.getHeight());
                 double dialogPrefWidth = dialogNode.prefWidth(-1);
-                double dialogWidth = LayoutUtil.boundedSize(dialogPrefWidth, buttonNode.getWidth(), scene.getWidth() - buttonSceneTopLeft.getX());
+                double dialogWidth = Layouts.boundedSize(dialogPrefWidth, buttonNode.getWidth(), scene.getWidth() - buttonSceneTopLeft.getX());
                 double dialogHeight = dialogNode.prefHeight(dialogWidth);
                 boolean dropDialogUp = isDropDialogUp(dialogNode);
                 Point2D buttonParentTopLeft = parent.sceneToLocal(buttonSceneTopLeft);
