@@ -1,6 +1,6 @@
 package dev.webfx.stack.ui.dialog;
 
-import dev.webfx.extras.util.control.ControlUtil;
+import dev.webfx.extras.util.control.Controls;
 import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.FXProperties;
@@ -133,7 +133,7 @@ public final class DialogUtil {
                     buttonNode.widthProperty(),
                     buttonNode.heightProperty(),
                     resizeProperty);
-            for (ScrollPane scrollPane = ControlUtil.findScrollPaneAncestor(buttonNode); scrollPane != null; scrollPane = ControlUtil.findScrollPaneAncestor(scrollPane)) {
+            for (ScrollPane scrollPane = Controls.findScrollPaneAncestor(buttonNode); scrollPane != null; scrollPane = Controls.findScrollPaneAncestor(scrollPane)) {
                 reactingProperties.add(scrollPane.hvalueProperty());
                 reactingProperties.add(scrollPane.vvalueProperty());
             }

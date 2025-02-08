@@ -2,7 +2,7 @@ package dev.webfx.stack.ui.controls.button;
 
 import dev.webfx.extras.util.background.BackgroundFactory;
 import dev.webfx.extras.util.border.BorderFactory;
-import dev.webfx.extras.util.control.ControlUtil;
+import dev.webfx.extras.util.control.Controls;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.stack.ui.action.Action;
 import dev.webfx.stack.ui.validation.controlsfx.control.decoration.GraphicDecoration;
@@ -63,7 +63,7 @@ public final class ButtonFactory {
         downArrow.setContent("M1 1.22998L6.325 6.55499L11.65 1.22998");
         GraphicDecoration dropDownArrowDecoration = new GraphicDecoration(downArrow, Pos.CENTER_RIGHT, 0, 0, -1, 0);
         FXProperties.runNowAndOnPropertyChange(() -> Platform.runLater(() ->
-            ControlUtil.onSkinReady(button, () -> dropDownArrowDecoration.applyDecoration(button))
+            Controls.onSkinReady(button, () -> dropDownArrowDecoration.applyDecoration(button))
         ), button.graphicProperty());
         // Code to clip the content before the down arrow
         FXProperties.runNowAndOnPropertiesChange(() -> {
