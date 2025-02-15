@@ -17,11 +17,11 @@ public final class GwtJ2clSockJSWebSocketServiceProvider implements WebSocketSer
 
     @Override
     public GwtJ2clSockJSWebSocket createWebSocket(String url, ReadOnlyAstObject options) {
-        // SockJS requires the protocol to be http:// or https:// (and not ws:// or wss://)
-        url = url.replace("wss:", "https:").replace("ws:", "http:");
-        // Also SockJS expects the websocket suffix to be /websocket and
-        url = Strings.removeSuffix(url, "/websocket");
-        Console.log("SockJS fallback to " + url);
+        // SockJS requires the protocol to be http or https (and not ws or wss) and assumes the websocket suffix to be /websocket
+        String sockJSUrl = Strings.removeSuffix(url, "/websocket")
+            .replace("wss:", "https:")
+            .replace("ws:", "http:");
+        Console.log("[SockJS] " + url + " with fallback to " + sockJSUrl);
         // Code for the case the "sockjs-quickstart.js" script was included in index.html
         JsPropertyMap<Object> w = Js.asPropertyMap(DomGlobal.window);
         SockJS sockJS = (SockJS) w.get("quickStartSockJS");
@@ -32,7 +32,7 @@ public final class GwtJ2clSockJSWebSocketServiceProvider implements WebSocketSer
             sockJS.close(); // The started connection is not the requested one! We close it.
         }
         // Otherwise we create a brand new SockJS connection
-        return new GwtJ2clSockJSWebSocket(new SockJS(url, null, options));
+        return new GwtJ2clSockJSWebSocket(new SockJS(sockJSUrl, null, options));
     }
 
 }
