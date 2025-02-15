@@ -54,19 +54,18 @@ public class WebSocketBus extends JsonClientBus {
         ConfigLoader.onConfigLoaded("webfx.stack.com.client.websocket", config -> {
             WebSocketBusOptions options = new WebSocketBusOptions();
             options.applyConfig(config);
-            //options.turnUnsetPropertiesToDefault(); // should be already done by the platform but just in case
+            options.turnUnsetPropertiesToDefault();
             onOptions(options);
         });
     }
 
     protected void onOptions(WebSocketBusOptions options) {
         String serverUri =
-                (options.getProtocol() == WebSocketBusOptions.Protocol.WS ? "ws" : "http")
-                        + (Booleans.isTrue(options.isServerSSL()) ? "s://" : "://")
+                        (Booleans.isTrue(options.isServerSSL()) ? "wss://" : "ws://")
                         + options.getServerHost()
                         + ':' + options.getServerPort()
                         + '/' + options.getBusPrefix()
-                        + (options.getProtocol() == WebSocketBusOptions.Protocol.WS ? "/websocket" : "");
+                        + '/' + options.getWebsocketSuffix();
         internalWebSocketHandler = new WebSocketListener() {
             @Override
             public void onOpen() {

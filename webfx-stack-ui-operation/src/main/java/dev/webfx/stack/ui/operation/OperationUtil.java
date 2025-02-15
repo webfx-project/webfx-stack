@@ -1,6 +1,6 @@
 package dev.webfx.stack.ui.operation;
 
-import dev.webfx.extras.util.control.ControlUtil;
+import dev.webfx.extras.util.control.Controls;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.async.AsyncFunction;
 import dev.webfx.platform.async.Future;
@@ -48,7 +48,7 @@ public final class OperationUtil {
             Node graphic = null;
             if (button == buttons[0]) {
                 if (on) {
-                    graphic = ControlUtil.createProgressIndicator(20);
+                    graphic = Controls.createProgressIndicator(20);
                     // Memorising the previous graphic before changing it
                     button.getProperties().put("webfx-operation-util-graphic", button.getGraphic());
                 } else {

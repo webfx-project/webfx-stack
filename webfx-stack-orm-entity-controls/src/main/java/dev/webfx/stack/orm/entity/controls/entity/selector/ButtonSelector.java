@@ -3,7 +3,7 @@ package dev.webfx.stack.orm.entity.controls.entity.selector;
 import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.styles.materialdesign.textfield.MaterialTextFieldPane;
-import dev.webfx.extras.util.layout.LayoutUtil;
+import dev.webfx.extras.util.layout.Layouts;
 import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.scheduler.Scheduled;
@@ -32,8 +32,8 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 
-import static dev.webfx.extras.util.layout.LayoutUtil.setMaxPrefSize;
-import static dev.webfx.extras.util.layout.LayoutUtil.setMaxPrefSizeToInfinite;
+import static dev.webfx.extras.util.layout.Layouts.setMaxPrefSize;
+import static dev.webfx.extras.util.layout.Layouts.setMaxPrefSizeToInfinite;
 import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 import static javafx.scene.layout.Region.USE_PREF_SIZE;
 
@@ -179,7 +179,7 @@ public abstract class ButtonSelector<T> {
     }
 
     private MaterialTextFieldPane newMaterialButton() {
-        return new MaterialTextFieldPane(LayoutUtil.setMaxWidthToInfinite(getButton()), materialInputProperty());
+        return new MaterialTextFieldPane(Layouts.setMaxWidthToInfinite(getButton()), materialInputProperty());
     }
 
     protected ObservableValue materialInputProperty() {
@@ -382,7 +382,7 @@ public abstract class ButtonSelector<T> {
 
             case DROP_DOWN:
             case DROP_UP:
-                LayoutUtil.removePadding(dialogPane).setBorder(Border.stroke(Color.LIGHTGRAY));
+                Layouts.removePadding(dialogPane).setBorder(Border.stroke(Color.LIGHTGRAY));
                 setMaxPrefSize(dialogContent, USE_COMPUTED_SIZE);
                 double maxHeight = computeMaxAvailableHeightForDropDialog();
                 if (searchTextField != null)

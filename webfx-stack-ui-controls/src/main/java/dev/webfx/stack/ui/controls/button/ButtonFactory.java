@@ -2,9 +2,9 @@ package dev.webfx.stack.ui.controls.button;
 
 import dev.webfx.extras.util.background.BackgroundFactory;
 import dev.webfx.extras.util.border.BorderFactory;
+import dev.webfx.extras.util.control.Controls;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.stack.ui.action.Action;
-import dev.webfx.stack.ui.controls.Controls;
 import dev.webfx.stack.ui.validation.controlsfx.control.decoration.GraphicDecoration;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;

@@ -9,8 +9,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Window;
 
-import static dev.webfx.extras.util.layout.LayoutUtil.setMaxSizeToInfinite;
-import static dev.webfx.extras.util.layout.LayoutUtil.setMaxWidthToInfinite;
+import static dev.webfx.extras.util.layout.Layouts.setMaxSizeToInfinite;
+import static dev.webfx.extras.util.layout.Layouts.setMaxWidthToInfinite;
 
 /**
  * @author Bruno Salmon

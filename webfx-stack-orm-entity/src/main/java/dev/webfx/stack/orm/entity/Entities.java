@@ -1,17 +1,18 @@
 package dev.webfx.stack.orm.entity;
 
 import dev.webfx.platform.util.Arrays;
-import dev.webfx.stack.orm.expression.Expression;
-import dev.webfx.stack.orm.expression.terms.Select;
-import dev.webfx.stack.orm.expression.terms.function.Call;
+import dev.webfx.platform.util.Booleans;
+import dev.webfx.platform.util.Numbers;
+import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.domainmodel.DomainModel;
 import dev.webfx.stack.orm.entity.lciimpl.EntityDomainReader;
-import dev.webfx.platform.util.Booleans;
-import dev.webfx.platform.util.collection.Collections;
-import java.util.function.Predicate;
+import dev.webfx.stack.orm.expression.Expression;
+import dev.webfx.stack.orm.expression.terms.Select;
+import dev.webfx.stack.orm.expression.terms.function.Call;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * @author Bruno Salmon
@@ -48,6 +49,11 @@ public final class Entities {
 
     public static boolean sameId(Entity e1, Entity e2) {
         return e1 == e2 || e1 != null && e2 != null && e1.getId().equals(e2.getId());
+    }
+
+    public static boolean samePrimaryKey(Object o1, Object o2) {
+        Object pk1 = getPrimaryKey(o1), pk2 = getPrimaryKey(o2);
+        return Numbers.identicalObjectsOrNumberValues(pk1, pk2);
     }
 
     public static <E extends Entity> List<E> filter(List<E> entityList, String filterExpression) {

@@ -15,7 +15,7 @@ import dev.webfx.extras.util.background.BackgroundBuilder;
 import dev.webfx.extras.util.border.BorderBuilder;
 import dev.webfx.stack.ui.json.JsonImageView;
 import dev.webfx.extras.util.paint.PaintBuilder;
-import dev.webfx.extras.util.layout.LayoutUtil;
+import dev.webfx.extras.util.layout.Layouts;
 import dev.webfx.kit.util.properties.FXProperties;
 import java.util.function.Function;
 
@@ -168,7 +168,7 @@ public final class ButtonBuilder {
                 button.setOnAction(onAction);
             if (height > 0) {
                 button.setPrefHeight(height);
-                LayoutUtil.setMinMaxHeightToPref(button);
+                Layouts.setMinMaxHeightToPref(button);
             }
             if (border == null && borderBuilder != null)
                 border = borderBuilder.build();

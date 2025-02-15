@@ -35,7 +35,7 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <configuration>
-                        <skippedModules>webfx-stack-authn-login-ui-gateway-webviewbased-gwt,webfx-stack-authn-login-ui-gateway-webviewbased-openjfx,webfx-stack-com-bus-json-client-websocket-java,webfx-stack-com-bus-json-client-websocket-web,webfx-stack-com-websocket-gwt-j2cl,webfx-stack-com-websocket-java</skippedModules>
+                        <skippedModules>webfx-stack-authn-login-ui-gateway-webviewbased-gwt,webfx-stack-authn-login-ui-gateway-webviewbased-openjfx,webfx-stack-com-bus-json-client-websocket-java,webfx-stack-com-bus-json-client-websocket-web,webfx-stack-com-websocket-gwt-j2cl-native,webfx-stack-com-websocket-gwt-j2cl-sockjs,webfx-stack-com-websocket-java</skippedModules>
                     </configuration>
                 </plugin>
             </plugins>
@@ -98,7 +98,8 @@
         <module>webfx-stack-com-bus-simple</module>
         <module>webfx-stack-com-serial</module>
         <module>webfx-stack-com-websocket</module>
-        <module>webfx-stack-com-websocket-gwt-j2cl</module>
+        <module>webfx-stack-com-websocket-gwt-j2cl-native</module>
+        <module>webfx-stack-com-websocket-gwt-j2cl-sockjs</module>
         <module>webfx-stack-com-websocket-java</module>
         <module>webfx-stack-db-datascope</module>
         <module>webfx-stack-db-datasource</module>
