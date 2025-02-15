@@ -35,7 +35,7 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <configuration>
-                        <skippedModules>webfx-stack-authn-login-ui-gateway-webviewbased-gwt,webfx-stack-authn-login-ui-gateway-webviewbased-openjfx,webfx-stack-com-bus-json-client-websocket-java,webfx-stack-com-bus-json-client-websocket-web,webfx-stack-com-websocket-gwt-j2cl,webfx-stack-com-websocket-java</skippedModules>
+                        <skippedModules>webfx-stack-authn-login-ui-gateway-webviewbased-gwt,webfx-stack-authn-login-ui-gateway-webviewbased-openjfx,webfx-stack-com-bus-json-client-websocket-java,webfx-stack-com-bus-json-client-websocket-web,webfx-stack-com-websocket-gwt-j2cl-native,webfx-stack-com-websocket-gwt-j2cl-sockjs,webfx-stack-com-websocket-java</skippedModules>
                     </configuration>
                 </plugin>
             </plugins>
