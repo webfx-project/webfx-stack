@@ -88,7 +88,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
         }
 
         // Closing properly the poll on server shutdown
-        Shutdown.addShutdownHook(() -> {
+        Shutdown.addShutdownHook(e -> {
             log("Closing pool on server shutdown");
             if (poolRenewalTimer != null)
                 poolRenewalTimer.cancel();
