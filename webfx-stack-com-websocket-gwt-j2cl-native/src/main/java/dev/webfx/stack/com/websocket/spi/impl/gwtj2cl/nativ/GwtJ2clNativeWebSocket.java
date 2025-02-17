@@ -1,9 +1,11 @@
 package dev.webfx.stack.com.websocket.spi.impl.gwtj2cl.nativ;
 
 import dev.webfx.platform.ast.AST;
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.com.websocket.WebSocket;
 import dev.webfx.stack.com.websocket.WebSocketListener;
 import elemental2.core.ArrayBuffer;
+import elemental2.core.DataView;
 import elemental2.dom.Blob;
 import jsinterop.base.Js;
 
@@ -55,7 +57,17 @@ final class GwtJ2clNativeWebSocket implements WebSocket {
                     return null;
                 });
             } else if (e.data instanceof ArrayBuffer) {
-                // TODO: implement this case
+                ArrayBuffer arrayBuffer = (ArrayBuffer) e.data;
+                // TODO: replace this String conversion with new TextDecoder("utf-8").decode(arrayBuffer) when upgrading to elemental 1.2.2
+                byte[] bytes = new byte[arrayBuffer.byteLength];
+                DataView dataView = new DataView(arrayBuffer);
+                for (int i = 0; i < bytes.length; i++) {
+                    bytes[i] = (byte) dataView.getInt8(i);
+                }
+                String text = new String(bytes);
+                listener.onMessage(text);
+            } else {
+                Console.log("[GwtJ2clNativeWebSocket] ⚠️ Received message with unknown data type: " + dataType);
             }
         };
         nativeWebSocket.onclose = e -> listener.onClose(AST.createObject().set("code", e.code).set("reason", e.reason));
