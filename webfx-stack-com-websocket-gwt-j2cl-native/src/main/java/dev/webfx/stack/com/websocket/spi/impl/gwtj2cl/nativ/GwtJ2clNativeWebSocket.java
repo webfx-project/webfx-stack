@@ -49,7 +49,7 @@ final class GwtJ2clNativeWebSocket implements WebSocket {
         nativeWebSocket.onopen = e -> listener.onOpen();
         nativeWebSocket.onmessage = e -> {
             String dataType = Js.typeof(e.data);
-            if ("String".equals(dataType))
+            if ("string".equals(dataType))
                 listener.onMessage(e.data.asString());
             else if (e.data instanceof Blob) {
                 ((Blob) e.data).text().then(text -> {
