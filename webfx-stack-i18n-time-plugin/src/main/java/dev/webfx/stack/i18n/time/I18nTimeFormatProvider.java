@@ -13,38 +13,51 @@ import java.time.YearMonth;
  */
 public class I18nTimeFormatProvider implements TimeFormatProvider {
 
+    private static String getMonthI18nKey(Month month) {
+        return month.name().toLowerCase();
+    }
+
+    private static String getDayOfWeekI18nKey(DayOfWeek dayOfWeek) {
+        return dayOfWeek.name().toLowerCase();
+    }
+
     @Override
     public String getMonthName(Month month) {
-        return I18n.getI18nText(month.name().toLowerCase());
+        return I18n.getI18nText(getMonthI18nKey(month));
     }
 
     @Override
     public ObservableStringValue monthNameProperty(Month month) {
-        return I18n.i18nTextProperty(month.name().toLowerCase());
+        return I18n.i18nTextProperty(getMonthI18nKey(month));
     }
 
     @Override
     public String getDayOfWeekName(DayOfWeek dayOfWeek) {
-        return I18n.getI18nText(dayOfWeek.name().toLowerCase());
+        return I18n.getI18nText(getDayOfWeekI18nKey(dayOfWeek));
     }
 
     @Override
     public ObservableStringValue dayOfWeekNameProperty(DayOfWeek dayOfWeek) {
-        return I18n.i18nTextProperty(dayOfWeek.name().toLowerCase());
+        return I18n.i18nTextProperty(getDayOfWeekI18nKey(dayOfWeek));
     }
 
     @Override
     public String getYearMonthName(YearMonth yearMonth) {
-        // Commented as [{0}] doesn't work for now because [] is interpreted first (-> produces {0}} and then {0}
-        //return I18n.getI18nText("[{0}] {1}", yearMonth.getMonth().name().toUpperCase(), yearMonth.getYear());
-        return I18n.getI18nText("[" + yearMonth.getMonth().name().toLowerCase() + "] {0}", yearMonth.getYear());
+        return I18n.getI18nText(TimeI18nKeys.yearMonth2, yearMonth.getYear(), getMonthI18nKey(yearMonth.getMonth()));
     }
 
     @Override
     public ObservableStringValue yearMonthNameProperty(YearMonth yearMonth) {
-        // Commented as [{0}] doesn't work for now because [] is interpreted first (-> produces {0}} and then {0}
-        //return I18n.i18nTextProperty("[{0}] {1}", yearMonth.getMonth().name().toUpperCase(), yearMonth.getYear());
-        return I18n.i18nTextProperty("[" + yearMonth.getMonth().name().toLowerCase() + "] {0}", yearMonth.getYear());
+        return I18n.i18nTextProperty(TimeI18nKeys.yearMonth2, yearMonth.getYear(), getMonthI18nKey(yearMonth.getMonth()));
     }
 
+    @Override
+    public String formatDayAndMonth(int day, Month month) {
+        return I18n.getI18nText(TimeI18nKeys.dayAndMonth2, day, getMonthI18nKey(month));
+    }
+
+    @Override
+    public ObservableStringValue dayAndMonthProperty(int day, Month month) {
+        return I18n.i18nTextProperty(TimeI18nKeys.dayAndMonth2, day, getMonthI18nKey(month));
+    }
 }
