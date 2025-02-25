@@ -10,6 +10,7 @@ import dev.webfx.stack.i18n.DefaultTokenKey;
 import dev.webfx.stack.i18n.Dictionary;
 import dev.webfx.stack.i18n.TokenKey;
 import dev.webfx.stack.i18n.spi.I18nProvider;
+import dev.webfx.stack.ui.fxraiser.FXRaiser;
 import dev.webfx.stack.ui.fxraiser.FXValueRaiser;
 import dev.webfx.stack.ui.fxraiser.impl.ValueConverterRegistry;
 import javafx.beans.property.ObjectProperty;
@@ -78,6 +79,7 @@ public class I18nProviderImpl implements I18nProvider {
     private final Set<Object> keysToLoad = new HashSet<>();
     private final Set<Object> defaultKeysToLoad = new HashSet<>();
     private final Set<Object> blacklistedKeys = new HashSet<>();
+    private final FXValueRaiser i18nFxValueRaiser;
 
     public I18nProviderImpl(DictionaryLoader dictionaryLoader, Object defaultLanguage, Object initialLanguage) {
         this.dictionaryLoader = dictionaryLoader;
@@ -95,6 +97,28 @@ public class I18nProviderImpl implements I18nProvider {
         if (initialLanguage == null)
             initialLanguage = defaultLanguage;
         setLanguage(initialLanguage);
+        // We use FXRaiser to interpret arguments (see I18nProvider default methods), but we add here a final step in
+        // order to interpret possible brackets AFTER arguments resolution. For example, i18n TimeFormat defines a key
+        // called yearMonth2 whose value is [{1}] {0} (in English), which after arguments resolution can be [february] 25
+        // and [february] still needs to be interpreted by i8n. That's what we are doing here.
+        i18nFxValueRaiser = new FXValueRaiser() {
+            @Override
+            public <T> T raiseValue(Object value, Class<T> raisedClass, Object... args) {
+                // Doing default arguments resolution
+                T raisedValue = FXRaiser.getFxValueRaiserInstance().raiseValue(value, raisedClass, args);
+                // Doing post bracket interpretation (works only for TEXT token)
+                if (raisedValue instanceof String && ((String) raisedValue).contains("[")) {
+                    Dictionary dictionary = getDictionary();
+                    raisedValue = (T) interpretBracketsAndDefaultInTokenValue(raisedValue, null, "", DefaultTokenKey.TEXT, dictionary, false, getDefaultDictionary(), true);
+                }
+                return raisedValue;
+            }
+        };
+    }
+
+    @Override
+    public FXValueRaiser getI18nFxValueRaiser() {
+        return i18nFxValueRaiser;
     }
 
     private Object guessDefaultLanguage() {
@@ -233,13 +257,17 @@ public class I18nProviderImpl implements I18nProvider {
                     // Note: we always use originalDictionary for the resolution, because even if that token value
                     // comes from the default dictionary (ex: EN), we still want the brackets to be interpreted in
                     // the original language (ex: FR).
-                    Object resolvedValue = getDictionaryTokenValueImpl(new I18nSubKey(sToken.substring(i1 + 1, i2), i18nKey), tokenKey, originalDictionary, false, originalDictionary, false, skipMessageLoading);
-                    // If the bracket token has been resolved, we return it with the parts before and after the brackets
-                    if (resolvedValue != null) {
-                        if (i1 == 0 && i2 == sToken.length() - 1) // except if there are no parts before and after the brackets
-                            tokenValue = resolvedValue; // in which case we return the resolved object as is (possibly not a String)
-                        else
-                            tokenValue = (i1 == 0 ? "" : sToken.substring(0, i1)) + resolvedValue + sToken.substring(i2 + 1);
+                    String bracketToken = sToken.substring(i1 + 1, i2);
+                    // Note: brackets such as [{0}] will be interpreted later by i18nFxValueRaiser, so we skip them here
+                    if (!(bracketToken.startsWith("{") && bracketToken.endsWith("}"))) {
+                        Object resolvedValue = getDictionaryTokenValueImpl(new I18nSubKey(bracketToken, i18nKey), tokenKey, dictionary, false, originalDictionary, false, skipMessageLoading);
+                        // If the bracket token has been resolved, we return it with the parts before and after the brackets
+                        if (resolvedValue != null) {
+                            if (i1 == 0 && i2 == sToken.length() - 1) // except if there are no parts before and after the brackets
+                                tokenValue = resolvedValue; // in which case we return the resolved object as is (possibly not a String)
+                            else
+                                tokenValue = (i1 == 0 ? "" : sToken.substring(0, i1)) + resolvedValue + sToken.substring(i2 + 1);
+                        }
                     }
                 }
             }
