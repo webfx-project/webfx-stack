@@ -11,21 +11,21 @@ public interface TimeI18nKeys {
     String february = "february";
     String thursday = "thursday";
     String july = "july";
-    String yearMonth2 = "yearMonth2";
     String april = "april";
     String march = "march";
     String sunday = "sunday";
-    String september = "september";
-    String june = "june";
     String tuesday = "tuesday";
+    String june = "june";
+    String september = "september";
     String january = "january";
     String wednesday = "wednesday";
+    String days = "days";
     String friday = "friday";
     String december = "december";
-    String days = "days";
     String october = "october";
     String dayMonth2 = "dayMonth2";
     String day = "day";
     String monday = "monday";
+    String yearMonth2 = "yearMonth2";
 
 }
