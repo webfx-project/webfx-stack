@@ -8,7 +8,6 @@ public interface TimeI18nKeys {
     String week = "week";
     String may = "may";
     String august = "august";
-    String dayAndMonth2 = "dayAndMonth2";
     String february = "february";
     String thursday = "thursday";
     String july = "july";
@@ -25,6 +24,7 @@ public interface TimeI18nKeys {
     String december = "december";
     String days = "days";
     String october = "october";
+    String dayMonth2 = "dayMonth2";
     String day = "day";
     String monday = "monday";
 

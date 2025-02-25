@@ -22,42 +22,42 @@ public class I18nTimeFormatProvider implements TimeFormatProvider {
     }
 
     @Override
-    public String getMonthName(Month month) {
+    public String formatMonth(Month month) {
         return I18n.getI18nText(getMonthI18nKey(month));
     }
 
     @Override
-    public ObservableStringValue monthNameProperty(Month month) {
+    public ObservableStringValue formatMonthProperty(Month month) {
         return I18n.i18nTextProperty(getMonthI18nKey(month));
     }
 
     @Override
-    public String getDayOfWeekName(DayOfWeek dayOfWeek) {
+    public String formatDayOfWeek(DayOfWeek dayOfWeek) {
         return I18n.getI18nText(getDayOfWeekI18nKey(dayOfWeek));
     }
 
     @Override
-    public ObservableStringValue dayOfWeekNameProperty(DayOfWeek dayOfWeek) {
+    public ObservableStringValue formatDayOfWeekProperty(DayOfWeek dayOfWeek) {
         return I18n.i18nTextProperty(getDayOfWeekI18nKey(dayOfWeek));
     }
 
     @Override
-    public String getYearMonthName(YearMonth yearMonth) {
+    public String formatYearMonth(YearMonth yearMonth) {
         return I18n.getI18nText(TimeI18nKeys.yearMonth2, yearMonth.getYear(), getMonthI18nKey(yearMonth.getMonth()));
     }
 
     @Override
-    public ObservableStringValue yearMonthNameProperty(YearMonth yearMonth) {
+    public ObservableStringValue formatYearMonthProperty(YearMonth yearMonth) {
         return I18n.i18nTextProperty(TimeI18nKeys.yearMonth2, yearMonth.getYear(), getMonthI18nKey(yearMonth.getMonth()));
     }
 
     @Override
-    public String formatDayAndMonth(int day, Month month) {
-        return I18n.getI18nText(TimeI18nKeys.dayAndMonth2, day, getMonthI18nKey(month));
+    public String formatDayMonth(int day, Month month) {
+        return I18n.getI18nText(TimeI18nKeys.dayMonth2, day, getMonthI18nKey(month));
     }
 
     @Override
-    public ObservableStringValue dayAndMonthProperty(int day, Month month) {
-        return I18n.i18nTextProperty(TimeI18nKeys.dayAndMonth2, day, getMonthI18nKey(month));
+    public ObservableStringValue formatDayMonthProperty(int day, Month month) {
+        return I18n.i18nTextProperty(TimeI18nKeys.dayMonth2, day, getMonthI18nKey(month));
     }
 }
