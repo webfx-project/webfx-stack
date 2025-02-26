@@ -11,6 +11,7 @@ import dev.webfx.platform.util.Numbers;
 import dev.webfx.platform.util.Strings;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 /**
  * @author Bruno Salmon
@@ -44,7 +45,9 @@ public abstract class PrimitiveBinaryExpression<T> extends BinaryExpression<T> {
                     case STRING:
                         return evaluateString(Strings.toString(leftValue), Strings.toString(rightValue));
                     case DATE:
-                        return evaluateDate(Times.toInstant(leftValue), Times.toInstant(rightValue));
+                        if (leftValue instanceof LocalDate)
+                            return evaluateLocalDate(Times.toLocalDate(leftValue), Times.toLocalDate(rightValue));
+                        return evaluateInstant(Times.toInstant(leftValue), Times.toInstant(rightValue));
                 }
             }
         }
@@ -71,9 +74,17 @@ public abstract class PrimitiveBinaryExpression<T> extends BinaryExpression<T> {
         return a == null | b == null ? evaluateObject(a, b) : evaluateDouble(a.doubleValue(), b.doubleValue());
     }
 
-    protected String evaluateString(String a, String b) { return Strings.toString(evaluateObject(a, b));}
+    protected String evaluateString(String a, String b) {
+        return Strings.toString(evaluateObject(a, b));
+    }
 
-    protected Instant evaluateDate(Instant a, Instant b) { return Instant.ofEpochMilli(evaluateLong(a.toEpochMilli(), b.toEpochMilli()));}
+    protected Object evaluateLocalDate(LocalDate a, LocalDate b) {
+        return evaluateLong(a.toEpochDay(), b.toEpochDay());
+    }
+
+    protected Object evaluateInstant(Instant a, Instant b) {
+        return evaluateLong(a.toEpochMilli(), b.toEpochMilli());
+    }
 
     protected abstract boolean evaluateBoolean(boolean a, boolean b);
     protected abstract int evaluateInteger(int a, int b);
