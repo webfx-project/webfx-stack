@@ -2,7 +2,6 @@ package dev.webfx.stack.db.querysubmit;
 
 import dev.webfx.platform.async.Batch;
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.console.Console;
 import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.platform.shutdown.Shutdown;
@@ -51,6 +50,8 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
     private Pool pool;
     private final Scheduled poolRenewalTimer;
 
+    private final ExecutionQueue executionQueue = new ExecutionQueue("POSTGRES", POOL_SIZE);
+
     public VertxLocalPostgresQuerySubmitServiceProvider(LocalDataSource localDataSource) {
         ConnectionDetails cd = localDataSource.getLocalConnectionDetails();
         PgConnectOptions connectOptions = new PgConnectOptions()
@@ -98,6 +99,10 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
 
     @Override
     public Future<QueryResult> executeQuery(QueryArgument argument) {
+        return executionQueue.executeRequest(argument, this::executeQueryNow);
+    }
+
+    private Future<QueryResult> executeQueryNow(QueryArgument argument) {
         long t0 = System.currentTimeMillis();
         return toWebfxFuture(withConnection(pool, connection -> executeConnectionQuery(connection, argument)))
             .onFailure(e -> log("⛔️ ERROR with executeQuery(" + argument + "): " + e.getMessage()))
@@ -111,6 +116,10 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
 
     @Override
     public Future<Batch<QueryResult>> executeQueryBatch(Batch<QueryArgument> batch) {
+        return executionQueue.executeRequest(batch, this::executeQueryBatchNow);
+    }
+
+    private Future<Batch<QueryResult>> executeQueryBatchNow(Batch<QueryArgument> batch) {
         long t0 = System.currentTimeMillis();
         return toWebfxFuture(withConnection(pool, connection ->
             toVertxFuture(batch.executeSerial(QueryResult[]::new, arg ->
@@ -134,12 +143,20 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
 
     @Override
     public Future<SubmitResult> executeSubmit(SubmitArgument argument) {
+        return executionQueue.executeRequest(argument, this::executeSubmitNow);
+    }
+
+    private Future<SubmitResult> executeSubmitNow(SubmitArgument argument) {
         // Note: executeIndividualSubmitWithConnection() already logs failure and timing
         return toWebfxFuture(withConnection(pool, connection -> executeIndividualSubmitWithConnection(argument, connection, null)));
     }
 
     @Override
     public Future<Batch<SubmitResult>> executeSubmitBatch(Batch<SubmitArgument> batch) {
+        return executionQueue.executeRequest(batch, this::executeSubmitBatchNow);
+    }
+
+    private Future<Batch<SubmitResult>> executeSubmitBatchNow(Batch<SubmitArgument> batch) {
         // This batch may use GeneratedKeyReference instances in its parameters, which we will need to resolve during
         // the execution. To do so, we create batchIndexGeneratedKeys which is a list of generated keys for each
         // individual SubmitArgument in the batch (index 0 will contain the possible generated keys from the execution
@@ -232,8 +249,8 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
         }
     }
 
-    private static void log(String message) {
-        Console.log("[POSTGRES] " + message);
+    private void log(String message) {
+        executionQueue.log(message);
     }
 
 }
