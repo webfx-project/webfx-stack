@@ -62,7 +62,10 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
             .setPassword(cd.getPassword());
 
         // Pool Options
-        PoolOptions poolOptions = new PoolOptions().setMaxSize(POOL_SIZE);
+        PoolOptions poolOptions = new PoolOptions()
+            .setMaxSize(POOL_SIZE)
+            .setIdleTimeout(60) // We release the connection after 1mn of inactivity (especially for remote databases)
+            ;
 
         Supplier<Pool> poolFactory = () ->
             PgBuilder.pool()
