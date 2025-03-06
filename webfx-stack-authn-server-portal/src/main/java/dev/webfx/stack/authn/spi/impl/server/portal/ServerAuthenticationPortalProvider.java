@@ -1,7 +1,7 @@
 package dev.webfx.stack.authn.spi.impl.server.portal;
 
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.async.FutureBroadcaster;
+import dev.webfx.platform.async.util.FutureBroadcaster;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.service.MultipleServiceProviders;
 import dev.webfx.stack.authn.UserClaims;
