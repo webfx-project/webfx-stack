@@ -2,6 +2,7 @@ package dev.webfx.stack.db.querysubmit;
 
 import dev.webfx.platform.async.Batch;
 import dev.webfx.platform.async.Future;
+import dev.webfx.platform.async.util.AsyncQueue;
 import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.platform.shutdown.Shutdown;
@@ -42,7 +43,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
 
     private static final int POOL_SIZE = 10; // Note: it's for each instance (1 pool for query = reading, another one for submit = writing)
     // Setting a timer to periodically renew the pool to reduce risk of broken connections on remote databases
-    private static final long POOL_RENEW_PERIODIC_MILLIS = 15 * 60_000; // every 15 min (can be set to -1 to disable that feature)
+    private static final long POOL_RENEW_PERIODIC_MILLIS = -1; // every 15 min (can be set to -1 to disable that feature)
     private static final long POLL_CLOSE_DELAY_MILLIS = 3 * 60_000; // Waiting 3 min before actually closing the old poll for possible running queries
     private static int SEQ; // Temporary for logs
 
@@ -50,7 +51,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
     private Pool pool;
     private final Scheduled poolRenewalTimer;
 
-    private final ExecutionQueue executionQueue = new ExecutionQueue("POSTGRES", POOL_SIZE);
+    private final AsyncQueue asyncQueue = new AsyncQueue(POOL_SIZE, "POSTGRES");
 
     public VertxLocalPostgresQuerySubmitServiceProvider(LocalDataSource localDataSource) {
         ConnectionDetails cd = localDataSource.getLocalConnectionDetails();
@@ -89,7 +90,8 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
                     oldPool.close();
                 });
             });
-        }
+        } else
+            poolRenewalTimer = null;
 
         // Closing properly the poll on server shutdown
         Shutdown.addShutdownHook(e -> {
@@ -102,7 +104,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
 
     @Override
     public Future<QueryResult> executeQuery(QueryArgument argument) {
-        return executionQueue.executeRequest(argument, this::executeQueryNow);
+        return asyncQueue.addAsyncOperation(argument, this::executeQueryNow);
     }
 
     private Future<QueryResult> executeQueryNow(QueryArgument argument) {
@@ -119,7 +121,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
 
     @Override
     public Future<Batch<QueryResult>> executeQueryBatch(Batch<QueryArgument> batch) {
-        return executionQueue.executeRequest(batch, this::executeQueryBatchNow);
+        return asyncQueue.addAsyncOperation(batch, this::executeQueryBatchNow);
     }
 
     private Future<Batch<QueryResult>> executeQueryBatchNow(Batch<QueryArgument> batch) {
@@ -146,7 +148,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
 
     @Override
     public Future<SubmitResult> executeSubmit(SubmitArgument argument) {
-        return executionQueue.executeRequest(argument, this::executeSubmitNow);
+        return asyncQueue.addAsyncOperation(argument, this::executeSubmitNow);
     }
 
     private Future<SubmitResult> executeSubmitNow(SubmitArgument argument) {
@@ -156,7 +158,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
 
     @Override
     public Future<Batch<SubmitResult>> executeSubmitBatch(Batch<SubmitArgument> batch) {
-        return executionQueue.executeRequest(batch, this::executeSubmitBatchNow);
+        return asyncQueue.addAsyncOperation(batch, this::executeSubmitBatchNow);
     }
 
     private Future<Batch<SubmitResult>> executeSubmitBatchNow(Batch<SubmitArgument> batch) {
@@ -253,7 +255,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
     }
 
     private void log(String message) {
-        executionQueue.log(message);
+        asyncQueue.log(message);
     }
 
 }

@@ -3,7 +3,7 @@ package dev.webfx.stack.authz.client.spi.impl.inmemory;
 import dev.webfx.stack.authz.client.spi.impl.UserAuthorizationChecker;
 import dev.webfx.platform.async.AsyncResult;
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.async.FutureBroadcaster;
+import dev.webfx.platform.async.util.FutureBroadcaster;
 import dev.webfx.platform.async.Handler;
 
 /**
