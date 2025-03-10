@@ -13,6 +13,7 @@ import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.*;
 import javafx.scene.Node;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -64,6 +65,10 @@ public final class EntityBindings {
 
     public static DoubleProperty getDoubleFieldProperty(Entity entity, String fieldId) {
         return (DoubleProperty) getFieldProperty(entity, fieldId, SimpleDoubleProperty::new);
+    }
+
+    public static ObjectProperty<LocalDate> getLocalDateFieldProperty(Entity entity, String fieldId) {
+        return (ObjectProperty<LocalDate>) getFieldProperty(entity, fieldId, SimpleObjectProperty::new);
     }
 
     private static Property getFieldProperty(Entity entity, String fieldId, Supplier<Property> propertyFactory) {
