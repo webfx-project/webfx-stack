@@ -358,8 +358,7 @@ public final class ValidationSupport {
                 errorMessage);
     }
 
-    public void addDateValidation(TextField textField,String dateFormat, Node where, ObservableStringValue errorMessage) {
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(dateFormat);
+    public void addDateValidation(TextField textField, DateTimeFormatter dateFormatter, Node where, ObservableStringValue errorMessage) {
         // Create the validation rule
         addValidationRule(
                 Bindings.createBooleanBinding(() -> {
@@ -374,9 +373,7 @@ public final class ValidationSupport {
         );
     }
 
-    public void addDateOrEmptyValidation(TextField textField, String dateFormat, Node where, ObservableStringValue errorMessage) {
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(dateFormat);
-
+    public void addDateOrEmptyValidation(TextField textField, DateTimeFormatter dateFormatter, Node where, ObservableStringValue errorMessage) {
         // Create the validation rule
         addValidationRule(
             Bindings.createBooleanBinding(() -> {
@@ -414,8 +411,7 @@ public final class ValidationSupport {
         );
     }
 
-    public void addLegalAgeValidation(TextField textField, String dateFormat, int legalAge, Node where, ObservableStringValue errorMessage) {
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(dateFormat);
+    public void addLegalAgeValidation(TextField textField, DateTimeFormatter dateFormatter, int legalAge, Node where, ObservableStringValue errorMessage) {
         // Create the validation rule
         addValidationRule(
                 Bindings.createBooleanBinding(() -> {
