@@ -6,6 +6,7 @@ module webfx.stack.orm.domainmodel {
     requires webfx.extras.label;
     requires webfx.extras.type;
     requires webfx.platform.util;
+    requires webfx.platform.util.time;
     requires webfx.stack.orm.dql;
     requires webfx.stack.orm.expression;
 

@@ -2,7 +2,7 @@ package dev.webfx.stack.routing.activity.impl.composition.impl;
 
 import dev.webfx.platform.util.function.Callable;
 import dev.webfx.platform.util.function.Factory;
-import dev.webfx.platform.async.AsyncUtil;
+import dev.webfx.platform.async.util.AsyncUtil;
 import dev.webfx.platform.async.Future;
 import dev.webfx.stack.routing.activity.Activity;
 import dev.webfx.stack.routing.activity.ActivityContext;

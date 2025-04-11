@@ -1,7 +1,7 @@
 package dev.webfx.stack.authz.client;
 
 import dev.webfx.platform.async.AsyncFunction;
-import dev.webfx.platform.async.AsyncUtil;
+import dev.webfx.platform.async.util.AsyncUtil;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.Promise;
 

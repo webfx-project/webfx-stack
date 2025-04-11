@@ -43,4 +43,12 @@ public final class I18nKeys {
         return i18nKey;
     }
 
+    public static String embedInString(String i18nKey) {
+        return "[" + i18nKey + "]";
+    }
+
+    public static String embedInString(String text, String i18nKey) {
+        return text.replace("[0]", embedInString(i18nKey));
+    }
+
 }

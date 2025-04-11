@@ -19,7 +19,7 @@ import dev.webfx.platform.ast.ReadOnlyAstObject;
 /**
  * @author Bruno Salmon
  */
-public class VisualEntityColumnImpl<E extends Entity> extends EntityColumnImpl<E> implements VisualEntityColumn<E> {
+public final class VisualEntityColumnImpl<E extends Entity> extends EntityColumnImpl<E> implements VisualEntityColumn<E> {
 
     private VisualColumn visualColumn;
 
@@ -59,10 +59,10 @@ public class VisualEntityColumnImpl<E extends Entity> extends EntityColumnImpl<E
                 if (fieldPrefWidth > 0)
                     prefWidth = (double) fieldPrefWidth;
             }
-            Type displayType;
+            Type displayType = null;
             if (displayFormatter != null)
-                displayType = displayFormatter.getFormattedValueType();
-            else {
+                displayType = displayFormatter.getFormattedValueType(); // May be null (ex: NoFormatter) => must be guessed from expression
+            if (displayType == null) {
                 if (getDisplayExpression() != expression)
                     topRightExpression = getTopRightExpression(displayExpression);
                 displayType = topRightExpression.getType();
