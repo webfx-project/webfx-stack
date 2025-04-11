@@ -5,7 +5,6 @@ module webfx.stack.orm.reactive.entities {
     // Direct dependencies modules
     requires javafx.base;
     requires javafx.graphics;
-    requires webfx.extras.type;
     requires webfx.extras.util;
     requires webfx.kit.util;
     requires webfx.platform.ast;
