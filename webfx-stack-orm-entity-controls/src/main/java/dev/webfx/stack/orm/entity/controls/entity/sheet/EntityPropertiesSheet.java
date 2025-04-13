@@ -6,7 +6,6 @@ import dev.webfx.extras.imagestore.ImageStore;
 import dev.webfx.extras.type.PrimType;
 import dev.webfx.extras.type.Types;
 import dev.webfx.extras.visual.*;
-import dev.webfx.extras.visual.controls.grid.SkinnedVisualGrid;
 import dev.webfx.extras.visual.controls.grid.VisualGrid;
 import dev.webfx.extras.visual.impl.VisualColumnImpl;
 import dev.webfx.kit.util.properties.FXProperties;
@@ -86,7 +85,7 @@ public final class EntityPropertiesSheet<E extends Entity> extends EntityUpdateD
     Node buildNode() {
         if (!tableLayout)
             return new VBox(10);
-        VisualGrid visualGrid = new SkinnedVisualGrid();
+        VisualGrid visualGrid = VisualGrid.createVisualGridWithTableSkin();
         visualGrid.setHeaderVisible(false);
         visualGrid.setFullHeight(true);
         visualGrid.setSelectionMode(SelectionMode.DISABLED);
