@@ -74,6 +74,7 @@ public final class VisualEntityColumnImpl<E extends Entity> extends EntityColumn
             String textAlign = null;
             ValueRenderer fxValueRenderer = null;
             String role = null;
+            Double minWidth = null;
             if (json != null) {
                 textAlign = json.getString("textAlign");
                 String renderer = json.getString("renderer");
@@ -85,6 +86,8 @@ public final class VisualEntityColumnImpl<E extends Entity> extends EntityColumn
                 role = json.getString("role");
                 if (json.has("prefWidth"))
                     prefWidth = json.getDouble("prefWidth");
+                if (json.has("minWidth"))
+                    minWidth = json.getDouble("minWidth");
                 //json = null;
             }
             if (textAlign == null) {
@@ -92,7 +95,7 @@ public final class VisualEntityColumnImpl<E extends Entity> extends EntityColumn
                 textAlign = Types.isNumberType(type) ? "right" : Types.isBooleanType(type) ? "center" : null;
             }
             visualColumn = VisualColumnBuilder.create(label, displayType)
-                    .setStyle(VisualStyleBuilder.create().setPrefWidth(prefWidth).setTextAlign(textAlign).build())
+                    .setStyle(VisualStyleBuilder.create().setMinWidth(minWidth).setPrefWidth(prefWidth).setTextAlign(textAlign).build())
                     .setRole(role)
                     .setValueRenderer(fxValueRenderer)
                     .setSource(this)
