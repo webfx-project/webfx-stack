@@ -79,6 +79,7 @@ public final class VisualEntityColumnImpl<E extends Entity> extends EntityColumn
             Double maxWidth = null;
             Boolean hGrow = null;
             Boolean hShrink = null;
+            String styleClass = null;
             if (json != null) {
                 textAlign = json.getString("textAlign");
                 String renderer = json.getString("renderer");
@@ -93,6 +94,7 @@ public final class VisualEntityColumnImpl<E extends Entity> extends EntityColumn
                 maxWidth = json.getDouble("maxWidth");
                 hGrow = json.getBoolean("hGrow");
                 hShrink = json.getBoolean("hShrink");
+                styleClass = json.getString("styleClass");
                 //json = null;
             }
             if (textAlign == null) {
@@ -106,6 +108,7 @@ public final class VisualEntityColumnImpl<E extends Entity> extends EntityColumn
                     .setHGrow(hGrow)
                     .setHShrink(hShrink)
                     .setTextAlign(textAlign)
+                    .setStyleClass(styleClass)
                     .build();
             visualColumn = VisualColumnBuilder.create(label, displayType)
                     .setStyle(visualStyle)
