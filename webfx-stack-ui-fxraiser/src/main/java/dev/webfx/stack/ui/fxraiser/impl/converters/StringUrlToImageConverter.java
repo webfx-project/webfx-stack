@@ -13,7 +13,7 @@ public class StringUrlToImageConverter implements FXValueRaiser {
     public <T> T raiseValue(Object value, Class<T> raisedClass, Object... args) {
         if (value instanceof String && Objects.isAssignableFrom(raisedClass, Image.class)) {
             String url = (String) value;
-            if (url.endsWith(".png"))
+            if (url.toLowerCase().matches(".+\\.(png|jpe?g|gif|bmp|webp|svg)$"))
                 return (T) new Image(url);
         }
         return null;
