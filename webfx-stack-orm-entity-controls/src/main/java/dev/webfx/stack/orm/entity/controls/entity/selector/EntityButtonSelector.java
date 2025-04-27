@@ -5,7 +5,6 @@ import dev.webfx.extras.cell.renderer.ValueRendererFactory;
 import dev.webfx.extras.panes.ScaleMode;
 import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.visual.VisualResult;
-import dev.webfx.extras.visual.controls.grid.SkinnedVisualGrid;
 import dev.webfx.extras.visual.controls.grid.VisualGrid;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
@@ -162,7 +161,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
     @Override
     protected Region getOrCreateDialogContent() {
         if (dialogVisualGrid == null && entityRenderer != null) {
-            dialogVisualGrid = new SkinnedVisualGrid(); // Better rendering in desktop JavaFX (but might be slower in web version)
+            dialogVisualGrid = VisualGrid.createVisualGridWithTableSkin();
             dialogVisualGrid.setHeaderVisible(false);
             dialogVisualGrid.setCursor(Cursor.HAND);
             BorderPane.setAlignment(dialogVisualGrid, Pos.TOP_LEFT);

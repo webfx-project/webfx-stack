@@ -1,19 +1,16 @@
 package dev.webfx.stack.orm.reactive.entities.entities_to_grid;
 
-import dev.webfx.extras.type.DerivedType;
-import dev.webfx.extras.type.PrimType;
-import dev.webfx.extras.type.Type;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.domainmodel.DomainField;
 import dev.webfx.stack.orm.domainmodel.DomainModel;
+import dev.webfx.stack.orm.domainmodel.formatter.GenericFormatterFactory;
+import dev.webfx.stack.orm.domainmodel.formatter.ValueFormatter;
 import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.terms.As;
 import dev.webfx.stack.orm.expression.terms.Dot;
 import dev.webfx.stack.orm.expression.terms.function.Call;
-import dev.webfx.stack.orm.domainmodel.formatter.ValueFormatter;
-import dev.webfx.stack.orm.domainmodel.formatter.FormatterRegistry;
-import dev.webfx.platform.ast.ReadOnlyAstObject;
 
 import java.util.function.Function;
 
@@ -74,16 +71,9 @@ public class EntityColumnImpl<E extends Entity> implements EntityColumn<E> {
 
     private void setExpression(Expression<E> expression) {
         this.expression = expression;
-        // If no display formatter is passed, trying to find one based on the expression type
+        // If no display formatter is passed, trying to find a generic one based on the expression type
         if (displayFormatter == null && expression != null) {
-            Type type = expression.getType();
-            String formatterName = null;
-            // If the type is a derived type (ex: field with type Price), we try to find a formatter with same name (but lowercase). Ex: price
-            if (type == PrimType.DATE)
-                formatterName = "dateTime";
-            else if (type instanceof DerivedType)
-                formatterName = ((DerivedType) type).getName().toLowerCase();
-            displayFormatter = FormatterRegistry.getFormatter(formatterName);
+            displayFormatter = GenericFormatterFactory.createGenericFormatter(expression.getType());
         }
     }
 
