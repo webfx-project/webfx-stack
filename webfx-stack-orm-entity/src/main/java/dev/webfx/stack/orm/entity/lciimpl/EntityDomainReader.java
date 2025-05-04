@@ -31,11 +31,13 @@ public class EntityDomainReader<E extends Entity> implements DomainReader<E> {
 
     @Override
     public Object getDomainObjectId(Entity entity) {
-        return entity == null ? null : entity.getId();
+        return Entities.getId(entity);
     }
 
     @Override
     public Object getDomainFieldValue(Entity entity, Object fieldId) {
+        if (entity == null)
+            return null;
         if (fieldId instanceof DomainField)
             fieldId = ((DomainField) fieldId).getId();
         return entity.getFieldValue(fieldId);

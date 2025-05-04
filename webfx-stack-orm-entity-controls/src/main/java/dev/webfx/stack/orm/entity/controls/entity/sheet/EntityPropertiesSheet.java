@@ -1,5 +1,6 @@
 package dev.webfx.stack.orm.entity.controls.entity.sheet;
 
+import dev.webfx.extras.cell.renderer.ValueApplier;
 import dev.webfx.extras.cell.renderer.ValueRenderer;
 import dev.webfx.extras.cell.renderer.ValueRenderingContext;
 import dev.webfx.extras.imagestore.ImageStore;
@@ -33,14 +34,19 @@ import java.util.Objects;
  */
 public final class EntityPropertiesSheet<E extends Entity> extends EntityUpdateDialog<E> {
 
-    private final static VisualColumn LABEL_COLUMN = VisualColumn.create((value, context) -> new Label(((dev.webfx.extras.label.Label) value).getText(), ImageStore.createImageView(((dev.webfx.extras.label.Label) value).getIconPath())));
-    private final static VisualColumn VALUE_COLUMN = new VisualColumnImpl(null, null, null, null, VisualStyle.CENTER_STYLE, (value, context) -> (Node) value, null, null);
+    private static final VisualColumn LABEL_COLUMN = VisualColumn.create((value, context) -> {
+        dev.webfx.extras.label.Label webfxExtrasLabel = (dev.webfx.extras.label.Label) value;
+        Label label = new Label(null, ImageStore.createImageView(webfxExtrasLabel.getIconPath()));
+        ValueApplier.applyValue(webfxExtrasLabel.getText(), label.textProperty());
+        return label;
+    });
+    private static final VisualColumn VALUE_COLUMN = new VisualColumnImpl(null, null, null, null, VisualStyle.CENTER_STYLE, (value, context) -> (Node) value, null, null);
+    private static final boolean TABLE_LAYOUT = true;
 
     private final VisualEntityColumn<E>[] entityColumns;
     private final ValueRenderingContext[] valueRenderingContexts;
     private final Node[] renderingNodes;
     private VisualEntityColumn<E>[] applicableEntityColumns;
-    private boolean tableLayout = true;
 
     private EntityPropertiesSheet(E entity, String expressionColumns) {
         this((VisualEntityColumn<E>[]) VisualEntityColumnFactory.get().fromJsonArrayOrExpressionsDefinition(expressionColumns, entity.getDomainClass()));
@@ -61,7 +67,7 @@ public final class EntityPropertiesSheet<E extends Entity> extends EntityUpdateD
     }
 
     private ValueRenderingContext createValueRenderingContext(VisualEntityColumn<E> entityColumn) {
-        String labelKey = entityColumn.getVisualColumn().getLabel().getCode();
+        Object labelKey = entityColumn.getVisualColumn().getLabel().getCode();
         DomainClass foreignClass = entityColumn.getForeignClass();
         ValueRenderingContext context;
         // Returning a standard ValueRenderingContext if the expression expresses just a value and not a foreign entity
@@ -83,7 +89,7 @@ public final class EntityPropertiesSheet<E extends Entity> extends EntityUpdateD
 
     @Override
     Node buildNode() {
-        if (!tableLayout)
+        if (!TABLE_LAYOUT)
             return new VBox(10);
         VisualGrid visualGrid = VisualGrid.createVisualGridWithTableSkin();
         visualGrid.setHeaderVisible(false);
@@ -131,14 +137,14 @@ public final class EntityPropertiesSheet<E extends Entity> extends EntityUpdateD
 
     private void initDisplay() {
         applicableEntityColumns = java.util.Arrays.stream(entityColumns).filter(this::isColumnApplicable).toArray(VisualEntityColumn[]::new);
-        if (tableLayout)
+        if (TABLE_LAYOUT)
             rsb = new VisualResultBuilder(applicableEntityColumns.length, LABEL_COLUMN, VALUE_COLUMN);
         else
             children = new ArrayList<>();
     }
 
     private void addExpressionRow(int row, VisualEntityColumn entityColumn, Node renderedValueNode) {
-        if (tableLayout) {
+        if (TABLE_LAYOUT) {
             rsb.setValue(row, 0, entityColumn.getVisualColumn().getLabel());
             rsb.setValue(row, 1, renderedValueNode);
         } else
@@ -146,7 +152,7 @@ public final class EntityPropertiesSheet<E extends Entity> extends EntityUpdateD
     }
 
     private void applyDisplay() {
-        if (tableLayout) {
+        if (TABLE_LAYOUT) {
             VisualResult rs = rsb.build();
             VisualGrid visualGrid = (VisualGrid) node;
             VisualResult oldRs = visualGrid.getVisualResult();

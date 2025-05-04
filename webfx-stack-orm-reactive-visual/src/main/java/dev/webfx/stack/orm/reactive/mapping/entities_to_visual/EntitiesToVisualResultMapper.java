@@ -51,12 +51,12 @@ public final class EntitiesToVisualResultMapper {
             int inlineIndex = 0;
             for (EntityColumn<E> entityColumn : entityColumns) {
                 // First setting the display column
-                VisualColumn visualColumn = ((VisualEntityColumn) entityColumn).getVisualColumn();
+                VisualColumn visualColumn = ((VisualEntityColumn<?>) entityColumn).getVisualColumn();
                 // Translating the label if i18n is provided
                 Label label = visualColumn.getLabel();
-                Object i18nKey = label.getCode(); // the code used as translation key for i18n
+                Object i18nKey = label.getCode(); // the code is used as an i18n key
                 if (i18nKey != null)
-                    label.setText(I18n.getI18nText(i18nKey));
+                    label.setText(I18n.i18nTextProperty(i18nKey)); // Label accepts StringProperty for text
                 rsb.setVisualColumn(columnIndex++, visualColumn);
                 // Then setting the column values (including possible formatting)
                 Expression<E> expression = entityColumn.getDisplayExpression();
@@ -99,17 +99,16 @@ public final class EntitiesToVisualResultMapper {
                 GroupValue groupValue = new GroupValue(e.evaluate(groupBy));
                 E groupEntity = groupEntities.get(groupValue);
                 AggregateKey<E> aggregateKey;
-                if (groupEntity == null) {
+                boolean createGroupEntity = groupEntity == null;
+                if (createGroupEntity) {
                     aggregateKey = new AggregateKey<>(groupEntities.size());
                     groupEntity = store.getOrCreateEntity(EntityId.create(domainClass, aggregateKey));
                     ((DynamicEntity) groupEntity).copyAllFieldsFrom(e);
                     groupEntities.put(groupValue, groupEntity);
-                    aggregateKey = (AggregateKey<E>) groupEntity.getPrimaryKey();
-                    aggregateKey.getAggregates().clear();
-                } else {
-                    aggregateKey = (AggregateKey<E>) groupEntity.getPrimaryKey();
-                    //store.copyEntity(e);
                 }
+                aggregateKey = (AggregateKey<E>) groupEntity.getPrimaryKey();
+                if (createGroupEntity)
+                    aggregateKey.getAggregates().clear();
                 aggregateKey.getAggregates().add(e);
             }
             entities = EntityList.create(entities.getListId() + "-grouped", store, groupEntities.values());
