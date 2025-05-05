@@ -37,7 +37,7 @@ public final class EntityPropertiesSheet<E extends Entity> extends EntityUpdateD
     private static final VisualColumn LABEL_COLUMN = VisualColumn.create((value, context) -> {
         dev.webfx.extras.label.Label webfxExtrasLabel = (dev.webfx.extras.label.Label) value;
         Label label = new Label(null, ImageStore.createImageView(webfxExtrasLabel.getIconPath()));
-        ValueApplier.applyValue(webfxExtrasLabel.getText(), label.textProperty());
+        ValueApplier.applyTextValue(webfxExtrasLabel.getText(), label.textProperty());
         return label;
     });
     private static final VisualColumn VALUE_COLUMN = new VisualColumnImpl(null, null, null, null, VisualStyle.CENTER_STYLE, (value, context) -> (Node) value, null, null);
