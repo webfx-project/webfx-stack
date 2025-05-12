@@ -43,12 +43,12 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
                         // Getting the final session and incoming state as a result
                         Session finalServerSession = pair.get1();
                         Object finalIncomingState = pair.get2();
-                        // We memorise that final state in the raw message
+                        // We memorize that final state in the raw message
                         setJsonRawMessageState(rawJsonMessage, headers, finalIncomingState);
                         // We tell the client is live
                         clientIsLive(finalIncomingState, finalServerSession);
-                        // We tell the message delivery can now continue into the server, and return the serverSession (not
-                        // sure if the serverSession object will be useful - most important thing is to complete this
+                        // We tell the message delivery can now continue into the server and return the serverSession (not
+                        // sure if the serverSession object will be useful - the most important thing is to complete this
                         // asynchronous operation so the delivery can go on)
                         return Future.succeededFuture(finalServerSession);
                     });
@@ -61,8 +61,8 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
         setJsonRawMessageState(rawJsonMessage, headers, finalOutgoingState);
         if (LOG_RAW_MESSAGES)
             Console.log("<< Outgoing message : " + Json.formatNode(rawJsonMessage));
-        // We tell the message delivery can now continue into the client, and return the serverSession (not sure if the serverSession
-        // object will be useful - most important thing is the to complete this asynchronous operation so the delivery can go on)
+        // We tell the message delivery can now continue into the client and return the serverSession (not sure if the serverSession
+        // object is useful - the most important thing is to complete this asynchronous operation so the delivery can go on)
         return Future.succeededFuture(serverSession);
     }
 
