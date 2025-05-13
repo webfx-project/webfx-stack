@@ -97,8 +97,10 @@ final class VertxBus implements Bus {
                     // A reply() address is typically a random id like "y1s4HgU875ftTzkurShX5YLoCa1P-tG_0Dvo", while a
                     // send() or publish() address is something like "front-office/messaging".
                     // TODO: investigate if that test is good enough
-                    boolean replyMessage = outgoingMessage && !Strings.contains(astMessage.getString("address"), "/");
-                    if (incomingMessage || replyMessage) {
+                    String address = astMessage.getString("address");
+                    boolean replyMessage = outgoingMessage && !Strings.contains(address, "/");
+                    boolean specificClientMessage = outgoingMessage && Strings.contains(address, "/client/");
+                    if (incomingMessage || replyMessage || specificClientMessage) {
                         // This is the main call for state management
                         Future<?> sessionFuture = ServerJsonBusStateManager.manageStateOnIncomingOrOutgoingRawJsonMessage(
                                 astMessage, webfxSession, incomingMessage)
