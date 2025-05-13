@@ -45,10 +45,10 @@ final class VertxBus implements Bus {
             boolean callBridgeEventComplete = true;
             BridgeEventType type = bridgeEvent.type();
             // Incoming messages (from client to server): type = send or publish
-            boolean incomingMessage = type.equals(BridgeEventType.SEND) || type.equals(BridgeEventType.PUBLISH);
+            boolean isIncomingMessage = type.equals(BridgeEventType.SEND) || type.equals(BridgeEventType.PUBLISH);
             // Outgoing messages (from server to client): type = receive
-            boolean outgoingMessage = type.equals(BridgeEventType.RECEIVE);
-            boolean ping = type.equals(BridgeEventType.SOCKET_PING);
+            boolean isOutgoingMessage = type.equals(BridgeEventType.RECEIVE);
+            boolean isPing = type.equals(BridgeEventType.SOCKET_PING);
             // We get the web session. It is based on cookies, so 2 different tabs in the same browser share the same
             // web session, which is annoying, we don't want to mix sessions, as each tab can be a different application
             // (ex: back-office, front-office, etc...), and each communicates with the server with its own web socket
@@ -68,7 +68,7 @@ final class VertxBus implements Bus {
                 vertxWebSession.put(socketUri, webfxSession);
             }
 
-            if (ping) { // receiving or sending a ping (note: there is no way to distinguish receiving or sending)
+            if (isPing) { // receiving or sending a ping (note: there is no way to distinguish receiving or sending)
                 // When receiving a ping from the client, we reply with a simple pong message
                 if (REPLY_PONG_TO_PING)
                     socket.write("{\"type\":\"pong\"}");
@@ -79,7 +79,7 @@ final class VertxBus implements Bus {
                 // has already defined precisely the state to send. This ping state may even be delivered to another
                 // client (ex: during a magic link authentication, the original session is also authenticated).
                 // So it's very important to not enrich this state with the original client state.
-            } else if (incomingMessage || outgoingMessage) { // message exchange between client and server
+            } else if (isIncomingMessage || isOutgoingMessage) { // message exchange between client and server
                 JsonObject rawMessage = bridgeEvent.getRawMessage();
                 if (rawMessage != null) {
                     AstObject astMessage = AST.createObject(rawMessage);
@@ -89,25 +89,25 @@ final class VertxBus implements Bus {
                     // communicated either to the final server endpoint point (for incoming messages) or back to the
                     // client through a reply (for outgoing messages) after a possible change made by the endpoint,
                     // which can result in an update of the client (ex: login or logout).
-                    // However, it's very important to communicate the outgoing state only when replying to the SAME
-                    // client and NOT for messages delivered to OTHER clients (via send() or push()). Otherwise these
-                    // other clients will consider this state to be their own, causing a login switch or logout!
-                    // The Vert.x bridge event handler doesn't let us detect if the outgoing messages are coming from a
-                    // reply(), send() or publish(), but we infer this from the address.
-                    // A reply() address is typically a random id like "y1s4HgU875ftTzkurShX5YLoCa1P-tG_0Dvo", while a
-                    // send() or publish() address is something like "front-office/messaging".
-                    // TODO: investigate if that test is good enough
-                    String address = astMessage.getString("address");
-                    boolean replyMessage = outgoingMessage && !Strings.contains(address, "/");
-                    boolean specificClientMessage = outgoingMessage && Strings.contains(address, "/client/");
-                    if (incomingMessage || replyMessage || specificClientMessage) {
+
+                    // Detection of incoming endpoints (external clients to server, then redirected to a server local endpoint)
+                    boolean isIncomingEndpoint = isIncomingMessage && Strings.startsWith(astMessage.getString(JsonBusConstants.ADDRESS), "busCallService");
+
+                    // Detection of outgoing unicast: we use the "unicast" header, which is set to true when the server
+                    // replies to a client or requests a specific client (see reply() & request() implementations below).
+                    AstObject astHeaders = astMessage.get(JsonBusConstants.HEADERS);
+                    boolean isOutgoingUnicast = isOutgoingMessage && astHeaders != null && "true".equals(astHeaders.remove(JsonBusConstants.HEADERS_UNICAST));
+                    // Note: it's very important to communicate the outgoing state only when unicasting private messages
+                    // to a specific client. Otherwise, the other clients would consider this state to be their own,
+                    // causing them a login switch or a logout!
+                    if (isIncomingEndpoint || isOutgoingUnicast) {
                         // This is the main call for state management
                         Future<?> sessionFuture = ServerJsonBusStateManager.manageStateOnIncomingOrOutgoingRawJsonMessage(
-                                astMessage, webfxSession, incomingMessage)
+                                astMessage, webfxSession, isIncomingMessage)
                             .onSuccess(finalSession -> vertxWebSession.put(socketUri, finalSession));
                         // If the session is not ready right now (this may happen because of a session switch), then
                         // we need to wait this operation to complete before continuing the message delivery
-                        if (incomingMessage && !sessionFuture.isComplete()) {
+                        if (isIncomingMessage && !sessionFuture.isComplete()) {
                             callBridgeEventComplete = false;
                             sessionFuture.onComplete(x -> bridgeEvent.complete(true));
                         }
@@ -124,12 +124,14 @@ final class VertxBus implements Bus {
         return StateAccessor.decodeState(message.headers().get(JsonBusConstants.HEADERS_STATE));
     }
 
-    private static DeliveryOptions webfxToVertxDeliveryOptions(dev.webfx.stack.com.bus.DeliveryOptions webfxOptions) {
+    private static DeliveryOptions webfxToVertxDeliveryOptions(dev.webfx.stack.com.bus.DeliveryOptions webfxOptions, boolean unicast) {
         DeliveryOptions deliveryOptions = new DeliveryOptions().setLocalOnly(webfxOptions.isLocalOnly());
         Object state = webfxOptions.getState();
         if (state != null)
             deliveryOptions.addHeader(JsonBusConstants.HEADERS_STATE, StateAccessor.encodeState(state));
-        deliveryOptions.setSendTimeout(3*60 * 1000); // Temporarily set to 3 mins instead of 30s
+        if (unicast)
+            deliveryOptions.addHeader(JsonBusConstants.HEADERS_UNICAST, "true");
+        deliveryOptions.setSendTimeout(3*60 * 1000); // Temporarily set to 3 mins instead of 30 s
         return deliveryOptions;
     }
 
@@ -150,19 +152,19 @@ final class VertxBus implements Bus {
 
     @Override
     public Bus publish(String address, Object body, dev.webfx.stack.com.bus.DeliveryOptions options) {
-        eventBus.publish(address, webfxToVertxBody(body), webfxToVertxDeliveryOptions(options));
+        eventBus.publish(address, webfxToVertxBody(body), webfxToVertxDeliveryOptions(options, false));
         return this;
     }
 
     @Override
     public Bus send(String address, Object body, dev.webfx.stack.com.bus.DeliveryOptions options) {
-        eventBus.send(address, webfxToVertxBody(body), webfxToVertxDeliveryOptions(options));
+        eventBus.send(address, webfxToVertxBody(body), webfxToVertxDeliveryOptions(options, false));
         return this;
     }
 
     @Override
     public <T> Bus request(String address, Object body, dev.webfx.stack.com.bus.DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler) {
-        eventBus.<T>request(address, webfxToVertxBody(body), webfxToVertxDeliveryOptions(options), ar -> replyHandler.handle(vertxToWebfxMessageAsyncResult(ar, options.isLocalOnly())));
+        eventBus.<T>request(address, webfxToVertxBody(body), webfxToVertxDeliveryOptions(options, true), ar -> replyHandler.handle(vertxToWebfxMessageAsyncResult(ar, options.isLocalOnly())));
         return this;
     }
 
@@ -220,12 +222,12 @@ final class VertxBus implements Bus {
 
             @Override
             public void reply(Object body, dev.webfx.stack.com.bus.DeliveryOptions options) {
-                vertxMessage.reply(webfxToVertxBody(body), webfxToVertxDeliveryOptions(options));
+                vertxMessage.reply(webfxToVertxBody(body), webfxToVertxDeliveryOptions(options, true));
             }
 
             @Override
             public <T1> void reply(Object body, dev.webfx.stack.com.bus.DeliveryOptions options, Handler<AsyncResult<Message<T1>>> replyHandler) {
-                vertxMessage.<T1>replyAndRequest(webfxToVertxBody(body), webfxToVertxDeliveryOptions(options), ar -> replyHandler.handle(vertxToWebfxMessageAsyncResult(ar, false)));
+                vertxMessage.<T1>replyAndRequest(webfxToVertxBody(body), webfxToVertxDeliveryOptions(options, true), ar -> replyHandler.handle(vertxToWebfxMessageAsyncResult(ar, false)));
             }
 
             @Override

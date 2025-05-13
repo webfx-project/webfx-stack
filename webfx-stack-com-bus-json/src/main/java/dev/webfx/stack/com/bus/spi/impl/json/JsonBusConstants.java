@@ -16,5 +16,7 @@ public interface JsonBusConstants {
 
     // Constants specific to WebFX for state management
     String HEADERS_STATE = "state";
+    String HEADERS_UNICAST = "unicast"; // internal server header to flag outgoing messages as private (to be sent
+    // to a specific targeted client). Only these unicast messages are enriched with the client state.
     String PING_STATE_ADDRESS = "pingState";
 }
