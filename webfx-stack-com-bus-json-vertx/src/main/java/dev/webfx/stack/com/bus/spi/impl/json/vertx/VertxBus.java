@@ -12,6 +12,7 @@ import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.stack.com.bus.BusHook;
 import dev.webfx.stack.com.bus.Message;
 import dev.webfx.stack.com.bus.Registration;
+import dev.webfx.stack.com.bus.call.BusCallService;
 import dev.webfx.stack.com.bus.spi.impl.json.JsonBusConstants;
 import dev.webfx.stack.com.bus.spi.impl.json.server.ServerJsonBusStateManager;
 import dev.webfx.stack.session.SessionService;
@@ -82,7 +83,6 @@ final class VertxBus implements Bus {
             } else if (isIncomingMessage || isOutgoingMessage) { // message exchange between client and server
                 JsonObject rawMessage = bridgeEvent.getRawMessage();
                 if (rawMessage != null) {
-                    AstObject astMessage = AST.createObject(rawMessage);
                     // What we want to achieve here when intercepting such messages is to automatically manage the state
                     // of these incoming and outgoing messages. The state is enriched with information known about the
                     // client, such as its sessionId, userId, runId when it's appropriate to communicate them. They are
@@ -90,17 +90,28 @@ final class VertxBus implements Bus {
                     // client through a reply (for outgoing messages) after a possible change made by the endpoint,
                     // which can result in an update of the client (ex: login or logout).
 
-                    // Detection of incoming endpoints (external clients to server, then redirected to a server local endpoint)
-                    boolean isIncomingEndpoint = isIncomingMessage && Strings.startsWith(astMessage.getString(JsonBusConstants.ADDRESS), "busCallService");
+                    // Case 1) Detection of incoming ping state => the state communicated by the client needs to be
+                    // saved in the session (this happens especially on client start, when it communicates its runId,
+                    // last sessionId, etc...)
+                    AstObject astMessage = AST.createObject(rawMessage);
+                    String address = astMessage.getString(JsonBusConstants.ADDRESS);
+                    boolean isIncomingPingState = JsonBusConstants.PING_STATE_ADDRESS.equals(address);
 
-                    // Detection of outgoing unicast: we use the "unicast" header, which is set to true when the server
-                    // replies to a client or requests a specific client (see reply() & request() implementations below).
+                    // Case 2) Detection of incoming endpoints (external clients to server, then redirected to a server
+                    // local endpoint) => the state needs to be enriched with all info known about the client
+                    boolean isIncomingEndpoint = isIncomingMessage && Strings.startsWith(address,
+                        BusCallService.DEFAULT_BUS_CALL_SERVICE_ADDRESS);
+
+                    // Case 3) Detection of outgoing unicast: for this, we use the "unicast" header which is set to true
+                    // when the server replies to a client or requests a specific client (see reply() & request()
+                    // implementations below).
                     AstObject astHeaders = astMessage.get(JsonBusConstants.HEADERS);
                     boolean isOutgoingUnicast = isOutgoingMessage && astHeaders != null && "true".equals(astHeaders.remove(JsonBusConstants.HEADERS_UNICAST));
                     // Note: it's very important to communicate the outgoing state only when unicasting private messages
                     // to a specific client. Otherwise, the other clients would consider this state to be their own,
                     // causing them a login switch or a logout!
-                    if (isIncomingEndpoint || isOutgoingUnicast) {
+
+                    if (isIncomingEndpoint || isIncomingPingState || isOutgoingUnicast) {
                         // This is the main call for state management
                         Future<?> sessionFuture = ServerJsonBusStateManager.manageStateOnIncomingOrOutgoingRawJsonMessage(
                                 astMessage, webfxSession, isIncomingMessage)

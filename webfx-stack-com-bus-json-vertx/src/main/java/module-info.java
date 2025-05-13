@@ -13,6 +13,7 @@ module webfx.stack.com.bus.json.vertx {
     requires webfx.platform.util;
     requires webfx.platform.vertx.common;
     requires webfx.stack.com.bus;
+    requires webfx.stack.com.bus.call;
     requires webfx.stack.com.bus.client;
     requires webfx.stack.com.bus.json;
     requires webfx.stack.com.bus.json.server;
