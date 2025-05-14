@@ -37,6 +37,9 @@ input[type="password"]:not([value=""]) {
    /* box-shadow: 0px 0px 10px lightgray;*/
     width: 586px; /* Sets the fixed width */
     height: 506px; /* Sets the fixed height */
+    /* To increase the contrast between the text and the bg */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .login .h2 { /* Login word on top */
