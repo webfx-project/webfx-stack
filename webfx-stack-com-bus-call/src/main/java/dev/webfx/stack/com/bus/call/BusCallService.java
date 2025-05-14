@@ -20,7 +20,7 @@ import java.util.function.Function;
 public final class BusCallService {
 
     private static final boolean LOGS = false;
-    public static final String DEFAULT_BUS_CALL_SERVICE_ADDRESS = "busCallService";
+    private static final String DEFAULT_BUS_CALL_SERVICE_ADDRESS = "busCallService";
 
     public static <T> Future<T> call(String address, Object javaArgument) {
         return call(address, javaArgument, new DeliveryOptions());
@@ -120,7 +120,7 @@ public final class BusCallService {
      *
      * @param <J> expected java class
      */
-    private static <J> J jsonMessageToJavaObject(Message message) {
+    private static <J> J jsonMessageToJavaObject(Message<?> message) {
         // Getting the message body in JSON format
         Object jsonBody = message.body();
         // Converting it into a java object through JSON deserialization

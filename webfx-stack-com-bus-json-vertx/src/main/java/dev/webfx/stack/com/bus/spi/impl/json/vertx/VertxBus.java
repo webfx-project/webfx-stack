@@ -6,13 +6,11 @@ import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.async.AsyncResult;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.Handler;
-import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.vertx.common.VertxInstance;
 import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.stack.com.bus.BusHook;
 import dev.webfx.stack.com.bus.Message;
 import dev.webfx.stack.com.bus.Registration;
-import dev.webfx.stack.com.bus.call.BusCallService;
 import dev.webfx.stack.com.bus.spi.impl.json.JsonBusConstants;
 import dev.webfx.stack.com.bus.spi.impl.json.server.ServerJsonBusStateManager;
 import dev.webfx.stack.session.SessionService;
@@ -27,6 +25,9 @@ import io.vertx.ext.bridge.BridgeEventType;
 import io.vertx.ext.web.Session;
 import io.vertx.ext.web.handler.sockjs.SockJSSocket;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Bruno Salmon
  */
@@ -36,6 +37,9 @@ final class VertxBus implements Bus {
 
     private final EventBus eventBus;
     private boolean open = true;
+    // The list "networkEndpoints" will contain all non-local addresses registered on the Vert.x bus. These addresses
+    // are therefore all the server public endpoints exposed to the clients on the network.
+    private final List<String> networkEndpoints = new ArrayList<>();
 
     VertxBus(EventBus eventBus) {
         this.eventBus = eventBus;
@@ -84,35 +88,49 @@ final class VertxBus implements Bus {
                 JsonObject rawMessage = bridgeEvent.getRawMessage();
                 if (rawMessage != null) {
                     // What we want to achieve here when intercepting such messages is to automatically manage the state
-                    // of these incoming and outgoing messages. The state is enriched with information known about the
-                    // client, such as its sessionId, userId, runId when it's appropriate to communicate them. They are
-                    // communicated either to the final server endpoint point (for incoming messages) or back to the
+                    // of these incoming and outgoing messages. The state is enriched with all information known about
+                    // the client, such as its sessionId, userId, runId when it's appropriate to communicate them. They
+                    // are communicated either to the final server endpoint point (for incoming messages) or back to the
                     // client through a reply (for outgoing messages) after a possible change made by the endpoint,
                     // which can result in an update of the client (ex: login or logout).
 
-                    // Case 1) Detection of incoming ping state => the state communicated by the client needs to be
-                    // saved in the session (this happens especially on client start, when it communicates its runId,
-                    // last sessionId, etc...)
+                    // Case 1) Detection of incoming endpoints calls, typically:
+                    // - pingState: especially on client start, when it communicates its runId, last sessionId, etc...
+                    // - busServerCall: main endpoint exposed to the network, which then dispatches to the different
+                    //   internal local endpoints (which execute the actual service requested by the client)
+                    // => STATE MANAGEMENT REQUIRED? YES: the possible incoming state communicated by the client needs
+                    // to be saved in the session and then enriched with all other known info about that client so that
+                    // the local endpoints can easily access them.
                     AstObject astMessage = AST.createObject(rawMessage);
                     String address = astMessage.getString(JsonBusConstants.ADDRESS);
-                    boolean isIncomingPingState = JsonBusConstants.PING_STATE_ADDRESS.equals(address);
+                    boolean isIncomingEndpoint = isIncomingMessage && networkEndpoints.contains(address);
 
-                    // Case 2) Detection of incoming endpoints (external clients to server, then redirected to a server
-                    // local endpoint) => the state needs to be enriched with all info known about the client
-                    boolean isIncomingEndpoint = isIncomingMessage && Strings.startsWith(address,
-                        BusCallService.DEFAULT_BUS_CALL_SERVICE_ADDRESS);
-
-                    // Case 3) Detection of outgoing unicast: for this, we use the "unicast" header which is set to true
-                    // when the server replies to a client or requests a specific client (see reply() & request()
-                    // implementations below).
+                    // Case 2) Detection of outgoing unicast calls, i.e., when the server sends a private message to a
+                    // specific client, typically:
+                    // - message reply, i.e., when the server calls reply()
+                    // - point-to-point request, i.e., when the server calls request()
+                    // Note that unicast push-notifications, such as those emitted by the WebFX Stack PushServerService
+                    // (used, for example, by ModalityMagicLinkAuthenticationGateway to push the userId to the original
+                    // client who requested the magic link to cause an automatic login) are covered by this Case 2).
+                    // => STATE MANAGEMENT REQUIRED? YES: the possible changes made by the server (local endpoints) on
+                    // the client state need to be communicated to the client.
+                    // To detect this case, we use the "unicast" header, which is set to true when the server replies to
+                    // a client or requests a specific client (see reply() & request() implementations below).
                     AstObject astHeaders = astMessage.get(JsonBusConstants.HEADERS);
                     boolean isOutgoingUnicast = isOutgoingMessage && astHeaders != null && "true".equals(astHeaders.remove(JsonBusConstants.HEADERS_UNICAST));
-                    // Note: it's very important to communicate the outgoing state only when unicasting private messages
-                    // to a specific client. Otherwise, the other clients would consider this state to be their own,
-                    // causing them a login switch or a logout!
 
-                    if (isIncomingEndpoint || isIncomingPingState || isOutgoingUnicast) {
-                        // This is the main call for state management
+                    // Case 3) Everything else, typically:
+                    // - multicast message, i.e., when the server calls publish()
+                    // - point-to-point communication, i.e., when the server calls send(), but the client consumer is
+                    //   not specific
+                    // - "peer-to-peer" communication between 2 clients (not true p2p because it goes through the server)
+                    //   such as publish("")
+                    // => STATE MANAGEMENT REQUIRED? NO: it's very important to not communicate any outgoing state in
+                    // this case, otherwise, these clients would consider this state to be their own, causing them a
+                    // login switch or a logout!
+                    boolean isEverythingElse = !isIncomingEndpoint && !isOutgoingUnicast;
+
+                    if (!isEverythingElse) { // Statement management is required except for the last case
                         Future<?> sessionFuture = ServerJsonBusStateManager.manageStateOnIncomingOrOutgoingRawJsonMessage(
                                 astMessage, webfxSession, isIncomingMessage)
                             .onSuccess(finalSession -> vertxWebSession.put(socketUri, finalSession));
@@ -186,6 +204,8 @@ final class VertxBus implements Bus {
     }
 
     public <T> Registration register(boolean local, String address, Handler<Message<T>> handler) {
+        if (!local)
+            networkEndpoints.add(address);
         MessageConsumer<T> consumer = local ? eventBus.localConsumer(address) : eventBus.consumer(address);
         consumer.handler(message -> handler.handle(vertxToWebfxMessage(message, local)));
         return consumer::unregister;
