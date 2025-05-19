@@ -91,7 +91,7 @@ public final class EntityPropertiesSheet<E extends Entity> extends EntityUpdateD
     Node buildNode() {
         if (!TABLE_LAYOUT)
             return new VBox(10);
-        VisualGrid visualGrid = VisualGrid.createVisualGridWithTableSkin();
+        VisualGrid visualGrid = VisualGrid.createVisualGridWithTableLayoutSkin();
         visualGrid.setHeaderVisible(false);
         visualGrid.setFullHeight(true);
         visualGrid.setSelectionMode(SelectionMode.DISABLED);

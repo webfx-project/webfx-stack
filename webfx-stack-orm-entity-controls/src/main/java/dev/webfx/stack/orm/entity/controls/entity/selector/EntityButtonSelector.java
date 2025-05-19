@@ -161,7 +161,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
     @Override
     protected Region getOrCreateDialogContent() {
         if (dialogVisualGrid == null && entityRenderer != null) {
-            dialogVisualGrid = VisualGrid.createVisualGridWithTableSkin();
+            dialogVisualGrid = VisualGrid.createVisualGridWithTableLayoutSkin();
             dialogVisualGrid.setHeaderVisible(false);
             dialogVisualGrid.setCursor(Cursor.HAND);
             BorderPane.setAlignment(dialogVisualGrid, Pos.TOP_LEFT);
