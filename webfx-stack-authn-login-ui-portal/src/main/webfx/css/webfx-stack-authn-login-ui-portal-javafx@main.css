@@ -8,6 +8,7 @@
     -fx-background-repeat: no-repeat; /* Prevents the image from repeating */
     -fx-background-size: cover; /* Scales the image to cover the area */
     -fx-background-position: center;
+    -fx-font-size: 17px;
 }
 
 .login .background {
