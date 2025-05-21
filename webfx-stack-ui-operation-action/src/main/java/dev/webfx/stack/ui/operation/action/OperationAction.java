@@ -79,7 +79,7 @@ public final class OperationAction<Rq, Rs> extends WritableAction {
         executing = true;
         // Disabling this action during its execution
         FXProperties.setEvenIfBound(writableDisabledProperty(), true);
-        // If in addition an icon has been provided to graphically indicate the execution is in progress,
+        // If in addition, an icon has been provided to graphically indicate the execution is in progress,
         if (actionExecutingIconFactory != null) { // we apply it to the graphic property
             Node executingIcon = actionExecutingIconFactory.apply(operationRequest);
             if (executingIcon != null) // For some operations such as routing operation, there is no executing icon
@@ -92,8 +92,8 @@ public final class OperationAction<Rq, Rs> extends WritableAction {
         // Enabling the action again after its execution (by reestablishing the binding). This also reestablishes the
         // original action icon if the executing icon had been applied.
         getOperationActionRegistry().bindOperationActionGraphicalProperties(this);
-        // If in addition an icon has been provided to graphically indicate the execution has ended,
-        if (actionExecutedIconFactory != null) { // we apply it to the graphic property for 2s
+        // If in addition, an icon has been provided to graphically indicate the execution has ended,
+        if (actionExecutedIconFactory != null) { // we apply it to the graphic property for 2 s
             Node executedIcon = actionExecutedIconFactory.apply(operationRequest, exception);
             if (executedIcon != null) // For some operations such as routing operation, there is no executed icon
                 FXProperties.setEvenIfBound(writableGraphicFactoryProperty(), () -> executedIcon);
