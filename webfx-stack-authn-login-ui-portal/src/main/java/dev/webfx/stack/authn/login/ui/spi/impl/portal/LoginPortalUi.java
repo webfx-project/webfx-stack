@@ -99,7 +99,6 @@ final class LoginPortalUi implements UiLoginPortalCallback {
                 if ("Password".equals(gatewayId)) {
                     userUI = gateway.createLoginUi(this);
                 } else {
-                    //If we have magicklink to true, we do nothing
                     StackPane loginButton = new StackPane(gateway.createLoginButton());
                     loginButton.setPadding(new Insets(13));
                     loginButton.setPrefSize(50, 50);
@@ -131,6 +130,7 @@ final class LoginPortalUi implements UiLoginPortalCallback {
             }
         }
         loginPaneContainer.setContent(loginPane);
+        loginPaneContainer.setPadding(new Insets(10)); // breathing padding on mobiles
         loginPane.getChildren().add(userUI);
         loginPane.getChildren().addAll(otherLoginButtons);
         orText.getStyleClass().add("or");
