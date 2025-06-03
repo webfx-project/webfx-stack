@@ -25,6 +25,10 @@ public final class ActionBinder {
         return bindButtonToAction(new Button(), action);
     }
 
+    public static ToggleButton newActionToggleButton(Action action) {
+        return bindButtonToAction(new ToggleButton(), action);
+    }
+
     public static Hyperlink newActionHyperlink(Action action) {
         return bindButtonToAction(new Hyperlink(), action);
     }

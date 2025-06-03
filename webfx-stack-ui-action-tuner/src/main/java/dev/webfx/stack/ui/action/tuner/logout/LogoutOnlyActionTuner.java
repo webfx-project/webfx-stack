@@ -15,7 +15,9 @@ public interface LogoutOnlyActionTuner extends ActionTuner {
     default Action tuneAction(Action action) {
         ReadOnlyBooleanProperty loggedOutProperty = FXLoggedOut.loggedOutProperty();
         return new ActionBuilder(action)
-            .setVisibleProperty(loggedOutProperty)
+            // Important to bind to set disabledProperty and not directly visibleProperty, especially for toggle buttons
+            // keyboard navigation (ToggleButtonBehavior skips disabled buttons but not invisible ones)
+            .setDisabledProperty(loggedOutProperty.not())
             .setHiddenWhenDisabled(true) // TODO: see if we can get this information from the underlying action instead of forcing it
             .build();
     }

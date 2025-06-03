@@ -285,6 +285,8 @@ public class ActionBuilder {
                 visibleProperty = BooleanExpression.booleanExpression(disabledProperty).not();
             else
                 visibleProperty = new SimpleBooleanProperty(true);
+        } else if (hiddenWhenDisabled) {
+            visibleProperty = BooleanExpression.booleanExpression(visibleProperty).and(BooleanExpression.booleanExpression(disabledProperty).not());
         }
     }
 }
