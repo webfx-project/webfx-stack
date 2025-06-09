@@ -32,11 +32,14 @@ input[type="password"]:not([value=""]) {
 
 .login-child {
     --fx-background-color: rgba(255, 255, 255, 0.8);
-    --fx-border-radius: 21px;
+    --fx-background-radius: 21px;
    /* border: 1px solid lightgray;*/
    /* box-shadow: 0px 0px 10px lightgray;*/
     width: 586px; /* Sets the fixed width */
     height: 506px; /* Sets the fixed height */
+}
+
+.login-child > fx-background {
     /* To increase the contrast between the text and the bg */
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
