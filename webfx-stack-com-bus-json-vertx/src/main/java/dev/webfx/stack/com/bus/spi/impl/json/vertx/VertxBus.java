@@ -15,11 +15,9 @@ import dev.webfx.stack.com.bus.spi.impl.json.JsonBusConstants;
 import dev.webfx.stack.com.bus.spi.impl.json.server.ServerJsonBusStateManager;
 import dev.webfx.stack.session.SessionService;
 import dev.webfx.stack.session.state.StateAccessor;
-import io.vertx.core.Promise;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageConsumer;
-import io.vertx.core.eventbus.impl.EventBusInternal;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.bridge.BridgeEventType;
 import io.vertx.ext.web.Session;
@@ -166,11 +164,12 @@ final class VertxBus implements Bus {
 
     @Override
     public void close() {
+        /* Not accessible in Vert.x 5 anymore...
         if (eventBus instanceof EventBusInternal) {
             Promise<Void> promise = Promise.promise();
             ((EventBusInternal) eventBus).close(promise);
             promise.future().onSuccess(e -> open = false);
-        } else
+        } else*/
             open = false;
     }
 
@@ -193,7 +192,8 @@ final class VertxBus implements Bus {
 
     @Override
     public <T> Bus request(String address, Object body, dev.webfx.stack.com.bus.DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler) {
-        eventBus.<T>request(address, webfxToVertxBody(body), webfxToVertxDeliveryOptions(options, true), ar -> replyHandler.handle(vertxToWebfxMessageAsyncResult(ar, options.isLocalOnly())));
+        eventBus.<T>request(address, webfxToVertxBody(body), webfxToVertxDeliveryOptions(options, true))
+            .onComplete(ar -> replyHandler.handle(vertxToWebfxMessageAsyncResult(ar, options.isLocalOnly())));
         return this;
     }
 
@@ -258,7 +258,8 @@ final class VertxBus implements Bus {
 
             @Override
             public <T1> void reply(Object body, dev.webfx.stack.com.bus.DeliveryOptions options, Handler<AsyncResult<Message<T1>>> replyHandler) {
-                vertxMessage.<T1>replyAndRequest(webfxToVertxBody(body), webfxToVertxDeliveryOptions(options, true), ar -> replyHandler.handle(vertxToWebfxMessageAsyncResult(ar, false)));
+                vertxMessage.<T1>replyAndRequest(webfxToVertxBody(body), webfxToVertxDeliveryOptions(options, true))
+                    .onComplete(ar -> replyHandler.handle(vertxToWebfxMessageAsyncResult(ar, false)));
             }
 
             @Override

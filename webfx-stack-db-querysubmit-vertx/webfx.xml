@@ -11,10 +11,11 @@
     </providers>
 
     <dependencies>
-        <used-by-source-modules/>
+        <used-by-source-modules>
+            <!-- Additional module required at runtime when authenticating to a postgres database in a docker container -->
+            <undetected-module>com-ongres-scram-client</undetected-module>
+        </used-by-source-modules>
         <plugin-module>java.sql</plugin-module> <!-- Module required by vertx-mysql-postgresql-client-jasync -->
-        <!-- Additional module required at runtime when authenticating to a postgres database in a docker container -->
-        <plugin-module>com-ongres-scram-client</plugin-module>
     </dependencies>
 
 

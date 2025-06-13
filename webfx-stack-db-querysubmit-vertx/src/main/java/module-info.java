@@ -3,10 +3,11 @@
 module webfx.stack.db.querysubmit.vertx {
 
     // Direct dependencies modules
-    requires io.vertx.client.jdbc;
-    requires io.vertx.client.sql;
-    requires io.vertx.client.sql.pg;
+    requires com.ongres.scram.client;
     requires io.vertx.core;
+    requires io.vertx.sql.client;
+    requires io.vertx.sql.client.jdbc;
+    requires io.vertx.sql.client.pg;
     requires java.sql;
     requires webfx.platform.async;
     requires webfx.platform.console;

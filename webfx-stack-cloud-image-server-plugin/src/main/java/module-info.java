@@ -3,6 +3,7 @@
 module webfx.stack.cloud.image.server.plugin {
 
     // Direct dependencies modules
+    requires io.vertx.core;
     requires io.vertx.web;
     requires webfx.platform.async;
     requires webfx.platform.boot;

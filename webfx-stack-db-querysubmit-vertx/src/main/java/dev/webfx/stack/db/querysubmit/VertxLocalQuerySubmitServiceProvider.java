@@ -24,8 +24,8 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.jdbcclient.JDBCConnectOptions;
 import io.vertx.jdbcclient.JDBCPool;
+import io.vertx.pgclient.PgBuilder;
 import io.vertx.pgclient.PgConnectOptions;
-import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.*;
 
 import java.net.SocketException;
@@ -47,32 +47,35 @@ public final class VertxLocalQuerySubmitServiceProvider implements QueryServiceP
     private final Pool pool;
 
     public VertxLocalQuerySubmitServiceProvider(LocalDataSource localDataSource) {
-        // Generating the Vertx Sql config from the connection details
+        // Generating the Vertx SQL config from the connection details
         ConnectionDetails connectionDetails = localDataSource.getLocalConnectionDetails();
         PoolOptions poolOptions = new PoolOptions()
-                .setMaxSize(10);
+            .setMaxSize(10);
         Vertx vertx = VertxInstance.getVertx();
         DBMS dbms = localDataSource.getDBMS();
         switch (dbms) {
             case POSTGRES: {
                 PgConnectOptions connectOptions = new PgConnectOptions()
-                        .setHost(connectionDetails.getHost())
-                        .setPort(connectionDetails.getPort())
-                        .setDatabase(connectionDetails.getDatabaseName())
-                        .setUser(connectionDetails.getUsername())
-                        .setPassword(connectionDetails.getPassword())
-                        .setTcpKeepAlive(true);
-                pool = PgPool.pool(vertx, connectOptions, poolOptions);
+                    .setHost(connectionDetails.getHost())
+                    .setPort(connectionDetails.getPort())
+                    .setDatabase(connectionDetails.getDatabaseName())
+                    .setUser(connectionDetails.getUsername())
+                    .setPassword(connectionDetails.getPassword());
+                pool = PgBuilder.pool()
+                    .with(poolOptions)
+                    .connectingTo(connectOptions)
+                    .using(VertxInstance.getVertx())
+                    .build();
                 break;
             }
             case MYSQL: // TODO implement MySQL
             default: {
                 JdbcDriverInfo jdbcDriverInfo = JdbcDriverInfo.from(dbms);
                 JDBCConnectOptions connectOptions = new JDBCConnectOptions()
-                        .setJdbcUrl(jdbcDriverInfo.getUrlOrGenerateJdbcUrl(connectionDetails))
-                        .setDatabase(connectionDetails.getDatabaseName()) // Necessary?
-                        .setUser(connectionDetails.getUsername())
-                        .setPassword(connectionDetails.getPassword());
+                    .setJdbcUrl(jdbcDriverInfo.getUrlOrGenerateJdbcUrl(connectionDetails))
+                    .setDatabase(connectionDetails.getDatabaseName()) // Necessary?
+                    .setUser(connectionDetails.getUsername())
+                    .setPassword(connectionDetails.getPassword());
                 // Note: Works only with the Agroal connection pool
                 pool = JDBCPool.pool(vertx, connectOptions, poolOptions);
             }
@@ -108,29 +111,29 @@ public final class VertxLocalQuerySubmitServiceProvider implements QueryServiceP
     private <T> Future<T> connectAndExecute(BiConsumer<SqlConnection, Promise<T>> executor) {
         Promise<T> promise = Promise.promise();
         pool.getConnection()
-                .onFailure(cause -> {
-                    Console.log("DB connectAndExecute() failed", cause);
-                    promise.fail(cause);
-                })
-                .onSuccess(connection -> { // Note: this is the responsibility of the executor to close the connection
-                    Promise<T> intermediatePromise = Promise.promise(); // used to check SocketException
-                    if (LOG_OPEN_CONNECTIONS)
-                        Console.log("DB pool open connections = " + ++open);
-                    executor.accept(connection, intermediatePromise);
-                    intermediatePromise.future()
-                            .onSuccess(promise::complete)
-                            .onFailure(cause -> {
-                                if (!(cause instanceof SocketException)) {
-                                    promise.fail(cause);
-                                } else {
-                                    // We retry with another connection from the pool
-                                    Console.log("Retrying with another connection from the pool");
-                                    connectAndExecute(executor) // trying again (another loop may happen if several connections are broken)
-                                            // Once complete (including the possible subsequent loops),
-                                            .onComplete(promise); // we transfer back the final result.
-                                }
-                            });
-                });
+            .onFailure(cause -> {
+                Console.log("DB connectAndExecute() failed", cause);
+                promise.fail(cause);
+            })
+            .onSuccess(connection -> { // Note: this is the responsibility of the executor to close the connection
+                Promise<T> intermediatePromise = Promise.promise(); // used to check SocketException
+                if (LOG_OPEN_CONNECTIONS)
+                    Console.log("DB pool open connections = " + ++open);
+                executor.accept(connection, intermediatePromise);
+                intermediatePromise.future()
+                    .onSuccess(promise::complete)
+                    .onFailure(cause -> {
+                        if (!(cause instanceof SocketException)) {
+                            promise.fail(cause);
+                        } else {
+                            // We retry with another connection from the pool
+                            Console.log("Retrying with another connection from the pool");
+                            connectAndExecute(executor) // trying again (another loop may happen if several connections are broken)
+                                // Once complete (including the possible subsequent loops),
+                                .onComplete(promise); // we transfer back the final result.
+                        }
+                    });
+            });
         return promise.future();
     }
 
@@ -140,9 +143,12 @@ public final class VertxLocalQuerySubmitServiceProvider implements QueryServiceP
 
     private <T> Future<T> connectAndExecuteInTransaction(TriConsumer<SqlConnection, Transaction, Promise<T>> executor) {
         return connectAndExecute((connection, promise) ->
-                connection.begin()
-                        .onFailure(cause -> { Console.log("DB connectAndExecuteInTransaction() failed", cause); promise.fail(cause); })
-                        .onSuccess(transaction -> executor.accept(connection, transaction, promise))
+            connection.begin()
+                .onFailure(cause -> {
+                    Console.log("DB connectAndExecuteInTransaction() failed", cause);
+                    promise.fail(cause);
+                })
+                .onSuccess(transaction -> executor.accept(connection, transaction, promise))
         );
     }
 
@@ -183,14 +189,16 @@ public final class VertxLocalQuerySubmitServiceProvider implements QueryServiceP
         // Calling query() or preparedQuery() depending on if parameters are provided or not
         if (Arrays.isEmpty(parameters)) {
             connection.query(queryString)
-                    .execute(resultHandler);
+                .execute()
+                .onComplete(resultHandler);
         } else {
             for (int i = 0; i < parameters.length; i++) {
                 if (parameters[i] instanceof Instant)
                     parameters[i] = LocalDateTime.ofInstant((Instant) parameters[i], ZoneOffset.UTC);
             }
             connection.preparedQuery(queryString)
-                    .execute(Tuple.from(parameters), resultHandler);
+                .execute(Tuple.from(parameters))
+                .onComplete(resultHandler);
         }
     }
 
@@ -208,16 +216,17 @@ public final class VertxLocalQuerySubmitServiceProvider implements QueryServiceP
                 if (batch)
                     promise.complete(submitResult);
                 else {
-                    transaction.commit(ar -> {
-                        if (ar.failed()) {
-                            Console.log(ar.cause());
-                            promise.fail(ar.cause());
-                        } else
-                            promise.complete(submitResult);
-                        closeConnection(connection);
-                        if (ar.succeeded())
-                            onSuccessfulSubmit(submitArgument);
-                    });
+                    transaction.commit()
+                        .onComplete(ar -> {
+                            if (ar.failed()) {
+                                Console.log(ar.cause());
+                                promise.fail(ar.cause());
+                            } else
+                                promise.complete(submitResult);
+                            closeConnection(connection);
+                            if (ar.succeeded())
+                                onSuccessfulSubmit(submitArgument);
+                        });
                 }
             }
         });
@@ -238,22 +247,23 @@ public final class VertxLocalQuerySubmitServiceProvider implements QueryServiceP
             }
             long t0 = System.currentTimeMillis();
             executeSubmitOnConnection(updateArgument, connection, transaction, true, Promise.promise())
-                    .onFailure(cause -> {
-                        Console.log("DB executeUpdateBatchOnConnection()", cause);
-                        statementPromise.fail(cause);
-                        transaction.rollback(event -> closeConnection(connection));
-                    })
-                    .onSuccess(submitResult -> {
-                        long t1 = System.currentTimeMillis();
-                        Console.log("DB submit batch executed in " + (t1 - t0) + "ms");
-                        Object[] generatedKeys = submitResult.getGeneratedKeys();
-                        if (!Arrays.isEmpty(generatedKeys))
-                            batchIndexGeneratedKeys.set(batchIndex.get(), generatedKeys[0]);
-                        batchIndex.set(batchIndex.get() + 1);
-                        if (batchIndex.get() < batch.getArray().length)
-                            statementPromise.complete(submitResult);
-                        else
-                            transaction.commit(ar -> {
+                .onFailure(cause -> {
+                    Console.log("DB executeUpdateBatchOnConnection()", cause);
+                    statementPromise.fail(cause);
+                    transaction.rollback().onComplete(ar -> closeConnection(connection));
+                })
+                .onSuccess(submitResult -> {
+                    long t1 = System.currentTimeMillis();
+                    Console.log("DB submit batch executed in " + (t1 - t0) + "ms");
+                    Object[] generatedKeys = submitResult.getGeneratedKeys();
+                    if (!Arrays.isEmpty(generatedKeys))
+                        batchIndexGeneratedKeys.set(batchIndex.get(), generatedKeys[0]);
+                    batchIndex.set(batchIndex.get() + 1);
+                    if (batchIndex.get() < batch.getArray().length)
+                        statementPromise.complete(submitResult);
+                    else
+                        transaction.commit()
+                            .onComplete(ar -> {
                                 if (ar.failed()) {
                                     Console.log(ar.cause());
                                     statementPromise.fail(ar.cause());
@@ -263,7 +273,7 @@ public final class VertxLocalQuerySubmitServiceProvider implements QueryServiceP
                                 if (ar.succeeded())
                                     onSuccessfulSubmitBatch(batch);
                             });
-                    });
+                });
             return statementPromise.future();
         });
     }
