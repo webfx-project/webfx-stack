@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.nio.file.*;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -94,7 +93,7 @@ final class VertxHttpRouterConfigurator {
         String internalPath = archiveWithInternalPath.substring(sep + 2);
 
         URI archiveUri = URI.create("jar:" + Path.of(archiveFile).toUri());
-        Path extractedPath = Files.createTempDirectory("webapp-extracted");
+        Path extractedPath = Files.createTempDirectory("webfx-archive-extracted-");
 
         try (FileSystem fs = FileSystems.newFileSystem(archiveUri, Map.of())) {
             Path rootInArchive = fs.getPath("/" + internalPath);
@@ -107,6 +106,7 @@ final class VertxHttpRouterConfigurator {
                         } else {
                             Files.copy(source, dest);
                         }
+                        dest.toFile().deleteOnExit();
                     } catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }
@@ -114,28 +114,15 @@ final class VertxHttpRouterConfigurator {
             }
         }
 
+        extractedPath.toFile().deleteOnExit();
+
         EXTRACTED_ARCHIVED_FOLDERS.put(archiveWithInternalPath, extractedPath);
 
         return extractedPath;
     }
 
-
     static void finaliseRouter() {
         Router router = VertxInstance.getHttpRouter();
         router.route().handler(BodyHandler.create());
-    }
-
-    static void cleanTemporaryFiles() {
-        EXTRACTED_ARCHIVED_FOLDERS.values().forEach(tempDir -> {
-            try (Stream<Path> walk = Files.walk(tempDir)) {
-                walk.sorted(Comparator.reverseOrder())
-                    .forEach(path -> {
-                        try {
-                            Files.delete(path);
-                        } catch (IOException ignored) {}
-                    });
-            } catch (IOException ignored) {}
-        });
-        EXTRACTED_ARCHIVED_FOLDERS.clear();
     }
 }

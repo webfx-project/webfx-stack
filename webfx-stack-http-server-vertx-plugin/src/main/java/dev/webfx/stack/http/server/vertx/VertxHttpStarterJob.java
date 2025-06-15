@@ -23,6 +23,5 @@ public final class VertxHttpStarterJob implements ApplicationJob {
     public void onStop() {
         if (verticleDeployID != null)
             VertxInstance.getVertx().undeploy(verticleDeployID);
-        VertxHttpRouterConfigurator.cleanTemporaryFiles();
     }
 }
