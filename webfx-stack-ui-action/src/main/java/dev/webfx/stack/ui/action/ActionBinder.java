@@ -21,6 +21,8 @@ import java.util.function.Supplier;
  */
 public final class ActionBinder {
 
+    private static final String ACTION_PROPERTIES_KEY = "webfx-action";
+
     public static Button newActionButton(Action action) {
         return bindButtonToAction(new Button(), action);
     }
@@ -81,7 +83,12 @@ public final class ActionBinder {
         node.managedProperty().bind(node.visibleProperty());
         if (setOnMouseClicked)
             node.setOnMouseClicked(e -> action.handle(new ActionEvent(e.getSource(), e.getTarget())));
+        node.getProperties().put(ACTION_PROPERTIES_KEY, action);
         return node;
+    }
+
+    public static Action getNodeAction(Node node) {
+        return (Action) node.getProperties().get(ACTION_PROPERTIES_KEY);
     }
 
     public static void bindWritableActionToAction(WritableAction writableAction, Action action) {
