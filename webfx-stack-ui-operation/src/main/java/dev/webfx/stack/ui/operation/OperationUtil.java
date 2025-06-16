@@ -13,20 +13,23 @@ import javafx.scene.control.Labeled;
  */
 public final class OperationUtil {
 
+    private static final String BUTTON_GRAPHIC_MEMO_PROPERTIES_KEY = "webfx-operation-util-graphic";
+
     public static <Rq, Rs> Future<Rs> executeOperation(Rq operationRequest, AsyncFunction<Rq, Rs> operationExecutor) {
         if (operationExecutor == null && operationRequest instanceof HasOperationExecutor)
-            operationExecutor = ((HasOperationExecutor) operationRequest).getOperationExecutor();
+            //noinspection unchecked
+            operationExecutor = ((HasOperationExecutor<Rq, Rs>) operationRequest).getOperationExecutor();
         if (operationExecutor != null)
             return operationExecutor.apply(operationRequest);
         return Future.failedFuture(new IllegalArgumentException("No executor found for operation request " + operationRequest));
     }
 
-    // Utility methods for managing the buttons wait mode (is it the right place for these methods?)
+    // Utility methods for managing the button wait mode (is it the right place for these methods?)
 
     // During execution, the first passed button will show a progress indicator, and all buttons will be disabled.
     // At the end of the execution, all buttons will be enabled again, and the first button graphic will be reset.
 
-    // One issue with these methods is that it unbinds the buttons graphic property (which is ok during execution), but
+    // One issue with these methods is that it unbinds the button graphic property (which is ok during execution) but
     // doesn't reestablish the initial binding at the end (the initial graphic is just reset).
 
     public static void turnOnButtonsWaitModeDuringExecution(Future<?> future, Labeled... buttons) {
@@ -49,10 +52,11 @@ public final class OperationUtil {
             if (button == buttons[0]) {
                 if (on) {
                     graphic = Controls.createProgressIndicator(20);
-                    // Memorising the previous graphic before changing it
-                    button.getProperties().put("webfx-operation-util-graphic", button.getGraphic());
+                    // Memorizing the previous graphic before changing it
+                    button.getProperties().put(BUTTON_GRAPHIC_MEMO_PROPERTIES_KEY, button.getGraphic());
                 } else {
-                    graphic = (Node) button.getProperties().get("webfx-operation-util-graphic");
+                    // Restoring the previous graphic once wait mode is turned off
+                    graphic = (Node) button.getProperties().get(BUTTON_GRAPHIC_MEMO_PROPERTIES_KEY);
                 }
             }
             FXProperties.setEvenIfBound(button.graphicProperty(), graphic);
