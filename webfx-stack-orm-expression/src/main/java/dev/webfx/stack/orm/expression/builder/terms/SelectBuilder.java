@@ -8,7 +8,7 @@ import dev.webfx.stack.orm.expression.terms.Select;
 /**
  * @author Bruno Salmon
  */
-public final class SelectBuilder extends DqlOrderBuilder<Select> {
+public final class SelectBuilder extends DqlStatementBuilder<Select> {
     public Object filterId;
     public boolean distinct = false;
     public boolean includeIdColumn = true;

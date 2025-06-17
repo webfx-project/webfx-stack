@@ -11,7 +11,7 @@ import dev.webfx.stack.orm.expression.terms.DqlStatement;
 /**
  * @author Bruno Salmon
  */
-public abstract class DqlOrderBuilder<S extends DqlStatement> implements ReferenceResolver {
+public abstract class DqlStatementBuilder<S extends DqlStatement> implements ReferenceResolver {
 
     public String definition;
     public String buildingClassName;

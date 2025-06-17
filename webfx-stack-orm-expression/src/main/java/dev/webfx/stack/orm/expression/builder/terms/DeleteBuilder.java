@@ -6,7 +6,7 @@ import dev.webfx.stack.orm.expression.terms.Delete;
 /**
  * @author Bruno Salmon
  */
-public final class DeleteBuilder extends DqlOrderBuilder<Delete> {
+public final class DeleteBuilder extends DqlStatementBuilder<Delete> {
     public Object filterId;
 
     public DeleteBuilder() {

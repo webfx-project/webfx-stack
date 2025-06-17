@@ -2,12 +2,11 @@ package dev.webfx.stack.orm.expression.builder.terms;
 
 
 import dev.webfx.stack.orm.expression.terms.Insert;
-import dev.webfx.stack.orm.expression.terms.Insert;
 
 /**
  * @author Bruno Salmon
  */
-public final class InsertBuilder extends DqlOrderBuilder<Insert> {
+public final class InsertBuilder extends DqlStatementBuilder<Insert> {
     public Object filterId;
     public ExpressionArrayBuilder setFields;
 
