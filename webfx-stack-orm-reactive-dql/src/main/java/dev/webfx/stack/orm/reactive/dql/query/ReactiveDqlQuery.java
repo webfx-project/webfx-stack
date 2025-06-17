@@ -2,6 +2,7 @@ package dev.webfx.stack.orm.reactive.dql.query;
 
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
+import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.util.function.Converter;
 import dev.webfx.platform.util.tuples.Pair;
 import dev.webfx.stack.cache.CacheEntry;
@@ -206,21 +207,22 @@ public class ReactiveDqlQuery<E> implements ReactiveDqlQueryAPI<E, ReactiveDqlQu
             rootAliasReferenceResolver = rootAliases::get;
             DqlStatement baseStatement = rootAliasBaseStatement = getBaseStatement();
             if (baseStatement != null) { // Root aliases are stored in the baseStatement
+                // TODO: investigate if DqlStatement should rather implement ReferenceResolver (like SqlStatementBuilder does)
                 // The first possible root alias is the base statement alias. Ex: Event e => the alias "e" then acts in a
                 // similar way as "this" in java because it refers to the current Event row in the select, so some
                 // expressions such as sub queries may refer to it (ex: select count(1) from Booking where event=e)
                 String alias = baseStatement.getAlias();
                 if (alias != null) // when defined, we add an Alias expression that can be returned when resolving this alias
                     rootAliases.put(alias, new Alias<>(alias, getDomainClass()));
-                // Other possible root aliases can be As expressions defined in the base filter fields, such as sub queries
-                // If fields contains for example (select ...) as xxx -> then xxx can be referenced in expression columns
+                // Other possible root aliases can be As expressions defined in the base filter fields, such as subqueries.
+                // For example, if the fields contain (select ...) as xxx -> then xxx can be referenced in expression columns
                 String fields = baseStatement.getFields();
-                if (fields != null && fields.contains(" as ")) { // quick skipping if fields doesn't contains " as "
+                if (Strings.contains(fields, " as ")) { // quick skipping if the fields don't contain " as "
                     executeParsingCode(() -> {
                         DomainModel domainModel = getDomainModel();
                         Object domainClassId = getDomainClassId();
                         for (Expression<?> field : domainModel.parseExpressionArray(fields, domainClassId).getExpressions()) {
-                            if (field instanceof As) { // If a field is a As expression,
+                            if (field instanceof As) { // If a field is an As expression,
                                 As<?> as = (As<?>) field;
                                 // we add an Alias expression that can be returned when resolving this alias
                                 rootAliases.put(as.getAlias(), new Alias<>(as.getAlias(), as.getType()));

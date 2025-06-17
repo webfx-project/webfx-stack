@@ -24,7 +24,12 @@ public final class AsBuilder extends UnaryExpressionBuilder implements Reference
 
     @Override
     public Expression resolveReference(String name) {
+        if (!name.equals(alias))
+            return null;
         Expression build = operand.build();
-        return name.equals(alias) ? new Alias(alias, build.getType(), getModelReader().getSymbolForeignDomainClass(buildingClass, (Symbol) build)): null;
+        Object domainClass = buildingClass;
+        if (build instanceof Symbol)
+            domainClass = getModelReader().getSymbolForeignDomainClass(buildingClass, (Symbol) build);
+        return new Alias(alias, build.getType(), domainClass);
     }
 }

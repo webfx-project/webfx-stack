@@ -1,6 +1,8 @@
 package dev.webfx.stack.orm.expression.builder.terms;
 
 
+import dev.webfx.stack.orm.expression.Expression;
+import dev.webfx.stack.orm.expression.builder.ReferenceResolver;
 import dev.webfx.stack.orm.expression.terms.Select;
 
 /**
@@ -43,5 +45,21 @@ public final class SelectBuilder extends DqlOrderBuilder<Select> {
             having.buildingClass = buildingClass;
         if (orderBy != null)
             orderBy.buildingClass = buildingClass;
+    }
+
+    @Override
+    public Expression resolveReference(String name) {
+        // Might be a reference to the building class
+        Expression reference = super.resolveReference(name);
+        // Or to a loaded field (or subquery) assigned to an alias
+        if (reference == null && fields != null) {
+            for (ExpressionBuilder fieldBuilder : fields.expressions) {
+                if (fieldBuilder instanceof ReferenceResolver) // Ex: AsBuilder
+                    reference = ((ReferenceResolver) fieldBuilder).resolveReference(name);
+                if (reference != null)
+                    break;
+            }
+        }
+        return reference;
     }
 }
