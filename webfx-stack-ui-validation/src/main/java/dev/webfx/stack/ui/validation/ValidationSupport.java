@@ -290,15 +290,20 @@ public final class ValidationSupport {
     }
 
     public void addUrlValidation(TextField urlInput, Node where, ObservableStringValue errorMessage) {
-        // Define the URL pattern (basic)
-        String urlPattern = "^(https?://).+\\..+$";
+        // Regex to match either:
+        // 1. A standard HTTP(S) URL, or
+        // 2. A custom bunny: URL with videoId and zoneId required
+        String urlPattern =
+            "^(https?://[^\\s]+)$" +                                 // Match normal URLs
+                "|^(bunny:(?=.*\\bvideoId=[^&\\s]+)(?=.*\\bzoneId=[^&\\s]+)(.*))$";  // Match bunny: URLs with required params
+
         Pattern pattern = Pattern.compile(urlPattern);
 
         addValidationRule(
             Bindings.createBooleanBinding(
                 () -> {
                     String input = urlInput.getText();
-                    return input!=null && pattern.matcher(input).matches();  // Accept empty or valid URL
+                    return input != null && pattern.matcher(input).matches();
                 },
                 urlInput.textProperty()
             ),
@@ -330,7 +335,7 @@ public final class ValidationSupport {
 
     public void addUrlOrEmptyValidation(TextField urlInput, ObservableStringValue errorMessage) {
         // Define the URL pattern (basic)
-        String urlPattern = "^(https|srt|rtmp|rtsp)://(www\\.)?[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}(/[a-zA-Z0-9%._/-]*)$";
+        String urlPattern = "^(https|srt|rtmp|rtsp)://(www\\.)?[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}(/[a-zA-Z0-9%._/()\\-]*)$";
         Pattern pattern = Pattern.compile(urlPattern);
 
         // Create the validation rule
