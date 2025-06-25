@@ -9,8 +9,8 @@ import dev.webfx.stack.ui.fxraiser.FXRaiser;
 import dev.webfx.stack.ui.fxraiser.FXValueRaiser;
 import dev.webfx.stack.ui.fxraiser.impl.ValueConverterRegistry;
 import dev.webfx.stack.ui.json.JsonSVGPath;
+import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.layout.StackPane;
 import javafx.scene.shape.SVGPath;
 
 import static dev.webfx.platform.util.Objects.isAssignableFrom;
@@ -35,7 +35,7 @@ public class JsonFXRaiserModuleBooter implements ApplicationModuleBooter {
 
     @Override
     public void bootModule() {
-        // Adding String to Json possible conversion in FXRaiser
+        // Adding String to JSON possible conversion in FXRaiser
         ValueConverterRegistry.registerValueConverter(new FXValueRaiser() {
             @Override
             public <T> T raiseValue(Object value, Class<T> raisedClass, Object... args) {
@@ -49,21 +49,21 @@ public class JsonFXRaiserModuleBooter implements ApplicationModuleBooter {
                 return null;
             }
         });
-        // Adding Json to SVGPath possible conversion in FXRaiser
+        // Adding JSON to SVGPath possible conversion in FXRaiser
         ValueConverterRegistry.registerValueConverter(new FXValueRaiser() {
             @Override
             public <T> T raiseValue(Object value, Class<T> raisedClass, Object... args) {
-                // Converting Json object graphic to SVGPath
+                // Converting JSON object graphic to SVGPath
                 if (AST.isObject(value) && isAssignableFrom(raisedClass, SVGPath.class))
                     return (T) JsonSVGPath.createSVGPath((ReadOnlyAstObject) value);
-                // Converting Json array graphic to a StackPane with all nodes inside
-                if (AST.isArray(value) && isAssignableFrom(raisedClass, StackPane.class)) {
+                // Converting JSON array graphic to a Group with all nodes inside
+                if (AST.isArray(value) && isAssignableFrom(raisedClass, Group.class)) {
                     ReadOnlyAstArray array = (ReadOnlyAstArray) value;
                     int n = array.size();
                     Node[] graphics = new Node[n];
                     for (int i = 0; i < n; i++)
                         graphics[i] = FXRaiser.raiseToNode(array.getElement(i), args);
-                    return (T) new StackPane(graphics);
+                    return (T) new Group(graphics);
                 }
                 return null;
             }
