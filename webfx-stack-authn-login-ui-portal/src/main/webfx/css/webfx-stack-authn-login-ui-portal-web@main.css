@@ -7,6 +7,8 @@
 :root {
     --webfx-login-portal-background-image: none;
     --webfx-login-portal-title-color: #0096D6;
+    --webfx-login-portal-opacity: 1.0;
+    --webfx-login-portal-filter: drop-shadow(1px 2px 8px lightgray);
 }
 
 /* Montserrat password dots are tiny! So we use another font for passwords, but we don't want that font for the placeholder!
@@ -31,7 +33,7 @@ input[type="password"]:not([value=""]) {
 }
 
 .login-child {
-    --fx-background-color: rgba(255, 255, 255, 0.8);
+    --fx-background-color: rgba(255, 255, 255, var(--webfx-login-portal-opacity));
     --fx-background-radius: 21px;
    /* border: 1px solid lightgray;*/
    /* box-shadow: 0px 0px 10px lightgray;*/
@@ -43,6 +45,7 @@ input[type="password"]:not([value=""]) {
     /* To increase the contrast between the text and the bg */
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    filter: var(--webfx-login-portal-filter);
 }
 
 .login .h2 { /* Login word on top */
