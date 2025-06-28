@@ -1,6 +1,5 @@
 package dev.webfx.stack.ui.action;
 
-import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.stack.i18n.I18n;
 import dev.webfx.stack.ui.json.JsonImageView;
 import javafx.beans.binding.BooleanExpression;
@@ -263,7 +262,7 @@ public class ActionBuilder {
             if (graphicFactory != null || i18nKey == null)
                 graphicFactoryProperty = new SimpleObjectProperty<>(graphicFactory);
             else
-                graphicFactoryProperty = FXProperties.compute(I18n.dictionaryProperty(), dictionary ->
+                graphicFactoryProperty = I18n.dictionaryProperty().map(dictionary ->
                     () -> I18n.getI18nGraphic(i18nKey));
         }
     }

@@ -227,7 +227,7 @@ public final class ValidationSupport {
             label.setBorder(BorderFactory.newBorder(Color.WHITE, 5, 2));
             Rectangle diamond = new Rectangle(10, 10, Color.RED);
             diamond.getTransforms().add(new Rotate(45, 5, 5));
-            diamond.layoutYProperty().bind(FXProperties.compute(label.heightProperty(), n -> n.doubleValue() - 7));
+            diamond.layoutYProperty().bind(label.heightProperty().map(n -> n.doubleValue() - 7));
             diamond.setLayoutX(20d);
             popOverContentNode = new Group(label, diamond);
             //popOverContentNode.setOpacity(0.75);

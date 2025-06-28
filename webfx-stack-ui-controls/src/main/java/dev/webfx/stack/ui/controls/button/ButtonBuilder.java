@@ -1,6 +1,13 @@
 package dev.webfx.stack.ui.controls.button;
 
+import dev.webfx.extras.util.background.BackgroundBuilder;
+import dev.webfx.extras.util.border.BorderBuilder;
+import dev.webfx.extras.util.layout.Layouts;
+import dev.webfx.extras.util.paint.PaintBuilder;
 import dev.webfx.stack.i18n.controls.I18nControls;
+import dev.webfx.stack.ui.action.Action;
+import dev.webfx.stack.ui.action.ActionBinder;
+import dev.webfx.stack.ui.json.JsonImageView;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
@@ -9,14 +16,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Border;
 import javafx.scene.paint.Paint;
-import dev.webfx.stack.ui.action.Action;
-import dev.webfx.stack.ui.action.ActionBinder;
-import dev.webfx.extras.util.background.BackgroundBuilder;
-import dev.webfx.extras.util.border.BorderBuilder;
-import dev.webfx.stack.ui.json.JsonImageView;
-import dev.webfx.extras.util.paint.PaintBuilder;
-import dev.webfx.extras.util.layout.Layouts;
-import dev.webfx.kit.util.properties.FXProperties;
+
 import java.util.function.Function;
 
 /**
@@ -182,7 +182,7 @@ public final class ButtonBuilder {
                 if (pressedBackground == null || pressedBackground == background)
                     button.setBackground(background);
                 else
-                    button.backgroundProperty().bind(FXProperties.compute(button.pressedProperty(), pressed -> pressed ? pressedBackground : background));
+                    button.backgroundProperty().bind(button.pressedProperty().map(pressed -> pressed ? pressedBackground : background));
             }
             if (dropDownArrowDecorated)
                 ButtonFactory.decorateButtonWithDropDownArrow(button);
@@ -197,7 +197,7 @@ public final class ButtonBuilder {
                     button.textFillProperty().unbind();
                     button.setTextFill(textFill);
                 } else
-                    button.textFillProperty().bind(FXProperties.compute(button.pressedProperty(), pressed -> pressed ? pressedTextFill : textFill));
+                    button.textFillProperty().bind(button.pressedProperty().map(pressed -> pressed ? pressedTextFill : textFill));
             }
             button.setCursor(Cursor.HAND);
         }
