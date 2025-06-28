@@ -20,7 +20,7 @@ import javafx.scene.control.Button;
 import java.util.function.Consumer;
 
 /**
- * @author Bruno Salmon
+ * @author David Hello
  */
 public class MagicLinkUi implements MaterialFactoryMixin {
 
@@ -104,7 +104,7 @@ public class MagicLinkUi implements MaterialFactoryMixin {
         Console.log("Technical error: " + technicalMessage);
 
         if (technicalMessage != null) {
-            //The error Message are defined in ModalityMagicLinkAuthenticationGatewayProvider
+            //The technical error messages are defined in ModalityMagicLinkAuthenticationGatewayProvider
             if (technicalMessage.contains("not found")) {
                 uiLoginView.getInfoMessageForPasswordFieldLabel().setVisible(false);
                 uiLoginView.setTitle(MagicLinkI18nKeys.MagicLinkUnrecognisedErrorTitle);

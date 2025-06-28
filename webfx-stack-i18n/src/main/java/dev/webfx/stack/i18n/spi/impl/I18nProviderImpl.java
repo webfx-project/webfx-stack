@@ -98,7 +98,7 @@ public class I18nProviderImpl implements I18nProvider {
             initialLanguage = defaultLanguage;
         setLanguage(initialLanguage);
         // We use FXRaiser to interpret arguments (see I18nProvider default methods), but we add here a final step
-        // to interpret possible brackets AFTER arguments resolution. For example, i18n TimeFormat defines a key
+        // to interpret possible brackets AFTER argument resolution. For example, i18n TimeFormat defines a key
         // called yearMonth2 whose value is [{1}] {0} (in English), which after arguments resolution can be [february] 25
         // and [february] still needs to be interpreted by i8n. That's what we are doing here.
         i18nFxValueRaiser = new FXValueRaiser() {
@@ -280,7 +280,7 @@ public class I18nProviderImpl implements I18nProvider {
                 if (!skipMessageLoading)
                     scheduleMessageLoading(i18nKey, true);
                 if (tokenKey == DefaultTokenKey.TEXT || tokenKey == DefaultTokenKey.GRAPHIC) // we use it also for graphic in Modality after evaluating an expression that gives the path to the icon
-                    tokenValue = messageKey; //;whatToReturnWhenI18nTextIsNotFound(tokenSnapshot.i18nKey, tokenSnapshot.tokenKey);
+                    tokenValue = Strings.toString(messageKey); // The toString() conversion is in case the message key is an object such as an enum (ex: no text for Kitchen enum => returns "Kitchen")
             }
         }
         return tokenValue;

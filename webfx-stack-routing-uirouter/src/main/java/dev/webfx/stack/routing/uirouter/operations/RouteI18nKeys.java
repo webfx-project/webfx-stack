@@ -3,7 +3,7 @@ package dev.webfx.stack.routing.uirouter.operations;
 
 public interface RouteI18nKeys {
 
-    String RouteBackward = "RouteBackward";
-    String RouteForward = "RouteForward";
+    Object RouteBackward = "RouteBackward";
+    Object RouteForward = "RouteForward";
 
 }

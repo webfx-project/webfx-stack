@@ -5,28 +5,28 @@ package dev.webfx.stack.i18n;
  */
 public final class I18nKeys {
 
-    public static String appendEllipsis(String i18nKey) {
+    public static String appendEllipsis(Object i18nKey) {
         return i18nKey + "...";
     }
 
-    public static String appendColons(String i18nKey) {
+    public static String appendColons(Object i18nKey) {
         return i18nKey + ":";
     }
 
-    public static String appendArrows(String i18nKey) {
+    public static String appendArrows(Object i18nKey) {
         return i18nKey + ">>";
     }
 
-    public static String prependArrows(String i18nKey) {
+    public static String prependArrows(Object i18nKey) {
         return "<<" + i18nKey;
     }
 
-    public static String upperCase(String i18nKey) {
-        return i18nKey.toUpperCase();
+    public static String upperCase(Object i18nKey) {
+        return i18nKey.toString().toUpperCase();
     }
 
-    public static String lowerCase(String i18nKey) {
-        return i18nKey.toLowerCase();
+    public static String lowerCase(Object i18nKey) {
+        return i18nKey.toString().toLowerCase();
     }
 
     public static String upperCaseFirstChar(String i18nKey) {
@@ -43,11 +43,11 @@ public final class I18nKeys {
         return i18nKey;
     }
 
-    public static String embedInString(String i18nKey) {
+    public static String embedInString(Object i18nKey) {
         return "[" + i18nKey + "]";
     }
 
-    public static String embedInString(String text, String i18nKey) {
+    public static String embedInString(String text, Object i18nKey) {
         return text.replace("[0]", embedInString(i18nKey));
     }
 

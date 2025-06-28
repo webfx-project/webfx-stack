@@ -3,6 +3,6 @@ package dev.webfx.stack.authn.logout.client.operation;
 
 public interface LogoutI18nKeys {
 
-    String Logout = "Logout";
+    Object Logout = "Logout";
 
 }

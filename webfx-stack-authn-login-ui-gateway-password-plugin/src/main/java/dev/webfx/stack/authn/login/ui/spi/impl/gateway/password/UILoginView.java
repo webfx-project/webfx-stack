@@ -29,6 +29,9 @@ import javafx.scene.text.TextAlignment;
 
 import java.util.function.Consumer;
 
+/**
+ * @author David Hello
+ */
 public class UILoginView implements MaterialFactoryMixin {
 
     private static final String CHECKMARK_PATH = "M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z M14.7 8.39l-3.78 5-1.63-2.11a1 1 0 0 0-1.58 1.23l2.43 3.11a1 1 0 0 0 .79.38 1 1 0 0 0 .79-.39l4.57-6a1 1 0 1 0-1.6-1.22z";
@@ -298,13 +301,13 @@ public class UILoginView implements MaterialFactoryMixin {
         forgetRememberPasswordHyperlink.setVisible(true);
     }
 
-    public void setInfoMessageForPasswordFieldLabel(String I18nKey, String bootStrapStyle) {
-        I18nControls.bindI18nProperties(infoMessageForPasswordFieldLabel, I18nKey);
+    public void setInfoMessageForPasswordFieldLabel(Object i18nKey, String bootStrapStyle) {
+        I18nControls.bindI18nProperties(infoMessageForPasswordFieldLabel, i18nKey);
         infoMessageForPasswordFieldLabel.getStyleClass().setAll(bootStrapStyle);
     }
 
-    public void setForgetRememberPasswordHyperlink(String I18nKey) {
-        I18nControls.bindI18nProperties(forgetRememberPasswordHyperlink, I18nKey);
+    public void setForgetRememberPasswordHyperlink(Object i18nKey) {
+        I18nControls.bindI18nProperties(forgetRememberPasswordHyperlink, i18nKey);
     }
 
     public void hideMessageForPasswordField() {
@@ -325,17 +328,17 @@ public class UILoginView implements MaterialFactoryMixin {
         emailTextField.setManaged(true);
     }
 
-    public void setMainMessage(String I18nKey, String bootStrapStyle) {
-        I18nControls.bindI18nProperties(mainMessageLabel, I18nKey);
+    public void setMainMessage(Object i18nKey, String bootStrapStyle) {
+        I18nControls.bindI18nProperties(mainMessageLabel, i18nKey);
         mainMessageLabel.getStyleClass().setAll(bootStrapStyle);
     }
 
-    public void setLabelOnActionButton(String I18nKey) {
-        I18nControls.bindI18nProperties(actionButton, I18nKey);
+    public void setLabelOnActionButton(Object i18nKey) {
+        I18nControls.bindI18nProperties(actionButton, i18nKey);
     }
 
-    public void setTitle(String I18nKey) {
-        I18nControls.bindI18nProperties(loginTitleLabel, I18nKey);
+    public void setTitle(Object i18nKey) {
+        I18nControls.bindI18nProperties(loginTitleLabel, i18nKey);
     }
 
     public void showMainMessage() {
