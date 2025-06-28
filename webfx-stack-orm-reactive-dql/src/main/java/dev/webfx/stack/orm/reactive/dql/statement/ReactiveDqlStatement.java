@@ -163,7 +163,7 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
 
     @Override
     public <T> ReactiveDqlStatement<E> always(ObservableValue<T> property, Converter<T, DqlStatement> toDqlStatementConverter) {
-        return addWithoutListening(FXProperties.compute(property, t -> {
+        return addWithoutListening(property.map(t -> {
             // Calling the converter to get the dql statement
             DqlStatement dqlStatement = toDqlStatementConverter.convert(t);
             // If different from last value, this will trigger a global change check
@@ -250,7 +250,7 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
 
     @Override
     public <T, T2 extends T> ReactiveDqlStatement<E> ifInstanceOf(ObservableValue<T> property, Class<T2> clazz, Converter<T2, DqlStatement> toDqlStatementConverter) {
-        return addWithoutListening(FXProperties.compute(property, v -> {
+        return addWithoutListening(property.map(v -> {
             markDqlStatementsAsChanged();
             return dev.webfx.platform.util.Objects.isInstanceOf(v, clazz) ? toDqlStatementConverter.convert((T2) v) : null;
         }));
@@ -322,7 +322,7 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
 
     protected static <E> ReactiveDqlStatement<E> initializeSlave(ReactiveDqlStatement<E> slave, Object pm) {
         if (pm instanceof HasSelectedMasterProperty)
-            slave.ifTrue(FXProperties.compute(((HasSelectedMasterProperty) pm).selectedMasterProperty(), selectedMaster ->
+            slave.ifTrue(((HasSelectedMasterProperty) pm).selectedMasterProperty().map(selectedMaster ->
                     selectedMaster == null || pm instanceof HasSlaveVisibilityCondition && !((HasSlaveVisibilityCondition) pm).isSlaveVisible(selectedMaster)
             ), DqlStatement.EMPTY_STATEMENT);
         return slave;
