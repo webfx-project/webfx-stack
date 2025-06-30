@@ -41,6 +41,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -332,6 +333,27 @@ public final class ValidationSupport {
         );
     }
 
+    public void  addMinimumDurationValidationIfOtherTextFieldNotNull (TextField timeInput, TextField linkedTextField, Node where, ObservableStringValue errorMessage) {
+        {
+            addValidationRule(
+                Bindings.createBooleanBinding(
+                    () -> {
+                        try {
+                            String input = timeInput.getText();
+                            if (linkedTextField==null || Objects.equals(linkedTextField.getText(), "") || input == null || input.isEmpty()) return true; // Allow empty input
+                            int value = Integer.parseInt(input);  // Try to parse the input to an integer
+                            return value >= 60;  // Validate if the integer is at least 60
+                        } catch (NumberFormatException e) {
+                            return false;  // Invalid if input is not a valid integer
+                        }
+                    },
+                    timeInput.textProperty()
+                ),
+                where,
+                errorMessage
+            );
+        }
+    }
 
     public void addUrlOrEmptyValidation(TextField urlInput, ObservableStringValue errorMessage) {
         // Define the URL pattern (basic)
@@ -554,6 +576,27 @@ public final class ValidationSupport {
                 ),
                 passwordLabel,
                 errorMessage
+        );
+    }
+
+    public void addRequiredInputIfOtherTextFieldNotNull(TextField requiredTextField, TextField linkedTextField, TextField node) {
+        addValidationRule(
+            Bindings.createBooleanBinding(
+                () -> {
+                    // If linkedTextField is null or its text is null or empty, skip validation
+                    if (linkedTextField == null || linkedTextField.getText() == null || linkedTextField.getText().isEmpty()) {
+                        return true;
+                    }
+
+                    // If linkedTextField has text, requiredTextField must also have text
+                    return requiredTextField != null
+                        && requiredTextField.getText() != null
+                        && !requiredTextField.getText().isEmpty();
+                },
+                linkedTextField.textProperty(), requiredTextField.textProperty()
+            ),
+            node,
+            DEFAULT_REQUIRED_MESSAGE
         );
     }
 }
