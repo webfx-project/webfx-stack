@@ -358,7 +358,7 @@ public final class ValidationSupport {
     public void addUrlOrEmptyValidation(TextField urlInput, ObservableStringValue errorMessage) {
         // Looser but practical pattern for URLs including non-ASCII and punctuation
         String urlPattern = "^(https?|srt|rtmp|rtsp)://[^\\s]+$";
-        Pattern pattern = Pattern.compile(urlPattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+        Pattern pattern = Pattern.compile(urlPattern);//Not emulated for now: , Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
         addValidationRule(
             Bindings.createBooleanBinding(
