@@ -356,16 +356,15 @@ public final class ValidationSupport {
     }
 
     public void addUrlOrEmptyValidation(TextField urlInput, ObservableStringValue errorMessage) {
-        // Define the URL pattern (basic)
-        String urlPattern = "^(https|srt|rtmp|rtsp)://(www\\.)?[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}(/[a-zA-Z0-9%._/()\\-]*)$";
-        Pattern pattern = Pattern.compile(urlPattern);
+        // Looser but practical pattern for URLs including non-ASCII and punctuation
+        String urlPattern = "^(https?|srt|rtmp|rtsp)://[^\\s]+$";
+        Pattern pattern = Pattern.compile(urlPattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
-        // Create the validation rule
         addValidationRule(
             Bindings.createBooleanBinding(
                 () -> {
                     String input = urlInput.getText();
-                    return input.isEmpty() || pattern.matcher(input).matches();  // Accept empty or valid URL
+                    return input == null || input.isEmpty() || pattern.matcher(input).matches();
                 },
                 urlInput.textProperty()
             ),
@@ -373,6 +372,8 @@ public final class ValidationSupport {
             errorMessage
         );
     }
+
+
 
     public void addNonEmptyValidation(TextField textField, Node where, ObservableStringValue errorMessage) {
         // Create the validation rule
