@@ -26,6 +26,8 @@ public interface UpdateStore extends EntityStore {
     <E extends Entity> E insertEntity(EntityId entityId);
 
     default <E extends Entity> E updateEntity(E entity) {
+        if (entity == null)
+            return null;
         E updatedEntity = updateEntity(entity.getId());
         if (updatedEntity instanceof DynamicEntity && entity != updatedEntity) {
             DynamicEntity dynamicEntity = (DynamicEntity) updatedEntity;
