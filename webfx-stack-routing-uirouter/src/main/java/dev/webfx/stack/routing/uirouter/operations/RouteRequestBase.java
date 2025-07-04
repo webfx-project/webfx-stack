@@ -1,6 +1,6 @@
 package dev.webfx.stack.routing.uirouter.operations;
 
-import dev.webfx.stack.ui.operation.HasOperationExecutor;
+import dev.webfx.extras.operation.HasOperationExecutor;
 import dev.webfx.stack.routing.router.auth.authz.RouteRequest;
 import dev.webfx.platform.windowhistory.spi.BrowsingHistory;
 import dev.webfx.platform.async.Future;

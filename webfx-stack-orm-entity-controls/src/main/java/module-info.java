@@ -7,11 +7,13 @@ module webfx.stack.orm.entity.controls {
     requires javafx.controls;
     requires javafx.graphics;
     requires webfx.extras.cell;
+    requires transitive webfx.extras.controlfactory;
     requires webfx.extras.imagestore;
     requires webfx.extras.label;
     requires webfx.extras.panes;
     requires webfx.extras.styles.materialdesign;
     requires webfx.extras.type;
+    requires webfx.extras.util.dialog;
     requires webfx.extras.util.layout;
     requires webfx.extras.util.scene;
     requires webfx.extras.visual;
@@ -30,8 +32,6 @@ module webfx.stack.orm.entity.controls {
     requires webfx.stack.orm.expression;
     requires webfx.stack.orm.reactive.entities;
     requires webfx.stack.orm.reactive.visual;
-    requires transitive webfx.stack.ui.controls;
-    requires webfx.stack.ui.dialog;
 
     // Exported packages
     exports dev.webfx.stack.orm.entity.controls.entity.selector;

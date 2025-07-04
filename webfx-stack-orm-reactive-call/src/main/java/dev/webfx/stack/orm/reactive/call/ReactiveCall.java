@@ -72,6 +72,11 @@ public class ReactiveCall<A, R> {
             this.activeProperty.bind(activeProperty);
     }
 
+    public void unbindActiveProperty() {
+        activeProperty().unbind();
+        setActive(true);
+    }
+
     public final ObjectProperty<A> argumentProperty() {
         return argumentProperty;
     }

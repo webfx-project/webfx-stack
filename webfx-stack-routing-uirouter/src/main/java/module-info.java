@@ -5,6 +5,8 @@ module webfx.stack.routing.uirouter {
     // Direct dependencies modules
     requires javafx.base;
     requires javafx.graphics;
+    requires webfx.extras.i18n;
+    requires webfx.extras.operation;
     requires webfx.kit.launcher;
     requires webfx.platform.ast;
     requires webfx.platform.async;
@@ -13,12 +15,10 @@ module webfx.stack.routing.uirouter {
     requires webfx.platform.uischeduler;
     requires transitive webfx.platform.util;
     requires transitive webfx.platform.windowhistory;
-    requires webfx.stack.i18n;
     requires transitive webfx.stack.routing.activity;
     requires webfx.stack.routing.router;
     requires transitive webfx.stack.routing.router.client;
     requires webfx.stack.session.state.client.fx;
-    requires webfx.stack.ui.operation;
 
     // Exported packages
     exports dev.webfx.stack.routing.uirouter;

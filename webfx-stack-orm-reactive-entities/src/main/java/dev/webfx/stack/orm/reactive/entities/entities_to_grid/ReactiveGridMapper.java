@@ -1,7 +1,7 @@
 package dev.webfx.stack.orm.reactive.entities.entities_to_grid;
 
 import dev.webfx.kit.util.properties.FXProperties;
-import dev.webfx.stack.i18n.I18n;
+import dev.webfx.extras.i18n.I18n;
 import dev.webfx.stack.orm.reactive.dql.query.ReactiveDqlQuery;
 import dev.webfx.stack.orm.reactive.dql.statement.ReactiveDqlStatement;
 import dev.webfx.stack.orm.reactive.entities.dql_to_entities.ReactiveEntitiesMapper;

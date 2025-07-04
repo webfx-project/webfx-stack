@@ -5,7 +5,7 @@ import dev.webfx.extras.visual.VisualColumn;
 import dev.webfx.extras.visual.VisualResult;
 import dev.webfx.extras.visual.VisualResultBuilder;
 import dev.webfx.stack.orm.reactive.entities.entities_to_grid.EntityColumn;
-import dev.webfx.stack.i18n.I18n;
+import dev.webfx.extras.i18n.I18n;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.domainmodel.DomainModel;
 import dev.webfx.stack.orm.entity.Entity;

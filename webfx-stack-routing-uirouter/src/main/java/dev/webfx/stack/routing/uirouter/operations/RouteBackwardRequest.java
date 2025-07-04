@@ -2,8 +2,8 @@ package dev.webfx.stack.routing.uirouter.operations;
 
 import dev.webfx.platform.async.AsyncFunction;
 import dev.webfx.platform.windowhistory.spi.BrowsingHistory;
-import dev.webfx.stack.i18n.HasI18nKey;
-import dev.webfx.stack.ui.operation.HasOperationCode;
+import dev.webfx.extras.i18n.HasI18nKey;
+import dev.webfx.extras.operation.HasOperationCode;
 
 /**
  * @author Bruno Salmon

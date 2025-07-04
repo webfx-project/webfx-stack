@@ -1,9 +1,9 @@
-package dev.webfx.stack.ui.action.tuner.logout;
+package dev.webfx.stack.session.state.client.fx.actiontuner;
 
 import dev.webfx.stack.session.state.client.fx.FXLoggedOut;
-import dev.webfx.stack.ui.action.Action;
-import dev.webfx.stack.ui.action.ActionBuilder;
-import dev.webfx.stack.ui.action.tuner.ActionTuner;
+import dev.webfx.extras.action.Action;
+import dev.webfx.extras.action.ActionBuilder;
+import dev.webfx.extras.action.ActionTuner;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 
 /**

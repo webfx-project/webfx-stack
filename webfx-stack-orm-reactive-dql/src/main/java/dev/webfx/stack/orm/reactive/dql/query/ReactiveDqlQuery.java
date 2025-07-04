@@ -92,14 +92,13 @@ public class ReactiveDqlQuery<E> implements ReactiveDqlQueryAPI<E, ReactiveDqlQu
 
     @Override
     public ReactiveDqlQuery<E> bindActivePropertyTo(ObservableValue<Boolean> activeProperty) {
-        reactiveQueryCall.activeProperty().bind(activeProperty);
+        reactiveQueryCall.bindActivePropertyTo(activeProperty);
         return this;
     }
 
     @Override
     public ReactiveDqlQuery<E> unbindActiveProperty() {
-        reactiveQueryCall.activeProperty().unbind();
-        reactiveQueryCall.setActive(true);
+        reactiveQueryCall.unbindActiveProperty();
         return this;
     }
 

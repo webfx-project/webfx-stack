@@ -1,9 +1,9 @@
 package dev.webfx.stack.authn.logout.client.operation;
 
 import dev.webfx.platform.async.AsyncFunction;
-import dev.webfx.stack.i18n.HasI18nKey;
-import dev.webfx.stack.ui.operation.HasOperationCode;
-import dev.webfx.stack.ui.operation.HasOperationExecutor;
+import dev.webfx.extras.i18n.HasI18nKey;
+import dev.webfx.extras.operation.HasOperationCode;
+import dev.webfx.extras.operation.HasOperationExecutor;
 
 /**
  * @author Bruno Salmon
