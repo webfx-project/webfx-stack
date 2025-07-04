@@ -8,7 +8,6 @@ import dev.webfx.stack.db.submit.SubmitResult;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.sqlclient.*;
-import io.vertx.sqlclient.impl.ArrayTuple;
 
 import java.net.SocketException;
 import java.util.ArrayList;
@@ -57,7 +56,7 @@ final class VertxSqlUtil {
 
     static Tuple tupleFromArguments(Object[] parameters) {
         if (parameters == null)
-            return new ArrayTuple(0);
+            return Tuple.tuple();
         return Tuple.from(parameters);
     }
 

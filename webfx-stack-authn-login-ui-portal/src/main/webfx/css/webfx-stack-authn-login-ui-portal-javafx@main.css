@@ -1,4 +1,4 @@
-* {
+.root {
     -webfx-login-portal-background-image: none; /* Specify the path to your image */
     -webfx-login-portal-title-color: #0096D6;
 }
@@ -8,6 +8,7 @@
     -fx-background-repeat: no-repeat; /* Prevents the image from repeating */
     -fx-background-size: cover; /* Scales the image to cover the area */
     -fx-background-position: center;
+    -fx-font-size: 17px;
 }
 
 .login .background {

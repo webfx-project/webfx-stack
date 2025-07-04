@@ -41,7 +41,7 @@ final class VertxRouter implements Router {
 
     @Override
     public Router mountSubRouter(String mountPoint, Router subRouter) {
-        vertxRouter.mountSubRouter(mountPoint, ((VertxRouter) subRouter).vertxRouter);
+        vertxRouter.route(mountPoint).handler(ctx -> ((VertxRouter) subRouter).vertxRouter.handleContext(ctx));
         return this;
     }
 

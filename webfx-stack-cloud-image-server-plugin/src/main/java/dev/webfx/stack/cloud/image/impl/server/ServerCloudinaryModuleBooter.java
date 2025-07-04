@@ -7,6 +7,7 @@ import dev.webfx.platform.util.Booleans;
 import dev.webfx.platform.vertx.common.VertxInstance;
 import dev.webfx.stack.cloud.image.CloudImageService;
 import dev.webfx.stack.cloud.image.impl.cloudinary.Cloudinary;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -50,7 +51,8 @@ public class ServerCloudinaryModuleBooter implements ApplicationModuleBooter {
             router.route(existsPath)
                 .handler(BodyHandler.create())
                 .handler(ctx -> {
-                    String id = ctx.request().getParam("id");
+                    HttpServerRequest request = ctx.request();
+                    String id = request.getParam("id");
                     imageService.exists(id)
                             .onFailure(err -> ctx.response().setStatusCode(SERVICE_UNAVAILABLE_503).send())
                             .onSuccess(exists -> ctx.response().setStatusCode(exists ? OK_200 : NO_CONTENT_204).end());

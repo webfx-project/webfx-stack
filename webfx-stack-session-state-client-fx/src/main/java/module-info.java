@@ -4,6 +4,7 @@ module webfx.stack.session.state.client.fx {
 
     // Direct dependencies modules
     requires javafx.base;
+    requires webfx.extras.action;
     requires webfx.kit.util;
     requires webfx.platform.console;
     requires webfx.platform.uischeduler;
@@ -14,5 +15,6 @@ module webfx.stack.session.state.client.fx {
 
     // Exported packages
     exports dev.webfx.stack.session.state.client.fx;
+    exports dev.webfx.stack.session.state.client.fx.actiontuner;
 
 }

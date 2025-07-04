@@ -31,9 +31,9 @@ public final class EntityMessaging {
     // This is the method to use for the sender client (typically the back-office) to send a message to all front-office
     // clients currently connected and listening (because they called addMessageBodyHandler() before).
     public void publishMessage(Object messageBody) {
-        // We serialize the java object into json before publishing it on the event bus
+        // We serialize the java object into JSON before publishing it on the event bus
         Object encodedBody = SerialCodecManager.encodeToJson(messageBody);
-        // We publish the json encoded body to all front-office clients who are listening (because they called
+        // We publish the json-encoded body to all front-office clients who are listening (because they called
         // addFrontOfficeMessageBodyHandler() before).
         BusService.bus().publish(address, encodedBody);
     }

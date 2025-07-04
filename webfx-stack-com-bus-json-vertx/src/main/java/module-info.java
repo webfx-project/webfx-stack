@@ -4,7 +4,7 @@ module webfx.stack.com.bus.json.vertx {
 
     // Direct dependencies modules
     requires io.vertx.core;
-    requires io.vertx.eventbusbridge.common;
+    requires io.vertx.eventbusbridge;
     requires io.vertx.web;
     requires webfx.platform.ast;
     requires webfx.platform.async;

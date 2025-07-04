@@ -12,6 +12,7 @@ import io.vertx.ext.web.sstore.LocalSessionStore;
 import io.vertx.ext.web.sstore.SessionStore;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -98,8 +99,12 @@ public class VertxHttpModuleBooter implements ApplicationModuleBooter {
                 String routePattern = httpStaticRouteConfig.getString(ROUTE_PATTERN_CONFIG_KEY);
                 ReadOnlyAstArray hostnamePatterns = httpStaticRouteConfig.getArray(HOSTNAME_PATTERNS_CONFIG_KEY);
                 String pathToStaticFolder = httpStaticRouteConfig.getString(PATH_TO_STATIC_FOLDER_CONFIG_KEY);
-                Console.log("✓ Routing '" + routePattern + "' to serve static files at " + pathToStaticFolder + (hostnamePatterns == null ? "" : " for the following hostnames: " + list(hostnamePatterns)));
-                VertxHttpRouterConfigurator.addStaticRoute(routePattern, hostnamePatterns, pathToStaticFolder);
+                try {
+                    VertxHttpRouterConfigurator.addStaticRoute(routePattern, hostnamePatterns, pathToStaticFolder);
+                    Console.log("✓ Routed '" + routePattern + "' to serve static files at " + pathToStaticFolder + (hostnamePatterns == null ? "" : " for the following hostnames: " + list(hostnamePatterns)));
+                } catch (IOException e) {
+                    Console.log("❌ Failed to route '" + routePattern + "' to serve static files at " + pathToStaticFolder + (hostnamePatterns == null ? "" : " for the following hostnames: " + list(hostnamePatterns)), e);
+                }
             });
 
             //return errors == 0 ? Future.succeededFuture() : Future.failedFuture(new ConfigurationException(errors < configuration.getArray(HTTP_STATIC_ROUTES_CONFIG_KEY).size()));

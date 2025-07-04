@@ -1,6 +1,14 @@
+@font-face {
+    font-family: "Password";
+    src: url("./fonts/password/password.woff") format("woff");
+    font-weight: 100 900;
+}
+
 :root {
     --webfx-login-portal-background-image: none;
     --webfx-login-portal-title-color: #0096D6;
+    --webfx-login-portal-opacity: 1.0;
+    --webfx-login-portal-filter: drop-shadow(1px 2px 8px lightgray);
 }
 
 /* Montserrat password dots are tiny! So we use another font for passwords, but we don't want that font for the placeholder!
@@ -12,53 +20,51 @@ input[type="password"]:not([value=""]) {
     letter-spacing: 0.15em;
 }
 
-@font-face {
-    font-family: "Password";
-    src: url("./fonts/password/password.woff") format("woff");
-    font-weight: 100 900;
-}
-
 .login {
-    background-image: var(--webfx-login-portal-background-image); /* Specify the path to your image */
-    background-repeat: no-repeat;               /* Prevents the image from repeating */
-    background-size: cover;                     /* Scales the image to cover the area */
-    background-position: center;                /* Centers the image */
+    --fx-background-image: var(--webfx-login-portal-background-image);
+    --fx-background-position: center;
+    --fx-background-size: cover;
+    --fx-background-repeat: no-repeat;
     --fx-border-radius: 21px;
 }
 
 .login input {
-     font-size: 13px;
+     font-size: 17px;
 }
 
 .login-child {
-    background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 21px;
+    --fx-background-color: rgba(255, 255, 255, var(--webfx-login-portal-opacity));
+    --fx-background-radius: 21px;
    /* border: 1px solid lightgray;*/
    /* box-shadow: 0px 0px 10px lightgray;*/
     width: 586px; /* Sets the fixed width */
     height: 506px; /* Sets the fixed height */
 }
 
+.login-child > fx-background {
+    /* To increase the contrast between the text and the bg */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    filter: var(--webfx-login-portal-filter);
+}
+
 .login .h2 { /* Login word on top */
     font-family: 'Poppins', sans-serif; /* Sets the font to Poppins, with a fallback to sans-serif */
     font-weight: bold;
     line-height: 0.5;
-    color: var(--webfx-login-portal-title-color);
+    --fx-text-fill: var(--webfx-login-portal-title-color);
 }
 
 .login .or {
-    color: #888;
+    --fx-text-fill: #888;
 }
 
 .login .line {
-    background-color: lightgray;
+    --fx-background-color: lightgray;
 }
 
-.transparent-input > fx-background {
-    background-color: transparent;
-}
-
-.transparent-input > fx-border {
-    border-style: none;
+.transparent-input {
+    --fx-background-color: transparent;
+    --fx-border-style: none;
 }
 

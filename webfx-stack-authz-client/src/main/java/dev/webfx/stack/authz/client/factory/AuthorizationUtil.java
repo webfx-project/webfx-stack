@@ -25,7 +25,7 @@ public final class AuthorizationUtil {
 
             @Override
             protected void onInvalidating() {
-                // The context property is for example an operationActionProperty (null first, then non-null once the
+                // The context property is, for example, an operationActionProperty (null first, then non-null once the
                 // operations have been loaded). We get the context.
                 C context = contextProperty.getValue();
                 boolean authorizationCallNeeded = this.context != context || FXAuthorizationsChanged.hasAuthorizationsChanged() || value == null;
@@ -59,8 +59,8 @@ public final class AuthorizationUtil {
 
             @Override
             protected boolean computeValue() {
-                if (value == null) // This happens on first call
-                    onInvalidating(); // Now value is false, but the authorization function is pending and may change the value later
+                if (value == null) // This happens on the first call
+                    onInvalidating(); // Now the value is false, but the authorization function is pending and may change the value later
                 return value;
             }
         };

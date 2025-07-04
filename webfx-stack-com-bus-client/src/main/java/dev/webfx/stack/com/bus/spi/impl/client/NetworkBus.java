@@ -133,7 +133,7 @@ public abstract class NetworkBus extends SimpleBus {
     protected abstract String createRegisterNetworkRawMessage(String address);
 
     /*
-     * No more handlers so we should unregister the connection
+     * No more handlers, so we should unregister the connection
      */
     protected void sendUnregister(String address) {
         sendOutgoingNetworkRawMessage(createUnregisterNetworkRawMessage(address));

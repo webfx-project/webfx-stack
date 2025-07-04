@@ -40,7 +40,7 @@ public final class BusCallService {
             PendingBusCall<T> pendingBusCall = new PendingBusCall<>();
             // Making the actual call by sending the (wrapped) java argument over the event bus and providing a java reply handler
             BusCallService.sendJavaObjectAndWaitJavaReply( // helper method that does the job to send the (wrapped) java argument
-                remoteBusCallServiceAddress, // the address of the remote BusCallService counterpart where entry calls are listened
+                remoteBusCallServiceAddress, // the address of the remote BusCallService counterpart where entry calls are listened to
                 new BusCallArgument(serviceAddress, javaArgument), // the java argument is wrapped into a BusCallArgument (as expected by the counterpart BusCallService)
                 options,
                 pendingBusCall::onBusCallResult // it just forwards the target result to the caller using the future
@@ -73,62 +73,63 @@ public final class BusCallService {
 
 
     /*********************************************************************************
-     * Private implementing methods of the "java layer" on top of the json event bus *
+     * Private implementing methods of the "java layer" on top of the JSON event bus *
      ********************************************************************************/
 
     /**
-     * Method to send a java object over the event bus. The java object is first serialized into json format assuming
-     * there is a json codec registered for that java class. The reply handler will be called back on reply reception.
+     * Method to send a java object over the event bus. The java object is first serialized into JSON format assuming
+     * there is a JSON codec registered for that java class. The reply handler will be called back on reply reception.
      *
      * @param <J> The java class expected by the java reply handler
      */
     private static <J> void sendJavaObjectAndWaitJavaReply(String address, Object javaObject, DeliveryOptions options, Handler<AsyncResult<J>> javaReplyHandler) {
-        // Delegating the job to sendJavaObjectAndWaitJsonReply() with the following json reply handler:
+        // Delegating the job to sendJavaObjectAndWaitJsonReply() with the following JSON reply handler:
         sendJavaObjectAndWaitJsonReply(address, javaObject, options, javaAsyncHandlerToJsonAsyncMessageHandler(javaReplyHandler));
     }
 
     /**
-     * Method to send a java object over the event bus. The java object is first serialized into json format assuming
-     * there is a json codec registered for that java class. The reply handler will be called back on reply reception.
+     * Method to send a java object over the event bus. The java object is first serialized into JSON format assuming
+     * there is a JSON codec registered for that java class. The reply handler will be called back on reply reception.
      */
     private static <T> void sendJavaObjectAndWaitJsonReply(String address, Object javaObject, DeliveryOptions options, Handler<AsyncResult<Message<T>>> jsonReplyMessageHandler) {
-        // Serializing the java object into json format (a json object most of the time but may also be a simple string or number)
+        // Serializing the java object into JSON format (a JSON object most of the time but may also be a simple string or number)
         Object jsonObject = SerialCodecManager.encodeToJson(javaObject);
         if (LOGS)
             log("BusCallService sends json " + jsonObject);
-        // Sending that json object over the json event bus
+        // Sending that JSON object over the JSON event bus
         BusService.bus().request(address, jsonObject, options, jsonReplyMessageHandler);
     }
 
     /**
      * Method to send a java reply over the event bus. Basically the same as the previous method but using the
-     * Message.reply() method instead and no reply is expected.
+     * Message.reply() method instead, and no reply is expected.
      */
     private static <T> void sendJavaReply(Object javaReply, DeliveryOptions options, Message<T> callerMessage) {
-        // Serializing the java reply into json format (a json object most of the time but may also be a simple string or number)
+        // Serializing the java reply into JSON format (a JSON object most of the time but may also be a simple string or number)
         Object jsonReply = SerialCodecManager.encodeToJson(javaReply);
         if (LOGS)
             log("BusCallService sends reply " + jsonReply);
-        // Sending that json reply to the caller over the json event bus
+        // Sending that JSON reply to the caller over the JSON event bus
         callerMessage.reply(jsonReply, options);
     }
 
     /**
-     * Method to extract a java object from a json message (its body is supposed to be in json format).
-     * The message json body is deserialized into a java object (assuming there is a json deserializer registered for that java class)
+     * Method to extract a java object from a JSON message (its body is supposed to be in JSON format).
+     * The message JSON body is deserialized into a java object (assuming there is a JSON deserializer registered for
+     * that java class)
      *
      * @param <J> expected java class
      */
-    private static <J> J jsonMessageToJavaObject(Message message) {
-        // Getting the message body in json format
+    private static <J> J jsonMessageToJavaObject(Message<?> message) {
+        // Getting the message body in JSON format
         Object jsonBody = message.body();
-        // Converting it into a java object through json deserialization
+        // Converting it into a java object through JSON deserialization
         return SerialCodecManager.decodeFromJson(jsonBody);
     }
 
     /**
-     * Method to convert a java handler Handler<AsyncResult<J>> into a json message handler Handler<AsyncResult<Message<T>>>.
-     * The resulted json message handler will just call the java handler after having deserialized the json message into
+     * Method to convert a java handler Handler<AsyncResult<J>> into a JSON message handler Handler<AsyncResult<Message<T>>>.
+     * The resulting JSON message handler will just call the java handler after having deserialized the JSON message into
      * a java object or report any exception
      *
      * @param <J> expected java class as input for the java handler
@@ -140,7 +141,7 @@ public final class BusCallService {
             else {
                 Message<T> jsonMessage = ar.result();
                 try {
-                    // Getting the java object from the json message
+                    // Getting the java object from the JSON message
                     J javaObject = jsonMessageToJavaObject(jsonMessage); // this implicit cast may throw a ClassCastException
                     // and calling the java handler with that java object
                     javaHandler.handle(Future.succeededFuture(javaObject));
@@ -152,7 +153,7 @@ public final class BusCallService {
     }
 
     /**
-     * Exactly the same but accepting a BiConsumer for the java handler and pass the json message to it (in addition to
+     * Exactly the same but accepting a BiConsumer for the java handler and pass the JSON message to it (in addition to
      * the java object). In this way the java handler can send a reply to the caller.
      *
      * @param <J> expected java class as input for the java handler
@@ -160,7 +161,7 @@ public final class BusCallService {
     private static <J, T> Handler<Message<T>> javaHandlerToJsonMessageHandler(BiConsumer<J, Message<T>> javaHandler) {
         return jsonMessage -> ThreadLocalStateHolder.runWithState(jsonMessage.state(), () -> {
             try {
-                // Getting the java object from the json message
+                // Getting the java object from the JSON message
                 J javaObject = jsonMessageToJavaObject(jsonMessage); // this implicit cast may throw a ClassCastException
                 // and calling the java handler with that java object
                 javaHandler.accept(javaObject, jsonMessage);
@@ -171,9 +172,9 @@ public final class BusCallService {
     }
 
     /**
-     * Method to register a java handler (a handler expecting java objects and not a json objects). So json objects sent
+     * Method to register a java handler (a handler expecting a java object and not JSON object). So JSON objects sent
      * to this address will automatically be deserialized into the java class expected by the java handler (assuming all
-     * necessary json codecs are registered to make this possible).
+     * necessary JSON codecs are registered to make this possible).
      *
      * @param <J> expected java class as input for the java handler
      */
@@ -190,18 +191,18 @@ public final class BusCallService {
     }
 
     /**
-     * Method to register a json message handler (just delegates this to the event bus).
+     * Method to register a JSON message handler (just delegates this to the event bus).
      */
     private static <T> Registration registerJsonMessageHandler(boolean local, String address, Handler<Message<T>> jsonMessageHandler) {
         return BusService.bus().register(local, address, jsonMessageHandler);
     }
 
     /***********************************************************************************************
-     * Public helper methods to register java handlers and functions working with the "java layer" *
+     * Public helper methods to register Java handlers and functions working with the "java layer" *
      **********************************************************************************************/
 
     /**
-     * Method to register a java asynchronous function (which returns a Future) as a java service so it can be called
+     * Method to register a Java asynchronous function (which returns a Future) as a Java service so it can be called
      * through the BusCallService.
      *
      * @param <A> java class of the input argument of the asynchronous function
@@ -225,7 +226,7 @@ public final class BusCallService {
     }
 
     /**
-     * Method to register a java synchronous function as a java service, so it can be called through the BusCallService.
+     * Method to register a Java synchronous function as a java service, so it can be called through the BusCallService.
      *
      * @param <A> java class of the input argument of the synchronous function
      * @param <R> java class of the output result of the synchronous function
@@ -237,7 +238,7 @@ public final class BusCallService {
     }
 
     /**
-     * Method to register a java callable (synchronous function with no input argument) as a java service, so it can be
+     * Method to register a Java Callable (synchronous function with no input argument) as a Java service, so it can be
      * called through the BusCallService.
      *
      * @param <R> java class of the output result of the callable

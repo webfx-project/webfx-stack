@@ -3,7 +3,7 @@ package dev.webfx.stack.orm.expression.parser;
 import dev.webfx.platform.console.Console;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.builder.BuilderThreadContext;
-import dev.webfx.stack.orm.expression.builder.terms.DqlOrderBuilder;
+import dev.webfx.stack.orm.expression.builder.terms.DqlStatementBuilder;
 import dev.webfx.stack.orm.expression.builder.terms.ExpressionBuilder;
 import dev.webfx.stack.orm.expression.parser.javacup.JavaCupExpressionParser;
 import dev.webfx.stack.orm.expression.parser.jflex.ExpressionLexer;
@@ -55,7 +55,7 @@ public final class ExpressionParser {
     public static <E> DqlStatement<E> parseStatement(String definition, ParserDomainModelReader modelReader) {
         try (BuilderThreadContext context = BuilderThreadContext.open(modelReader)) {
             java_cup.runtime.Symbol symbol = parseWithJavaCup(definition);
-            DqlOrderBuilder builder = (DqlOrderBuilder) symbol.value;
+            DqlStatementBuilder builder = (DqlStatementBuilder) symbol.value;
             builder.definition = definition;
             return builder.build();
         } catch (Exception e) {

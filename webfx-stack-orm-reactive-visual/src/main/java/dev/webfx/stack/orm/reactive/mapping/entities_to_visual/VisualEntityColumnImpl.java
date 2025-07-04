@@ -6,6 +6,7 @@ import dev.webfx.extras.type.Type;
 import dev.webfx.extras.type.Types;
 import dev.webfx.extras.visual.VisualColumn;
 import dev.webfx.extras.visual.VisualColumnBuilder;
+import dev.webfx.extras.visual.VisualStyle;
 import dev.webfx.extras.visual.VisualStyleBuilder;
 import dev.webfx.stack.orm.reactive.entities.entities_to_grid.EntityColumnImpl;
 import dev.webfx.stack.orm.domainmodel.DomainField;
@@ -74,6 +75,11 @@ public final class VisualEntityColumnImpl<E extends Entity> extends EntityColumn
             String textAlign = null;
             ValueRenderer fxValueRenderer = null;
             String role = null;
+            Double minWidth = null;
+            Double maxWidth = null;
+            Boolean hGrow = null;
+            Boolean hShrink = null;
+            String styleClass = null;
             if (json != null) {
                 textAlign = json.getString("textAlign");
                 String renderer = json.getString("renderer");
@@ -83,16 +89,29 @@ public final class VisualEntityColumnImpl<E extends Entity> extends EntityColumn
                 if (collator != null && fxValueRenderer == null)
                     fxValueRenderer = ValueRenderer.create(displayType, collator);
                 role = json.getString("role");
-                if (json.has("prefWidth"))
-                    prefWidth = json.getDouble("prefWidth");
+                prefWidth = json.getDouble("prefWidth");
+                minWidth = json.getDouble("minWidth");
+                maxWidth = json.getDouble("maxWidth");
+                hGrow = json.getBoolean("hGrow");
+                hShrink = json.getBoolean("hShrink");
+                styleClass = json.getString("styleClass");
                 //json = null;
             }
             if (textAlign == null) {
                 Type type = getDisplayExpression().getType();
                 textAlign = Types.isNumberType(type) ? "right" : Types.isBooleanType(type) ? "center" : null;
             }
+            VisualStyle visualStyle = VisualStyleBuilder.create()
+                    .setMinWidth(minWidth)
+                    .setPrefWidth(prefWidth)
+                    .setMaxWidth(maxWidth)
+                    .setHGrow(hGrow)
+                    .setHShrink(hShrink)
+                    .setTextAlign(textAlign)
+                    .setStyleClass(styleClass)
+                    .build();
             visualColumn = VisualColumnBuilder.create(label, displayType)
-                    .setStyle(VisualStyleBuilder.create().setPrefWidth(prefWidth).setTextAlign(textAlign).build())
+                    .setStyle(visualStyle)
                     .setRole(role)
                     .setValueRenderer(fxValueRenderer)
                     .setSource(this)

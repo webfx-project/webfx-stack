@@ -7,11 +7,11 @@ import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.stack.authn.*;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.password.PasswordI18nKeys;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.password.UILoginView;
-import dev.webfx.stack.i18n.I18n;
-import dev.webfx.stack.i18n.controls.I18nControls;
-import dev.webfx.stack.ui.controls.MaterialFactoryMixin;
-import dev.webfx.stack.ui.operation.OperationUtil;
-import dev.webfx.stack.ui.validation.ValidationSupport;
+import dev.webfx.extras.i18n.I18n;
+import dev.webfx.extras.i18n.controls.I18nControls;
+import dev.webfx.extras.controlfactory.MaterialFactoryMixin;
+import dev.webfx.extras.operation.OperationUtil;
+import dev.webfx.extras.validation.ValidationSupport;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
@@ -20,7 +20,7 @@ import javafx.scene.control.Button;
 import java.util.function.Consumer;
 
 /**
- * @author Bruno Salmon
+ * @author David Hello
  */
 public class MagicLinkUi implements MaterialFactoryMixin {
 
@@ -104,7 +104,7 @@ public class MagicLinkUi implements MaterialFactoryMixin {
         Console.log("Technical error: " + technicalMessage);
 
         if (technicalMessage != null) {
-            //The error Message are defined in ModalityMagicLinkAuthenticationGatewayProvider
+            //The technical error messages are defined in ModalityMagicLinkAuthenticationGatewayProvider
             if (technicalMessage.contains("not found")) {
                 uiLoginView.getInfoMessageForPasswordFieldLabel().setVisible(false);
                 uiLoginView.setTitle(MagicLinkI18nKeys.MagicLinkUnrecognisedErrorTitle);

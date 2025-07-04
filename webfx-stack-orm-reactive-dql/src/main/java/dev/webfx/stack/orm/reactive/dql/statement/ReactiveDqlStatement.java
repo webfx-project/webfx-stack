@@ -163,7 +163,7 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
 
     @Override
     public <T> ReactiveDqlStatement<E> always(ObservableValue<T> property, Converter<T, DqlStatement> toDqlStatementConverter) {
-        return addWithoutListening(FXProperties.compute(property, t -> {
+        return addWithoutListening(FXProperties.compute(property, t -> { // using property.map() is making infinite loop for some reason TODO: investigate why
             // Calling the converter to get the dql statement
             DqlStatement dqlStatement = toDqlStatementConverter.convert(t);
             // If different from last value, this will trigger a global change check

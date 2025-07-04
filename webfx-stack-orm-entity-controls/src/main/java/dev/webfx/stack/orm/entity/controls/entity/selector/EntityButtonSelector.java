@@ -5,7 +5,6 @@ import dev.webfx.extras.cell.renderer.ValueRendererFactory;
 import dev.webfx.extras.panes.ScaleMode;
 import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.visual.VisualResult;
-import dev.webfx.extras.visual.controls.grid.SkinnedVisualGrid;
 import dev.webfx.extras.visual.controls.grid.VisualGrid;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
@@ -28,7 +27,7 @@ import dev.webfx.stack.orm.reactive.entities.entities_to_grid.EntityColumn;
 import dev.webfx.stack.orm.reactive.mapping.entities_to_visual.ReactiveVisualMapper;
 import dev.webfx.stack.orm.reactive.mapping.entities_to_visual.ReactiveVisualMapperAPI;
 import dev.webfx.stack.orm.reactive.mapping.entities_to_visual.VisualEntityColumnFactory;
-import dev.webfx.stack.ui.controls.button.ButtonFactoryMixin;
+import dev.webfx.extras.controlfactory.button.ButtonFactoryMixin;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -70,7 +69,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
     // Named parameters within the search condition (extracted after expression parsing)
     private Parameter[] searchConditionNamedParameters; // Ex:
 
-    // Good to put a limit especially for low-end mobiles
+    // Good to put a limit, especially for low-end mobiles
     private int adaptiveLimit = 6; // starting with 6 entries (fit with drop down/up) but can be increased in modal in dependence of the available height
 
     public EntityButtonSelector(Object jsonOrClass, ButtonFactoryMixin buttonFactory, Callable<Pane> parentGetter, DataSourceModel dataSourceModel) {
@@ -162,7 +161,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
     @Override
     protected Region getOrCreateDialogContent() {
         if (dialogVisualGrid == null && entityRenderer != null) {
-            dialogVisualGrid = new SkinnedVisualGrid(); // Better rendering in desktop JavaFX (but might be slower in web version)
+            dialogVisualGrid = VisualGrid.createVisualGridWithTableLayoutSkin();
             dialogVisualGrid.setHeaderVisible(false);
             dialogVisualGrid.setCursor(Cursor.HAND);
             BorderPane.setAlignment(dialogVisualGrid, Pos.TOP_LEFT);
@@ -195,20 +194,20 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
             scalePane.setMaxScale(3); // Should this value be parameterized?
             scalePane.setScaleRegion(true);  // Otherwise stretch the region without scaling it
             scalePane.setStretchWidth(true); // Actually shrinks the grid width back to fit again in the dialog
-            scalePane.setVAlignment(VPos.TOP); // We want the scaled grid be aligned on top
+            scalePane.setVAlignment(VPos.TOP); // We want the scaled grid to be aligned on top
             scalePane.setScaleMode(ScaleMode.FIT_WIDTH); // The scale depends on the dialog width
-            // Setting a quite arbitrary pref width value (otherwise the scale with vary depending on the data displayed)
+            // Setting a quite arbitrary pref width value (otherwise the scale will vary depending on the data displayed)
             dialogVisualGrid.setPrefWidth(300); // Should this value be parameterized?
             // Now that scalePane is set up, we set up the searchPane (also a ScalePane) to give it the same scale.
             searchPane.setStretchWidth(true); // Actually shrinks the grid width back to fit again in the dialog
             searchPane.setScaleMode(ScaleMode.FIT_HEIGHT); // We will manually stretch the height to control the scale
             // We multiply the height by the same scale factor as the one applied on the visual grid to get the same scale
             FXProperties.runOnDoublePropertyChange(visualGridScaleY -> {
-                // First we compute the searchPane normal height (with no scale).
+                // First, we compute the searchPane normal height (with no scale).
                 searchPane.setPrefHeight(Region.USE_COMPUTED_SIZE); // Necessary to force the computation
                 double prefHeight = searchPane.prefHeight(searchPane.getWidth());
                 // Now we stretch the searchPane height with the visual grid scale factor
-                searchPane.setPrefHeight(prefHeight * visualGridScaleY); // will scale the content (search text field + icon)
+                searchPane.setPrefHeight(prefHeight * visualGridScaleY); // will scale the content (search text field and icon)
             }, dialogVisualGrid.scaleYProperty());
         }
         return scalePane;
@@ -217,7 +216,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
     private int updateAdaptiveLimit(Number height) {
         int maxNumberOfVisibleEntries = height.intValue() / 28;
         if (maxNumberOfVisibleEntries > adaptiveLimit)
-            adaptiveLimit = maxNumberOfVisibleEntries + (getDecidedShowMode() == ShowMode.MODAL_DIALOG ? 6 : 0); // extra 6 to avoid repetitive requests when resizing window
+            adaptiveLimit = maxNumberOfVisibleEntries + (getDecidedShowMode() == ShowMode.MODAL_DIALOG ? 6 : 0); // extra 6 to avoid repetitive requests when resizing the window
         return adaptiveLimit;
     }
 

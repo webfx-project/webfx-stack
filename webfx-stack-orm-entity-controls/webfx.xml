@@ -7,7 +7,7 @@
 
     <dependencies>
         <used-by-source-modules>
-            <module transitive="true">webfx-stack-ui-controls</module>
+            <module transitive="true">webfx-extras-controlfactory</module>
         </used-by-source-modules>
     </dependencies>
 

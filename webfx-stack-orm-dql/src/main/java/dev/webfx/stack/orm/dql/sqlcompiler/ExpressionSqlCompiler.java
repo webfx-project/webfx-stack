@@ -206,12 +206,15 @@ public final class ExpressionSqlCompiler {
         boolean underscoreAllowed = false;
         int i0 = 0, i = 1;
         for (; i < name.length(); i++) {
-            if (Character.isUpperCase(name.charAt(i))) {
+            char c = name.charAt(i);
+            if (Character.isUpperCase(c)) {
                 if (underscoreAllowed)
                     sb.append('_');
-                for (int j = i0; j < i; j++)
-                    sb.append(Character.toLowerCase(name.charAt(j)));
-                underscoreAllowed = i > i0 + 1; // no underscore between two consecutive uppercase
+                for (int j = i0; j < i; j++) {
+                    c = name.charAt(j);
+                    sb.append(Character.toLowerCase(c));
+                }
+                underscoreAllowed = c != '_' && i > i0 + 1; // no underscore after an underscore (ex: current_date) or between two consecutive uppercases
                 i0 = i;
             }
         }

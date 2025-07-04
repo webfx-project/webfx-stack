@@ -17,7 +17,7 @@
     <repositories>
         <repository>
             <id>webfx-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -122,9 +122,6 @@
         <module>webfx-stack-hash-md5</module>
         <module>webfx-stack-hash-sha1</module>
         <module>webfx-stack-http-server-vertx-plugin</module>
-        <module>webfx-stack-i18n</module>
-        <module>webfx-stack-i18n-ast</module>
-        <module>webfx-stack-i18n-controls</module>
         <module>webfx-stack-mail</module>
         <module>webfx-stack-orm-datasourcemodel-service</module>
         <module>webfx-stack-orm-domainmodel</module>
@@ -161,17 +158,6 @@
         <module>webfx-stack-session-state-client-fx</module>
         <module>webfx-stack-session-state-server</module>
         <module>webfx-stack-session-vertx</module>
-        <module>webfx-stack-ui-action</module>
-        <module>webfx-stack-ui-action-tuner</module>
-        <module>webfx-stack-ui-controls</module>
-        <module>webfx-stack-ui-dialog</module>
-        <module>webfx-stack-ui-exceptions</module>
-        <module>webfx-stack-ui-fxraiser</module>
-        <module>webfx-stack-ui-fxraiser-json</module>
-        <module>webfx-stack-ui-json</module>
-        <module>webfx-stack-ui-operation</module>
-        <module>webfx-stack-ui-operation-action</module>
-        <module>webfx-stack-ui-validation</module>
     </modules>
 
 </project>

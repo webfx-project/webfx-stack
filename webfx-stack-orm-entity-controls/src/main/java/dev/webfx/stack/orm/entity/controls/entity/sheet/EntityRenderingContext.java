@@ -4,7 +4,7 @@ import javafx.scene.layout.Pane;
 import dev.webfx.stack.orm.reactive.entities.entities_to_grid.EntityColumn;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.entity.EntityStore;
-import dev.webfx.stack.ui.controls.button.ButtonFactoryMixin;
+import dev.webfx.extras.controlfactory.button.ButtonFactoryMixin;
 import dev.webfx.extras.cell.renderer.ValueRenderingContext;
 import dev.webfx.platform.util.function.Callable;
 

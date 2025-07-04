@@ -35,16 +35,16 @@ public final class QueryResultToEntitiesMapper {
                     for (QueryColumnToEntityFieldMapping columnMapping : rowMapping.getColumnMappings()) {
                         // The target entity (to affect the column value to) is normally the current entity
                         Entity targetEntity = entity;
-                        // However if this column index is associated with a join, it actually refers to a foreign entity, so let's check this
+                        // However, if this column index is associated with a join, it actually refers to a foreign entity, so let's check this
                         QueryColumnToEntityFieldMapping joinMapping = columnMapping.getForeignIdColumnMapping();
-                        if (joinMapping != null) { // Yes it is a join
+                        if (joinMapping != null) { // Yes, it is a join
                             // So let's first get the row id of the database foreign record
                             Object foreignKey = rs.getValue(rowIndex, joinMapping.getColumnIndex());
                             // If it is null, there is nothing to do (finally no target entity)
                             if (foreignKey == null)
                                 continue;
                             // And creating the foreign entity (or getting the same instance if already created)
-                            targetEntity = store.getOrCreateEntity(joinMapping.getForeignClassId(), foreignKey); // And finally using is as the target entity
+                            targetEntity = store.getOrCreateEntity(joinMapping.getForeignClassId(), foreignKey); // And finally, using is as the target entity
                         }
                         // Now that we have the target entity, getting the value for the column index
                         Object value = rs.getValue(rowIndex, columnMapping.getColumnIndex());

@@ -11,11 +11,11 @@ import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.platform.uischeduler.AnimationFramePass;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.function.Callable;
-import dev.webfx.stack.ui.controls.MaterialFactoryMixin;
-import dev.webfx.stack.ui.controls.button.ButtonFactory;
-import dev.webfx.stack.ui.controls.button.ButtonFactoryMixin;
-import dev.webfx.stack.ui.dialog.DialogCallback;
-import dev.webfx.stack.ui.dialog.DialogUtil;
+import dev.webfx.extras.controlfactory.MaterialFactoryMixin;
+import dev.webfx.extras.controlfactory.button.ButtonFactory;
+import dev.webfx.extras.controlfactory.button.ButtonFactoryMixin;
+import dev.webfx.extras.util.dialog.DialogCallback;
+import dev.webfx.extras.util.dialog.DialogUtil;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
@@ -349,8 +349,9 @@ public abstract class ButtonSelector<T> {
     private void show() {
         // Doing nothing if the dialog is already showing (otherwise same node inserted twice in scene graph => error)
         if (dialogPane != null && dialogPane.getParent() != null) // May happen when quickly moving mouse over several
-            return; // entity buttons in auto open mode
+            return; // entity buttons in auto-open mode
         Region dialogContent = getOrCreateDialogContent();
+        dialogPane.setBackground(Background.fill(Color.WHITE)); // TODO: move this to CSS (as well as borders below)
         TextField searchTextField = getSearchTextField(); // may return null in case search is not enabled
         Scene scene = button.getScene();
         switch (decidedShowMode) {
@@ -363,7 +364,7 @@ public abstract class ButtonSelector<T> {
                 setMaxPrefSizeToInfinite(dialogContent);
                 if (cancelLink == null) {
                     cancelLink = parameters.getButtonFactory().newHyperlink("Cancel", e -> onDialogCancel());
-                    cancelLink.setContentDisplay(ContentDisplay.TEXT_ONLY); // To hide cancel icon in back-office
+                    cancelLink.setContentDisplay(ContentDisplay.TEXT_ONLY); // To hide the cancel icon in the back-office
                 }
                 if (searchTextField == null)
                     dialogPane.setTop(null);
@@ -402,8 +403,6 @@ public abstract class ButtonSelector<T> {
                     switchButton.setOnMousePressed(e -> switchToModalDialog());
                     switchButton.setCursor(Cursor.HAND);
                     searchBox = new HBox(searchTextField, switchButton);
-                    // Note: this background is visible only on the web version (as the TextField is transparent for now in WebFX)
-                    searchBox.setBackground(Background.fill(Color.WHITE));
                     searchPane.setContent(searchBox);
                     searchPane.setPrefHeight(USE_COMPUTED_SIZE);
                 }

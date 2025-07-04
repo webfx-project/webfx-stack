@@ -2,7 +2,7 @@ package dev.webfx.stack.authz.client.operation;
 
 import dev.webfx.stack.authz.client.spi.impl.inmemory.AuthorizationRuleType;
 import dev.webfx.stack.authz.client.spi.impl.inmemory.SimpleInMemoryAuthorizationRuleBase;
-import dev.webfx.stack.ui.operation.HasOperationCode;
+import dev.webfx.extras.operation.HasOperationCode;
 
 /**
  * @author Bruno Salmon

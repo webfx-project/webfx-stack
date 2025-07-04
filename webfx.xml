@@ -49,21 +49,21 @@
 
             <!-- Note: Vert.x core & Vert.x web are already defined in WebFX Platform -->
 
-            <library name="io-vertx-eventbusbridge-common">
+            <library name="io.vertx.eventbusbridge">
                 <artifactId>vertx-bridge-common</artifactId>
                 <exported-packages>
                     <package>io.vertx.ext.bridge</package>
                 </exported-packages>
             </library>
 
-            <library name="io-vertx-client-jdbc">
+            <library name="io-vertx-sql-client-jdbc">
                 <artifactId>vertx-jdbc-client</artifactId>
                 <exported-packages>
                     <package>io.vertx.jdbcclient</package>
                 </exported-packages>
             </library>
 
-            <library name="io-vertx-client-sql">
+            <library name="io-vertx-sql-client">
                 <artifactId>vertx-sql-client</artifactId>
                 <exported-packages>
                     <package>io.vertx.sqlclient</package>
@@ -71,7 +71,7 @@
                 </exported-packages>
             </library>
 
-            <library name="io-vertx-client-sql-pg">
+            <library name="io-vertx-sql-client-pg">
                 <artifactId>vertx-pg-client</artifactId>
                 <exported-packages>
                     <package>io.vertx.pgclient</package>
@@ -80,16 +80,15 @@
 
         </group>
 
-        <!-- Additional library required at runtime when authenticating to a postgres database in a docker container -->
+        <!-- Additional library included in io-vertx-sql-client-pg but that needs to be listed in module-info.java, i.e., requires com.ongres.scram.client -->
         <library name="com-ongres-scram-client">
-            <artifactId>scram-client</artifactId>
-            <groupId>com.ongres.scram</groupId>
+            <!-- No need to include in pom.xml, so no GAV provided -->
         </library>
 
     </required-libraries>
 
     <maven-repositories>
-        <snapshot-repository id="webfx-snapshots">https://oss.sonatype.org/content/repositories/snapshots/</snapshot-repository>
+        <webfx-repository/>
     </maven-repositories>
 
     <maven-pom-manual>

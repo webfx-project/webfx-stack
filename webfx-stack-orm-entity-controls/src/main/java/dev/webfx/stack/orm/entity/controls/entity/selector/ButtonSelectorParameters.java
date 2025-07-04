@@ -1,7 +1,7 @@
 package dev.webfx.stack.orm.entity.controls.entity.selector;
 
 import dev.webfx.platform.util.function.Callable;
-import dev.webfx.stack.ui.controls.button.ButtonFactoryMixin;
+import dev.webfx.extras.controlfactory.button.ButtonFactoryMixin;
 import javafx.scene.layout.Pane;
 
 /**
