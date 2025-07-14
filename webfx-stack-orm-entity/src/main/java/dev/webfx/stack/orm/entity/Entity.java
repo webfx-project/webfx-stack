@@ -136,6 +136,8 @@ public interface Entity {
     }
 
     default <E extends Entity> Future<E> onExpressionLoaded(String expression) {
+        if (expression == null)
+            return Future.succeededFuture((E) this);
         try {
             return onExpressionLoaded(parseExpression(expression));
         } catch (Exception e) {
