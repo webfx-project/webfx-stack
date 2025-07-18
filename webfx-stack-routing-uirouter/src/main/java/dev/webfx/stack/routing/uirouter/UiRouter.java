@@ -254,7 +254,7 @@ public final class UiRouter extends HistoryRouter {
             // Now we switch the current activity and its manager to the current one
             activityManager = activityContext.getActivityManager();
             // The returned value is not null only if we switched back to an already existing activity that has been paused before
-            if (activityManager == null) { // otherwise, this is the first time we switch to this activity which is therefore not yet created
+            if (activityManager == null) { // otherwise, this is the first time we've switched to this activity, which is therefore not yet created
                 activityManager = activityManagerFactory.create(); // So we create the activity manager (and its associated activity)
                 activityManager.create(activityContext); // and we transit the activity into the created state and pass the context
             }
@@ -308,7 +308,7 @@ public final class UiRouter extends HistoryRouter {
         }
 
         private void applyRoutingContextParamsToActivityContext(ReadOnlyAstObject routingContextParams, C activityContext) {
-            // Temporary applying the parameters to the whole application context, so they can be shared between activities
+            // Temporarily applying the parameters to the whole application context, so they can be shared between activities
             // (ex: changing :x parameter in activity1 and then pressing a navigation button in a parent container activity
             // that goes to /:x/activity2 => the parent container can get the last :x value changed by activity1)
             AstObject localParams = null;
@@ -318,7 +318,7 @@ public final class UiRouter extends HistoryRouter {
             for (int i = 0, size = keys.size(); i < size; i++) {
                 String key = keys.getString(i);
                 Object value = routingContextParams.get(key);
-                // Strings of digits (such as entities id) are converted to integers, so that they can be directly passed as DQL/SQL parameters in the application code
+                // Strings of digits (such as entities id) are converted to integers so that they can be directly passed as DQL/SQL parameters in the application code
                 value = Objects.coalesce(Numbers.toInteger(value), value);
                 boolean localParameter = true; //"refresh".equals(key);
                 /*if (!localParameter)

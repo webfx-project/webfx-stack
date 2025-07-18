@@ -23,7 +23,7 @@ final class ClientRoute implements Route {
     private Handler<RoutingContext> contextHandler;
     private Handler<RoutingContext> failureHandler;
     private boolean added;
-    private boolean parametrized; // used to flag non regex paths with parameters
+    private boolean parametrized; // used to flag non-regex paths with parameters
     private Pattern pattern;
     private List<String> groups;
 
@@ -48,7 +48,7 @@ final class ClientRoute implements Route {
     }
 
     private void setPath(String path) {
-        // See if the path contains ":" - if so then it contains parameter capture groups and we have to generate
+        // See if the path contains ":" - if so, then it contains parameter capture groups, and we have to generate
         // a regex for that
         parametrized = path.indexOf(':') != -1;
         if (!parametrized) {
@@ -115,7 +115,7 @@ final class ClientRoute implements Route {
                 // Now comparing the next token
                 if (path.charAt(pathPos) != '/' || requestedPath.charAt(reqPos) != '/') // it should start with / on both paths
                     return false;
-                // Searching the end of token position
+                // Searching the end of the token position
                 int nextPathPos = path.indexOf('/', pathPos + 1);
                 if (nextPathPos == -1)
                     nextPathPos = pathLength;
@@ -125,7 +125,7 @@ final class ClientRoute implements Route {
                 // Capturing the token in the requested path
                 String reqToken = requestedPath.substring(reqPos + 1, nextReqPos);
                 // And comparing it with the token in the route path (2 cases: parameter or literal token)
-                if (path.charAt(pathPos + 1) == ':') // If the route path token is a parameter
+                if (path.charAt(pathPos + 1) == ':') // If the route path token is a parameter,
                     // We record the parameter value in the context
                     context.getParams().set(/* parameter name: */ path.substring(pathPos + 2, nextPathPos), /* parameter value: */ reqToken);
                 else // Otherwise (if the route path token is a literal string), we just check that both tokens are equals
@@ -146,7 +146,7 @@ final class ClientRoute implements Route {
                     if (groupName != null)
                         context.getParams().set(groupName, m.group(groupName));
                 }
-So using the following code instead (which assumes groups are in the same order as in declaration - which may not be true when repeating optional parameter pattern) */
+So using the following code instead (which assumes groups are in the same order as in declaration - which may not be true when repeating an optional parameter pattern) */
                 int gn = groups.size();
                 for (int i = 0; i < n; i++) {
                     String group = m.group(i + 1);
