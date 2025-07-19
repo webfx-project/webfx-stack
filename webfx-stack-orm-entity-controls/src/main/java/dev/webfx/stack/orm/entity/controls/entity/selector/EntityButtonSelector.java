@@ -220,6 +220,17 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
         return scalePane;
     }
 
+    @Override
+    protected void onSelectedItemChanged() {
+        super.onSelectedItemChanged(); // reflect the change to the button
+        // When the selected item is set by the application code, we don't want entityDialogMapper to reset it to null
+        // when the user drops down the dialog. This would normally happen because this triggers a database request,
+        // then a VisualResult reset, and finally a VisualSelection reset. We can prevent this by requesting
+        // entityDialogMapper to automatically select our selected item instead.
+        if (entityDialogMapper != null)
+            entityDialogMapper.requestSelectedEntity(getSelectedItem());
+    }
+
     private int updateAdaptiveLimit(Number height) {
         int maxNumberOfVisibleEntries = height.intValue() / 28;
         if (maxNumberOfVisibleEntries > adaptiveLimit)

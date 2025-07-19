@@ -62,8 +62,8 @@ public abstract class ButtonSelector<T> {
     private ShowMode decidedShowMode;
 
     private final Property<ShowMode> showModeProperty = new SimpleObjectProperty<>(ShowMode.AUTO);
-    // Updating the content of the button when selected item changes
-    private final Property<T> selectedItemProperty = FXProperties.newObjectProperty(this::updateButtonContentFromSelectedItem);
+    // Updating the content of the button when the selected item changes
+    private final Property<T> selectedItemProperty = FXProperties.newObjectProperty(this::onSelectedItemChanged);
     private final DoubleProperty dialogHeightProperty = new SimpleDoubleProperty();
 
     public ButtonSelector(ButtonFactoryMixin buttonFactory, Callable<Pane> parentGetter) {
@@ -135,6 +135,10 @@ public abstract class ButtonSelector<T> {
         return this;
     }
 
+    protected void onSelectedItemChanged() {
+        updateButtonContentFromSelectedItem();
+    }
+
     protected ReadOnlyDoubleProperty dialogHeightProperty() {
         return dialogHeightProperty;
     }
@@ -165,7 +169,7 @@ public abstract class ButtonSelector<T> {
     }
 
     public MaterialTextFieldPane toMaterialButton(Object i18nKey) {
-        // Assuming the passed buttonFactory is actually instance of MaterialFactoryMixin when we call this method
+        // Assuming the passed buttonFactory is actually an instance of MaterialFactoryMixin when we call this method
         return ((MaterialFactoryMixin) parameters.getButtonFactory()).setMaterialLabelAndPlaceholder(newMaterialButton(), i18nKey);
     }
 
@@ -304,7 +308,7 @@ public abstract class ButtonSelector<T> {
             double spaceAboveButton = computeMaxAvailableHeightAboveButton();
             double spaceBelowButton = computeMaxAvailableHeightBelowButton();
             double dialogHeight = dialogPane.prefHeight(-1);
-            // Making the decision from the highest dialog height (we don't change decision when it shrinks, only when it grows)
+            // Making the decision from the highest dialog height (we don't change any decision when it shrinks, only when it grows)
             dialogHighestHeight = Math.max(dialogHighestHeight, dialogHeight);
             decidedShowMode = dialogHighestHeight < spaceBelowButton ? ShowMode.DROP_DOWN
                     : dialogHighestHeight < spaceAboveButton ? ShowMode.DROP_UP
@@ -348,7 +352,7 @@ public abstract class ButtonSelector<T> {
 
     private void show() {
         // Doing nothing if the dialog is already showing (otherwise same node inserted twice in scene graph => error)
-        if (dialogPane != null && dialogPane.getParent() != null) // May happen when quickly moving mouse over several
+        if (dialogPane != null && dialogPane.getParent() != null) // May happen when quickly moving the mouse over several
             return; // entity buttons in auto-open mode
         Region dialogContent = getOrCreateDialogContent();
         dialogPane.setBackground(Background.fill(Color.WHITE)); // TODO: move this to CSS (as well as borders below)
@@ -418,7 +422,7 @@ public abstract class ButtonSelector<T> {
         }
         // Saving the default (Enter) and cancel (ESC) accelerators before changing them (so we can restore them later)
         var accelerators = SceneUtil.getDefaultAndCancelAccelerators(scene);
-        // The restore will happen on dialog close
+        // The restore will happen when the dialog closes
         dialogCallback.addCloseHook(() -> SceneUtil.setDefaultAndCancelAccelerators(scene, accelerators));
         // But while the dialog is open, these are the accelerators we want:
         SceneUtil.setDefaultAccelerator(scene, this::onDialogOk); // Enter = Ok
@@ -439,8 +443,9 @@ public abstract class ButtonSelector<T> {
     }
 
     private void reset() {
-        // This dialog instance could be reused in theory but for any reason (?) it has width resizing issue after having
-        // been shown in modal dialog, so we force re-creation to have a brand-new instance next time with no width issue
+        // This dialog instance could be reused in theory. However, for some reason (?) it has some width resizing issue
+        // after having been shown in the modal dialog, so we force re-creation to have a brand-new instance next time
+        // with no width issue
         if (decidedShowMode == ShowMode.MODAL_DIALOG)
             forceDialogRebuiltOnNextShow();
         decidedShowMode = null;
