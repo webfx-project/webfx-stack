@@ -2,6 +2,7 @@ package dev.webfx.stack.orm.entity.controls.entity.selector;
 
 import dev.webfx.extras.cell.renderer.ValueRenderer;
 import dev.webfx.extras.cell.renderer.ValueRendererFactory;
+import dev.webfx.extras.controlfactory.button.ButtonFactoryMixin;
 import dev.webfx.extras.panes.ScaleMode;
 import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.visual.VisualResult;
@@ -15,6 +16,7 @@ import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.domainmodel.DomainModel;
 import dev.webfx.stack.orm.dql.DqlStatement;
 import dev.webfx.stack.orm.dql.DqlStatementBuilder;
+import dev.webfx.stack.orm.entity.Entities;
 import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.entity.EntityList;
 import dev.webfx.stack.orm.entity.EntityStore;
@@ -27,7 +29,6 @@ import dev.webfx.stack.orm.reactive.entities.entities_to_grid.EntityColumn;
 import dev.webfx.stack.orm.reactive.mapping.entities_to_visual.ReactiveVisualMapper;
 import dev.webfx.stack.orm.reactive.mapping.entities_to_visual.ReactiveVisualMapperAPI;
 import dev.webfx.stack.orm.reactive.mapping.entities_to_visual.VisualEntityColumnFactory;
-import dev.webfx.extras.controlfactory.button.ButtonFactoryMixin;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -169,24 +170,30 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
                 , dialogVisualGrid.visualResultProperty());
             EntityStore filterStore = loadingStore != null ? loadingStore : getSelectedItem() != null ? getSelectedItem().getStore() : null;
             entityDialogMapper = ReactiveVisualMapper.<E>createReactiveChain()
-                    .always(jsonOrClass)
-                    .setDataSourceModel(dataSourceModel)
-                    .setStore(filterStore)
-                    .setRestrictedFilterList(restrictedFilterList)
-                    .setEntityColumns(VisualEntityColumnFactory.get().create(renderingExpression))
-                    .visualizeResultInto(dialogVisualGrid)
-                    .setSelectedEntityHandler(e -> {
-                        if (/*e != null && */button != null)
-                            onDialogOk();
-                    });
+                .always(jsonOrClass)
+                .setDataSourceModel(dataSourceModel)
+                .setStore(filterStore)
+                .setRestrictedFilterList(restrictedFilterList)
+                .setEntityColumns(VisualEntityColumnFactory.get().create(renderingExpression))
+                .visualizeResultInto(dialogVisualGrid)
+                .setSelectedEntityHandler(e -> {
+                    if (/*e != null && */button != null && !Entities.sameId(e, getSelectedItem()))
+                        onDialogOk();
+                });
             if (isSearchEnabled())
                 entityDialogMapper
-                        .ifTrimNotEmpty(searchTextProperty(), s -> {
+                    .ifTrimNotEmpty(searchTextProperty(), s -> {
+                        DqlStatement[] where = { null };
+                        // We embed the code with executeParsingCode() in order to resolve a possible reference in
+                        // searchCondition to the alias - if set (ex: alias: p and "searchMatchesPerson(p)")
+                        executeParsingCode(() -> {
                             EntityStore store = entityDialogMapper.getReactiveEntitiesMapper().getStore();
                             setSearchParameters(s, store);
-                            return where(searchCondition, java.util.Arrays.stream(getSearchConditionNamedParameters()).map(e -> e.evaluate(null, store.getEntityDataWriter())).toArray());
-                        })
-                        .always(dialogHeightProperty(), height -> limit("?", updateAdaptiveLimit(height)));
+                            where[0] = where(searchCondition, java.util.Arrays.stream(getSearchConditionNamedParameters()).map(e -> e.evaluate(null, store.getEntityDataWriter())).toArray());
+                        });
+                        return where[0];
+                    })
+                    .always(dialogHeightProperty(), height -> limit("?", updateAdaptiveLimit(height)));
             //dialogDataGrid.setOnMouseClicked(e -> {if (e.isPrimaryButtonDown() && e.getClickCount() == 1) onDialogOk(); });
             // Embedding the visual grid in a ScalePane that can only grow (up to 3x times) to avoid small rows on big screens
             scalePane = new ScalePane(dialogVisualGrid);
@@ -316,7 +323,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
     }
 
     @Override
-    public EntityButtonSelector<E>setShowMode(ShowMode showModeProperty) {
+    public EntityButtonSelector<E> setShowMode(ShowMode showModeProperty) {
         return (EntityButtonSelector<E>) super.setShowMode(showModeProperty);
     }
 
