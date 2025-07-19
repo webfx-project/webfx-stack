@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMapper<E>
     implements ReactiveVisualMapperAPI<E, ReactiveVisualMapper<E>> {
 
-    // Flags used to distinguish internal changes from external changes, and prevent reentrant calls.
+    // Flags used to distinguish internal changes from external changes and prevent reentrant calls.
     private boolean syncingFromSelectedEntities;
     private boolean syncingFromSelectedEntity;
     private boolean syncingFromRequestedSelectedEntity;
@@ -41,19 +41,19 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
     private boolean clearAutoSelectSingleRowOnNextResultSet;
 
     // An always up-to-date observable list that represents the selected entities. As this is a list, this is the object
-    // to work with when the application code is dealing with multiple selection. But if it is dealing with mono
+    // to work with when the application code is dealing with multiple selections. But if it is dealing with mono
     // selection only, then it will be more convenient to work with selectedEntityProperty instead.
-    // This list is synced in a bidirectional manner with the visual selection. So when the user changes the visual
-    // selection, this updates this list. But if this is the application code that changes this list (exposed as public),
-    // the visual selection will be synced to reflect that new selection. Also, ReactiveVisualMapper will ensure that
-    // selectedEntities is always a sublist of the loaded entities. If the application code tries to add entities that
-    // are not from the loaded entities, they will be automatically be removed from that observable list.
+    // This list is synced bidirectionally with the visual selection. So when the user changes the visual selection,
+    // this updates this list. But if this is the application code that changes this list (exposed as public), the
+    // visual selection will be synced to reflect that new selection. Also, ReactiveVisualMapper will ensure that
+    // `selectedEntities` is always a sublist of the loaded entities. If the application code tries to add entities that
+    // are not from the loaded entities, they will automatically be removed from that observable list.
     private final ObservableList<E> selectedEntities = FXCollections.observableArrayList();
 
-    // selectedEntityProperty is especially designed for mono selection and represents the selected entity (null if no
+    // `selectedEntityProperty` is especially designed for mono selection and represents the selected entity (null if no
     // selection). It's actually mapped as the first element of selectedEntities. So it's also possible to use in with
-    // multiple selections, knowing that it will be the first selected entities. selectedEntityProperty is synced in a
-    // bidirectional manner with selectedEntities. So if the application code changes selectedEntityProperty this will
+    // multiple selections, knowing that it will be the first selected entities. selectedEntityProperty is synced
+    // bidirectionally with selectedEntities. So if the application code changes `selectedEntityProperty`, this will
     // set selectedEntities (and consequently the visual selection), and if the application code changes selectedEntities
     // (or if the user changes the visual selection -> which changes selectedEntities), this will also set
     // selectedEntityProperty.
@@ -73,13 +73,13 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
             else // If it's not null, we apply it as a single element to selectedEntities
                 selectedEntities.setAll(selectedEntity);
             // Note: this code above has triggered the selectedEntities listener that did the sync in the opposite
-            // direction (selectedEntities -> selectedEntityProperty) but the reentrant call will be prevented.
+            // direction (`selectedEntities` -> `selectedEntityProperty`), but the reentrant call will be prevented.
             // However, it's possible that the value of selectedEntityProperty has changed if the entity asked by the
-            // application was not valid (i.e. not present in the loaded entities). So we refresh the value.
+            // application was not valid (i.e., not present in the loaded entities). So we refresh the value.
             selectedEntity = getSelectedEntity();
         }
 
-        // If the change doesn't come from requestedSelectedEntity but is a subsequent change from the application
+        // If the change doesn't come from requestedSelectedEntity but is a later change from the application
         // code or from the user selection, we do the back sync selectedEntity -> requestedSelectedEntity
         if (!syncingFromRequestedSelectedEntity)
             requestSelectedEntity(selectedEntity); // reentrant call will be prevented by syncingFromSelectedEntity
@@ -98,22 +98,22 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
         // Preventing reentrant calls from internal operations
         if (syncingFromSelectedEntity)
             return;
-        // Syncing selected entity from the requested selected entity (if appropriate at this time)
+        // Syncing the selected entity with the requested selected entity (if appropriate at this time)
         syncFromRequestedSelectedEntity();
     });
 
     private void syncFromRequestedSelectedEntity() {
         // We don't do anything if the reactive visual mapper is not active (which happens when its associated activity
-        // is not displayed at that time), because if a MasterSlaveLinker is associated with this reactive visual mapper
-        // we don't want it to display a confirm dialog at this stage (if the slave entity being edited has changes).
+        // is not displayed at that time). If a MasterSlaveLinker is associated with this ReactiveVisualMapper,
+        // we don't want it to display a confirmation dialog at this stage (if the slave entity being edited has changes).
         // The appropriate time to display the dialog is when this reactive visual mapper is active again (which happens
         // when the users go back to this activity).
         if (!isActive())
             return;
         // We attempt to apply the requested selected entity as the selected entity. If that entity is not part
-        // of the loaded entities, this will be refused and selected entity will be set to null instead. However,
-        // requestedSelectedEntityProperty value will not be set to null. This behaviour is mainly to allow binding
-        // requestedSelectedEntityProperty with another property that shouldn't be set back to null in that case.
+        // of the loaded entities, this will be refused and the selected entity will be set to null instead. However,
+        // `requestedSelectedEntityProperty` will not be set to null. This behavior is mainly to allow binding
+        // `requestedSelectedEntityProperty` with another property that shouldn't be set back to null in that case.
         E requestedSelectedEntity = getRequestedSelectedEntity();
         if (!Objects.equals(getSelectedEntity(), requestedSelectedEntity)) { // not necessary to sync if already equals
             // We check if the requested selected entity is part of loaded entities
@@ -122,8 +122,8 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
                 // if no, we will set the selected entity to null
                 if (entityIndex < 0)
                     requestedSelectedEntity = null;
-                else // if yes, we get that loaded entity (which can be a different instance if requestedSelectedEntity
-                    // come from another entity store.
+                else // if yes, we get that loaded entity (which can be a different instance if `requestedSelectedEntity`
+                    // comes from another entity store).
                     requestedSelectedEntity = getEntityAt(entityIndex);
             }
             // We apply the new selection
@@ -135,8 +135,8 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
 
     private final ObjectProperty<VisualResult> visualResultProperty = FXProperties.newObjectProperty(visualResult -> {
         // When the whole visual result has changed, we need to update the selection. We try to keep the selection
-        // unchanged, which happens when the selected entities are still in that new result (for example when this
-        // comes from a server push where just some fields have changed but the entity list remains the same).
+        // unchanged, which happens when the selected entities are still in that new result. For example, when this
+        // comes from a server push where just some fields have changed but the entity list remains the same.
         // Otherwise, we reduce the selected entities to those that are still present in the new result.
         if (autoSelectSingleRow && visualResult != null &&visualResult.getRowCount() == 1) {
             setVisualSelection(VisualSelection.createSingleRowSelection(0));
@@ -159,10 +159,10 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
 
         syncingFromVisualSelection = true;
         // On visual selection change from the user, we need to update the selectedEntities to match that new visual
-        // selection. So firstly, we transform that new visual selection into a fresh list of selected entities.
+        // selection. So first, we transform that new visual selection into a fresh list of selected entities.
         List<E> newSelectedEntities = captureSelectedEntitiesFromVisualSelection();
         // And secondly, we apply that result into selectedEntities
-        selectedEntities.setAll(newSelectedEntities); // This will eventually update selectedEntityProperty too
+        selectedEntities.setAll(newSelectedEntities); // This will eventually update `selectedEntityProperty` too
         syncingFromVisualSelection = false;
 
         clearAutoSelectSingleRowOnNextResultSet = false;
@@ -175,7 +175,7 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
         // Calling syncFromSelectedEntities() on selected entities changes
         selectedEntities.addListener((InvalidationListener) observable ->
             syncFromSelectedEntities());
-        // Calling syncFromRequestedSelectedEntity() on active changes (to possibly show the confirm dialog on activity resume)
+        // Calling syncFromRequestedSelectedEntity() on active changes (to possibly show the confirmation dialog on activity resume)
         FXProperties.runOnPropertyChange(this::syncFromRequestedSelectedEntity, activeProperty());
     }
 
@@ -227,7 +227,7 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
             return;
 
         syncingFromSelectedEntities = true;
-        // First, because selectedEntities is meant to be a subset of the loaded entities only, we reduce the
+        // First, because `selectedEntities` is meant to be a subset of the loaded entities only, we reduce the
         // list to the entities already loaded only (we remove those that are not found in the loaded entities).
         if (!syncingFromVisualSelection) {
             List<Integer> indexes = selectedEntities.stream().mapToInt(this::findEntityIndex).boxed().collect(Collectors.toList());
@@ -248,7 +248,7 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
             setVisualSelection(VisualSelection.createRowsSelection(indexes));
         }
 
-        // Finally, we update selectedEntity
+        // Finally, we update `selectedEntity`
         setSelectedEntity(Collections.first(selectedEntities));
 
         syncingFromSelectedEntities = false;
@@ -256,7 +256,7 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
 
     private int findEntityIndex(E entity) {
         EntityList<E> entities = getEntities();
-        int index = entities == null ? -1 : entities.indexOf(entity); // Should work event if entity comes from another store (see DynamicEntity.equals())
+        int index = entities == null ? -1 : entities.indexOf(entity); // Should work event if the entity comes from another store (see DynamicEntity.equals())
         return index;
     }
 
@@ -342,8 +342,9 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
         return (ReactiveVisualMapper<E>) super.setEntityColumns(jsonArrayOrExpressionDefinition);
     }
 
+    @SafeVarargs
     @Override
-    public ReactiveVisualMapper<E> setEntityColumns(EntityColumn<E>... entityColumns) {
+    public final ReactiveVisualMapper<E> setEntityColumns(EntityColumn<E>... entityColumns) {
         return (ReactiveVisualMapper<E>) super.setEntityColumns(entityColumns);
     }
 
@@ -363,7 +364,17 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
     }
 
     void setVisualResult(VisualResult rs) {
+        // We will set `visualResultProperty` to the passed visual result, but if this property is bound to a VisualGrid,
+        // this will also reset the visual selection, which we don't want in case a selected entity has been requested.
+        // In this case, this ReactiveVisualMapper will indeed set the selection in visualResultProperty.onInvalidated()
+        // and the VisualGrid would reset it immediately after if we don't ask it to prevent this default behavior.
+        boolean oldPrevented = VisualSelection.isVisualSelectionResetPrevented();
+        if (getRequestedSelectedEntity() != null) // we prevent the selection reset in this case
+            VisualSelection.setVisualSelectionResetPrevented(true);
+        // Now we are good to reset `visualResultProperty`
         visualResultProperty.set(rs);
+        // We re-establish the previous value
+        VisualSelection.setVisualSelectionResetPrevented(oldPrevented);
     }
 
     VisualResult entitiesToVisualResult(List<E> entities) {
