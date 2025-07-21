@@ -25,7 +25,7 @@ public interface IndividualEntityToObjectMapper<E extends Entity, O> {
         };
     }
 
-   static <E extends Entity, O, V> IndividualEntityToObjectMapper<E, O> create(Supplier<V> viewFactory, BiConsumer<V, E> viewEntitySetter, Function<V, O> viewObjectGetter) {
+    private static <E extends Entity, O, V> IndividualEntityToObjectMapper<E, O> create(Supplier<V> viewFactory, BiConsumer<V, E> viewEntitySetter, Function<V, O> viewObjectGetter) {
         return new IndividualEntityToObjectMapper<>() {
 
             private final V view = viewFactory.get();
@@ -41,7 +41,28 @@ public interface IndividualEntityToObjectMapper<E extends Entity, O> {
             }
 
             @Override
-            public void onEntityRemoved(E entity) { }
+            public void onEntityRemoved(E entity) {}
+        };
+    }
+
+    static <E extends Entity, O> Function<E, IndividualEntityToObjectMapper<E, O>> factory(Function<E, O> entityToObjectMapper) {
+        return e -> new IndividualEntityToObjectMapper<>() {
+
+            O object = entityToObjectMapper.apply(e);
+
+            @Override
+            public O getMappedObject() {
+                return object;
+            }
+
+            @Override
+            public void onEntityChangedOrReplaced(E entity) {
+                // Is this allowed for this simple factory meant to be immutable?
+                object = entityToObjectMapper.apply(e);
+            }
+
+            @Override
+            public void onEntityRemoved(E entity) {}
         };
     }
 
