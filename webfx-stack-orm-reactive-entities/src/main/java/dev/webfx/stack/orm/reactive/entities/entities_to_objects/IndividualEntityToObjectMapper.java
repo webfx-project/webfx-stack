@@ -1,5 +1,6 @@
 package dev.webfx.stack.orm.reactive.entities.entities_to_objects;
 
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.orm.entity.Entity;
 
 import java.util.function.BiConsumer;
@@ -58,6 +59,7 @@ public interface IndividualEntityToObjectMapper<E extends Entity, O> {
             @Override
             public void onEntityChangedOrReplaced(E entity) {
                 // Is this allowed for this simple factory meant to be immutable?
+                Console.log("⚠️ Entity changed or replaced on a simple mapper - this will probably not be notified");
                 object = entityToObjectMapper.apply(e);
             }
 
