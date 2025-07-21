@@ -127,7 +127,9 @@ public class ReactiveDqlQuery<E> implements ReactiveDqlQueryAPI<E, ReactiveDqlQu
 
     @Override
     public void refreshWhenActive() {
-        reactiveQueryCall.refreshWhenReady(false);
+        // UPDATE 21/07/2025: changed forced from false to true, otherwise upcomingOrdersMapper.refreshWhenActive();
+        // was not doing anything in OrdersActivity. TODO remove this comment if no side effect
+        reactiveQueryCall.refreshWhenReady(true);
     }
 
     @Override
