@@ -17,7 +17,7 @@ public interface IndividualEntityToObjectMapper<E extends Entity, O> {
 
     void onEntityRemoved(E entity);
 
-    static <E extends Entity, O, V> Function<E, IndividualEntityToObjectMapper<E, O>> createFactory(Supplier<V> viewFactory, BiConsumer<V, E> viewEntitySetter, Function<V, O> viewObjectGetter) {
+    static <E extends Entity, O, V> Function<E, IndividualEntityToObjectMapper<E, O>> factory(Supplier<V> viewFactory, BiConsumer<V, E> viewEntitySetter, Function<V, O> viewObjectGetter) {
         return e -> {
             IndividualEntityToObjectMapper<E, O> mapper = create(viewFactory, viewEntitySetter, viewObjectGetter);
             mapper.onEntityChangedOrReplaced(e);
