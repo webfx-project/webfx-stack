@@ -252,6 +252,7 @@ public abstract class ButtonSelector<T> {
             if (dialogContent == null)
                 return;
             dialogPane = new BorderPane(dialogContent);
+            dialogPane.getStyleClass().add("webfx-button-selector-dialog");
             dialogPane.setOnMouseExited(e -> scheduleMouseExistedDialogClose());
             dialogPane.setOnMouseEntered(e-> onMouseEntered());
         }
