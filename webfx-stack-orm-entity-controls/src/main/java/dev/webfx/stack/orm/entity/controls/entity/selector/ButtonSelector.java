@@ -1,8 +1,13 @@
 package dev.webfx.stack.orm.entity.controls.entity.selector;
 
+import dev.webfx.extras.controlfactory.MaterialFactoryMixin;
+import dev.webfx.extras.controlfactory.button.ButtonFactory;
+import dev.webfx.extras.controlfactory.button.ButtonFactoryMixin;
 import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.styles.materialdesign.textfield.MaterialTextFieldPane;
+import dev.webfx.extras.util.dialog.DialogCallback;
+import dev.webfx.extras.util.dialog.DialogUtil;
 import dev.webfx.extras.util.layout.Layouts;
 import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.FXProperties;
@@ -11,11 +16,6 @@ import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.platform.uischeduler.AnimationFramePass;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.function.Callable;
-import dev.webfx.extras.controlfactory.MaterialFactoryMixin;
-import dev.webfx.extras.controlfactory.button.ButtonFactory;
-import dev.webfx.extras.controlfactory.button.ButtonFactoryMixin;
-import dev.webfx.extras.util.dialog.DialogCallback;
-import dev.webfx.extras.util.dialog.DialogUtil;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
@@ -356,7 +356,6 @@ public abstract class ButtonSelector<T> {
         if (dialogPane != null && dialogPane.getParent() != null) // May happen when quickly moving the mouse over several
             return; // entity buttons in auto-open mode
         Region dialogContent = getOrCreateDialogContent();
-        dialogPane.setBackground(Background.fill(Color.WHITE)); // TODO: move this to CSS (as well as borders below)
         TextField searchTextField = getSearchTextField(); // may return null in case search is not enabled
         Scene scene = button.getScene();
         switch (decidedShowMode) {
