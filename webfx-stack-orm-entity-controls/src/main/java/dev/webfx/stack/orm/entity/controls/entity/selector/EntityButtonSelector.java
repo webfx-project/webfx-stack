@@ -32,6 +32,7 @@ import dev.webfx.stack.orm.reactive.mapping.entities_to_visual.VisualEntityColum
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Cursor;
@@ -72,6 +73,11 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
 
     // Good to put a limit, especially for low-end mobiles
     private int adaptiveLimit = 6; // starting with 6 entries (fit with drop down/up) but can be increased in modal in dependence of the available height
+
+    private boolean dialogFullHeight;
+    private double dialogPrefRowHeight = -1;
+    private Insets dialogCellMargin = null;
+    private String dialogStyleClass;
 
     public EntityButtonSelector(Object jsonOrClass, ButtonFactoryMixin buttonFactory, Callable<Pane> parentGetter, DataSourceModel dataSourceModel) {
         this(jsonOrClass, buttonFactory, parentGetter, null, dataSourceModel);
@@ -165,6 +171,13 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
             dialogVisualGrid = VisualGrid.createVisualGridWithTableLayoutSkin();
             dialogVisualGrid.setHeaderVisible(false);
             dialogVisualGrid.setCursor(Cursor.HAND);
+            dialogVisualGrid.setFullHeight(dialogFullHeight);
+            if (dialogPrefRowHeight > 0)
+                dialogVisualGrid.setPrefRowHeight(dialogPrefRowHeight);
+            if (dialogCellMargin != null)
+                dialogVisualGrid.setCellMargin(dialogCellMargin);
+            if (dialogStyleClass != null)
+                dialogVisualGrid.getStyleClass().add(dialogStyleClass);
             BorderPane.setAlignment(dialogVisualGrid, Pos.TOP_LEFT);
             FXProperties.runOnPropertyChange(visualResult -> Platform.runLater(() -> deferredVisualResult.setValue(visualResult))
                 , dialogVisualGrid.visualResultProperty());
@@ -306,6 +319,26 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
         super.closeDialog();
     }
 
+    public EntityButtonSelector<E> setDialogFullHeight(boolean dialogFullHeight) {
+        this.dialogFullHeight = dialogFullHeight;
+        return this;
+    }
+
+    public EntityButtonSelector<E> setDialogPrefRowHeight(double dialogPrefRowHeight) {
+        this.dialogPrefRowHeight = dialogPrefRowHeight;
+        return this;
+    }
+
+    public EntityButtonSelector<E> setDialogCellMargin(Insets dialogCellMargin) {
+        this.dialogCellMargin = dialogCellMargin;
+        return this;
+    }
+
+    public EntityButtonSelector<E>  setDialogStyleClass(String dialogStyleClass) {
+        this.dialogStyleClass = dialogStyleClass;
+        return this;
+    }
+
     // Bumping Fluent API
 
     @Override
@@ -341,12 +374,6 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
     @Override
     public EntityButtonSelector<E> setCloseHandler(Runnable closeHandler) {
         return (EntityButtonSelector<E>) super.setCloseHandler(closeHandler);
-    }
-
-    // For retro-compatibility TODO: remove once unused anymore
-    @Deprecated
-    public ReactiveVisualMapper<E> getEntityDialogMapper() {
-        return getReactiveVisualMapper();
     }
 
 }
