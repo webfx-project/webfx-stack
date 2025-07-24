@@ -1,5 +1,6 @@
 package dev.webfx.stack.orm.entity.binding;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.entity.EntityId;
@@ -90,7 +91,8 @@ public final class EntityBindings {
     }
 
     private static void onEntityFieldValueChanged(Object fieldProperty, Object value) {
-        ((Property) fieldProperty).setValue(value);
+        // Checking it's not equals to prevent a possible bound exception if the change comes from a binding already (ex: i18n)
+        FXProperties.setIfNotEquals((Property) fieldProperty, value);
     }
 
     private static final List<EntityStore> STORES_LISTENING_ENTITY_CHANGES = new ArrayList<>();
