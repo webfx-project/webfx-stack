@@ -57,7 +57,9 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
     // set selectedEntities (and consequently the visual selection), and if the application code changes selectedEntities
     // (or if the user changes the visual selection -> which changes selectedEntities), this will also set
     // selectedEntityProperty.
-    private final ObjectProperty<E> selectedEntityProperty = FXProperties.newObjectProperty(selectedEntity -> {
+    private final ObjectProperty<E> selectedEntityProperty = FXProperties.newObjectProperty(this::onSelectedEntitiesChanged);
+
+    private void onSelectedEntitiesChanged(E selectedEntity) {
         // System.out.println("selectedEntity = " + selectedEntity);
         // Preventing reentrant calls from internal operations
         if (syncingFromSelectedEntity)
@@ -91,7 +93,7 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
         }
 
         syncingFromSelectedEntity = false;
-    });
+    }
 
     private final ObjectProperty<E> requestedSelectedEntityProperty = FXProperties.newObjectProperty(() -> {
         //System.out.println("requestedSelectedEntity = " + get());
@@ -249,7 +251,15 @@ public final class ReactiveVisualMapper<E extends Entity> extends ReactiveGridMa
         }
 
         // Finally, we update `selectedEntity`
-        setSelectedEntity(Collections.first(selectedEntities));
+        E selectedEntity = Collections.first(selectedEntities);
+        // If the selected entity changed, we set the selectedEntityProperty and this will trigger onSelectedEntitiesChanged()
+        if (selectedEntity != getSelectedEntity())
+            setSelectedEntity(selectedEntity);
+        // If it didn't change, we still want to call onSelectedEntitiesChanged(). Ex: If the user clicks on the same
+        // entity in the EntityButtonSelector drop-down dialog, we still want to notify that selection event, so the
+        // EntityButtonSelector closes the dialog when this happens.
+        else if (syncingFromVisualSelection)
+            onSelectedEntitiesChanged(selectedEntity);
 
         syncingFromSelectedEntities = false;
     }

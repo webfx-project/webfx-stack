@@ -197,8 +197,18 @@ public abstract class ButtonSelector<T> {
 
     protected abstract Node getOrCreateButtonContentFromSelectedItem();
 
+    private boolean userJustOpenedDialog;
 
-    private boolean isDialogOpen() {
+    private void setUserJustOpenedDialog() {
+        userJustOpenedDialog = true;
+        UiScheduler.scheduleDelay(100, () -> userJustOpenedDialog = false);
+    }
+
+    protected boolean isDialogOpenAlready() {
+        return !userJustOpenedDialog && isDialogOpen();
+    }
+
+    protected boolean isDialogOpen() {
         return dialogCallback != null && !dialogCallback.isDialogClosed();
     }
 
@@ -383,6 +393,7 @@ public abstract class ButtonSelector<T> {
                 dialogCallback = DialogUtil.showModalNodeInGoldLayout(dialogPane, dialogParent, 0.95, 0.95);
                 dialogHeightProperty.bind(dialogPane.heightProperty());
                 dialogPane.setVisible(true);
+                setUserJustOpenedDialog();
                 break;
 
             case DROP_DOWN:
@@ -418,6 +429,7 @@ public abstract class ButtonSelector<T> {
                                 dialogPane.heightProperty(),
                                 loadedContentProperty
                             )::unregister);
+                setUserJustOpenedDialog();
                 break;
         }
         // Saving the default (Enter) and cancel (ESC) accelerators before changing them (so we can restore them later)

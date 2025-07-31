@@ -16,7 +16,6 @@ import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.domainmodel.DomainModel;
 import dev.webfx.stack.orm.dql.DqlStatement;
 import dev.webfx.stack.orm.dql.DqlStatementBuilder;
-import dev.webfx.stack.orm.entity.Entities;
 import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.entity.EntityList;
 import dev.webfx.stack.orm.entity.EntityStore;
@@ -190,7 +189,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
                 .setEntityColumns(VisualEntityColumnFactory.get().create(renderingExpression))
                 .visualizeResultInto(dialogVisualGrid)
                 .setSelectedEntityHandler(e -> {
-                    if (/*e != null && */button != null && !Entities.sameId(e, getSelectedItem()))
+                    if (isDialogOpenAlready())
                         onDialogOk();
                 });
             if (isSearchEnabled())
