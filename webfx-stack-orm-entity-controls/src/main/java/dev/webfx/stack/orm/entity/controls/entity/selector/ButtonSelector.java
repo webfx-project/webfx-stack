@@ -201,7 +201,9 @@ public abstract class ButtonSelector<T> {
 
     private void setUserJustOpenedDialog() {
         userJustOpenedDialog = true;
-        UiScheduler.scheduleDelay(100, () -> userJustOpenedDialog = false);
+        UiScheduler.scheduleDelay(1000, () ->
+            userJustOpenedDialog = false
+        );
     }
 
     protected boolean isDialogOpenAlready() {
@@ -362,6 +364,7 @@ public abstract class ButtonSelector<T> {
 
 
     private void show() {
+        setUserJustOpenedDialog();
         // Doing nothing if the dialog is already showing (otherwise same node inserted twice in scene graph => error)
         if (dialogPane != null && dialogPane.getParent() != null) // May happen when quickly moving the mouse over several
             return; // entity buttons in auto-open mode
@@ -393,7 +396,6 @@ public abstract class ButtonSelector<T> {
                 dialogCallback = DialogUtil.showModalNodeInGoldLayout(dialogPane, dialogParent, 0.95, 0.95);
                 dialogHeightProperty.bind(dialogPane.heightProperty());
                 dialogPane.setVisible(true);
-                setUserJustOpenedDialog();
                 break;
 
             case DROP_DOWN:
@@ -407,7 +409,7 @@ public abstract class ButtonSelector<T> {
                 HBox searchBox;
                 if (searchTextField != null) {
                     SVGPath switchIcon = new SVGPath();
-                    switchIcon.setContent("M 2.2857143,10.285714 H 0 V 16 H 5.7142857 V 13.714286 H 2.2857143 Z M 0,5.7142857 H 2.2857143 V 2.2857143 H 5.7142857 V 0 H 0 Z M 13.714286,13.714286 H 10.285714 V 16 H 16 V 10.285714 H 13.714286 Z M 10.285714,0 v 2.2857143 h 3.428572 V 5.7142857 H 16 V 0 Z");
+                    switchIcon.setContent("M2.9 12.9H0V20H7.1V17.1H2.9ZM0 7.1H2.9V2.9H7.1V0H0ZM17.1 17.1H12.9V20H20V12.9H17.1ZM12.9 0v2.9h4.3V7.1H20V0Z");
                     switchIcon.setFill(Color.GRAY);
                     MonoPane switchButton = new MonoPane(switchIcon);
                     HBox.setMargin(switchButton, new Insets(5));
@@ -418,6 +420,7 @@ public abstract class ButtonSelector<T> {
                     switchButton.setOnMousePressed(e -> switchToModalDialog());
                     switchButton.setCursor(Cursor.HAND);
                     searchBox = new HBox(searchTextField, switchButton);
+                    searchBox.setAlignment(Pos.CENTER_LEFT);
                     searchPane.setContent(searchBox);
                     searchPane.setPrefHeight(USE_COMPUTED_SIZE);
                 }
@@ -429,7 +432,6 @@ public abstract class ButtonSelector<T> {
                                 dialogPane.heightProperty(),
                                 loadedContentProperty
                             )::unregister);
-                setUserJustOpenedDialog();
                 break;
         }
         // Saving the default (Enter) and cancel (ESC) accelerators before changing them (so we can restore them later)

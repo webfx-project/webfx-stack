@@ -71,7 +71,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
     private Parameter[] searchConditionNamedParameters; // Ex:
 
     // Good to put a limit, especially for low-end mobiles
-    private int adaptiveLimit = 6; // starting with 6 entries (fit with drop down/up) but can be increased in modal in dependence of the available height
+    private int adaptiveLimit; // will be set in updateAdaptativeLimit()
 
     private boolean dialogFullHeight;
     private double dialogPrefRowHeight = -1;
@@ -207,29 +207,31 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
                     })
                     .always(dialogHeightProperty(), height -> limit("?", updateAdaptiveLimit(height)));
             //dialogDataGrid.setOnMouseClicked(e -> {if (e.isPrimaryButtonDown() && e.getClickCount() == 1) onDialogOk(); });
-            // Embedding the visual grid in a ScalePane that can only grow (up to 3x times) to avoid small rows on big screens
-            scalePane = new ScalePane(dialogVisualGrid);
-            scalePane.setCanShrink(false);
-            scalePane.setMaxScale(3); // Should this value be parameterized?
-            scalePane.setScaleRegion(true);  // Otherwise stretch the region without scaling it
-            scalePane.setStretchWidth(true); // Actually shrinks the grid width back to fit again in the dialog
-            scalePane.setVAlignment(VPos.TOP); // We want the scaled grid to be aligned on top
-            scalePane.setScaleMode(ScaleMode.FIT_WIDTH); // The scale depends on the dialog width
-            // Setting a quite arbitrary pref width value (otherwise the scale will vary depending on the data displayed)
-            dialogVisualGrid.setPrefWidth(300); // Should this value be parameterized?
-            // Now that scalePane is set up, we set up the searchPane (also a ScalePane) to give it the same scale.
-            searchPane.setStretchWidth(true); // Actually shrinks the grid width back to fit again in the dialog
-            searchPane.setScaleMode(ScaleMode.FIT_HEIGHT); // We will manually stretch the height to control the scale
-            // We multiply the height by the same scale factor as the one applied on the visual grid to get the same scale
-            FXProperties.runOnDoublePropertyChange(visualGridScaleY -> {
-                // First, we compute the searchPane normal height (with no scale).
-                searchPane.setPrefHeight(Region.USE_COMPUTED_SIZE); // Necessary to force the computation
-                double prefHeight = searchPane.prefHeight(searchPane.getWidth());
-                // Now we stretch the searchPane height with the visual grid scale factor
-                searchPane.setPrefHeight(prefHeight * visualGridScaleY); // will scale the content (search text field and icon)
-            }, dialogVisualGrid.scaleYProperty());
+            if (dialogFullHeight) {
+                // Embedding the visual grid in a ScalePane that can only grow (up to 3x times) to avoid small rows on big screens
+                scalePane = new ScalePane(dialogVisualGrid);
+                scalePane.setCanShrink(false);
+                scalePane.setMaxScale(3); // Should this value be parameterized?
+                scalePane.setScaleRegion(true);  // Otherwise stretch the region without scaling it
+                scalePane.setStretchWidth(true); // Actually shrinks the grid width back to fit again in the dialog
+                scalePane.setVAlignment(VPos.TOP); // We want the scaled grid to be aligned on top
+                scalePane.setScaleMode(ScaleMode.FIT_WIDTH); // The scale depends on the dialog width
+                // Setting a quite arbitrary pref width value (otherwise the scale will vary depending on the data displayed)
+                dialogVisualGrid.setPrefWidth(300); // Should this value be parameterized?
+                // Now that scalePane is set up, we set up the searchPane (also a ScalePane) to give it the same scale.
+                searchPane.setStretchWidth(true); // Actually shrinks the grid width back to fit again in the dialog
+                searchPane.setScaleMode(ScaleMode.FIT_HEIGHT); // We will manually stretch the height to control the scale
+                // We multiply the height by the same scale factor as the one applied on the visual grid to get the same scale
+                FXProperties.runOnDoublePropertyChange(visualGridScaleY -> {
+                    // First, we compute the searchPane normal height (with no scale).
+                    searchPane.setPrefHeight(Region.USE_COMPUTED_SIZE); // Necessary to force the computation
+                    double prefHeight = searchPane.prefHeight(searchPane.getWidth());
+                    // Now we stretch the searchPane height with the visual grid scale factor
+                    searchPane.setPrefHeight(prefHeight * visualGridScaleY); // will scale the content (search text field and icon)
+                }, dialogVisualGrid.scaleYProperty());
+            }
         }
-        return scalePane;
+        return dialogFullHeight ? scalePane : dialogVisualGrid;
     }
 
     @Override
@@ -239,13 +241,17 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
         // when the user drops down the dialog. This would normally happen because this triggers a database request,
         // then a VisualResult reset, and finally a VisualSelection reset. We can prevent this by requesting
         // entityDialogMapper to automatically select our selected item instead.
+        /* Temporarily commented as this causes the dialog to be closed on VisualResult reset (via entityDialogMapper entityHandler)
         if (entityDialogMapper != null)
             entityDialogMapper.requestSelectedEntity(getSelectedItem());
+         */
     }
 
     private int updateAdaptiveLimit(Number height) {
         int maxNumberOfVisibleEntries = height.intValue() / 28;
-        if (maxNumberOfVisibleEntries > adaptiveLimit)
+        if (maxNumberOfVisibleEntries == 0) // happens when opening the dialog for the first time
+            adaptiveLimit = isSearchEnabled() ? 6 : 100;
+        else if (maxNumberOfVisibleEntries > adaptiveLimit)
             adaptiveLimit = maxNumberOfVisibleEntries + (getDecidedShowMode() == ShowMode.MODAL_DIALOG ? 6 : 0); // extra 6 to avoid repetitive requests when resizing the window
         return adaptiveLimit;
     }
