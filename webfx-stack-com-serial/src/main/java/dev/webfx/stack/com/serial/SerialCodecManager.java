@@ -126,7 +126,7 @@ public final class SerialCodecManager {
     public static ReadOnlyAstObject encodeToAstObject(Object object) {
         if (object == null)
             return null;
-        if (object instanceof ReadOnlyAstObject)
+        if (AST.isObject(object))
             return (ReadOnlyAstObject) object;
         return encodeJavaObjectToAstObject(object, AST.createObject());
     }
@@ -162,10 +162,10 @@ public final class SerialCodecManager {
 
     public static <T> T decodeFromJson(Object object) {
         // Case 1: it's a json object => we call decodeFromAstObject(). The returned object may be any java object.
-        if (object instanceof ReadOnlyAstObject)
+        if (AST.isObject(object))
             return decodeFromAstObject((ReadOnlyAstObject) object);
         // Case 2: it's a json array => we call decodePrimitiveArrayFromAstArray(). The returned object is always an Object[] array.
-        if (object instanceof ReadOnlyAstArray)
+        if (AST.isArray(object))
             return (T) decodeAstArrayToJavaArray((ReadOnlyAstArray) object, Object.class);
         // Case 3: it's a String with instant value prefix => we decode and return the instant value
         if (object instanceof String) {
