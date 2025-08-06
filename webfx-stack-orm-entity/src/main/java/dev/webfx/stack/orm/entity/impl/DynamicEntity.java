@@ -170,7 +170,7 @@ public class DynamicEntity implements Entity {
         if (pk)
             sb.append(id.getDomainClass()).append("(pk: ").append(id.getPrimaryKey());
         String separator = pk ? ", " : " | ";
-        for (Map.Entry<?, ?> entry : fieldValues.entrySet()) {
+        for (Map.Entry<?, ?> entry : fieldValues.entrySet()) { // ConcurrentModificationException observed
             sb.append(separator).append(entry.getKey()).append(": ").append(entry.getValue());
             separator = ", ";
         }

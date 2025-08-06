@@ -62,7 +62,7 @@ public final class EntitiesToVisualResultMapper {
                 Expression<E> expression = entityColumn.getDisplayExpression();
                 ValueFormatter formatter = entityColumn.getDisplayFormatter();
                 if (entities != null)
-                    for (Entity entity : entities) {
+                    for (Entity entity : entities) { // ConcurrentModificationException observed
                         if (entity == null)
                             entity = visualNullEntity;
                         Object value = entity == null ? null : entity.evaluate(expression);

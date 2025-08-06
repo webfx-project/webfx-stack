@@ -1,5 +1,8 @@
 package dev.webfx.stack.orm.entity;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * @author Bruno Salmon
  */
@@ -37,5 +40,21 @@ public final class EntityStoreQuery {
 
     public Object getListId() {
         return listId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+
+        EntityStoreQuery that = (EntityStoreQuery) o;
+        return select.equals(that.select) && dev.webfx.platform.util.Objects.areEquals(parameters, that.parameters, true) && Objects.equals(listId, that.listId);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = select.hashCode();
+        result = 31 * result + Arrays.hashCode(parameters);
+        result = 31 * result + Objects.hashCode(listId);
+        return result;
     }
 }

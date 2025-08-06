@@ -176,10 +176,10 @@ public interface EntityStore extends HasDataSourceModel {
             try {
                 Pair<QueryArgument, QueryResult> pair = cacheEntry.getValue();
                 if (Objects.equals(queryArgument, pair.get1())) {
-                    QueryResult rs = pair.get2();
-                    if (rs != null) {
+                    QueryResult qr = pair.get2();
+                    if (qr != null) {
                         Console.log("Restoring cache '" + cacheEntry.getKey() + "'");
-                        EntityList<E> entities = QueryResultToEntitiesMapper.mapQueryResultToEntities(rs, queryMapping, this, listId);
+                        EntityList<E> entities = QueryResultToEntitiesMapper.mapQueryResultToEntities(qr, queryMapping, this, listId);
                         cacheListConsumer.accept(entities);
                     }
                 } else
@@ -205,12 +205,40 @@ public interface EntityStore extends HasDataSourceModel {
     }
 
     default Future<EntityList[]> executeQueryBatch(EntityStoreQuery... queries) {
-        Future<Batch<QueryResult>> future = QueryService.executeQueryBatch(new Batch<>(Arrays.map(queries, (i, query) -> createQueryArgument(query.getSelect(), query.getParameters()), QueryArgument[]::new)));
-        SqlCompiled[] sqlCompileds = Arrays.map(queries, query -> getDataSourceModel().parseAndCompileSelect(query.getSelect()), SqlCompiled[]::new);
-        return future.map(batchResult -> Arrays.map(batchResult.getArray(), (i, rs) -> QueryResultToEntitiesMapper.mapQueryResultToEntities(rs, sqlCompileds[i].getQueryMapping(), this, queries[i].getListId()), EntityList[]::new));
+        return executeCachedQueryBatch(null, null, queries);
     }
 
-    // String report for debugging
+    default Future<EntityList[]> executeCachedQueryBatch(CacheEntry<Pair<EntityStoreQuery[], QueryResult[]>> cacheEntry, Consumer<EntityList[]> cacheListConsumer, EntityStoreQuery... queries) {
+        QueryArgument[] queryArguments = Arrays.map(queries, (i, query) -> createQueryArgument(query.getSelect(), query.getParameters()), QueryArgument[]::new);
+        Future<Batch<QueryResult>> future = QueryService.executeQueryBatch(new Batch<>(queryArguments));
+        SqlCompiled[] sqlCompileds = Arrays.map(queries, query -> getDataSourceModel().parseAndCompileSelect(query.getSelect()), SqlCompiled[]::new);
+        if (cacheEntry != null && cacheListConsumer != null) {
+            try {
+                Pair<EntityStoreQuery[], QueryResult[]> pair = cacheEntry.getValue();
+                if (Objects.deepEquals(queries, pair.get1())) {
+                    Object[] qrs = pair.get2();
+                    if (qrs != null) {
+                        Console.log("Restoring cache '" + cacheEntry.getKey() + "'");
+                        EntityList[] entityLists = new EntityList[queries.length];
+                        for (int i = 0; i < queries.length; i++) {
+                            entityLists[i] = QueryResultToEntitiesMapper.mapQueryResultToEntities((QueryResult) qrs[i], sqlCompileds[i].getQueryMapping(), this, queries[i].getListId());
+                        }
+                        cacheListConsumer.accept(entityLists);
+                    }
+                }
+            } catch (Exception e) {
+                Console.log("WARNING: Restoring '" + cacheEntry.getKey() + "' cache failed: " + e.getMessage());
+            }
+        }
+        return future.map(batchResult -> {
+            QueryResult[] qrs = batchResult.getArray();
+            if (cacheEntry != null)
+                cacheEntry.putValue(new Pair<>(queries, qrs));
+            return Arrays.map(qrs, (i, rs) -> QueryResultToEntitiesMapper.mapQueryResultToEntities(rs, sqlCompileds[i].getQueryMapping(), this, queries[i].getListId()), EntityList[]::new);
+        });
+    }
+
+        // String report for debugging
 
     String getEntityClassesCountReport();
 

@@ -11,16 +11,11 @@ import java.util.Map;
 /**
  * @author Bruno Salmon
  */
-public final class EntityResultImpl implements EntityResult {
+public record EntityResultImpl(List<EntityId> entityIds, List<Map> entityFieldsMaps) implements EntityResult {
 
-    private final List<EntityId> entityIds;
-    private final List<Map> entityFieldsMaps;
-
-    public EntityResultImpl(List<EntityId> entityIds, List<Map> entityFieldsMaps) {
+    public EntityResultImpl {
         if (entityIds.size() != entityFieldsMaps.size())
             throw new IllegalArgumentException("entityIds and entityFieldsMaps must have the same size");
-        this.entityIds = entityIds;
-        this.entityFieldsMaps = entityFieldsMaps;
     }
 
     @Override
