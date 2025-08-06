@@ -5,6 +5,10 @@ import dev.webfx.platform.util.Booleans;
 import dev.webfx.platform.util.Numbers;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.util.time.Times;
+import dev.webfx.platform.util.tuples.Pair;
+import dev.webfx.stack.cache.CacheEntry;
+import dev.webfx.stack.db.query.QueryArgument;
+import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.domainmodel.DomainField;
 import dev.webfx.stack.orm.expression.Expression;
@@ -16,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -136,21 +141,29 @@ public interface Entity {
     }
 
     default <E extends Entity> Future<E> onExpressionLoaded(String expression) {
+        return onCachedExpressionLoaded(null, null, expression);
+    }
+
+    default <E extends Entity> Future<E> onCachedExpressionLoaded(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, Consumer<E> cacheConsumer, String expression) {
         if (expression == null)
             return Future.succeededFuture((E) this);
         try {
-            return onExpressionLoaded(parseExpression(expression));
+            return onCachedExpressionLoaded(cacheEntry, cacheConsumer, parseExpression(expression));
         } catch (Exception e) {
             return Future.failedFuture(e);
         }
     }
 
     default <E extends Entity> Future<E> onExpressionLoaded(Expression<E> expression) {
+        return onCachedExpressionLoaded(null, null, expression);
+    }
+
+    default <E extends Entity> Future<E> onCachedExpressionLoaded(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, Consumer<E> cacheConsumer, Expression<E> expression) {
         Collection<Expression<E>> unloadedPersistentTerms = getUnloadedPersistentTerms(expression);
         if (unloadedPersistentTerms.isEmpty())
             return Future.succeededFuture((E) this);
         String dqlQuery = "select " + unloadedPersistentTerms.stream().map(e -> e instanceof Dot ? ((Dot) e).expandLeft() : e).map(Object::toString).collect(Collectors.joining(",")) + " from " + getDomainClass().getName() + " where id=?";
-        return getStore().executeQuery(dqlQuery, getPrimaryKey()).map((E) this);
+        return getStore().executeCachedQuery(cacheEntry, cacheConsumer == null ? null : entityList -> cacheConsumer.accept((E) entityList.get(0)), dqlQuery, getPrimaryKey()).map((E) this);
     }
 
     default <E extends Entity> Collection<Expression<E>> getUnloadedPersistentTerms(Expression<E> expression) {
