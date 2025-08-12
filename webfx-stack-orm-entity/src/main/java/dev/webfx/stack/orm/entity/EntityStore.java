@@ -2,13 +2,17 @@ package dev.webfx.stack.orm.entity;
 
 import dev.webfx.platform.async.Batch;
 import dev.webfx.platform.async.Future;
+import dev.webfx.platform.async.Promise;
+import dev.webfx.platform.async.impl.PromiseImpl;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.util.tuples.Pair;
 import dev.webfx.stack.cache.CacheEntry;
+import dev.webfx.stack.cache.MaybeCacheValue;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.QueryService;
+import dev.webfx.stack.orm.datasourcemodel.service.DataSourceModelService;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.domainmodel.HasDataSourceModel;
@@ -160,27 +164,45 @@ public interface EntityStore extends HasDataSourceModel {
         return executeListQuery(null, dqlQuery, parameters);
     }
 
-    default <E extends Entity> Future<EntityList<E>> executeCachedQuery(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, Consumer<EntityList<E>> cacheListConsumer, String dqlQuery, Object... parameters) {
-        return executeCachedListQuery(cacheEntry, cacheListConsumer, dqlQuery, dqlQuery, parameters);
+    default <E extends Entity> Future<EntityList<E>> executeQueryWithCache(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, String dqlQuery, Object... parameters) {
+        return executeListQueryWithCache(cacheEntry, dqlQuery, dqlQuery, parameters);
+    }
+
+    default <E extends Entity> Future<MaybeCacheValue<EntityList<E>>> executeQueryWithCacheDetails(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, String dqlQuery, Object... parameters) {
+        return executeListQueryWithCacheDetails(cacheEntry, dqlQuery, dqlQuery, parameters);
     }
 
     default <E extends Entity> Future<EntityList<E>> executeListQuery(Object listId, String dqlQuery, Object... parameters) {
-        return executeCachedListQuery(null, null, listId, dqlQuery, parameters);
+        return this.<E>executeListQueryWithCacheDetails(null, listId, dqlQuery, parameters)
+            .map(MaybeCacheValue::value);
     }
 
-    default <E extends Entity> Future<EntityList<E>> executeCachedListQuery(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, Consumer<EntityList<E>> cacheListConsumer, Object listId, String dqlQuery, Object... parameters) {
+    default <E extends Entity> Future<EntityList<E>> executeListQueryWithCache(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, Object listId, String dqlQuery, Object... parameters) {
+        Promise<EntityList<E>> promise = new PromiseImpl<>(true);
+        this.<E>executeListQueryWithCacheDetails(cacheEntry, listId, dqlQuery, parameters)
+            .onFailure(promise::fail)
+            .onSuccess(maybeCacheValue -> {
+                if (!maybeCacheValue.sameAsCache())
+                    promise.tryComplete(maybeCacheValue.value());
+            });
+        return promise.future();
+    }
+
+    default <E extends Entity> Future<MaybeCacheValue<EntityList<E>>> executeListQueryWithCacheDetails(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, Object listId, String dqlQuery, Object... parameters) {
         QueryArgument queryArgument = createQueryArgument(dqlQuery, parameters);
         Future<QueryResult> future = QueryService.executeQuery(queryArgument);
         QueryRowToEntityMapping queryMapping = getDataSourceModel().parseAndCompileSelect(dqlQuery).getQueryMapping();
-        if (cacheEntry != null && cacheListConsumer != null) {
+        Promise<MaybeCacheValue<EntityList<E>>> promise = new PromiseImpl<>(true);
+        QueryResult cqr = null;
+        if (cacheEntry != null) {
             try {
                 Pair<QueryArgument, QueryResult> pair = cacheEntry.getValue();
                 if (Objects.equals(queryArgument, pair.get1())) {
-                    QueryResult qr = pair.get2();
-                    if (qr != null) {
+                    cqr = pair.get2();
+                    if (cqr != null) {
                         Console.log("Restoring cache '" + cacheEntry.getKey() + "'");
-                        EntityList<E> entities = QueryResultToEntitiesMapper.mapQueryResultToEntities(qr, queryMapping, this, listId);
-                        cacheListConsumer.accept(entities);
+                        EntityList<E> entities = QueryResultToEntitiesMapper.mapQueryResultToEntities(cqr, queryMapping, this, listId);
+                        promise.tryComplete(new MaybeCacheValue<>(entities, true, false));
                     }
                 } else
                     Console.log("Cache for '" + cacheEntry.getKey() + "' can't be used, as its argument was different: " + pair.get1());
@@ -188,12 +210,18 @@ public interface EntityStore extends HasDataSourceModel {
                 Console.log("WARNING: Restoring '" + cacheEntry.getKey() + "' cache failed: " + e.getMessage());
             }
         }
-        return future.map(rs -> {
-            EntityList<E> entities = QueryResultToEntitiesMapper.mapQueryResultToEntities(rs, queryMapping, this, listId);
-            if (cacheEntry != null)
-                cacheEntry.putValue(new Pair<>(queryArgument, rs));
-            return entities;
+        QueryResult cachedQueryResult = cqr;
+        future.onSuccess(qr -> {
+            EntityList<E> entities = QueryResultToEntitiesMapper.mapQueryResultToEntities(qr, queryMapping, this, listId);
+            boolean sameAsCache = false;
+            if (cacheEntry != null) {
+                sameAsCache = Objects.equals(qr, cachedQueryResult);
+                if (!sameAsCache)
+                    cacheEntry.putValue(new Pair<>(queryArgument, qr));
+            }
+            promise.tryComplete(new MaybeCacheValue<>(entities, false, sameAsCache));
         });
+        return promise.future();
     }
 
     default <E extends Entity> Future<EntityList<E>> executeQuery(EntityStoreQuery query) {
@@ -247,6 +275,10 @@ public interface EntityStore extends HasDataSourceModel {
 
     static EntityStore create(DataSourceModel dataSourceModel) {
         return new EntityStoreImpl(dataSourceModel);
+    }
+
+    static EntityStore create() {
+        return create(DataSourceModelService.getDefaultDataSourceModel());
     }
 
     static EntityStore createAbove(EntityStore underlyingStore) {
