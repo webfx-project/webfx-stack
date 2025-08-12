@@ -1,18 +1,16 @@
 package dev.webfx.stack.authn.login.ui.spi.impl.gateway.magiclink;
 
+import dev.webfx.extras.controlfactory.MaterialFactoryMixin;
+import dev.webfx.extras.i18n.I18n;
+import dev.webfx.extras.i18n.controls.I18nControls;
+import dev.webfx.extras.operation.OperationUtil;
 import dev.webfx.extras.styles.bootstrap.Bootstrap;
+import dev.webfx.extras.validation.ValidationSupport;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
-import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.stack.authn.*;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.password.PasswordI18nKeys;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.password.UILoginView;
-import dev.webfx.extras.i18n.I18n;
-import dev.webfx.extras.i18n.controls.I18nControls;
-import dev.webfx.extras.controlfactory.MaterialFactoryMixin;
-import dev.webfx.extras.operation.OperationUtil;
-import dev.webfx.extras.validation.ValidationSupport;
-import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -51,8 +49,9 @@ public class MagicLinkUi implements MaterialFactoryMixin {
                 uiLoginView.setMainMessage(MagicLinkI18nKeys.MagicLinkUnrecognisedError, Bootstrap.TEXT_DANGER);
             } else {
                 AuthenticationService.authenticate(new AuthenticateWithMagicLinkCredentials(token))
-                    .onFailure(e -> UiScheduler.runInUiThread(() -> onFailure(e)))
-                    .onSuccess(requestedPath -> UiScheduler.runInUiThread(() -> onSuccess((String) requestedPath)));
+                    .inUiThread()
+                    .onFailure(this::onFailure)
+                    .onSuccess(requestedPath -> onSuccess((String) requestedPath));
             }
         }, tokenProperty);
     }
@@ -76,23 +75,22 @@ public class MagicLinkUi implements MaterialFactoryMixin {
         uiLoginView.getActionButton().setOnAction(l -> {
             if (validateForm()) {
                 AuthenticationService.updateCredentials(new UpdatePasswordFromMagicLinkCredentials(uiLoginView.getPasswordField().getText()))
+                    .inUiThread()
                     .onFailure(e -> {
-                        Console.log("Error Updating password: " + e);
-                        Platform.runLater(() -> onFailure(e));
+                        Console.log("Error Updating password: ", e);
+                        onFailure(e);
                     })
                     .onSuccess(ignored -> {
                         Console.log("Password Updated");
-                        Platform.runLater(() -> {
-                            uiLoginView.setMainMessage(PasswordI18nKeys.PasswordUpdated, Bootstrap.TEXT_SUCCESS);
-                            uiLoginView.showMainMessage();
-                            I18nControls.bindI18nProperties(uiLoginView.getActionButton(), PasswordI18nKeys.GoToLogin);
-                            uiLoginView.getActionButton().setOnAction(e2 -> requestedPathConsumer.accept(requestedPath));
-                            uiLoginView.getPasswordField().setDisable(true);
-                            uiLoginView.setForgetRememberPasswordHyperlink(MagicLinkI18nKeys.BackToNavigation);
-                            uiLoginView.hideForgetPasswordHyperlink();
-                            //uiLoginView.getForgetRememberPasswordHyperlink().setOnAction(e2-> pathConsumer.accept(pathToBeRedirected));
-                            uiLoginView.hideGraphicFromActionButton();
-                        });
+                        uiLoginView.setMainMessage(PasswordI18nKeys.PasswordUpdated, Bootstrap.TEXT_SUCCESS);
+                        uiLoginView.showMainMessage();
+                        I18nControls.bindI18nProperties(uiLoginView.getActionButton(), PasswordI18nKeys.GoToLogin);
+                        uiLoginView.getActionButton().setOnAction(e2 -> requestedPathConsumer.accept(requestedPath));
+                        uiLoginView.getPasswordField().setDisable(true);
+                        uiLoginView.setForgetRememberPasswordHyperlink(MagicLinkI18nKeys.BackToNavigation);
+                        uiLoginView.hideForgetPasswordHyperlink();
+                        //uiLoginView.getForgetRememberPasswordHyperlink().setOnAction(e2-> pathConsumer.accept(pathToBeRedirected));
+                        uiLoginView.hideGraphicFromActionButton();
                     });
             }
         });
@@ -133,16 +131,17 @@ public class MagicLinkUi implements MaterialFactoryMixin {
                     new AuthenticationRequest()
                         .setUserCredentials(credentials)
                         .executeAsync()
-                        .onComplete(ar -> UiScheduler.runInUiThread(() -> OperationUtil.turnOffButtonsWaitMode(uiLoginView.getActionButton())))
+                        .inUiThread()
+                        .onComplete(ar -> OperationUtil.turnOffButtonsWaitMode(uiLoginView.getActionButton()))
                         .onFailure(failure -> Console.log("Fail to renew Magik Link:" + failure.getMessage()))
-                        .onSuccess(ignored -> UiScheduler.runInUiThread(() -> {
+                        .onSuccess(ignored -> {
                             uiLoginView.setMainMessage(PasswordI18nKeys.LinkSent, Bootstrap.TEXT_SUCCESS);
                             uiLoginView.showMainMessage();
                             uiLoginView.getActionButton().setDisable(true);
                             uiLoginView.getEmailTextField().setDisable(true);
                             uiLoginView.hideForgetPasswordHyperlink();
                             uiLoginView.showGraphicFromActionButton();
-                        }));
+                        });
                 });
             }
             if (technicalMessage.contains("address")) {

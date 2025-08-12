@@ -14,7 +14,6 @@ module webfx.stack.authn.login.ui.gateway.magiclink.plugin {
     requires webfx.extras.validation;
     requires webfx.kit.util;
     requires webfx.platform.console;
-    requires webfx.platform.uischeduler;
     requires webfx.stack.authn;
     requires webfx.stack.authn.login.ui.gateway.password.plugin;
 

@@ -7,7 +7,6 @@ module webfx.stack.authn.login.ui.gateway.webviewbased {
     requires javafx.web;
     requires webfx.platform.console;
     requires webfx.platform.service;
-    requires webfx.platform.uischeduler;
     requires webfx.stack.authn.login;
     requires webfx.stack.authn.login.ui.gateway;
 
