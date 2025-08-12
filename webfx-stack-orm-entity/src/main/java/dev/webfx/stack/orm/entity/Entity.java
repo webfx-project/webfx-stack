@@ -7,6 +7,7 @@ import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.util.time.Times;
 import dev.webfx.platform.util.tuples.Pair;
 import dev.webfx.stack.cache.CacheEntry;
+import dev.webfx.stack.cache.DefaultCache;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
@@ -160,7 +161,11 @@ public interface Entity {
     }
 
     default <E extends Entity> Future<E> onExpressionLoaded(String expression) {
-        return onExpressionLoadedWithCache(null, expression);
+        return onExpressionLoadedWithCache((CacheEntry<Pair<QueryArgument, QueryResult>>) null, expression);
+    }
+
+    default <E extends Entity> Future<E> onExpressionLoadedWithCache(String cacheEntryKey, String expression) {
+        return onExpressionLoadedWithCache(DefaultCache.getDefaultCacheEntry(cacheEntryKey), expression);
     }
 
     default <E extends Entity> Future<E> onExpressionLoadedWithCache(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, String expression) {
@@ -174,7 +179,11 @@ public interface Entity {
     }
 
     default <E extends Entity> Future<E> onExpressionLoaded(Expression<E> expression) {
-        return onExpressionLoadedWithCache(null, expression);
+        return onExpressionLoadedWithCache((CacheEntry<Pair<QueryArgument, QueryResult>>) null, expression);
+    }
+
+    default <E extends Entity> Future<E> onExpressionLoadedWithCache(String cacheEntryKey, Expression<E> expression) {
+        return onExpressionLoadedWithCache(DefaultCache.getDefaultCacheEntry(cacheEntryKey), expression);
     }
 
     default <E extends Entity> Future<E> onExpressionLoadedWithCache(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, Expression<E> expression) {

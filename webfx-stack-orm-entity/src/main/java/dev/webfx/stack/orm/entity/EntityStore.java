@@ -8,6 +8,7 @@ import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.util.tuples.Pair;
 import dev.webfx.stack.cache.CacheEntry;
+import dev.webfx.stack.cache.DefaultCache;
 import dev.webfx.stack.cache.MaybeCacheValue;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
@@ -163,6 +164,10 @@ public interface EntityStore extends HasDataSourceModel {
         return executeListQuery(null, dqlQuery, parameters);
     }
 
+    default <E extends Entity> Future<EntityList<E>> executeQueryWithCache(String cacheEntryKey, String dqlQuery, Object... parameters) {
+        return executeListQueryWithCache(DefaultCache.getDefaultCacheEntry(cacheEntryKey), dqlQuery, dqlQuery, parameters);
+    }
+
     default <E extends Entity> Future<EntityList<E>> executeQueryWithCache(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, String dqlQuery, Object... parameters) {
         return executeListQueryWithCache(cacheEntry, dqlQuery, dqlQuery, parameters);
     }
@@ -232,10 +237,14 @@ public interface EntityStore extends HasDataSourceModel {
     }
 
     default Future<EntityList[]> executeQueryBatch(EntityStoreQuery... queries) {
-        return executeQueryBatchWithCache(null, queries);
+        return executeQueryBatchWithCache((CacheEntry<Pair<EntityStoreQuery[], QueryResult[]>>) null, queries);
     }
 
-    default Future<EntityList[]> executeQueryBatchWithCache(CacheEntry<Pair<EntityStoreQuery[], QueryResult[]>> cacheEntry, EntityStoreQuery... queries) {
+    default Future<EntityList[]> executeQueryBatchWithCache(String cacheEntryKey, EntityStoreQuery... queries) {
+        return executeQueryBatchWithCache(DefaultCache.getDefaultCacheEntry(cacheEntryKey), queries);
+    }
+
+        default Future<EntityList[]> executeQueryBatchWithCache(CacheEntry<Pair<EntityStoreQuery[], QueryResult[]>> cacheEntry, EntityStoreQuery... queries) {
         Promise<EntityList[]> promise = new PromiseImpl<>(true);
         executeQueryBatchWithCacheDetails(cacheEntry, queries)
             .onFailure(promise::fail)
