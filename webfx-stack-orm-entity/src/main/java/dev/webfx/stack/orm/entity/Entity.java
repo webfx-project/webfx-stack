@@ -20,7 +20,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -136,34 +135,57 @@ public interface Entity {
 
     // Expression API
 
+    default <T> T evaluate(String expression) {
+        return getStore().evaluateEntityExpression(this, expression);
+    }
+
+    default <E extends Entity, T> T evaluate(Expression<E> expression) {
+        return getStore().evaluateEntityExpression((E) this, expression);
+    }
+
+    default <E extends Entity> void setExpressionValue(Expression<E> expression, Object value) {
+        getStore().setEntityExpressionValue((E) this, expression, value);
+    }
+
     default <E extends Entity> Expression<E> parseExpression(String expression) {
         return getStore().getDomainModel().parseExpression(expression, getDomainClass().getId());
     }
 
-    default <E extends Entity> Future<E> onExpressionLoaded(String expression) {
-        return onCachedExpressionLoaded(null, null, expression);
+    default <T> Future<T> evaluateOnceLoaded(String expression) {
+        return onExpressionLoaded(expression).map(ignored -> evaluate(expression));
     }
 
-    default <E extends Entity> Future<E> onCachedExpressionLoaded(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, Consumer<E> cacheConsumer, String expression) {
+    default <E extends Entity> Future<Object> evaluateOnceLoaded(Expression<E> expression) {
+        return onExpressionLoaded(expression).map(ignored -> evaluate(expression));
+    }
+
+    default <E extends Entity> Future<E> onExpressionLoaded(String expression) {
+        return onExpressionLoadedWithCache(null, expression);
+    }
+
+    default <E extends Entity> Future<E> onExpressionLoadedWithCache(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, String expression) {
         if (expression == null)
             return Future.succeededFuture((E) this);
         try {
-            return onCachedExpressionLoaded(cacheEntry, cacheConsumer, parseExpression(expression));
+            return onExpressionLoadedWithCache(cacheEntry, parseExpression(expression));
         } catch (Exception e) {
             return Future.failedFuture(e);
         }
     }
 
     default <E extends Entity> Future<E> onExpressionLoaded(Expression<E> expression) {
-        return onCachedExpressionLoaded(null, null, expression);
+        return onExpressionLoadedWithCache(null, expression);
     }
 
-    default <E extends Entity> Future<E> onCachedExpressionLoaded(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, Consumer<E> cacheConsumer, Expression<E> expression) {
+    default <E extends Entity> Future<E> onExpressionLoadedWithCache(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, Expression<E> expression) {
         Collection<Expression<E>> unloadedPersistentTerms = getUnloadedPersistentTerms(expression);
         if (unloadedPersistentTerms.isEmpty())
             return Future.succeededFuture((E) this);
-        String dqlQuery = "select " + unloadedPersistentTerms.stream().map(e -> e instanceof Dot ? ((Dot) e).expandLeft() : e).map(Object::toString).collect(Collectors.joining(",")) + " from " + getDomainClass().getName() + " where id=?";
-        return getStore().executeCachedQuery(cacheEntry, cacheConsumer == null ? null : entityList -> cacheConsumer.accept((E) entityList.get(0)), dqlQuery, getPrimaryKey()).map((E) this);
+        String dqlQuery = "select " + unloadedPersistentTerms.stream()
+            .map(e -> e instanceof Dot ? ((Dot) e).expandLeft() : e)
+            .map(Object::toString)
+            .collect(Collectors.joining(",")) + " from " + getDomainClass().getName() + " where id=?";
+        return getStore().executeQueryWithCache(cacheEntry, dqlQuery, getPrimaryKey()).map((E) this);
     }
 
     default <E extends Entity> Collection<Expression<E>> getUnloadedPersistentTerms(Expression<E> expression) {
@@ -190,23 +212,4 @@ public interface Entity {
         return evaluate(persistentTerm) != null;
     }
 
-    default <T> Future<T> evaluateOnceLoaded(String expression) {
-        return onExpressionLoaded(expression).map(ignored -> evaluate(expression));
-    }
-
-    default <E extends Entity> Future<Object> evaluateOnceLoaded(Expression<E> expression) {
-        return onExpressionLoaded(expression).map(ignored -> evaluate(expression));
-    }
-
-    default <T> T evaluate(String expression) {
-        return getStore().evaluateEntityExpression(this, expression);
-    }
-
-    default <E extends Entity, T> T evaluate(Expression<E> expression) {
-        return getStore().evaluateEntityExpression((E) this, expression);
-    }
-
-    default <E extends Entity> void setExpressionValue(Expression<E> expression, Object value) {
-        getStore().setEntityExpressionValue((E) this, expression, value);
-    }
 }

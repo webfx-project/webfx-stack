@@ -9,7 +9,7 @@ module webfx.stack.orm.entity {
     requires webfx.platform.service;
     requires webfx.platform.util;
     requires webfx.platform.util.time;
-    requires webfx.stack.cache;
+    requires transitive webfx.stack.cache;
     requires transitive webfx.stack.db.datascope;
     requires transitive webfx.stack.db.query;
     requires transitive webfx.stack.db.submit;
