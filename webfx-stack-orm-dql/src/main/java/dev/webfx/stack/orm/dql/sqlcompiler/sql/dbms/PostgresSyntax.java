@@ -16,22 +16,11 @@ public final class PostgresSyntax extends DbmsSqlSyntaxImpl {
     }
 
     public boolean isReservedIdentifier(String identifier) {
-        switch (identifier = identifier.toLowerCase()) {
-            case "analyse":
-            case "analyze":
-            case "concurrently":
-            case "do":
-            case "freeze":
-            case "isnull":
-            case "limit":
-            case "notnull":
-            case "placing":
-            case "returning":
-            case "variadic":
-            case "verbose":
-                return true;
-        }
-        return super.isReservedIdentifier(identifier);
+        return switch (identifier = identifier.toLowerCase()) {
+            case "analyse", "analyze", "concurrently", "do", "freeze", "isnull", "limit", "notnull", "placing",
+                 "returning", "variadic", "verbose" -> true;
+            default -> super.isReservedIdentifier(identifier);
+        };
     }
 
     @Override

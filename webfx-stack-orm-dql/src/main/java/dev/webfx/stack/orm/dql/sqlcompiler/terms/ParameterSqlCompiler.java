@@ -13,17 +13,17 @@ public final class ParameterSqlCompiler extends AbstractTermSqlCompiler<Paramete
     }
 
     @Override
-    public void compileExpressionToSql(Parameter e, Options o) {
-        compileParameter(e, o, true);
+    public void compileExpressionToSql(Parameter p, Options o) {
+        compileParameter(p, o, true);
     }
 
-    public void compileParameter(Parameter e, Options o, boolean isRightOperand) {
-        String name = e.getName();
+    public void compileParameter(Parameter p, Options o, boolean isRightOperand) {
+        String name = p.getName();
         if (name != null) {
-            if (isClientOnly(e, o.clause == SqlClause.SELECT)) // TODO: distinguish sql parameters from local parameters
+            if (isClientOnly(p, o.clause == SqlClause.SELECT)) // TODO: distinguish sql parameters from local parameters
                 return;
             o.build.getParameterNames().add(name);
-            if (e.getRightDot() != null)
+            if (p.getRightDot() != null)
                 o.build.setCacheable(false);
             /*
             int parameterIndex = e.getIndex() != -1 ? e.getIndex() : o.build.getParameterCount();
@@ -64,7 +64,10 @@ public final class ParameterSqlCompiler extends AbstractTermSqlCompiler<Paramete
             }
             */
         }
-        o.build.addColumnInClause(null, o.build.getDbmsSyntax().generateParameterToken(o.build.incrementParameterIndex()), null, null, o.clause, o.separator, false, false, o.generateQueryMapping);
+        int index = p.getIndex();
+        if (index <= 0)
+            index = o.build.incrementParameterIndex();
+        o.build.addColumnInClause(null, o.build.getDbmsSyntax().generateParameterToken(index), null, null, o.clause, o.separator, false, false, o.generateQueryMapping);
     }
 
     private boolean isClientOnly(Parameter e, boolean forSelectClause) {

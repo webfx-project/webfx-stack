@@ -143,6 +143,9 @@ OrderBy = [Oo][Rr][Dd][Ee][Rr]{WhiteSpace}+[Bb][Yy]
     "or"                           { return symbol(OR); }
     "||"                           { return symbol(OR); }
 
+    /* additional symbol for parameters */
+    "$"                            { return symbol(DOLLAR); }
+
     {Identifier}                   { return symbol(IDENTIFIER, yytext());}
 
   /* comments */

@@ -21,7 +21,7 @@ import java.util.Map;
  */
 public final class SqlBuild {
     /**
-     * Final fields built by sql compilation in order to generate a SqlCompiled object **
+     * Final fields built by SQL compilation to generate a SqlCompiled object **
      */
     private String sql;
     private final ArrayList<String> parameterNames = new ArrayList<>();
@@ -36,10 +36,9 @@ public final class SqlBuild {
     private boolean cacheable = true;
 
     /**
-     * Temporary fields used during sql compilation **
+     * Temporary fields used during SQL compilation **
      */
     private final SqlBuild parent;
-    private final String tableName;
     private final String tableAlias;
     private Object compilingClass;
     private String compilingTableAlias;
@@ -61,7 +60,7 @@ public final class SqlBuild {
     public SqlBuild(SqlBuild parent, Object selectDomainClass, String tableAlias, SqlClause clause, DbmsSqlSyntax dbmsSyntax, CompilerDomainModelReader modelReader) {
         this.parent = parent;
         this.compilingClass = this.selectDomainClass = selectDomainClass;
-        tableName = modelReader.getDomainClassSqlTableName(selectDomainClass);
+        String tableName = modelReader.getDomainClassSqlTableName(selectDomainClass);
         this.compilingTableAlias = this.tableAlias = getNewTableAlias(tableName, tableAlias, false);
         this.dbmsSyntax = dbmsSyntax;
         prepareAppend(clause, ""); // just for marking the clause
@@ -151,7 +150,7 @@ public final class SqlBuild {
                         sb.append(", ");
                     sb.append(dbmsSyntax.quoteTableIfReserved(tableName)); // tableName
                     if (insert == null) // no alias allowed in insert sql statement
-                        sb.append(" as ").append(tableAlias); // may need " as " instead of ' ' for some dbms
+                        sb.append(" as ").append(tableAlias); // may need ` as ` instead of ` ` for some dbms
                     first = false;
                 }
                 Join.appendJoins(joins.get(tableAlias), sb);
@@ -182,7 +181,7 @@ public final class SqlBuild {
                     if (!first)
                         sb.append(", ");
                     sb.append(dbmsSyntax.quoteTableIfReserved(tableName)); // tableName
-                    sb.append(" as ").append(tableAlias); // may need " as " instead of ' ' for some dbms
+                    sb.append(" as ").append(tableAlias); // may need ` as ` instead of ` ` for some dbms
                     first = false;
                 }
                 Join.appendJoins(joins.get(tableAlias), sb);
@@ -254,9 +253,7 @@ public final class SqlBuild {
     }
 
     public StringBuilder prepareAppend(SqlClause clause, String separator) {
-        StringBuilder clauseBuilder = sqlClauseBuilders.get(clause);
-        if (clauseBuilder == null)
-            sqlClauseBuilders.put(clause, clauseBuilder = new StringBuilder());
+        StringBuilder clauseBuilder = sqlClauseBuilders.computeIfAbsent(clause, k -> new StringBuilder());
         if (Strings.isNotEmpty(separator) && Strings.isNotEmpty(clauseBuilder) && !endsWith(clauseBuilder, separator) && !endsWith(clauseBuilder, "(") && !endsWith(clauseBuilder, "["))
             clauseBuilder.append(separator);
         return clauseBuilder;
@@ -338,7 +335,7 @@ public final class SqlBuild {
         }
         if (fullColumnName != null) {
             if (grouped && (clause == SqlClause.SELECT || clause == SqlClause.ORDER_BY))
-                fullColumnName = (isBoolean ? "first(" : "min(") + fullColumnName + ")"; // min is much faster (native) than first (written in sql) but min doesn't work for boolean in postgres
+                fullColumnName = (isBoolean ? "first(" : "min(") + fullColumnName + ")"; // min is much faster (native) than first (written in SQL), but min doesn't work for boolean in postgres
             prepareAppend(clause, separator).append(fullColumnName);
         }
         return queryColumnToEntityFieldMapping;
@@ -353,9 +350,7 @@ public final class SqlBuild {
 
     private String addJoinCondition2(String table1Alias, String column1Name, String table2Alias, String table2Name, String column2Name, boolean leftOuter) {
         table1Alias = getSqlAlias(table1Alias, this);
-        Map<Join, Join> table1Joins = joins.get(table1Alias);
-        if (table1Joins == null)
-            joins.put(table1Alias, table1Joins =  new HashMap<>());
+        Map<Join, Join> table1Joins = joins.computeIfAbsent(table1Alias, k -> new HashMap<>());
         Join join = new Join(table1Alias, column1Name, table2Name, column2Name, null, leftOuter);
         Join existingJoin = table1Joins.get(join); // fetching the map to see if the join already exists (see Join.equals())
         if (existingJoin != null) {

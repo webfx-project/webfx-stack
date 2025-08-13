@@ -73,6 +73,7 @@ terminal          SELECT, DISTINCT, FROM, WHERE, GROUP_BY, HAVING, ORDER_BY, DES
 terminal          OBJ_STATE, IMAGE;
 terminal          LPAREN, RPAREN, LBRACK, RBRACK, COLON, COMMA, DOT, LCURLY, RCURLY;
 terminal          PLUS, MINUS, MULT, DIV, EQ, GT, LT, NOT, QUESTION, EQEQ, LTEQ, GTEQ, NOTEQ, AND, OR;
+terminal          DOLLAR;
 terminal          NULL;
 terminal Object   NUMBER;
 terminal Boolean  BOOLEAN;
@@ -317,6 +318,8 @@ parameter ::= QUESTION
               {: RESULT = new ParameterBuilder(name, right); :}
             | QUESTION IDENTIFIER:name DOT field_dot:right
               {: RESULT = new ParameterBuilder(name, right); :}
+            | DOLLAR NUMBER:index
+              {: RESULT = new ParameterBuilder(Numbers.intValue(index)); :}
             ;
 
 constant ::= NUMBER:n

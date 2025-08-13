@@ -2,18 +2,23 @@ package dev.webfx.stack.orm.expression.builder.terms;
 
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.terms.Parameter;
-import dev.webfx.stack.orm.expression.Expression;
-import dev.webfx.stack.orm.expression.terms.Parameter;
 
 /**
  * @author Bruno Salmon
  */
 public final class ParameterBuilder extends ExpressionBuilder {
 
+    // For indexed parameters such as $1, $2, etc...
+    public int index = -1;
+
     public String name;
     public ExpressionBuilder rightDot;
 
     public ParameterBuilder() {
+    }
+
+    public ParameterBuilder(int index) {
+        this.index = index;
     }
 
     public ParameterBuilder(String name) {
@@ -27,6 +32,8 @@ public final class ParameterBuilder extends ExpressionBuilder {
 
     @Override
     public Expression build() {
+        if (index >= 1)
+            return new Parameter(index);
         if (name == null)
             return Parameter.UNNAMED_PARAMETER;
         Expression rd = null;
