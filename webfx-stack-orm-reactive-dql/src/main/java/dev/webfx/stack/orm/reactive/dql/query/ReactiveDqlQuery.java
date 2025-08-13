@@ -15,7 +15,7 @@ import dev.webfx.stack.orm.domainmodel.DomainModel;
 import dev.webfx.stack.orm.domainmodel.HasDataSourceModel;
 import dev.webfx.stack.orm.dql.DqlStatement;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.SqlCompiled;
-import dev.webfx.stack.orm.entity.DqlQueryArgumentHelper;
+import dev.webfx.stack.orm.entity.DqlQueries;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.builder.ReferenceResolver;
 import dev.webfx.stack.orm.expression.builder.ThreadLocalReferenceResolver;
@@ -169,7 +169,7 @@ public class ReactiveDqlQuery<E> implements ReactiveDqlQueryAPI<E, ReactiveDqlQu
     private QueryArgument createQueryArgument(String dqlQuery, Object[] parameters) {
         this.dqlQuery = dqlQuery;
         sqlCompiled = null;
-        return DqlQueryArgumentHelper.createQueryArgument(dqlQuery, parameters, getDataSourceModel(), aggregateScope);
+        return DqlQueries.newQueryArgument(getDataSourceId(), aggregateScope, dqlQuery, parameters);
     }
 
     @Override
