@@ -3,8 +3,6 @@ package dev.webfx.stack.db.querysubmit;
 import dev.webfx.platform.async.Batch;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.util.AsyncQueue;
-import dev.webfx.platform.scheduler.Scheduled;
-import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.platform.shutdown.Shutdown;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.vertx.common.VertxInstance;
@@ -40,16 +38,9 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
 
     private static final boolean LOG_TIMINGS = true;
     private static final long WARNING_MILLIS = 5000;
+    private static final int POOL_SIZE = 10; // Note: it's for each instance (1 pool for queries = reading, another one for submissions = writing)
 
-    private static final int POOL_SIZE = 10; // Note: it's for each instance (1 pool for query = reading, another one for submit = writing)
-    // Setting a timer to periodically renew the pool to reduce risk of broken connections on remote databases
-    private static final long POOL_RENEW_PERIODIC_MILLIS = -1; // every 15 min (can be set to -1 to disable that feature)
-    private static final long POLL_CLOSE_DELAY_MILLIS = 3 * 60_000; // Waiting 3 min before actually closing the old poll for possible running queries
-    private static int SEQ; // Temporary for logs
-
-    private final int seq = ++SEQ;
-    private Pool pool;
-    private final Scheduled poolRenewalTimer;
+    private final Pool pool;
 
     private final AsyncQueue asyncQueue = new AsyncQueue(POOL_SIZE, "POSTGRES");
 
@@ -65,7 +56,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
         // Pool Options
         PoolOptions poolOptions = new PoolOptions()
             .setMaxSize(POOL_SIZE)
-            .setIdleTimeout(60) // We release the connection after 1mn of inactivity (especially for remote databases)
+            .setIdleTimeout(60) // We release the connection after 1 min of inactivity (especially for remote databases)
             ;
 
         Supplier<Pool> poolFactory = () ->
@@ -76,28 +67,12 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
                 .build();
 
         // Create the pool from the data object
-        log("Creating pool seq = " + seq);
+        log("Creating pool on server start");
         pool = poolFactory.get();
 
-        if (POOL_RENEW_PERIODIC_MILLIS > 0) {
-            poolRenewalTimer = Scheduler.schedulePeriodic(POOL_RENEW_PERIODIC_MILLIS, () -> {
-                log("Renewing pool seq = " + seq);
-                Pool oldPool = pool;
-                pool = poolFactory.get();
-                // Waiting a bit before closing the old pool to ensure possible queries are finished
-                Scheduler.scheduleDelay(POLL_CLOSE_DELAY_MILLIS, () -> {
-                    log("Closing old pool seq = " + seq);
-                    oldPool.close();
-                });
-            });
-        } else
-            poolRenewalTimer = null;
-
-        // Closing properly the poll on server shutdown
+        // Closing properly the poll on the server shutdown
         Shutdown.addShutdownHook(e -> {
             log("Closing pool on server shutdown");
-            if (poolRenewalTimer != null)
-                poolRenewalTimer.cancel();
             pool.close();
         });
     }
@@ -163,19 +138,19 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
 
     private Future<Batch<SubmitResult>> executeSubmitBatchNow(Batch<SubmitArgument> batch) {
         // This batch may use GeneratedKeyReference instances in its parameters, which we will need to resolve during
-        // the execution. To do so, we create batchIndexGeneratedKeys which is a list of generated keys for each
-        // individual SubmitArgument in the batch (index 0 will contain the possible generated keys from the execution
-        // of the first SubmitArgument, index 1 from the second, etc...)
+        // the execution. To do so, we create batchIndexGeneratedKeys, which is a list of generated keys for each
+        // SubmitArgument in the batch (index 0 will contain the possible generated keys from the execution of the first
+        // SubmitArgument, index 1 from the second, etc...)
         List<Object[]> batchIndexGeneratedKeys = new ArrayList<>(batch.getArray().length);
         long t0 = System.currentTimeMillis();
         // We embed the batch execution inside a transaction using Vert.x API (and convert the return Vert.x Future<SubmitResult> into WebFX Future<SubmitResult>)
         return toWebfxFuture(withTransaction(pool, connection ->
             // We execute the batch in a serial order (we need a couple of Vert.x <-> WebFX Future for that)
             toVertxFuture(batch.executeSerial(SubmitResult[]::new, arg -> toWebfxFuture(
-                // We execute each individual submit, passing batchIndexGeneratedKeys (for GeneratedKeyReference resolution)
+                // We execute this individual submission, passing batchIndexGeneratedKeys (for GeneratedKeyReference resolution)
                 executeIndividualSubmitWithConnection(arg, connection, batchIndexGeneratedKeys)
                     .map(submitResult -> { // Identity mapping, just for batchIndexGeneratedKeys management
-                        // We collect the possible generated keys (if the last submit was "insert ... returning id")
+                        // We collect the possible generated keys (if the last submission was "insert ... returning id")
                         batchIndexGeneratedKeys.add(submitResult.getGeneratedKeys());
                         return submitResult;
                     })
@@ -198,17 +173,17 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
         // We get a prepared query from the connection
         PreparedQuery<RowSet<Row>> preparedQuery = connection
             .preparedQuery(argument.getStatement()); // statement can be insert, update or delete
-        // We will execute the query with either a Tuple (1 row of parameters), or a List<Tuple> (several rows of parameters)
+        // We will execute the query with either a Tuple (1 row of parameters) or a List<Tuple> (several rows of parameters)
         io.vertx.core.Future<RowSet<Row>> queryExecutionFuture; // Will contain the Vert.x Future of that execution
         Object[] parameters = argument.getParameters();
-        // Case of several rows of parameters (i.e. batch of parameters)
+        // In case there are several rows of parameters (i.e., batch of parameters)
         if (Arrays.length(parameters) == 1 && parameters[0] instanceof Batch) {
             // We get the rows of parameters from the batch. The returned array Object[] represents rows, and each row
             // contains the parameters of that row (so it's also an array of Object[])
-            Object[] parametersRows = ((Batch) parameters[0]).getArray();
+            Object[] parametersRows = ((Batch<?>) parameters[0]).getArray();
             // For each row, we replace the GeneratedKeyReference instances with their actual generated keys (should be known as this stage)
             Arrays.forEach(parametersRows, row -> replaceGeneratedKeyReferencesWithActualGeneratedKeys((Object[]) row, batchIndexGeneratedKeys));
-            // We map the rows array into a Vert.x Tuple array
+            // We map the row array into a Vert.x Tuple array
             Tuple[] tuples = Arrays.map(parametersRows, params -> tupleFromArguments((Object[]) params), Tuple[]::new);
             // And finally execute that batch (passing the Tuples as a list)
             queryExecutionFuture = preparedQuery.executeBatch(Arrays.asList(tuples));
@@ -218,7 +193,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
             // We execute that query (passing the arguments as a Vert.x Tuple)
             queryExecutionFuture = preparedQuery.execute(tupleFromArguments(parameters));
         }
-        // Waiting the completion of the previous query execution
+        // Waiting for the completion of the previous query execution
         long t0 = System.currentTimeMillis();
         return queryExecutionFuture
             .onFailure(e -> log("⛔️ ERROR with executeIndividualSubmitWithConnection(" + argument + "): " + e.getMessage()))
@@ -241,12 +216,11 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
         if (batchIndexGeneratedKeys != null) {
             for (int i = 0, length = Arrays.length(parameters); i < length; i++) {
                 Object value = parameters[i];
-                if (value instanceof GeneratedKeyReference) {
-                    GeneratedKeyReference ref = (GeneratedKeyReference) value;
+                if (value instanceof GeneratedKeyReference ref) {
                     // Getting the indexes (should normally refer to a previous batch already executed at this point)
                     int batchIndex = ref.getStatementBatchIndex();
                     int generatedKeyIndex = ref.getGeneratedKeyIndex();
-                    // We get the actual generated key that ref was referring to, and replace the parameter value with it
+                    // We get the actual generated key that `ref` was referring to and replace the parameter value with it
                     Object[] generatedKeys = batchIndexGeneratedKeys.get(batchIndex);
                     parameters[i] = generatedKeys[generatedKeyIndex];
                 }
