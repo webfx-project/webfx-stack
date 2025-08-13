@@ -10,6 +10,7 @@ import dev.webfx.extras.visual.controls.grid.VisualGrid;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.Arrays;
+import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.platform.util.function.Callable;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
@@ -22,7 +23,7 @@ import dev.webfx.stack.orm.entity.EntityStore;
 import dev.webfx.stack.orm.expression.CollectOptions;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.terms.ExpressionArray;
-import dev.webfx.stack.orm.expression.terms.Parameter;
+import dev.webfx.stack.orm.expression.terms.ParameterReference;
 import dev.webfx.stack.orm.reactive.entities.dql_to_entities.ReactiveEntitiesMapper;
 import dev.webfx.stack.orm.reactive.entities.entities_to_grid.EntityColumn;
 import dev.webfx.stack.orm.reactive.mapping.entities_to_visual.ReactiveVisualMapper;
@@ -68,7 +69,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
 
     private String searchCondition;
     // Named parameters within the search condition (extracted after expression parsing)
-    private Parameter[] searchConditionNamedParameters; // Ex:
+    private ParameterReference[] namedParametersInSearchCondition; // Ex:
 
     // Good to put a limit, especially for low-end mobiles
     private int adaptiveLimit; // will be set in updateAdaptativeLimit()
@@ -135,19 +136,19 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
 
     public EntityButtonSelector<E> setSearchCondition(String searchCondition) {
         this.searchCondition = searchCondition;
-        searchConditionNamedParameters = null;
+        namedParametersInSearchCondition = null;
         return this;
     }
 
-    private Parameter[] getSearchConditionNamedParameters() {
-        if (searchConditionNamedParameters == null) {
+    private ParameterReference[] getNamedParametersInSearchCondition() {
+        if (namedParametersInSearchCondition == null) {
             // We parse the search condition and collect the terms including the parameters
             CollectOptions collectOptions = new CollectOptions().setIncludeParameter(true).setTraverseSqlExpressible(true);
             entityClass.parseExpression(searchCondition).collect(collectOptions);
             // Then we filter the parameters from the collected terms and put them in an array
-            searchConditionNamedParameters = collectOptions.getCollectedTerms().stream().filter(e -> e instanceof Parameter).map(e -> (Parameter) e).toArray(Parameter[]::new);
+            namedParametersInSearchCondition = Collections.toArray(Collections.filterMap(collectOptions.getCollectedTerms(), e -> e instanceof ParameterReference, e -> (ParameterReference) e), ParameterReference[]::new);
         }
-        return searchConditionNamedParameters;
+        return namedParametersInSearchCondition;
     }
 
     public EntityButtonSelector<E> setLoadingStore(EntityStore loadingStore) {
@@ -201,7 +202,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
                         executeParsingCode(() -> {
                             EntityStore store = entityDialogMapper.getReactiveEntitiesMapper().getStore();
                             setSearchParameters(s, store);
-                            where[0] = where(searchCondition, java.util.Arrays.stream(getSearchConditionNamedParameters()).map(e -> e.evaluate(null, store.getEntityDataWriter())).toArray());
+                            where[0] = where(searchCondition, Arrays.map(getNamedParametersInSearchCondition(), e -> e.evaluate(null, store.getEntityDataWriter()), Object[]::new));
                         });
                         return where[0];
                     })

@@ -308,18 +308,18 @@ val         ::= parameter:p
               {: RESULT = c; :}
             ;
 
-parameter ::= QUESTION
-              {: RESULT = new ParameterBuilder(); :}
+parameter ::= COLON IDENTIFIER:name
+              {: RESULT = new ParameterReferenceBuilder(name); :}
+            | QUESTION
+              {: RESULT = new ParameterReferenceBuilder(); :}
             | QUESTION IDENTIFIER:name
-              {: RESULT = new ParameterBuilder(name); :}
+              {: RESULT = new ParameterReferenceBuilder(name); :}
             | QUESTION IDENTIFIER:name DOT field:right
-              {: RESULT = new ParameterBuilder(name, right); :}
+              {: RESULT = new ParameterReferenceBuilder(name, right); :}
             | QUESTION IDENTIFIER:name DOT LPAREN expr:right RPAREN
-              {: RESULT = new ParameterBuilder(name, right); :}
+              {: RESULT = new ParameterReferenceBuilder(name, right); :}
             | QUESTION IDENTIFIER:name DOT field_dot:right
-              {: RESULT = new ParameterBuilder(name, right); :}
-            | DOLLAR NUMBER:index
-              {: RESULT = new ParameterBuilder(Numbers.intValue(index)); :}
+              {: RESULT = new ParameterReferenceBuilder(name, right); :}
             ;
 
 constant ::= NUMBER:n

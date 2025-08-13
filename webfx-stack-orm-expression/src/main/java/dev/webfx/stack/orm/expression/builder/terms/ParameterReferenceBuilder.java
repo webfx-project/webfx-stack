@@ -1,12 +1,12 @@
 package dev.webfx.stack.orm.expression.builder.terms;
 
 import dev.webfx.stack.orm.expression.Expression;
-import dev.webfx.stack.orm.expression.terms.Parameter;
+import dev.webfx.stack.orm.expression.terms.ParameterReference;
 
 /**
  * @author Bruno Salmon
  */
-public final class ParameterBuilder extends ExpressionBuilder {
+public final class ParameterReferenceBuilder extends ExpressionBuilder {
 
     // For indexed parameters such as $1, $2, etc...
     public int index = -1;
@@ -14,18 +14,18 @@ public final class ParameterBuilder extends ExpressionBuilder {
     public String name;
     public ExpressionBuilder rightDot;
 
-    public ParameterBuilder() {
+    public ParameterReferenceBuilder() {
     }
 
-    public ParameterBuilder(int index) {
+    public ParameterReferenceBuilder(int index) {
         this.index = index;
     }
 
-    public ParameterBuilder(String name) {
+    public ParameterReferenceBuilder(String name) {
         this.name = name;
     }
 
-    public ParameterBuilder(String name, ExpressionBuilder rightDot) {
+    public ParameterReferenceBuilder(String name, ExpressionBuilder rightDot) {
         this.name = name;
         this.rightDot = rightDot;
     }
@@ -33,11 +33,11 @@ public final class ParameterBuilder extends ExpressionBuilder {
     @Override
     public Expression build() {
         if (index >= 1)
-            return new Parameter(index);
+            return new ParameterReference<>(index);
         if (name == null)
-            return Parameter.UNNAMED_PARAMETER;
-        Expression rd = null;
+            return ParameterReference.UNNAMED_PARAMETER_REFERENCE;
         /*
+        Expression rd = null;
         if (rightDot != null) {
             rightDot.buildingClass = buildingClass.getDomainModel().getParameterClass(name);
             if (rightDot.buildingClass == null && name.startsWith("this"))
@@ -48,6 +48,6 @@ public final class ParameterBuilder extends ExpressionBuilder {
                 name += '.' + rightDot.toString(); // just keep a trace of it in the name
         }
         */
-        return new Parameter(name, rd);
+        return new ParameterReference<>(name);
     }
 }

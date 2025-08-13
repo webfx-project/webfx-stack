@@ -9,27 +9,33 @@ import dev.webfx.stack.orm.expression.lci.DomainWriter;
 /**
  * @author Bruno Salmon
  */
-public final class Parameter<T> extends AbstractExpression<T> {
+public final class ParameterReference<T> extends AbstractExpression<T> {
 
-    public final static Parameter<?> UNNAMED_PARAMETER = new Parameter<>(null, null);
+    public final static ParameterReference<?> UNNAMED_PARAMETER_REFERENCE = new ParameterReference<>(null, null);
 
-    private final String name;
-    private final Expression<T> rightDot;
+    private final int index; // index of this parameter captured from $ syntax (ex: $1, $2, ...), -1 for named parameters
 
-    private final int index; // index of this parameter in a DqlStatement
+    private final String name; // name of this parameter captured from ? syntax (ex: ?event, ?organization, ...)
 
-    public Parameter(String name, Expression<T> rightDot) {
+    // From KBS2 but will probably be removed in the future
+    private final Expression<T> rightDot; // ex: ?selectedEvent.name
+
+    public ParameterReference(int index) {
         super(9);
-        this.name = name;
-        this.rightDot = rightDot;
-        index = -1;
-    }
-
-    public Parameter(int index) {
-        super(9);
+        this.index = index;
         name = null;
         rightDot = null;
-        this.index = index;
+    }
+
+    public ParameterReference(String name) {
+        this(name, null);
+    }
+
+    public ParameterReference(String name, Expression<T> rightDot) {
+        super(9);
+        index = -1;
+        this.name = name;
+        this.rightDot = rightDot;
     }
 
     public String getName() {

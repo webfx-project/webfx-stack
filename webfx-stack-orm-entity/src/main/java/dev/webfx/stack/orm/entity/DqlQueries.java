@@ -3,7 +3,6 @@ package dev.webfx.stack.orm.entity;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.stack.db.datascope.aggregate.AggregateScope;
 import dev.webfx.stack.db.query.QueryArgument;
-import dev.webfx.stack.db.query.QueryArgumentBuilder;
 import dev.webfx.stack.orm.datasourcemodel.service.DataSourceModelService;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
 
@@ -24,20 +23,12 @@ public final class DqlQueries {
     }
 
     public static QueryArgument newQueryArgument(Object dataSourceId, AggregateScope aggregateScope, String dqlQuery, Object... parameters) {
-        return newQueryArgument(
-            QueryArgument.builder()
-                .setStatement(dqlQuery)
-                .setParameters(parameters)
-                .setDataSourceId(dataSourceId)
-                .addDataScope(aggregateScope)
-        );
-    }
-
-    private static QueryArgument newQueryArgument(QueryArgumentBuilder builder) {
-        return builder
+        return QueryArgument.builder()
+            .setDataSourceId(dataSourceId)
+            .addDataScope(aggregateScope)
             .setLanguage(DQL_LANGUAGE)
-            .setStatement(translateQuery(builder.getStatement(), builder.getDataSourceId()))
-            .setParameters(resolveParameters(builder.getParameters()))
+            .setStatement(translateQuery(dqlQuery, dataSourceId))
+            .setParameters(resolveParameters(parameters))
             .build();
     }
 

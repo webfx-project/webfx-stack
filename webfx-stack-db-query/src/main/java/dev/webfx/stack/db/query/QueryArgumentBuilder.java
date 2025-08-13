@@ -48,18 +48,6 @@ public final class QueryArgumentBuilder {
         return this;
     }
 
-    public Object getDataSourceId() {
-        return dataSourceId;
-    }
-
-    public String getStatement() {
-        return statement;
-    }
-
-    public Object[] getParameters() {
-        return parameters;
-    }
-
     public QueryArgumentBuilder copy(QueryArgument argument) {
         return setOriginalArgument(argument)
                 .setDataSourceId(argument.getDataSourceId())

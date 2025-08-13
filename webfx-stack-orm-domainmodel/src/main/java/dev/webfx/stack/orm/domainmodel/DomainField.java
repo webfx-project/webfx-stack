@@ -4,7 +4,7 @@ import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.dql.sqlcompiler.ExpressionSqlCompiler;
 import dev.webfx.stack.orm.expression.terms.Equals;
 import dev.webfx.stack.orm.expression.terms.HasDomainClass;
-import dev.webfx.stack.orm.expression.terms.Parameter;
+import dev.webfx.stack.orm.expression.terms.ParameterReference;
 import dev.webfx.stack.orm.expression.terms.Symbol;
 import dev.webfx.extras.label.HasLabel;
 import dev.webfx.extras.label.Label;
@@ -171,7 +171,7 @@ public final class DomainField extends Symbol implements HasDomainClass, HasLabe
 
     public Expression getFieldEqualsParam() {
         if (fieldEqualsParam == null)
-            fieldEqualsParam = new Equals(this, Parameter.UNNAMED_PARAMETER);
+            fieldEqualsParam = new Equals(this, ParameterReference.UNNAMED_PARAMETER_REFERENCE);
         return fieldEqualsParam;
     }
 }

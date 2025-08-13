@@ -1,23 +1,23 @@
 package dev.webfx.stack.orm.dql.sqlcompiler.terms;
 
-import dev.webfx.stack.orm.expression.terms.Parameter;
+import dev.webfx.stack.orm.expression.terms.ParameterReference;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.SqlClause;
 
 /**
  * @author Bruno Salmon
  */
-public final class ParameterSqlCompiler extends AbstractTermSqlCompiler<Parameter> {
+public final class ParameterReferenceSqlCompiler extends AbstractTermSqlCompiler<ParameterReference<?>> {
 
-    public ParameterSqlCompiler() {
-        super(Parameter.class);
+    public ParameterReferenceSqlCompiler() {
+        super(ParameterReference.class);
     }
 
     @Override
-    public void compileExpressionToSql(Parameter p, Options o) {
+    public void compileExpressionToSql(ParameterReference p, Options o) {
         compileParameter(p, o, true);
     }
 
-    public void compileParameter(Parameter p, Options o, boolean isRightOperand) {
+    public void compileParameter(ParameterReference p, Options o, boolean isRightOperand) {
         String name = p.getName();
         if (name != null) {
             if (isClientOnly(p, o.clause == SqlClause.SELECT)) // TODO: distinguish sql parameters from local parameters
@@ -70,7 +70,7 @@ public final class ParameterSqlCompiler extends AbstractTermSqlCompiler<Paramete
         o.build.addColumnInClause(null, o.build.getDbmsSyntax().generateParameterToken(index), null, null, o.clause, o.separator, false, false, o.generateQueryMapping);
     }
 
-    private boolean isClientOnly(Parameter e, boolean forSelectClause) {
+    private boolean isClientOnly(ParameterReference e, boolean forSelectClause) {
         String name = e.getName();
         return name != null && (name.equals("lang") || forSelectClause && name.startsWith("selected") && e.getRightDot() == null);
     }
