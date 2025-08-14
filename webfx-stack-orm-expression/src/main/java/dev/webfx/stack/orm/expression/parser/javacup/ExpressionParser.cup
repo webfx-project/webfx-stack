@@ -308,7 +308,9 @@ val         ::= parameter:p
               {: RESULT = c; :}
             ;
 
-parameter ::= COLON IDENTIFIER:name
+parameter ::= DOLLAR NUMBER:index
+              {: RESULT = new ParameterReferenceBuilder(Numbers.intValue(index)); :}
+            | COLON IDENTIFIER:name
               {: RESULT = new ParameterReferenceBuilder(name); :}
             | QUESTION
               {: RESULT = new ParameterReferenceBuilder(); :}
