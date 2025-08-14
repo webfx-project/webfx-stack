@@ -18,7 +18,9 @@ public final class EntityStoreQuery {
 
     public EntityStoreQuery(String select, Object listId, Object[] parameters) {
         this.select = select;
-        this.parameters = parameters;
+        // If entities are passed as parameters, they are replaced by their primary keys to prepare their serialization
+        // over to the server over the network, or to the client cache (entities themselves are not serializable)
+        this.parameters = DqlQueries.resolveParameters(parameters);
         this.listId = listId;
     }
 

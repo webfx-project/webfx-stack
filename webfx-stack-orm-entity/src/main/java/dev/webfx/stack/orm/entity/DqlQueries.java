@@ -39,7 +39,7 @@ public final class DqlQueries {
         return dataSourceModel.translateQuery(DQL_LANGUAGE, dqlQuery);
     }
 
-    private static Object[] resolveParameters(Object[] parameters) {
+    public static Object[] resolveParameters(Object[] parameters) {
         if (parameters != null) {
             boolean hasResolved = false;
             for (int i = 0; i < parameters.length; i++) {
