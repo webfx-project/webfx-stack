@@ -35,8 +35,8 @@ public final class EntityStoreQuerySerialCodec extends SerialCodecBase<EntitySto
     public EntityStoreQuery decode(ReadOnlyAstObject serial) {
         return new EntityStoreQuery(
             decodeString(serial, SELECT_KEY),
-            decodeArray(serial, PARAMETERS_KEY),
-            decodeObject(serial, LIST_ID_KEY)
+            decodeObject(serial, LIST_ID_KEY),
+            decodeArray(serial, PARAMETERS_KEY)
         );
     }
 }

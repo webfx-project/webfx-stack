@@ -12,19 +12,11 @@ public final class EntityStoreQuery {
     private final Object[] parameters;
     private final Object listId;
 
-    public EntityStoreQuery(String select) {
-        this(select, select);
+    public EntityStoreQuery(String select, Object... parameters) {
+        this(select, null, parameters); // entity list will not be memorised in the entity store if not listId is provided
     }
 
-    public EntityStoreQuery(String select, Object listId) {
-        this(select, null, listId);
-    }
-
-    public EntityStoreQuery(String select, Object[] parameters) {
-        this(select, parameters, null); // entity list will not be memorised in the entity store if not listId is provided
-    }
-
-    public EntityStoreQuery(String select, Object[] parameters, Object listId) {
+    public EntityStoreQuery(String select, Object listId, Object[] parameters) {
         this.select = select;
         this.parameters = parameters;
         this.listId = listId;
