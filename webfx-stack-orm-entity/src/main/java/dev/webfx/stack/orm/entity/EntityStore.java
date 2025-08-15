@@ -237,15 +237,14 @@ public interface EntityStore extends HasDataSourceModel {
 
     // private implementation
 
-    private QueryArgument createQueryArgument(String dqlQuery, Object... parameters) {
-        return DqlQueries.newQueryArgument(getDataSourceId(), dqlQuery, parameters);
+    private QueryArgument createQueryArgument(String dqlQuery, Object[] parameters, String[] parameterNames) {
+        return DqlQueries.newQueryArgument(getDataSourceId(), null, dqlQuery, parameters, parameterNames);
     }
 
     private <E extends Entity> Future<MaybeCacheValue<EntityList<E>>> executeQueryImpl(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, EntityStoreQuery query) {
         String dqlQuery = query.getSelect();
-        Object[] parameters = query.getParameters();
         Object listId = query.getListId();
-        QueryArgument queryArgument = createQueryArgument(dqlQuery, parameters);
+        QueryArgument queryArgument = createQueryArgument(dqlQuery, query.getParameters(), query.getParameterNames());
         Future<QueryResult> future = QueryService.executeQuery(queryArgument);
         QueryRowToEntityMapping queryMapping = getDataSourceModel().parseAndCompileSelect(dqlQuery).getQueryMapping();
         Promise<MaybeCacheValue<EntityList<E>>> promise = new PromiseImpl<>(true);
@@ -281,7 +280,7 @@ public interface EntityStore extends HasDataSourceModel {
     }
 
     private Future<MaybeCacheValue<EntityList[]>> executeQueryBatchImpl(CacheEntry<Pair<EntityStoreQuery[], QueryResult[]>> cacheEntry, EntityStoreQuery... queries) {
-        QueryArgument[] queryArguments = Arrays.map(queries, (i, query) -> createQueryArgument(query.getSelect(), query.getParameters()), QueryArgument[]::new);
+        QueryArgument[] queryArguments = Arrays.map(queries, (i, query) -> createQueryArgument(query.getSelect(), query.getParameters(), query.getParameterNames()), QueryArgument[]::new);
         Future<Batch<QueryResult>> future = QueryService.executeQueryBatch(new Batch<>(queryArguments));
         SqlCompiled[] sqlCompileds = Arrays.map(queries, query -> getDataSourceModel().parseAndCompileSelect(query.getSelect()), SqlCompiled[]::new);
         Promise<MaybeCacheValue<EntityList[]>> promise = new PromiseImpl<>(true);

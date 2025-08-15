@@ -14,6 +14,7 @@ public final class QueryArgumentSerialCodec extends SerialCodecBase<QueryArgumen
     private static final String LANGUAGE_KEY = "lang";
     private static final String STATEMENT_KEY = "statement";
     private static final String PARAMETERS_KEY = "parameters";
+    private static final String PARAMETER_NAMES_KEY = "names";
 
     public QueryArgumentSerialCodec() {
         super(QueryArgument.class, CODEC_ID);
@@ -21,22 +22,25 @@ public final class QueryArgumentSerialCodec extends SerialCodecBase<QueryArgumen
 
     @Override
     public void encode(QueryArgument arg, AstObject serial) {
-        encodeObject(         serial, DATA_SOURCE_ID_KEY, arg.getDataSourceId());
-        encodeObject(         serial, DATA_SCOPE_KEY,     arg.getDataScope());
-        encodeString(         serial, LANGUAGE_KEY,       arg.getLanguage());
-        encodeString(         serial, STATEMENT_KEY,      arg.getStatement());
+        encodeObject(         serial, DATA_SOURCE_ID_KEY,  arg.getDataSourceId());
+        encodeObject(         serial, DATA_SCOPE_KEY,      arg.getDataScope());
+        encodeString(         serial, LANGUAGE_KEY,        arg.getLanguage());
+        encodeString(         serial, STATEMENT_KEY,       arg.getStatement());
         if (!Arrays.isEmpty(arg.getParameters()))
-            encodeObjectArray(serial, PARAMETERS_KEY,     arg.getParameters());
+            encodeObjectArray(serial, PARAMETERS_KEY,      arg.getParameters());
+        if (!Arrays.isEmpty(arg.getParameterNames()))
+            encodeObjectArray(serial, PARAMETER_NAMES_KEY, arg.getParameterNames());
     }
 
     @Override
     public QueryArgument decode(ReadOnlyAstObject serial) {
         return new QueryArgument(null,
-                decodeObject(     serial, DATA_SOURCE_ID_KEY),
-                decodeObject(     serial, DATA_SCOPE_KEY),
-                decodeString(     serial, LANGUAGE_KEY),
-                decodeString(     serial, STATEMENT_KEY),
-                decodeObjectArray(serial, PARAMETERS_KEY)
+            decodeObject(serial,      DATA_SOURCE_ID_KEY),
+            decodeObject(serial,      DATA_SCOPE_KEY),
+            decodeString(serial,      LANGUAGE_KEY),
+            decodeString(serial,      STATEMENT_KEY),
+            decodeObjectArray(serial, PARAMETERS_KEY),
+            decodeStringArray(serial, PARAMETER_NAMES_KEY)
         );
     }
 }

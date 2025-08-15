@@ -18,13 +18,19 @@ public final class ParameterReferenceSqlCompiler extends AbstractTermSqlCompiler
     }
 
     public void compileParameter(ParameterReference p, Options o, boolean isRightOperand) {
+        int index = p.getIndex();
         String name = p.getName();
-        if (name != null) {
+        if (index <= 0 && name != null) {
             if (isClientOnly(p, o.clause == SqlClause.SELECT)) // TODO: distinguish sql parameters from local parameters
                 return;
-            o.build.getParameterNames().add(name);
             if (p.getRightDot() != null)
                 o.build.setCacheable(false);
+            // Each parameter name is mapped to a parameter index, which is its position in the parameter list (+1)
+            index = o.build.getParameterNames().indexOf(name) + 1; // reusing existing index if name has been used before
+            if (index <= 0) { // otherwise increasing the parameter index
+                o.build.getParameterNames().add(name);
+                index = o.build.getParameterNames().size();
+            }
             /*
             int parameterIndex = e.getIndex() != -1 ? e.getIndex() : o.build.getParameterCount();
             Object parameterValue = o.parameterValues[parameterIndex];
@@ -64,8 +70,7 @@ public final class ParameterReferenceSqlCompiler extends AbstractTermSqlCompiler
             }
             */
         }
-        int index = p.getIndex();
-        if (index <= 0)
+        if (index <= 0) // happens with `?` parameters (no name, no index)
             index = o.build.incrementParameterIndex();
         o.build.addColumnInClause(null, o.build.getDbmsSyntax().generateParameterToken(index), null, null, o.clause, o.separator, false, false, o.generateQueryMapping);
     }

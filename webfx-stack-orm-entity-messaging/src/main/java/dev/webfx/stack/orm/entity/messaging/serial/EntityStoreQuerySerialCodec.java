@@ -17,8 +17,9 @@ public final class EntityStoreQuerySerialCodec extends SerialCodecBase<EntitySto
     private static final String CODEC_ID = "EntityStoreQuery";
 
     private static final String SELECT_KEY = "select";
-    private static final String PARAMETERS_KEY = "params";
     private static final String LIST_ID_KEY = "listId";
+    private static final String PARAMETERS_KEY = "params";
+    private static final String PARAMETER_NAMES_KEY = "names";
 
     public EntityStoreQuerySerialCodec() {
         super(EntityStoreQuery.class, CODEC_ID);
@@ -26,17 +27,19 @@ public final class EntityStoreQuerySerialCodec extends SerialCodecBase<EntitySto
 
     @Override
     public void encode(EntityStoreQuery o, AstObject serial) {
-        encodeString(serial, SELECT_KEY,    o.getSelect());
-        encodeArray(serial, PARAMETERS_KEY, o.getParameters());
-        encodeObject(serial, LIST_ID_KEY,   o.getListId());
+        encodeString(      serial, SELECT_KEY,          o.getSelect());
+        encodeObject(      serial, LIST_ID_KEY,         o.getListId());
+        encodeArray(       serial, PARAMETERS_KEY,      o.getParameters());
+        encodeStringArray( serial, PARAMETER_NAMES_KEY, o.getParameterNames());
     }
 
     @Override
     public EntityStoreQuery decode(ReadOnlyAstObject serial) {
         return new EntityStoreQuery(
-            decodeString(serial, SELECT_KEY),
-            decodeObject(serial, LIST_ID_KEY),
-            decodeArray(serial, PARAMETERS_KEY)
+            decodeString(     serial, SELECT_KEY),
+            decodeObject(     serial, LIST_ID_KEY),
+            decodeArray(      serial, PARAMETERS_KEY),
+            decodeStringArray(serial, PARAMETER_NAMES_KEY)
         );
     }
 }

@@ -7,10 +7,12 @@ module webfx.stack.orm.dql.query.interceptor {
     requires webfx.platform.boot;
     requires webfx.platform.console;
     requires webfx.platform.service;
+    requires webfx.platform.util;
     requires webfx.stack.db.datasource;
     requires webfx.stack.db.query;
     requires webfx.stack.orm.datasourcemodel.service;
     requires webfx.stack.orm.domainmodel;
+    requires webfx.stack.orm.dql;
 
     // Exported packages
     exports dev.webfx.stack.orm.dql.query.interceptor;

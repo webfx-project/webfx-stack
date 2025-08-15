@@ -6,6 +6,8 @@ import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.orm.datasourcemodel.service.DataSourceModelService;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
 
+import java.util.function.Consumer;
+
 /**
  * @author Bruno Salmon
  */
@@ -23,12 +25,19 @@ public final class DqlQueries {
     }
 
     public static QueryArgument newQueryArgument(Object dataSourceId, AggregateScope aggregateScope, String dqlQuery, Object... parameters) {
+        String[][] parameterNamesHolder = { null };
+        parameters = resolveParameters(parameters, parameterNames -> parameterNamesHolder[0] = parameterNames);
+        return newQueryArgument(dataSourceId, aggregateScope, dqlQuery, parameters, parameterNamesHolder[0]);
+    }
+
+    public static QueryArgument newQueryArgument(Object dataSourceId, AggregateScope aggregateScope, String dqlQuery, Object[] parameters, String[] parameterNames) {
         return QueryArgument.builder()
             .setDataSourceId(dataSourceId)
             .addDataScope(aggregateScope)
             .setLanguage(DQL_LANGUAGE)
             .setStatement(translateQuery(dqlQuery, dataSourceId))
-            .setParameters(resolveParameters(parameters))
+            .setParameters(parameters)
+            .setParameterNames(parameterNames)
             .build();
     }
 
@@ -39,21 +48,35 @@ public final class DqlQueries {
         return dataSourceModel.translateQuery(DQL_LANGUAGE, dqlQuery);
     }
 
-    public static Object[] resolveParameters(Object[] parameters) {
-        if (parameters != null) {
-            boolean hasResolved = false;
-            for (int i = 0; i < parameters.length; i++) {
+    public static Object[] resolveParameters(Object[] parameters, Consumer<String[]> parameterNamesSetter) {
+        Object[] resolvedParameters = parameters;
+        int length = Arrays.length(parameters);
+        if (length > 0) {
+            if (length == 1 && parameters[0] instanceof NamedParameters namedParameters) {
+                resolvedParameters = parameters = namedParameters.get();
+                length = Arrays.length(parameters);
+            }
+            String[] parameterNames = null;
+            for (int i = 0; i < length; i++) {
                 Object parameter = parameters[i];
+                if (parameter instanceof NamedParameter namedParameter) {
+                    if (parameterNames == null) {
+                        parameterNames = new String[length];
+                        resolvedParameters = Arrays.clone(parameters, Object[]::new);
+                    }
+                    parameterNames[i] = namedParameter.name();
+                    resolvedParameters[i] = parameter = namedParameter.value();
+                }
                 Object primaryKey = Entities.getPrimaryKey(parameter);
                 if (primaryKey != parameter) {
-                    if (!hasResolved) {
+                    if (resolvedParameters == parameters)
                         parameters = Arrays.clone(parameters, Object[]::new);
-                        hasResolved = true;
-                    }
-                    parameters[i] = primaryKey;
+                    resolvedParameters[i] = primaryKey;
                 }
             }
+            if (parameterNames != null)
+                parameterNamesSetter.accept(parameterNames);
         }
-        return parameters;
+        return resolvedParameters;
     }
 }
