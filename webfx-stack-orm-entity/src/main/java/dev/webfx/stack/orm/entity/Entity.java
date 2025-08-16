@@ -7,6 +7,8 @@ import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.util.time.Times;
 import dev.webfx.platform.util.tuples.Pair;
 import dev.webfx.stack.cache.CacheEntry;
+import dev.webfx.stack.cache.CacheFuture;
+import dev.webfx.stack.cache.CachePromise;
 import dev.webfx.stack.cache.DefaultCache;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
@@ -182,19 +184,24 @@ public interface Entity {
         return onExpressionLoadedWithCache((CacheEntry<Pair<QueryArgument, QueryResult>>) null, expression);
     }
 
-    default <E extends Entity> Future<E> onExpressionLoadedWithCache(String cacheEntryKey, Expression<E> expression) {
+    default <E extends Entity> CacheFuture<E> onExpressionLoadedWithCache(String cacheEntryKey, Expression<E> expression) {
         return onExpressionLoadedWithCache(DefaultCache.getDefaultCacheEntry(cacheEntryKey), expression);
     }
 
-    default <E extends Entity> Future<E> onExpressionLoadedWithCache(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, Expression<E> expression) {
+    default <E extends Entity> CacheFuture<E> onExpressionLoadedWithCache(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, Expression<E> expression) {
         Collection<Expression<E>> unloadedPersistentTerms = getUnloadedPersistentTerms(expression);
         if (unloadedPersistentTerms.isEmpty())
-            return Future.succeededFuture((E) this);
+            return CacheFuture.succeededFuture((E) this);
         String dqlQuery = "select " + unloadedPersistentTerms.stream()
             .map(e -> e instanceof Dot ? ((Dot) e).expandLeft() : e)
             .map(Object::toString)
             .collect(Collectors.joining(",")) + " from " + getDomainClass().getName() + " where id=?";
-        return getStore().executeQueryWithCache(cacheEntry, dqlQuery, getPrimaryKey()).map((E) this);
+        CachePromise<E> promise = new CachePromise<>();
+        getStore().executeQueryWithCache(cacheEntry, dqlQuery, getPrimaryKey())
+            .onFailure(promise::fail)
+            .onCacheAndOrSuccessWithDetails((el, fromCache, sameAsCache) ->
+                promise.emitValue((E) this, fromCache, sameAsCache));
+        return promise.future();
     }
 
     default <E extends Entity> Collection<Expression<E>> getUnloadedPersistentTerms(Expression<E> expression) {
