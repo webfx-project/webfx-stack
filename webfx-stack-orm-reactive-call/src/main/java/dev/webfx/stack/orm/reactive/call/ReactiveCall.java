@@ -1,15 +1,16 @@
 package dev.webfx.stack.orm.reactive.call;
 
 import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.platform.async.AsyncFunction;
 import dev.webfx.platform.console.Console;
+import dev.webfx.platform.scheduler.Scheduled;
+import dev.webfx.stack.shareddata.cache.CacheEntry;
+import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.tuples.Pair;
-import dev.webfx.stack.cache.CacheEntry;
+import dev.webfx.stack.shareddata.cache.serial.SerialCache;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
-import dev.webfx.platform.uischeduler.UiScheduler;
-import dev.webfx.platform.scheduler.Scheduled;
-import dev.webfx.platform.async.AsyncFunction;
 
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -42,6 +43,10 @@ public class ReactiveCall<A, R> {
 
     public ReactiveCall(AsyncFunction<A, R> asyncFunction) {
         this.asyncFunction = asyncFunction;
+    }
+
+    public void setResultCacheEntry(String cacheEntryKey) {
+        setResultCacheEntry(SerialCache.createCacheEntry(cacheEntryKey));
     }
 
     public void setResultCacheEntry(CacheEntry<Pair<A, R>> resultCacheEntry) {
@@ -198,18 +203,20 @@ public class ReactiveCall<A, R> {
 
     private void initResultFromCacheIfApplicable() {
         if (resultCacheEntry != null && getResult() == null && getArgument() != null) {
-            try {
-                Pair<A, R> pair = resultCacheEntry.getValue();
-                if (pair != null) {
-                    if (pair.get1().equals(getArgument())) {
-                        Console.log("Restoring cache '" + resultCacheEntry.getKey() + "'");
-                        setResult(pair.get2());
-                    } else
-                        Console.log("Cache for '" + resultCacheEntry.getKey() + "' can't be used, as its argument was different: " + pair.get1());
-                }
-            } catch (Exception e) {
-                Console.log("WARNING: Restoring '" + resultCacheEntry.getKey() + "' cache failed: " + e.getMessage());
-            }
+            resultCacheEntry.getValue()
+                .onSuccess(pair -> {
+                    try {
+                        if (pair != null) {
+                            if (pair.get1().equals(getArgument())) {
+                                Console.log("Restoring cache '" + resultCacheEntry.getKey() + "'");
+                                setResult(pair.get2());
+                            } else
+                                Console.log("Cache for '" + resultCacheEntry.getKey() + "' can't be used, as its argument was different: " + pair.get1());
+                        }
+                    } catch (Exception e) {
+                        Console.log("WARNING: Restoring '" + resultCacheEntry.getKey() + "' cache failed: " + e.getMessage());
+                    }
+                });
         }
     }
 

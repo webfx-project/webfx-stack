@@ -2,10 +2,10 @@ package dev.webfx.stack.orm.reactive.dql.query;
 
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
+import dev.webfx.stack.shareddata.cache.CacheEntry;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.util.function.Converter;
 import dev.webfx.platform.util.tuples.Pair;
-import dev.webfx.stack.cache.CacheEntry;
 import dev.webfx.stack.db.datascope.aggregate.AggregateScope;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
@@ -99,6 +99,12 @@ public class ReactiveDqlQuery<E> implements ReactiveDqlQueryAPI<E, ReactiveDqlQu
     @Override
     public ReactiveDqlQuery<E> unbindActiveProperty() {
         reactiveQueryCall.unbindActiveProperty();
+        return this;
+    }
+
+    @Override
+    public ReactiveDqlQuery<E> setResultCacheEntry(String cacheEntryKey) {
+        reactiveQueryCall.setResultCacheEntry(cacheEntryKey);
         return this;
     }
 

@@ -78,8 +78,6 @@
         <module>webfx-stack-authn-server-portal</module>
         <module>webfx-stack-authz-client</module>
         <module>webfx-stack-authz-server</module>
-        <module>webfx-stack-cache</module>
-        <module>webfx-stack-cache-client</module>
         <module>webfx-stack-cloud-image</module>
         <module>webfx-stack-cloud-image-client</module>
         <module>webfx-stack-cloud-image-cloudinary</module>
@@ -158,6 +156,13 @@
         <module>webfx-stack-session-state-client-fx</module>
         <module>webfx-stack-session-state-server</module>
         <module>webfx-stack-session-vertx</module>
+        <module>webfx-stack-shareddata</module>
+        <module>webfx-stack-shareddata-ast</module>
+        <module>webfx-stack-shareddata-cache</module>
+        <module>webfx-stack-shareddata-cache-cachestorage-gwt-j2cl</module>
+        <module>webfx-stack-shareddata-cache-localstorage-plugin</module>
+        <module>webfx-stack-shareddata-cache-serial</module>
+        <module>webfx-stack-shareddata-cache-storage</module>
     </modules>
 
 </project>

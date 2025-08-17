@@ -17,6 +17,6 @@ module webfx.stack.orm.entity.messaging {
     exports dev.webfx.stack.orm.entity.messaging.serial;
 
     // Provided services
-    provides dev.webfx.stack.com.serial.spi.SerialCodec with dev.webfx.stack.orm.entity.messaging.serial.EntityResultImplSerialCodec, dev.webfx.stack.orm.entity.messaging.serial.EntityStoreQuerySerialCodec;
+    provides dev.webfx.stack.com.serial.spi.SerialCodec with dev.webfx.stack.orm.entity.messaging.serial.EntityResultImplSerialCodec;
 
 }

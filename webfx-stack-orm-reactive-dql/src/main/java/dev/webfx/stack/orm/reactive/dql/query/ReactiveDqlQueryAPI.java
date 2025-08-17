@@ -2,7 +2,7 @@ package dev.webfx.stack.orm.reactive.dql.query;
 
 import dev.webfx.platform.util.function.Converter;
 import dev.webfx.platform.util.tuples.Pair;
-import dev.webfx.stack.cache.CacheEntry;
+import dev.webfx.stack.shareddata.cache.CacheEntry;
 import dev.webfx.stack.db.datascope.aggregate.AggregateScope;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
@@ -101,6 +101,11 @@ public interface ReactiveDqlQueryAPI<E, THIS> extends HasDataSourceModel, HasAct
 
     default THIS unbindActiveProperty() {
         getReactiveDqlQuery().unbindActiveProperty();
+        return (THIS) this;
+    }
+
+    default THIS setResultCacheEntry(String cacheEntryKey) {
+        getReactiveDqlQuery().setResultCacheEntry(cacheEntryKey);
         return (THIS) this;
     }
 

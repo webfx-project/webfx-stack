@@ -2,13 +2,12 @@ package dev.webfx.stack.orm.entity;
 
 import dev.webfx.platform.async.Batch;
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.console.Console;
+import dev.webfx.stack.shareddata.cache.AsyncCacheLogic;
+import dev.webfx.stack.shareddata.cache.CacheEntry;
+import dev.webfx.stack.shareddata.cache.CacheFuture;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.util.tuples.Pair;
-import dev.webfx.stack.cache.CacheEntry;
-import dev.webfx.stack.cache.CacheFuture;
-import dev.webfx.stack.cache.CachePromise;
-import dev.webfx.stack.cache.DefaultCache;
+import dev.webfx.stack.shareddata.cache.serial.SerialCache;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.QueryService;
@@ -23,8 +22,6 @@ import dev.webfx.stack.orm.entity.impl.EntityStoreImpl;
 import dev.webfx.stack.orm.entity.lciimpl.EntityDomainWriter;
 import dev.webfx.stack.orm.entity.query_result_to_entities.QueryResultToEntitiesMapper;
 import dev.webfx.stack.orm.expression.Expression;
-
-import java.util.Objects;
 
 /**
  * A store for entities that are transactionally coherent.
@@ -176,7 +173,7 @@ public interface EntityStore extends HasDataSourceModel {
     }
 
     default <E extends Entity> CacheFuture<EntityList<E>> executeQueryWithCache(String cacheEntryKey, String dqlQuery, Object... parameters) {
-        return executeQueryWithCache(DefaultCache.getDefaultCacheEntry(cacheEntryKey), dqlQuery, parameters);
+        return executeQueryWithCache(SerialCache.createCacheEntry(cacheEntryKey), dqlQuery, parameters);
     }
 
     default <E extends Entity> CacheFuture<EntityList<E>> executeQueryWithCache(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, String dqlQuery, Object... parameters) {
@@ -187,14 +184,14 @@ public interface EntityStore extends HasDataSourceModel {
     // Batch query methods
 
     default Future<EntityList[]> executeQueryBatch(EntityStoreQuery... queries) {
-        return executeQueryBatchWithCache((CacheEntry<Pair<EntityStoreQuery[], QueryResult[]>>) null, queries);
+        return executeQueryBatchWithCache((CacheEntry<Pair<QueryArgument[], QueryResult[]>>) null, queries);
     }
 
     default CacheFuture<EntityList[]> executeQueryBatchWithCache(String cacheEntryKey, EntityStoreQuery... queries) {
-        return executeQueryBatchWithCache(DefaultCache.getDefaultCacheEntry(cacheEntryKey), queries);
+        return executeQueryBatchWithCache(SerialCache.createCacheEntry(cacheEntryKey), queries);
     }
 
-    default CacheFuture<EntityList[]> executeQueryBatchWithCache(CacheEntry<Pair<EntityStoreQuery[], QueryResult[]>> cacheEntry, EntityStoreQuery... queries) {
+    default CacheFuture<EntityList[]> executeQueryBatchWithCache(CacheEntry<Pair<QueryArgument[], QueryResult[]>> cacheEntry, EntityStoreQuery... queries) {
         return executeQueryBatchWithCacheImpl(cacheEntry, queries);
     }
 
@@ -226,83 +223,20 @@ public interface EntityStore extends HasDataSourceModel {
 
     private <E extends Entity> CacheFuture<EntityList<E>> executeQueryWithCacheImpl(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, EntityStoreQuery query) {
         String dqlQuery = query.getSelect();
-        Object listId = query.getListId();
         QueryArgument queryArgument = createQueryArgument(dqlQuery, query.getParameters(), query.getParameterNames());
-        Future<QueryResult> future = QueryService.executeQuery(queryArgument);
+        Future<QueryResult> queryFuture = QueryService.executeQuery(queryArgument);
         QueryRowToEntityMapping queryMapping = getDataSourceModel().parseAndCompileSelect(dqlQuery).getQueryMapping();
-        CachePromise<EntityList<E>> promise = new CachePromise<>();
-        QueryResult cqr = null;
-        if (cacheEntry != null) {
-            try {
-                Pair<QueryArgument, QueryResult> pair = cacheEntry.getValue();
-                if (Objects.equals(queryArgument, pair.get1())) {
-                    cqr = pair.get2();
-                    if (cqr != null) {
-                        Console.log("Restoring cache '" + cacheEntry.getKey() + "'");
-                        EntityList<E> entities = QueryResultToEntitiesMapper.mapQueryResultToEntities(cqr, queryMapping, this, listId);
-                        promise.emitCacheValue(entities);
-                    }
-                } else
-                    Console.log("Cache for '" + cacheEntry.getKey() + "' can't be used, as its argument was different: " + pair.get1());
-            } catch (Exception e) {
-                Console.log("WARNING: Restoring '" + cacheEntry.getKey() + "' cache failed: " + e.getMessage());
-            }
-        }
-        QueryResult cachedQueryResult = cqr;
-        future
-            .onFailure(promise::fail)
-            .onSuccess(qr -> {
-                EntityList<E> entities = QueryResultToEntitiesMapper.mapQueryResultToEntities(qr, queryMapping, this, listId);
-                boolean sameAsCache = false;
-                if (cacheEntry != null) {
-                    sameAsCache = Objects.equals(qr, cachedQueryResult);
-                    if (!sameAsCache)
-                        cacheEntry.putValue(new Pair<>(queryArgument, qr));
-                }
-                promise.emitSuccessValue(entities, sameAsCache);
-            });
-        return promise.future();
+        return AsyncCacheLogic.executeAsyncCacheLogic(cacheEntry, queryFuture, queryArgument, qr -> QueryResultToEntitiesMapper.mapQueryResultToEntities(qr, queryMapping, this, query.getListId()) );
     }
 
-    private CacheFuture<EntityList[]> executeQueryBatchWithCacheImpl(CacheEntry<Pair<EntityStoreQuery[], QueryResult[]>> cacheEntry, EntityStoreQuery... queries) {
-        QueryArgument[] queryArguments = Arrays.map(queries, (i, query) -> createQueryArgument(query.getSelect(), query.getParameters(), query.getParameterNames()), QueryArgument[]::new);
-        Future<Batch<QueryResult>> queryFuture = QueryService.executeQueryBatch(new Batch<>(queryArguments));
+    private CacheFuture<EntityList[]> executeQueryBatchWithCacheImpl(CacheEntry<Pair<QueryArgument[], QueryResult[]>> cacheEntry, EntityStoreQuery... queries) {
+        QueryArgument[] queryArguments = Arrays.map(queries, (i, query) ->
+            createQueryArgument(query.getSelect(), query.getParameters(), query.getParameterNames()), QueryArgument[]::new);
+        Batch<QueryArgument> argumentsBatch = new Batch<>(queryArguments);
+        Future<Batch<QueryResult>> queryFuture = QueryService.executeQueryBatch(argumentsBatch);
         SqlCompiled[] sqlCompileds = Arrays.map(queries, query -> getDataSourceModel().parseAndCompileSelect(query.getSelect()), SqlCompiled[]::new);
-        CachePromise<EntityList[]> promise = new CachePromise<>();
-        Object[] qrs = null; // Using Object[] instead of QueryResult[] because the cache value is deserialized as Object[]
-        if (cacheEntry != null) {
-            try {
-                Pair<EntityStoreQuery[], QueryResult[]> pair = cacheEntry.getValue();
-                if (Objects.deepEquals(queries, pair.get1())) {
-                    qrs = pair.get2();
-                    if (qrs != null) {
-                        Console.log("Restoring cache '" + cacheEntry.getKey() + "'");
-                        EntityList[] entityLists = new EntityList[queries.length];
-                        for (int i = 0; i < queries.length; i++) {
-                            entityLists[i] = QueryResultToEntitiesMapper.mapQueryResultToEntities((QueryResult) qrs[i], sqlCompileds[i].getQueryMapping(), this, queries[i].getListId());
-                        }
-                        promise.emitCacheValue(entityLists);
-                    }
-                }
-            } catch (Exception e) {
-                Console.log("WARNING: Restoring '" + cacheEntry.getKey() + "' cache failed: " + e.getMessage());
-            }
-        }
-        Object[] cachedResults = qrs;
-        queryFuture
-            .onFailure(promise::fail)
-            .onSuccess(batchResult -> {
-                QueryResult[] results = batchResult.getArray();
-                EntityList[] entityListArray = Arrays.map(results, (i, rs) -> QueryResultToEntitiesMapper.mapQueryResultToEntities(rs, sqlCompileds[i].getQueryMapping(), this, queries[i].getListId()), EntityList[]::new);
-                boolean sameAsCache = false;
-                if (cacheEntry != null) {
-                    sameAsCache = java.util.Arrays.equals(results, cachedResults);
-                    if (!sameAsCache)
-                        cacheEntry.putValue(new Pair<>(queries, results));
-                }
-                promise.emitSuccessValue(entityListArray, sameAsCache);
-            });
-        return promise.future();
+        return AsyncCacheLogic.executeAsyncBatchCacheLogic(cacheEntry, queryFuture, argumentsBatch, (i, qr) ->
+            QueryResultToEntitiesMapper.mapQueryResultToEntities(qr, sqlCompileds[i].getQueryMapping(), this, queries[i].getListId()), EntityList[]::new);
     }
 
 }
