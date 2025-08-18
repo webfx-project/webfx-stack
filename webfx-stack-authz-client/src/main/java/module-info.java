@@ -8,6 +8,7 @@ module webfx.stack.authz.client {
     requires webfx.platform.async;
     requires webfx.platform.service;
     requires webfx.platform.util;
+    requires webfx.stack.session.state;
     requires webfx.stack.session.state.client.fx;
 
     // Exported packages
