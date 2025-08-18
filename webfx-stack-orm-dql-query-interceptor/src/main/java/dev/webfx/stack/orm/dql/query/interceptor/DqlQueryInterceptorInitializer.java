@@ -79,6 +79,8 @@ public class DqlQueryInterceptorInitializer implements ApplicationJob {
         if (length == 0)
             return parameters;
         String[] parameterNames = argument.getParameterNames();
+        if (Arrays.isEmpty(parameterNames)) // Happens with search parameters (their values don't have names)
+            return parameters; // We assume they are in the correct order
         if (Arrays.length(parameterNames) != Arrays.length(parameters))
             throw new IllegalArgumentException("The number of parameter names (" + Arrays.length(parameterNames) + ") does not match the number of parameters (" + Arrays.length(parameters) + ")");
         Object[] orderedParameters = new Object[length];

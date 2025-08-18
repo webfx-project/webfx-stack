@@ -78,21 +78,19 @@ public final class ParameterReference<T> extends AbstractExpression<T> {
     public StringBuilder toString(StringBuilder sb) {
         if (index >= 1) {
             sb.append('$').append(index);
-        } else {
-            sb.append('?');
-            if (name != null) {
-                sb.append(':').append(name);
-                if (rightDot != null) {
-                    sb.append('.');
-                    boolean lowerRightPrecedence = rightDot.getPrecedenceLevel() < 8; // DOT precedence
-                    if (lowerRightPrecedence)
-                        sb.append('(');
-                    rightDot.toString(sb);
-                    if (lowerRightPrecedence)
-                        sb.append(')');
-                }
+        } else if (name != null) {
+            sb.append(isSearchParameter() ? '?' : ':').append(name);
+            if (rightDot != null) {
+                sb.append('.');
+                boolean lowerRightPrecedence = rightDot.getPrecedenceLevel() < 8; // DOT precedence
+                if (lowerRightPrecedence)
+                    sb.append('(');
+                rightDot.toString(sb);
+                if (lowerRightPrecedence)
+                    sb.append(')');
             }
-        }
+        } else
+            sb.append('?');
         return sb;
     }
 
@@ -101,4 +99,15 @@ public final class ParameterReference<T> extends AbstractExpression<T> {
         if (options.includeParameter())
             options.addTerm(this);
     }
+
+    // These methods are not great. TODO: investigate how we can remove their usage
+
+    public boolean isClientOnlyParameter(boolean forSelectClause) {
+        return name != null && (name.equals("lang") || forSelectClause && name.startsWith("selected") && getRightDot() == null);
+    }
+
+    public boolean isSearchParameter() {
+        return name != null && name.toLowerCase().contains("search");
+    }
+
 }

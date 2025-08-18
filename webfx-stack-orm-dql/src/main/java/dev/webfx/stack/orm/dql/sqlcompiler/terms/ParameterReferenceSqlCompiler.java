@@ -20,8 +20,8 @@ public final class ParameterReferenceSqlCompiler extends AbstractTermSqlCompiler
     public void compileParameter(ParameterReference p, Options o, boolean isRightOperand) {
         int index = p.getIndex();
         String name = p.getName();
-        if (index <= 0 && name != null) {
-            if (isClientOnly(p, o.clause == SqlClause.SELECT)) // TODO: distinguish sql parameters from local parameters
+        if (index <= 0 && name != null && !p.isSearchParameter()) {
+            if (p.isClientOnlyParameter(o.clause == SqlClause.SELECT)) // TODO: distinguish sql parameters from local parameters
                 return;
             if (p.getRightDot() != null)
                 o.build.setCacheable(false);
@@ -73,11 +73,6 @@ public final class ParameterReferenceSqlCompiler extends AbstractTermSqlCompiler
         if (index <= 0) // happens with `?` parameters (no name, no index)
             index = o.build.incrementParameterIndex();
         o.build.addColumnInClause(null, o.build.getDbmsSyntax().generateParameterToken(index), null, null, o.clause, o.separator, false, false, o.generateQueryMapping);
-    }
-
-    private boolean isClientOnly(ParameterReference e, boolean forSelectClause) {
-        String name = e.getName();
-        return name != null && (name.equals("lang") || forSelectClause && name.startsWith("selected") && e.getRightDot() == null);
     }
 
 }
