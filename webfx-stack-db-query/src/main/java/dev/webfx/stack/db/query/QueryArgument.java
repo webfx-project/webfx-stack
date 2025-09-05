@@ -17,14 +17,16 @@ public final class QueryArgument {
     private final String language;
     private final String statement;
     private final Object[] parameters;
+    private final String[] parameterNames; // null if parameters are not named, otherwise contains each parameter name in the same order as the `parameters` array
 
-    public QueryArgument(QueryArgument originalArgument, Object dataSourceId, DataScope dataScope, String language, String statement, Object... parameters) {
+    public QueryArgument(QueryArgument originalArgument, Object dataSourceId, DataScope dataScope, String language, String statement, Object[] parameters, String[] parameterNames) {
         this.originalArgument = originalArgument;
         this.dataSourceId = dataSourceId;
         this.dataScope = dataScope;
         this.language = language;
         this.statement = statement;
         this.parameters = parameters;
+        this.parameterNames = parameterNames;
     }
 
     public QueryArgument getOriginalArgument() {
@@ -51,6 +53,9 @@ public final class QueryArgument {
         return parameters;
     }
 
+    public String[] getParameterNames() {
+        return parameterNames;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -96,6 +101,7 @@ public final class QueryArgument {
                ", language='" + language + '\'' +
                ", statement='" + statement + '\'' +
                ", parameters=" + Arrays.toString(parameters) +
+               ", parameterNames=" + Arrays.toString(parameterNames) +
                '}';
     }
 

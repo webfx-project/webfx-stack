@@ -55,9 +55,7 @@ final class VertxSqlUtil {
     }
 
     static Tuple tupleFromArguments(Object[] parameters) {
-        if (parameters == null)
-            return Tuple.tuple();
-        return Tuple.from(parameters);
+        return parameters == null ? Tuple.tuple() : Tuple.from(parameters);
     }
 
     static <T> Future<T> withConnection(Pool pool, Function<SqlConnection, Future<T>> function) {

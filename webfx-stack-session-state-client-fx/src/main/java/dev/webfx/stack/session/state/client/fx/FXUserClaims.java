@@ -2,7 +2,6 @@ package dev.webfx.stack.session.state.client.fx;
 
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
-import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.stack.authn.AuthenticationService;
 import dev.webfx.stack.authn.UserClaims;
 import javafx.beans.property.ObjectProperty;
@@ -35,11 +34,12 @@ public final class FXUserClaims {
         FXProperties.runNowAndOnPropertyChange(() -> {
             // Forgetting the previous user claims on user change
             setUserClaims(null);
-            // Asking the new user claim if the user is logged in (ignored if the user just logged out)
+            // Asking the new user claims if the user is logged in (ignored if the user just logged out)
             if (FXUserId.getUserId() != null) {
                 AuthenticationService.getUserClaims()
-                        .onFailure(Console::log)
-                        .onSuccess(userClaims -> UiScheduler.runInUiThread(() -> setUserClaims(userClaims)));
+                    .onFailure(Console::log)
+                    .inUiThread()
+                    .onSuccess(FXUserClaims::setUserClaims);
             }
         }, FXUserId.userIdProperty());
     }

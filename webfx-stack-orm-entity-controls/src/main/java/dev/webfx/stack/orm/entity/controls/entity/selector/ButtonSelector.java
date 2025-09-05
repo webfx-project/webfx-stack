@@ -1,8 +1,13 @@
 package dev.webfx.stack.orm.entity.controls.entity.selector;
 
+import dev.webfx.extras.controlfactory.MaterialFactoryMixin;
+import dev.webfx.extras.controlfactory.button.ButtonFactory;
+import dev.webfx.extras.controlfactory.button.ButtonFactoryMixin;
 import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.styles.materialdesign.textfield.MaterialTextFieldPane;
+import dev.webfx.extras.util.dialog.DialogCallback;
+import dev.webfx.extras.util.dialog.DialogUtil;
 import dev.webfx.extras.util.layout.Layouts;
 import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.FXProperties;
@@ -11,11 +16,6 @@ import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.platform.uischeduler.AnimationFramePass;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.function.Callable;
-import dev.webfx.extras.controlfactory.MaterialFactoryMixin;
-import dev.webfx.extras.controlfactory.button.ButtonFactory;
-import dev.webfx.extras.controlfactory.button.ButtonFactoryMixin;
-import dev.webfx.extras.util.dialog.DialogCallback;
-import dev.webfx.extras.util.dialog.DialogUtil;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
@@ -62,8 +62,8 @@ public abstract class ButtonSelector<T> {
     private ShowMode decidedShowMode;
 
     private final Property<ShowMode> showModeProperty = new SimpleObjectProperty<>(ShowMode.AUTO);
-    // Updating the content of the button when selected item changes
-    private final Property<T> selectedItemProperty = FXProperties.newObjectProperty(this::updateButtonContentFromSelectedItem);
+    // Updating the content of the button when the selected item changes
+    private final Property<T> selectedItemProperty = FXProperties.newObjectProperty(this::onSelectedItemChanged);
     private final DoubleProperty dialogHeightProperty = new SimpleDoubleProperty();
 
     public ButtonSelector(ButtonFactoryMixin buttonFactory, Callable<Pane> parentGetter) {
@@ -135,6 +135,10 @@ public abstract class ButtonSelector<T> {
         return this;
     }
 
+    protected void onSelectedItemChanged() {
+        updateButtonContentFromSelectedItem();
+    }
+
     protected ReadOnlyDoubleProperty dialogHeightProperty() {
         return dialogHeightProperty;
     }
@@ -165,7 +169,7 @@ public abstract class ButtonSelector<T> {
     }
 
     public MaterialTextFieldPane toMaterialButton(Object i18nKey) {
-        // Assuming the passed buttonFactory is actually instance of MaterialFactoryMixin when we call this method
+        // Assuming the passed buttonFactory is actually an instance of MaterialFactoryMixin when we call this method
         return ((MaterialFactoryMixin) parameters.getButtonFactory()).setMaterialLabelAndPlaceholder(newMaterialButton(), i18nKey);
     }
 
@@ -193,8 +197,20 @@ public abstract class ButtonSelector<T> {
 
     protected abstract Node getOrCreateButtonContentFromSelectedItem();
 
+    private boolean userJustOpenedDialog;
 
-    private boolean isDialogOpen() {
+    private void setUserJustOpenedDialog() {
+        userJustOpenedDialog = true;
+        UiScheduler.scheduleDelay(1000, () ->
+            userJustOpenedDialog = false
+        );
+    }
+
+    protected boolean isDialogOpenAlready() {
+        return !userJustOpenedDialog && isDialogOpen();
+    }
+
+    protected boolean isDialogOpen() {
         return dialogCallback != null && !dialogCallback.isDialogClosed();
     }
 
@@ -248,6 +264,7 @@ public abstract class ButtonSelector<T> {
             if (dialogContent == null)
                 return;
             dialogPane = new BorderPane(dialogContent);
+            dialogPane.getStyleClass().add("webfx-button-selector-dialog");
             dialogPane.setOnMouseExited(e -> scheduleMouseExistedDialogClose());
             dialogPane.setOnMouseEntered(e-> onMouseEntered());
         }
@@ -304,7 +321,7 @@ public abstract class ButtonSelector<T> {
             double spaceAboveButton = computeMaxAvailableHeightAboveButton();
             double spaceBelowButton = computeMaxAvailableHeightBelowButton();
             double dialogHeight = dialogPane.prefHeight(-1);
-            // Making the decision from the highest dialog height (we don't change decision when it shrinks, only when it grows)
+            // Making the decision from the highest dialog height (we don't change any decision when it shrinks, only when it grows)
             dialogHighestHeight = Math.max(dialogHighestHeight, dialogHeight);
             decidedShowMode = dialogHighestHeight < spaceBelowButton ? ShowMode.DROP_DOWN
                     : dialogHighestHeight < spaceAboveButton ? ShowMode.DROP_UP
@@ -347,11 +364,11 @@ public abstract class ButtonSelector<T> {
 
 
     private void show() {
+        setUserJustOpenedDialog();
         // Doing nothing if the dialog is already showing (otherwise same node inserted twice in scene graph => error)
-        if (dialogPane != null && dialogPane.getParent() != null) // May happen when quickly moving mouse over several
+        if (dialogPane != null && dialogPane.getParent() != null) // May happen when quickly moving the mouse over several
             return; // entity buttons in auto-open mode
         Region dialogContent = getOrCreateDialogContent();
-        dialogPane.setBackground(Background.fill(Color.WHITE)); // TODO: move this to CSS (as well as borders below)
         TextField searchTextField = getSearchTextField(); // may return null in case search is not enabled
         Scene scene = button.getScene();
         switch (decidedShowMode) {
@@ -392,7 +409,7 @@ public abstract class ButtonSelector<T> {
                 HBox searchBox;
                 if (searchTextField != null) {
                     SVGPath switchIcon = new SVGPath();
-                    switchIcon.setContent("M 2.2857143,10.285714 H 0 V 16 H 5.7142857 V 13.714286 H 2.2857143 Z M 0,5.7142857 H 2.2857143 V 2.2857143 H 5.7142857 V 0 H 0 Z M 13.714286,13.714286 H 10.285714 V 16 H 16 V 10.285714 H 13.714286 Z M 10.285714,0 v 2.2857143 h 3.428572 V 5.7142857 H 16 V 0 Z");
+                    switchIcon.setContent("M2.9 12.9H0V20H7.1V17.1H2.9ZM0 7.1H2.9V2.9H7.1V0H0ZM17.1 17.1H12.9V20H20V12.9H17.1ZM12.9 0v2.9h4.3V7.1H20V0Z");
                     switchIcon.setFill(Color.GRAY);
                     MonoPane switchButton = new MonoPane(switchIcon);
                     HBox.setMargin(switchButton, new Insets(5));
@@ -403,6 +420,7 @@ public abstract class ButtonSelector<T> {
                     switchButton.setOnMousePressed(e -> switchToModalDialog());
                     switchButton.setCursor(Cursor.HAND);
                     searchBox = new HBox(searchTextField, switchButton);
+                    searchBox.setAlignment(Pos.CENTER_LEFT);
                     searchPane.setContent(searchBox);
                     searchPane.setPrefHeight(USE_COMPUTED_SIZE);
                 }
@@ -418,7 +436,7 @@ public abstract class ButtonSelector<T> {
         }
         // Saving the default (Enter) and cancel (ESC) accelerators before changing them (so we can restore them later)
         var accelerators = SceneUtil.getDefaultAndCancelAccelerators(scene);
-        // The restore will happen on dialog close
+        // The restore will happen when the dialog closes
         dialogCallback.addCloseHook(() -> SceneUtil.setDefaultAndCancelAccelerators(scene, accelerators));
         // But while the dialog is open, these are the accelerators we want:
         SceneUtil.setDefaultAccelerator(scene, this::onDialogOk); // Enter = Ok
@@ -439,8 +457,9 @@ public abstract class ButtonSelector<T> {
     }
 
     private void reset() {
-        // This dialog instance could be reused in theory but for any reason (?) it has width resizing issue after having
-        // been shown in modal dialog, so we force re-creation to have a brand-new instance next time with no width issue
+        // This dialog instance could be reused in theory. However, for some reason (?) it has some width resizing issue
+        // after having been shown in the modal dialog, so we force re-creation to have a brand-new instance next time
+        // with no width issue
         if (decidedShowMode == ShowMode.MODAL_DIALOG)
             forceDialogRebuiltOnNextShow();
         decidedShowMode = null;

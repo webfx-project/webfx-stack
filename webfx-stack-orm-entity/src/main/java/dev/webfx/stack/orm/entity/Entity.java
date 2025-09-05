@@ -1,10 +1,17 @@
 package dev.webfx.stack.orm.entity;
 
 import dev.webfx.platform.async.Future;
+import dev.webfx.stack.shareddata.cache.CacheEntry;
 import dev.webfx.platform.util.Booleans;
 import dev.webfx.platform.util.Numbers;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.util.time.Times;
+import dev.webfx.platform.util.tuples.Pair;
+import dev.webfx.stack.shareddata.cache.CacheFuture;
+import dev.webfx.stack.shareddata.cache.CachePromise;
+import dev.webfx.stack.shareddata.cache.serial.SerialCache;
+import dev.webfx.stack.db.query.QueryArgument;
+import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.domainmodel.DomainField;
 import dev.webfx.stack.orm.expression.Expression;
@@ -131,24 +138,70 @@ public interface Entity {
 
     // Expression API
 
+    default <T> T evaluate(String expression) {
+        return getStore().evaluateEntityExpression(this, expression);
+    }
+
+    default <E extends Entity, T> T evaluate(Expression<E> expression) {
+        return getStore().evaluateEntityExpression((E) this, expression);
+    }
+
+    default <E extends Entity> void setExpressionValue(Expression<E> expression, Object value) {
+        getStore().setEntityExpressionValue((E) this, expression, value);
+    }
+
     default <E extends Entity> Expression<E> parseExpression(String expression) {
         return getStore().getDomainModel().parseExpression(expression, getDomainClass().getId());
     }
 
+    default <T> Future<T> evaluateOnceLoaded(String expression) {
+        return onExpressionLoaded(expression).map(ignored -> evaluate(expression));
+    }
+
+    default <E extends Entity> Future<Object> evaluateOnceLoaded(Expression<E> expression) {
+        return onExpressionLoaded(expression).map(ignored -> evaluate(expression));
+    }
+
     default <E extends Entity> Future<E> onExpressionLoaded(String expression) {
+        return onExpressionLoadedWithCache((CacheEntry<Pair<QueryArgument, QueryResult>>) null, expression);
+    }
+
+    default <E extends Entity> Future<E> onExpressionLoadedWithCache(String cacheEntryKey, String expression) {
+        return onExpressionLoadedWithCache(SerialCache.createCacheEntry(cacheEntryKey), expression);
+    }
+
+    default <E extends Entity> Future<E> onExpressionLoadedWithCache(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, String expression) {
+        if (expression == null)
+            return Future.succeededFuture((E) this);
         try {
-            return onExpressionLoaded(parseExpression(expression));
+            return onExpressionLoadedWithCache(cacheEntry, parseExpression(expression));
         } catch (Exception e) {
             return Future.failedFuture(e);
         }
     }
 
     default <E extends Entity> Future<E> onExpressionLoaded(Expression<E> expression) {
+        return onExpressionLoadedWithCache((CacheEntry<Pair<QueryArgument, QueryResult>>) null, expression);
+    }
+
+    default <E extends Entity> CacheFuture<E> onExpressionLoadedWithCache(String cacheEntryKey, Expression<E> expression) {
+        return onExpressionLoadedWithCache(SerialCache.createCacheEntry(cacheEntryKey), expression);
+    }
+
+    default <E extends Entity> CacheFuture<E> onExpressionLoadedWithCache(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, Expression<E> expression) {
         Collection<Expression<E>> unloadedPersistentTerms = getUnloadedPersistentTerms(expression);
         if (unloadedPersistentTerms.isEmpty())
-            return Future.succeededFuture((E) this);
-        String dqlQuery = "select " + unloadedPersistentTerms.stream().map(e -> e instanceof Dot ? ((Dot) e).expandLeft() : e).map(Object::toString).collect(Collectors.joining(",")) + " from " + getDomainClass().getName() + " where id=?";
-        return getStore().executeQuery(dqlQuery, getPrimaryKey()).map((E) this);
+            return CacheFuture.succeededFuture((E) this);
+        String dqlQuery = "select " + unloadedPersistentTerms.stream()
+            .map(e -> e instanceof Dot ? ((Dot) e).expandLeft() : e)
+            .map(Object::toString)
+            .collect(Collectors.joining(",")) + " from " + getDomainClass().getName() + " where id=?";
+        CachePromise<E> promise = new CachePromise<>();
+        getStore().executeQueryWithCache(cacheEntry, dqlQuery, getPrimaryKey())
+            .onFailure(promise::fail)
+            .onCacheAndOrSuccessWithDetails((el, fromCache, sameAsCache) ->
+                promise.emitValue((E) this, fromCache, sameAsCache));
+        return promise.future();
     }
 
     default <E extends Entity> Collection<Expression<E>> getUnloadedPersistentTerms(Expression<E> expression) {
@@ -175,23 +228,4 @@ public interface Entity {
         return evaluate(persistentTerm) != null;
     }
 
-    default <T> Future<T> evaluateOnceLoaded(String expression) {
-        return onExpressionLoaded(expression).map(ignored -> evaluate(expression));
-    }
-
-    default <E extends Entity> Future<Object> evaluateOnceLoaded(Expression<E> expression) {
-        return onExpressionLoaded(expression).map(ignored -> evaluate(expression));
-    }
-
-    default <T> T evaluate(String expression) {
-        return getStore().evaluateEntityExpression(this, expression);
-    }
-
-    default <E extends Entity, T> T evaluate(Expression<E> expression) {
-        return getStore().evaluateEntityExpression((E) this, expression);
-    }
-
-    default <E extends Entity> void setExpressionValue(Expression<E> expression, Object value) {
-        getStore().setEntityExpressionValue((E) this, expression, value);
-    }
 }

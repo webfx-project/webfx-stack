@@ -11,7 +11,7 @@ module webfx.stack.cloud.image.server.plugin {
     requires webfx.platform.file.java;
     requires webfx.platform.util;
     requires webfx.platform.util.http;
-    requires webfx.platform.vertx.common;
+    requires webfx.platform.util.vertx;
     requires webfx.stack.cloud.image;
     requires webfx.stack.cloud.image.cloudinary;
 

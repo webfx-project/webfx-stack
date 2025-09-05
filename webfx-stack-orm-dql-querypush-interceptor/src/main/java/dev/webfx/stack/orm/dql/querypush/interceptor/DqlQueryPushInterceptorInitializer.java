@@ -1,23 +1,22 @@
 package dev.webfx.stack.orm.dql.querypush.interceptor;
 
+import dev.webfx.platform.async.Future;
 import dev.webfx.platform.boot.spi.ApplicationJob;
+import dev.webfx.platform.service.SingleServiceProvider;
+import dev.webfx.stack.db.datascope.schema.SchemaScope;
+import dev.webfx.stack.db.datascope.schema.SchemaScopeBuilder;
+import dev.webfx.stack.db.datasource.LocalDataSourceService;
+import dev.webfx.stack.db.query.QueryArgument;
+import dev.webfx.stack.db.querypush.PulseArgument;
+import dev.webfx.stack.db.querypush.QueryPushArgument;
+import dev.webfx.stack.db.querypush.spi.QueryPushServiceProvider;
+import dev.webfx.stack.orm.datasourcemodel.service.DataSourceModelService;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
 import dev.webfx.stack.orm.domainmodel.DomainField;
 import dev.webfx.stack.orm.expression.CollectOptions;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.terms.DqlStatement;
 import dev.webfx.stack.orm.expression.terms.Select;
-import dev.webfx.stack.orm.datasourcemodel.service.DataSourceModelService;
-import dev.webfx.stack.db.querypush.PulseArgument;
-import dev.webfx.stack.db.querypush.QueryPushArgument;
-import dev.webfx.stack.db.querypush.spi.QueryPushServiceProvider;
-import dev.webfx.stack.db.datascope.schema.SchemaScope;
-import dev.webfx.stack.db.datascope.schema.SchemaScopeBuilder;
-import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
-import dev.webfx.stack.db.datasource.LocalDataSourceService;
-import dev.webfx.stack.db.query.QueryArgument;
-import dev.webfx.platform.async.Future;
-import dev.webfx.platform.service.SingleServiceProvider;
 
 /**
  * @author Bruno Salmon
@@ -60,8 +59,7 @@ public class DqlQueryPushInterceptorInitializer implements ApplicationJob {
                         parsedStatement.collect(collectOptions);
                         SchemaScopeBuilder ssb = SchemaScope.builder();
                         for (Expression<Object> term : collectOptions.getCollectedTerms()) {
-                            if (term instanceof DomainField) {
-                                DomainField domainField = (DomainField) term;
+                            if (term instanceof DomainField domainField) {
                                 ssb.addField(domainField.getDomainClass().getId(), domainField.getId());
                             }
                         }

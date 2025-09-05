@@ -20,7 +20,7 @@ public final class LogoutRequest implements HasOperationCode, HasI18nKey, HasOpe
 
     @Override
     public Object getI18nKey() {
-        return LogoutI18nKeys.Logout;
+        return LogoutI18nKeys.LogoutMenu;
     }
 
     @Override

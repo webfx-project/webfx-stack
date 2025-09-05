@@ -1,17 +1,17 @@
 package dev.webfx.stack.orm.entity.controls.entity.sheet;
 
+import dev.webfx.extras.controlfactory.MaterialFactoryMixin;
+import dev.webfx.extras.controlfactory.button.ButtonFactoryMixin;
+import dev.webfx.extras.util.dialog.builder.DialogBuilderUtil;
+import dev.webfx.extras.util.dialog.builder.DialogContent;
 import dev.webfx.platform.async.Batch;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.Promise;
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.db.submit.SubmitResult;
 import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.entity.UpdateStore;
 import dev.webfx.stack.orm.expression.Expression;
-import dev.webfx.extras.controlfactory.MaterialFactoryMixin;
-import dev.webfx.extras.controlfactory.button.ButtonFactoryMixin;
-import dev.webfx.extras.util.dialog.builder.DialogContent;
-import dev.webfx.extras.util.dialog.builder.DialogBuilderUtil;
-import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 
@@ -60,11 +60,12 @@ abstract class EntityUpdateDialog<E extends Entity> implements MaterialFactoryMi
 
     void showAsDialog(Pane parent) {
         dialogParent = parent;
-        entity.onExpressionLoaded(expressionToLoad()).onComplete(ar -> {
-            if (ar.failed())
-                ar.cause().printStackTrace();
-            else
-                Platform.runLater(() -> {
+        entity.onExpressionLoaded(expressionToLoad())
+            .inUiThread()
+            .onComplete(ar -> {
+                if (ar.failed())
+                    Console.log(ar.cause());
+                else {
                     if (entity.getStore() instanceof UpdateStore) {
                         updateStore = (UpdateStore) entity.getStore();
                         updateEntity = entity;
@@ -80,17 +81,17 @@ abstract class EntityUpdateDialog<E extends Entity> implements MaterialFactoryMi
                         else {
                             Future<Batch<SubmitResult>> submitFuture = updateStore.submitChanges();
                             submitFuture
-                                    .onFailure(dialogCallback::showException)
-                                    .onSuccess(result -> dialogCallback.closeDialog())
-                                    .onComplete(result -> {
-                                        if (userSubmitPromise != null)
-                                            userSubmitPromise.handle(submitFuture);
-                                    });
+                                .onFailure(dialogCallback::showException)
+                                .onSuccess(result -> dialogCallback.closeDialog())
+                                .onComplete(result -> {
+                                    if (userSubmitPromise != null)
+                                        userSubmitPromise.handle(submitFuture);
+                                });
                         }
                     });
                     updateOkButton();
-                });
-        });
+                }
+            });
     }
 
 }

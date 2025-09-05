@@ -6,7 +6,7 @@ module webfx.stack.authn.oauth2.vertx {
     requires io.vertx.auth.oauth2;
     requires io.vertx.core;
     requires webfx.platform.async;
-    requires webfx.platform.vertx.common;
+    requires webfx.platform.util.vertx;
     requires webfx.stack.authn.oauth2;
 
     // Exported packages

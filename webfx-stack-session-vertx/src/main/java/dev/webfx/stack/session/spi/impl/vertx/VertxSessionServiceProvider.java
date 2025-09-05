@@ -1,6 +1,6 @@
 package dev.webfx.stack.session.spi.impl.vertx;
 
-import dev.webfx.platform.vertx.common.VertxInstance;
+import dev.webfx.platform.util.vertx.VertxInstance;
 import dev.webfx.stack.session.SessionStore;
 import dev.webfx.stack.session.spi.SessionServiceProvider;
 

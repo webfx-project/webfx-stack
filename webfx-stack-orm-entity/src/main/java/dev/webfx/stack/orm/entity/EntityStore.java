@@ -2,13 +2,16 @@ package dev.webfx.stack.orm.entity;
 
 import dev.webfx.platform.async.Batch;
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.console.Console;
+import dev.webfx.stack.shareddata.cache.AsyncCacheLogic;
+import dev.webfx.stack.shareddata.cache.CacheEntry;
+import dev.webfx.stack.shareddata.cache.CacheFuture;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.util.tuples.Pair;
-import dev.webfx.stack.cache.CacheEntry;
+import dev.webfx.stack.shareddata.cache.serial.SerialCache;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.QueryService;
+import dev.webfx.stack.orm.datasourcemodel.service.DataSourceModelService;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
 import dev.webfx.stack.orm.domainmodel.HasDataSourceModel;
@@ -19,9 +22,6 @@ import dev.webfx.stack.orm.entity.impl.EntityStoreImpl;
 import dev.webfx.stack.orm.entity.lciimpl.EntityDomainWriter;
 import dev.webfx.stack.orm.entity.query_result_to_entities.QueryResultToEntitiesMapper;
 import dev.webfx.stack.orm.expression.Expression;
-
-import java.util.Objects;
-import java.util.function.Consumer;
 
 /**
  * A store for entities that are transactionally coherent.
@@ -154,61 +154,47 @@ public interface EntityStore extends HasDataSourceModel {
 
     Object getParameterValue(String parameterName);
 
-    // Query methods
+
+    // Single query methods
+
+    default <E extends Entity> CacheFuture<EntityList<E>> executeQuery(EntityStoreQuery query) {
+        return executeQueryWithCache(null, query);
+    }
+
+    default <E extends Entity> CacheFuture<EntityList<E>> executeQueryWithCache(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, EntityStoreQuery query) {
+        return executeQueryWithCacheImpl(cacheEntry, query);
+    }
+
+
+    // Single query shorthand methods
 
     default <E extends Entity> Future<EntityList<E>> executeQuery(String dqlQuery, Object... parameters) {
-        return executeListQuery(null, dqlQuery, parameters);
+        return executeQuery(new EntityStoreQuery(dqlQuery, parameters));
     }
 
-    default <E extends Entity> Future<EntityList<E>> executeCachedQuery(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, Consumer<EntityList<E>> cacheListConsumer, String dqlQuery, Object... parameters) {
-        return executeCachedListQuery(cacheEntry, cacheListConsumer, dqlQuery, dqlQuery, parameters);
+    default <E extends Entity> CacheFuture<EntityList<E>> executeQueryWithCache(String cacheEntryKey, String dqlQuery, Object... parameters) {
+        return executeQueryWithCache(SerialCache.createCacheEntry(cacheEntryKey), dqlQuery, parameters);
     }
 
-    default <E extends Entity> Future<EntityList<E>> executeListQuery(Object listId, String dqlQuery, Object... parameters) {
-        return executeCachedListQuery(null, null, listId, dqlQuery, parameters);
+    default <E extends Entity> CacheFuture<EntityList<E>> executeQueryWithCache(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, String dqlQuery, Object... parameters) {
+        return executeQueryWithCache(cacheEntry, new EntityStoreQuery(dqlQuery, parameters));
     }
 
-    default <E extends Entity> Future<EntityList<E>> executeCachedListQuery(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, Consumer<EntityList<E>> cacheListConsumer, Object listId, String dqlQuery, Object... parameters) {
-        QueryArgument queryArgument = createQueryArgument(dqlQuery, parameters);
-        Future<QueryResult> future = QueryService.executeQuery(queryArgument);
-        QueryRowToEntityMapping queryMapping = getDataSourceModel().parseAndCompileSelect(dqlQuery).getQueryMapping();
-        if (cacheEntry != null && cacheListConsumer != null) {
-            try {
-                Pair<QueryArgument, QueryResult> pair = cacheEntry.getValue();
-                if (Objects.equals(queryArgument, pair.get1())) {
-                    QueryResult rs = pair.get2();
-                    if (rs != null) {
-                        Console.log("Restoring cache '" + cacheEntry.getKey() + "'");
-                        EntityList<E> entities = QueryResultToEntitiesMapper.mapQueryResultToEntities(rs, queryMapping, this, listId);
-                        cacheListConsumer.accept(entities);
-                    }
-                } else
-                    Console.log("Cache for '" + cacheEntry.getKey() + "' can't be used, as its argument was different: " + pair.get1());
-            } catch (Exception e) {
-                Console.log("WARNING: Restoring '" + cacheEntry.getKey() + "' cache failed: " + e.getMessage());
-            }
-        }
-        return future.map(rs -> {
-            EntityList<E> entities = QueryResultToEntitiesMapper.mapQueryResultToEntities(rs, queryMapping, this, listId);
-            if (cacheEntry != null)
-                cacheEntry.putValue(new Pair<>(queryArgument, rs));
-            return entities;
-        });
-    }
 
-    default <E extends Entity> Future<EntityList<E>> executeQuery(EntityStoreQuery query) {
-        return executeListQuery(query.getListId(), query.getSelect(), query.getParameters());
-    }
-
-    default QueryArgument createQueryArgument(String dqlQuery, Object[] parameters) {
-        return DqlQueryArgumentHelper.createQueryArgument(dqlQuery, parameters, getDataSourceModel(), null);
-    }
+    // Batch query methods
 
     default Future<EntityList[]> executeQueryBatch(EntityStoreQuery... queries) {
-        Future<Batch<QueryResult>> future = QueryService.executeQueryBatch(new Batch<>(Arrays.map(queries, (i, query) -> createQueryArgument(query.getSelect(), query.getParameters()), QueryArgument[]::new)));
-        SqlCompiled[] sqlCompileds = Arrays.map(queries, query -> getDataSourceModel().parseAndCompileSelect(query.getSelect()), SqlCompiled[]::new);
-        return future.map(batchResult -> Arrays.map(batchResult.getArray(), (i, rs) -> QueryResultToEntitiesMapper.mapQueryResultToEntities(rs, sqlCompileds[i].getQueryMapping(), this, queries[i].getListId()), EntityList[]::new));
+        return executeQueryBatchWithCache((CacheEntry<Pair<QueryArgument[], QueryResult[]>>) null, queries);
     }
+
+    default CacheFuture<EntityList[]> executeQueryBatchWithCache(String cacheEntryKey, EntityStoreQuery... queries) {
+        return executeQueryBatchWithCache(SerialCache.createCacheEntry(cacheEntryKey), queries);
+    }
+
+    default CacheFuture<EntityList[]> executeQueryBatchWithCache(CacheEntry<Pair<QueryArgument[], QueryResult[]>> cacheEntry, EntityStoreQuery... queries) {
+        return executeQueryBatchWithCacheImpl(cacheEntry, queries);
+    }
+
 
     // String report for debugging
 
@@ -221,7 +207,36 @@ public interface EntityStore extends HasDataSourceModel {
         return new EntityStoreImpl(dataSourceModel);
     }
 
+    static EntityStore create() {
+        return create(DataSourceModelService.getDefaultDataSourceModel());
+    }
+
     static EntityStore createAbove(EntityStore underlyingStore) {
         return new EntityStoreImpl(underlyingStore);
     }
+
+    // private implementation
+
+    private QueryArgument createQueryArgument(String dqlQuery, Object[] parameters, String[] parameterNames) {
+        return DqlQueries.newQueryArgument(getDataSourceId(), null, dqlQuery, parameters, parameterNames);
+    }
+
+    private <E extends Entity> CacheFuture<EntityList<E>> executeQueryWithCacheImpl(CacheEntry<Pair<QueryArgument, QueryResult>> cacheEntry, EntityStoreQuery query) {
+        String dqlQuery = query.getSelect();
+        QueryArgument queryArgument = createQueryArgument(dqlQuery, query.getParameters(), query.getParameterNames());
+        Future<QueryResult> queryFuture = QueryService.executeQuery(queryArgument);
+        QueryRowToEntityMapping queryMapping = getDataSourceModel().parseAndCompileSelect(dqlQuery).getQueryMapping();
+        return AsyncCacheLogic.executeAsyncCacheLogic(cacheEntry, queryFuture, queryArgument, qr -> QueryResultToEntitiesMapper.mapQueryResultToEntities(qr, queryMapping, this, query.getListId()) );
+    }
+
+    private CacheFuture<EntityList[]> executeQueryBatchWithCacheImpl(CacheEntry<Pair<QueryArgument[], QueryResult[]>> cacheEntry, EntityStoreQuery... queries) {
+        QueryArgument[] queryArguments = Arrays.map(queries, (i, query) ->
+            createQueryArgument(query.getSelect(), query.getParameters(), query.getParameterNames()), QueryArgument[]::new);
+        Batch<QueryArgument> argumentsBatch = new Batch<>(queryArguments);
+        Future<Batch<QueryResult>> queryFuture = QueryService.executeQueryBatch(argumentsBatch);
+        SqlCompiled[] sqlCompileds = Arrays.map(queries, query -> getDataSourceModel().parseAndCompileSelect(query.getSelect()), SqlCompiled[]::new);
+        return AsyncCacheLogic.executeAsyncBatchCacheLogic(cacheEntry, queryFuture, argumentsBatch, (i, qr) ->
+            QueryResultToEntitiesMapper.mapQueryResultToEntities(qr, sqlCompileds[i].getQueryMapping(), this, queries[i].getListId()), EntityList[]::new);
+    }
+
 }

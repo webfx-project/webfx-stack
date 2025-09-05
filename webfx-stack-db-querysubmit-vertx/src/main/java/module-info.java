@@ -11,10 +11,9 @@ module webfx.stack.db.querysubmit.vertx {
     requires java.sql;
     requires webfx.platform.async;
     requires webfx.platform.console;
-    requires webfx.platform.scheduler;
     requires webfx.platform.shutdown;
     requires webfx.platform.util;
-    requires webfx.platform.vertx.common;
+    requires webfx.platform.util.vertx;
     requires webfx.stack.db.datasource;
     requires webfx.stack.db.query;
     requires webfx.stack.db.submit;

@@ -52,6 +52,9 @@ public final class Entities {
     }
 
     public static boolean samePrimaryKey(Object o1, Object o2) {
+        // We always return false if one or both objects are null, because this method is to compare real entities
+        if (o1 == null || o2 == null)
+            return false;
         Object pk1 = getPrimaryKey(o1), pk2 = getPrimaryKey(o2);
         return Numbers.identicalObjectsOrNumberValues(pk1, pk2);
     }

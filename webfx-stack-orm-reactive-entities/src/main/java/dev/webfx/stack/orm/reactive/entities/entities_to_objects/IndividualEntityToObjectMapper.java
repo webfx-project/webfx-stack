@@ -1,5 +1,6 @@
 package dev.webfx.stack.orm.reactive.entities.entities_to_objects;
 
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.orm.entity.Entity;
 
 import java.util.function.BiConsumer;
@@ -17,7 +18,7 @@ public interface IndividualEntityToObjectMapper<E extends Entity, O> {
 
     void onEntityRemoved(E entity);
 
-    static <E extends Entity, O, V> Function<E, IndividualEntityToObjectMapper<E, O>> createFactory(Supplier<V> viewFactory, BiConsumer<V, E> viewEntitySetter, Function<V, O> viewObjectGetter) {
+    static <E extends Entity, O, V> Function<E, IndividualEntityToObjectMapper<E, O>> factory(Supplier<V> viewFactory, BiConsumer<V, E> viewEntitySetter, Function<V, O> viewObjectGetter) {
         return e -> {
             IndividualEntityToObjectMapper<E, O> mapper = create(viewFactory, viewEntitySetter, viewObjectGetter);
             mapper.onEntityChangedOrReplaced(e);
@@ -25,7 +26,7 @@ public interface IndividualEntityToObjectMapper<E extends Entity, O> {
         };
     }
 
-   static <E extends Entity, O, V> IndividualEntityToObjectMapper<E, O> create(Supplier<V> viewFactory, BiConsumer<V, E> viewEntitySetter, Function<V, O> viewObjectGetter) {
+    private static <E extends Entity, O, V> IndividualEntityToObjectMapper<E, O> create(Supplier<V> viewFactory, BiConsumer<V, E> viewEntitySetter, Function<V, O> viewObjectGetter) {
         return new IndividualEntityToObjectMapper<>() {
 
             private final V view = viewFactory.get();
@@ -41,7 +42,29 @@ public interface IndividualEntityToObjectMapper<E extends Entity, O> {
             }
 
             @Override
-            public void onEntityRemoved(E entity) { }
+            public void onEntityRemoved(E entity) {}
+        };
+    }
+
+    static <E extends Entity, O> Function<E, IndividualEntityToObjectMapper<E, O>> factory(Function<E, O> entityToObjectMapper) {
+        return e -> new IndividualEntityToObjectMapper<>() {
+
+            O object = entityToObjectMapper.apply(e);
+
+            @Override
+            public O getMappedObject() {
+                return object;
+            }
+
+            @Override
+            public void onEntityChangedOrReplaced(E entity) {
+                // Is this allowed for this simple factory meant to be immutable?
+                Console.log("⚠️ Entity changed or replaced on a simple mapper - this will probably not be notified");
+                object = entityToObjectMapper.apply(e);
+            }
+
+            @Override
+            public void onEntityRemoved(E entity) {}
         };
     }
 

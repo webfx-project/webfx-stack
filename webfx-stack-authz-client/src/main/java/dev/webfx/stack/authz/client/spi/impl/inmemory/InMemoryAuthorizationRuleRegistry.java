@@ -68,14 +68,17 @@ public final class InMemoryAuthorizationRuleRegistry implements InMemoryAuthoriz
         Class<?> operationRequestClass = operationRequest.getClass();
         while (true) {
             Collection<InMemoryAuthorizationRule> rules = registeredInMemoryAuthorizationRules.get(operationRequestClass);
-            if (rules != null)
-                for (InMemoryAuthorizationRule rule : rules) { // ConcurrentModificationException observed
-                    switch (rule.computeRuleResult(operationRequest)) {
-                        case DENIED:  result = AuthorizationRuleResult.DENIED; break; // Breaking as it's a final decision
-                        case GRANTED: result = AuthorizationRuleResult.GRANTED; // Not breaking, as we need to check there is not another denying rule (which is priority)
-                        case OUT_OF_RULE_CONTEXT: // just ignoring it and looping to the next
+            if (rules != null) {
+                synchronized (rules) { // Otherwise ConcurrentModificationException has been observed
+                    for (InMemoryAuthorizationRule rule : rules) {
+                        switch (rule.computeRuleResult(operationRequest)) {
+                            case DENIED:  result = AuthorizationRuleResult.DENIED; break; // Breaking as it's a final decision
+                            case GRANTED: result = AuthorizationRuleResult.GRANTED; // Not breaking, as we need to check there is not another denying rule (which is priority)
+                            case OUT_OF_RULE_CONTEXT: // just ignoring it and looping to the next
+                        }
                     }
                 }
+            }
             if (result != AuthorizationRuleResult.OUT_OF_RULE_CONTEXT || operationRequestClass == null)
                 break;
             operationRequestClass = operationRequestClass.getSuperclass();

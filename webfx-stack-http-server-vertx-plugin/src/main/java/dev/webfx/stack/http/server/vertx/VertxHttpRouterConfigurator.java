@@ -1,7 +1,7 @@
 package dev.webfx.stack.http.server.vertx;
 
 import dev.webfx.platform.ast.ReadOnlyAstArray;
-import dev.webfx.platform.vertx.common.VertxInstance;
+import dev.webfx.platform.util.vertx.VertxInstance;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
@@ -30,17 +30,24 @@ final class VertxHttpRouterConfigurator {
         // The session store to use
         router.route().handler(SessionHandler.create(VertxInstance.getSessionStore()));
 
-        // GWT perfect caching (xxx.cache.js files will never change again)
-        router.routeWithRegex(".*\\.cache\\.js").handler(routingContext -> {
-            routingContext.response().putHeader("cache-control", "public, max-age=31556926");
-            routingContext.next();
-        });
-
         // SPA root page shouldn't be cached (to always return the latest version with the latest GWT compilation).
         // We assume the SPA is hosted under the root / or under any path ending with / or /index.html or any path
         // including /#/ (which is used for UI routing).
-        router.routeWithRegex(".*/|.*/index.html|.*/#/.*").handler(routingContext -> {
-            routingContext.response().putHeader("cache-control", "no-cache");
+        router.routeWithRegex(".*").handler(routingContext -> {
+            routingContext.response()
+                .putHeader("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0")
+                .putHeader("Pragma", "no-cache")
+                .putHeader("Expires", "0");
+            routingContext.next();
+        });
+
+        /*// GWT perfect caching (xxx.cache.js files will never change again)
+        router.routeWithRegex(".*\\.cache\\.js").handler(routingContext -> {
+            routingContext.response()
+                .putHeader("Cache-Control", "public, max-age=31556926")
+                .putHeader("Pragma", "public")
+                .putHeader("Expires", "1000000000000")
+            ;
             routingContext.next();
         });
 
@@ -49,9 +56,9 @@ final class VertxHttpRouterConfigurator {
         // most of the time, this is those files that change (on each new GWT compilation) and not index.html. So,
         // to force the browser to check those files, we use "no-store" (even if it is less optimized).
         router.routeWithRegex(".*\\.nocache\\.js").handler(routingContext -> {
-            routingContext.response().putHeader("cache-control", "public, max-age=0, no-store, must-revalidate");
+            routingContext.response().putHeader("Cache-Control", "public, max-age=0, no-store, must-revalidate");
             routingContext.next();
-        });
+        });*/
 
         return router;
     }

@@ -1,10 +1,15 @@
 package dev.webfx.stack.authn.login.ui.spi.impl.gateway.password;
 
 
+import dev.webfx.extras.controlfactory.MaterialFactoryMixin;
+import dev.webfx.extras.i18n.I18n;
+import dev.webfx.extras.i18n.controls.I18nControls;
+import dev.webfx.extras.operation.OperationUtil;
 import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.styles.bootstrap.Bootstrap;
 import dev.webfx.extras.util.control.Controls;
 import dev.webfx.extras.util.control.HtmlInputAutocomplete;
+import dev.webfx.extras.validation.ValidationSupport;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.windowlocation.WindowLocation;
 import dev.webfx.stack.authn.AuthenticateWithUsernamePasswordCredentials;
@@ -13,12 +18,6 @@ import dev.webfx.stack.authn.InitiateAccountCreationCredentials;
 import dev.webfx.stack.authn.SendMagicLinkCredentials;
 import dev.webfx.stack.authn.login.ui.FXLoginContext;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginPortalCallback;
-import dev.webfx.extras.i18n.I18n;
-import dev.webfx.extras.i18n.controls.I18nControls;
-import dev.webfx.extras.controlfactory.MaterialFactoryMixin;
-import dev.webfx.extras.operation.OperationUtil;
-import dev.webfx.extras.validation.ValidationSupport;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -150,15 +149,14 @@ public class UILoginView implements MaterialFactoryMixin {
                 new AuthenticationRequest()
                     .setUserCredentials(credentials)
                     .executeAsync()
-                    .onComplete(ar -> UiScheduler.runInUiThread(() -> OperationUtil.turnOffButtonsWaitMode(actionButton)))
+                    .inUiThread()
+                    .onComplete(ar -> OperationUtil.turnOffButtonsWaitMode(actionButton))
                     .onFailure(failure -> {
                         callback.notifyUserLoginFailed(failure);
-                        Platform.runLater(() -> {
-                            setInfoMessageForPasswordFieldLabel(PasswordI18nKeys.ErrorOccurred, Bootstrap.TEXT_DANGER);
-                            showMessageForPasswordField();
-                        });
+                        setInfoMessageForPasswordFieldLabel(PasswordI18nKeys.ErrorOccurred, Bootstrap.TEXT_DANGER);
+                        showMessageForPasswordField();
                     })
-                    .onSuccess(ignored -> UiScheduler.runInUiThread(() -> {
+                    .onSuccess(ignored -> {
                         I18nControls.bindI18nProperties(mainMessageLabel, PasswordI18nKeys.AccountCreationLinkSent);
                         mainMessageLabel.setPadding(new Insets(100,15,0,15));
                         showMainMessage();
@@ -175,7 +173,7 @@ public class UILoginView implements MaterialFactoryMixin {
                         passwordField.setManaged(false);
                         hideForgetPasswordHyperlink();
                         forgetRememberPasswordHyperlink.setManaged(false);
-                    }));
+                    });
             }
         });
     }
@@ -225,13 +223,12 @@ public class UILoginView implements MaterialFactoryMixin {
                 new AuthenticationRequest()
                     .setUserCredentials(credentials)
                     .executeAsync()
-                    .onComplete(ar -> UiScheduler.runInUiThread(() -> OperationUtil.turnOffButtonsWaitMode(actionButton)))
+                    .inUiThread()
+                    .onComplete(ar -> OperationUtil.turnOffButtonsWaitMode(actionButton))
                     .onFailure(failure -> {
                         callback.notifyUserLoginFailed(failure);
-                        Platform.runLater(() -> {
-                            setInfoMessageForPasswordFieldLabel(PasswordI18nKeys.IncorrectLoginOrPassword, Bootstrap.TEXT_DANGER);
-                            showMessageForPasswordField();
-                        });
+                        setInfoMessageForPasswordFieldLabel(PasswordI18nKeys.IncorrectLoginOrPassword, Bootstrap.TEXT_DANGER);
+                        showMessageForPasswordField();
                     })
                     .onSuccess(ignored -> UiScheduler.scheduleDelay(1000,() -> passwordField.setText("")));
             }
@@ -258,15 +255,14 @@ public class UILoginView implements MaterialFactoryMixin {
                 new AuthenticationRequest()
                     .setUserCredentials(credentials)
                     .executeAsync()
-                    .onComplete(ar -> UiScheduler.runInUiThread(() -> OperationUtil.turnOffButtonsWaitMode(actionButton)))
+                    .inUiThread()
+                    .onComplete(ar -> OperationUtil.turnOffButtonsWaitMode(actionButton))
                     .onFailure(failure -> {
                         callback.notifyUserLoginFailed(failure);
-                        Platform.runLater(() -> {
-                            setInfoMessageForPasswordFieldLabel(PasswordI18nKeys.IncorrectLoginOrPassword, Bootstrap.TEXT_DANGER);
-                            showMessageForPasswordField();
-                        });
+                        setInfoMessageForPasswordFieldLabel(PasswordI18nKeys.IncorrectLoginOrPassword, Bootstrap.TEXT_DANGER);
+                        showMessageForPasswordField();
                     })
-                    .onSuccess(ignored -> UiScheduler.runInUiThread(() -> {
+                    .onSuccess(ignored -> {
                         setTitle(PasswordI18nKeys.Recovery);
                         setMainMessage(PasswordI18nKeys.LinkSent, Bootstrap.TEXT_SUCCESS);
                         showMainMessage();
@@ -275,7 +271,7 @@ public class UILoginView implements MaterialFactoryMixin {
                         hidePasswordField();
                         hideForgetPasswordHyperlink();
                         showGraphicFromActionButton();
-                    }));
+                    });
             }
         });
     }

@@ -14,7 +14,13 @@
     </providers>
 
     <required-libraries>
-        <library artifact="com.mojoauth.sdk:java-sdk:1.1.0"/>
+        <library artifact="com.mojoauth.sdk:java-sdk:1.1.0">
+            <exported-packages> <!-- Explicit list of packages (automatic discovery was not working on the staging server) -->
+                <package>com.mojoauth.sdk.api</package>
+                <package>com.mojoauth.sdk.models.responsemodels</package>
+                <package>com.mojoauth.sdk.util</package>
+            </exported-packages>
+        </library>
     </required-libraries>
 
 </project>

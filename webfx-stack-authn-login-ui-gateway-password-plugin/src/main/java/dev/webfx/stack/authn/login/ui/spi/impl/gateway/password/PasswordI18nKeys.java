@@ -3,30 +3,30 @@ package dev.webfx.stack.authn.login.ui.spi.impl.gateway.password;
 
 public interface PasswordI18nKeys {
 
+    Object InvalidEmail = "InvalidEmail";
     Object Email = "Email";
-    Object Password = "Password";
-    Object ForgotPassword = "ForgotPassword";
-    Object RememberPassword = "RememberPassword";
-    Object CreateAccount = "CreateAccount";
     Object CreateAccountTitle = "CreateAccountTitle";
     Object CreateAccountInfoMessage = "CreateAccountInfoMessage";
-    Object SignIn = "SignIn";
-    Object SendLink = "SendLink";
-    Object Next = "Next";
     Object Continue = "Continue";
-    Object IncorrectLoginOrPassword = "IncorrectLoginOrPassword";
-    Object ErrorOccurred = "ErrorOccurred";
-    Object Login = "Login";
-    Object Back = "Back";
     Object Recovery = "Recovery";
     Object LinkSent = "LinkSent";
+    Object Back = "Back";
+    Object RememberPassword = "RememberPassword";
     Object CaseSensitive = "CaseSensitive";
-    Object GoToLogin = "GoToLogin";
-    Object PasswordUpdated = "PasswordUpdated";
-    Object AccountCreationLinkSent = "AccountCreationLinkSent";
     Object SendEmailToValidate = "SendEmailToValidate";
-    Object InvalidEmail = "InvalidEmail";
-    Object YouMayCloseThisWindow = "YouMayCloseThisWindow";
+    Object PasswordUpdated = "PasswordUpdated";
     Object EditUserAccount = "EditUserAccount";
+    Object AccountCreationLinkSent = "AccountCreationLinkSent";
+    Object ErrorOccurred = "ErrorOccurred";
+    Object YouMayCloseThisWindow = "YouMayCloseThisWindow";
+    Object Password = "Password";
+    Object IncorrectLoginOrPassword = "IncorrectLoginOrPassword";
+    Object CreateAccount = "CreateAccount";
+    Object Login = "Login";
+    Object ForgotPassword = "ForgotPassword";
+    Object SendLink = "SendLink";
+    Object GoToLogin = "GoToLogin";
+    Object Next = "Next";
+    Object SignIn = "SignIn";
 
 }

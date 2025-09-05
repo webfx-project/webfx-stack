@@ -2,10 +2,10 @@ package dev.webfx.stack.orm.reactive.dql.query;
 
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
+import dev.webfx.stack.shareddata.cache.CacheEntry;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.util.function.Converter;
 import dev.webfx.platform.util.tuples.Pair;
-import dev.webfx.stack.cache.CacheEntry;
 import dev.webfx.stack.db.datascope.aggregate.AggregateScope;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
@@ -15,7 +15,7 @@ import dev.webfx.stack.orm.domainmodel.DomainModel;
 import dev.webfx.stack.orm.domainmodel.HasDataSourceModel;
 import dev.webfx.stack.orm.dql.DqlStatement;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.SqlCompiled;
-import dev.webfx.stack.orm.entity.DqlQueryArgumentHelper;
+import dev.webfx.stack.orm.entity.DqlQueries;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.builder.ReferenceResolver;
 import dev.webfx.stack.orm.expression.builder.ThreadLocalReferenceResolver;
@@ -103,6 +103,12 @@ public class ReactiveDqlQuery<E> implements ReactiveDqlQueryAPI<E, ReactiveDqlQu
     }
 
     @Override
+    public ReactiveDqlQuery<E> setResultCacheEntry(String cacheEntryKey) {
+        reactiveQueryCall.setResultCacheEntry(cacheEntryKey);
+        return this;
+    }
+
+    @Override
     public ReactiveDqlQuery<E> setResultCacheEntry(CacheEntry<Pair<QueryArgument, QueryResult>> resultCacheEntry) {
         reactiveQueryCall.setResultCacheEntry(resultCacheEntry);
         return this;
@@ -127,7 +133,9 @@ public class ReactiveDqlQuery<E> implements ReactiveDqlQueryAPI<E, ReactiveDqlQu
 
     @Override
     public void refreshWhenActive() {
-        reactiveQueryCall.refreshWhenReady(false);
+        // UPDATE 21/07/2025: changed forced from false to true, otherwise upcomingOrdersMapper.refreshWhenActive();
+        // was not doing anything in OrdersActivity. TODO remove this comment if no side effect
+        reactiveQueryCall.refreshWhenReady(true);
     }
 
     @Override
@@ -167,7 +175,7 @@ public class ReactiveDqlQuery<E> implements ReactiveDqlQueryAPI<E, ReactiveDqlQu
     private QueryArgument createQueryArgument(String dqlQuery, Object[] parameters) {
         this.dqlQuery = dqlQuery;
         sqlCompiled = null;
-        return DqlQueryArgumentHelper.createQueryArgument(dqlQuery, parameters, getDataSourceModel(), aggregateScope);
+        return DqlQueries.newQueryArgument(getDataSourceId(), aggregateScope, dqlQuery, parameters);
     }
 
     @Override

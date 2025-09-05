@@ -5,6 +5,7 @@ import dev.webfx.platform.async.Future;
 import dev.webfx.stack.db.datascope.DataScope;
 import dev.webfx.stack.db.submit.SubmitArgument;
 import dev.webfx.stack.db.submit.SubmitResult;
+import dev.webfx.stack.orm.datasourcemodel.service.DataSourceModelService;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
 import dev.webfx.stack.orm.entity.impl.DynamicEntity;
 import dev.webfx.stack.orm.entity.impl.UpdateStoreImpl;
@@ -69,6 +70,10 @@ public interface UpdateStore extends EntityStore {
 
     static UpdateStore create(DataSourceModel dataSourceModel) {
         return new UpdateStoreImpl(dataSourceModel);
+    }
+
+    static UpdateStore create() {
+        return create(DataSourceModelService.getDefaultDataSourceModel());
     }
 
     static UpdateStore createAbove(EntityStore underlyingStore) {

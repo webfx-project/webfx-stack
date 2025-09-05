@@ -2,7 +2,7 @@ package dev.webfx.stack.http.server.vertx;
 
 import dev.webfx.platform.boot.spi.ApplicationJob;
 import dev.webfx.platform.console.Console;
-import dev.webfx.platform.vertx.common.VertxInstance;
+import dev.webfx.platform.util.vertx.VertxInstance;
 
 /**
  * @author Bruno Salmon

@@ -106,7 +106,7 @@ public class DqlSubmitInterceptorInitializer implements ApplicationJob {
                                         Object value = null;
                                         if (right instanceof Constant)
                                             value = ((Constant<?>) right).getConstantValue();
-                                        else if (right instanceof Parameter)
+                                        else if (right instanceof ParameterReference)
                                             value = parameters[0]; // TODO compute the correct parameter index
                                         if (value != null)
                                             asb.addAggregate(foreignClass.getName(), value);

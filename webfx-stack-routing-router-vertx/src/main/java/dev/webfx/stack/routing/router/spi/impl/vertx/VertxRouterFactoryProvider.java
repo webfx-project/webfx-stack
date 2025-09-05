@@ -1,6 +1,6 @@
 package dev.webfx.stack.routing.router.spi.impl.vertx;
 
-import dev.webfx.platform.vertx.common.VertxInstance;
+import dev.webfx.platform.util.vertx.VertxInstance;
 import dev.webfx.stack.routing.router.Router;
 import dev.webfx.stack.routing.router.spi.RouterFactoryProvider;
 

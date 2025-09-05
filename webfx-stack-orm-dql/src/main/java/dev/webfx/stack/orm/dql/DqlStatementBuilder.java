@@ -17,7 +17,8 @@ public final class DqlStatementBuilder {
     private DqlClause having;
     private DqlClause orderBy;
     private DqlClause limit;
-    // The 'columns' field is for display purpose only, it is not included in the resulting sql query. So any persistent fields required for the columns evaluation should be loaded by including them in the 'fields' field.
+    // The 'columns' field is for display purpose only, it is not included in the resulting SQL query. So any persistent
+    // fields required for the 'columns' evaluation should be loaded by including them in the 'fields' field.
     private String columns;
 
     public DqlStatementBuilder() {
@@ -159,57 +160,70 @@ public final class DqlStatementBuilder {
         return this;
     }
 
+    public DqlStatementBuilder mergeFields(String fields) {
+        return setFields(mergeFields(this.fields, fields));
+    }
+
     public DqlStatementBuilder mergeWhere(DqlClause where) {
         if (where != null && !DqlClause.isClauseFalse(this.where) && !DqlClause.isClauseTrue(where)) {
             if (this.where == null || DqlClause.isClauseFalse(where) || DqlClause.isClauseTrue(this.where))
-                this.where = where;
+                setWhere(where);
             else
-                this.where = DqlClause.create("(" + this.where.getDql() + ") and (" + where.getDql() + ")", DqlClause.concatClauseParameterValues(this.where, where));
+                setWhere(mergeDqlClauses(this.where, where, " and ", true));
         }
         return this;
     }
 
-    public DqlStatementBuilder mergeFields(String fields) {
-        if (fields != null)
-            setFields(mergeFields(this.fields, fields));
-        return this;
-    }
-
-    public static String mergeFields(String fields1, String fields2) {
-        return Strings.isEmpty(fields1) ? fields2 : Strings.isEmpty(fields2) ? fields1 : fields1 + ',' + fields2;
-    }
-
     public DqlStatementBuilder mergeGroupBy(DqlClause groupBy) {
-        if (groupBy != null)
-            setGroupBy(groupBy);
-        return this;
+        return setGroupBy(mergeDqlClauses(this.groupBy, groupBy));
     }
 
     public DqlStatementBuilder mergeHaving(DqlClause having) {
-        if (having != null)
-            setHaving(having);
-        return this;
+        return setHaving(mergeDqlClauses(this.having, having));
     }
 
     public DqlStatementBuilder mergeOrderBy(DqlClause orderBy) {
-        if (orderBy != null)
-            setOrderBy(orderBy);
-        return this;
+        return setOrderBy(mergeDqlClauses(this.orderBy, orderBy));
     }
 
     public DqlStatementBuilder mergeLimit(DqlClause limit) {
+        // for limit, we erase the previous value
         if (limit != null)
             setLimit(limit);
         return this;
     }
 
     public DqlStatementBuilder mergeColumns(String columns) {
-        if (columns != null)
-            setColumns(columns);
+        setColumns(mergeColumns(this.columns, columns));
         return this;
     }
 
-    public static String mergeColumns(String columns1, String columns2) {
+    // private static merge methods
+
+    public static String mergeFields(String fields1, String fields2) {
+        return Strings.isEmpty(fields1) ? fields2 : Strings.isEmpty(fields2) ? fields1 : fields1 + ',' + fields2;
+    }
+
+    private static DqlClause mergeDqlClauses(DqlClause clause1, DqlClause clause2, String separator, boolean parenthesis) {
+        String dql1 = clause1 == null ? null : clause1.getDql();
+        if (Strings.isEmpty(dql1))
+            return clause2;
+        String dql2 = clause2 == null ? null : clause2.getDql();
+        if (Strings.isEmpty(dql2))
+            return clause1;
+        if (parenthesis) {
+            dql1 = "(" + dql1 + ")";
+            dql2 = "(" + dql2 + ")";
+        }
+        String dql = dql1 + separator + dql2;
+        return DqlClause.create(dql, DqlClause.concatClauseParameterValues(clause1, clause2));
+    }
+
+    private static DqlClause mergeDqlClauses(DqlClause clause1, DqlClause clause2) {
+        return mergeDqlClauses(clause1, clause2, ", ", false);
+    }
+
+    private static String mergeColumns(String columns1, String columns2) {
         return Strings.isEmpty(columns1) ? columns2 : Strings.isEmpty(columns2) ? columns1 : Strings.removeSuffix(columns1, "]") + ',' + Strings.removePrefix(columns2, "[");
     }
 

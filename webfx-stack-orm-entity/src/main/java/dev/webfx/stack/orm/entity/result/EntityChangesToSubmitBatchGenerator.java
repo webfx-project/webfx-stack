@@ -48,7 +48,7 @@ public final class EntityChangesToSubmitBatchGenerator {
 
     public static final class BatchGenerator {
 
-        final static Expression<?> WHERE_ID_EQUALS_PARAM = new Equals<>(IdExpression.singleton, Parameter.UNNAMED_PARAMETER);
+        final static Expression<?> WHERE_ID_EQUALS_PARAM = new Equals<>(IdExpression.singleton, ParameterReference.UNNAMED_PARAMETER_REFERENCE);
 
         private final EntityChanges changes;
         private final Object dataSourceId;
@@ -296,7 +296,7 @@ public final class EntityChangesToSubmitBatchGenerator {
                     for (Object fieldId : rs.getFieldIds(id))
                         if (fieldId != null) {
                             DomainField field = id.getDomainClass().getField(fieldId);
-                            assignments.add(new Equals(field, Parameter.UNNAMED_PARAMETER));
+                            assignments.add(new Equals(field, ParameterReference.UNNAMED_PARAMETER_REFERENCE));
                             values.add(rs.getFieldValue(id, fieldId));
                         }
                     if (assignments.isEmpty() && !id.isNew())

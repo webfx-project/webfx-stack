@@ -23,20 +23,20 @@ public final class ExpressionSqlCompiler {
     static {
         // Registering all term compilers (some can actually compile several term classes).
         registerTermCompilers(
-                new ExpressionArraySqlCompiler(),   // ExpressionArray
-                new BinaryExpressionSqlCompiler(),  // Divide, Minus, Multiply, Plus
-                new BooleanExpressionSqlCompiler(), // And, Equals, GreaterThan, GreaterThanOrEquals, In, LessThan, LessThanOrEquals, Like, NotEquals, NotLike, Or, All, Any
-                new AliasSqlCompiler(),             // Alias, ArgumentAlias
-                new CallSqlCompiler(),              // Call
-                new DotSqlCompiler(),               // Dot
-                new SelectExpressionSqlCompiler(),  // SelectExpression, Exists
-                new TernaryExpressionSqlCompiler(), // TernaryExpression
-                new UnaryExpressionSqlCompiler(),   // Array, As, Not
-                new OrderedSqlCompiler(),           // Ordered
-                new ConstantSqlCompiler(),          // Constant
-                new ParameterSqlCompiler(),         // Parameter
-                new IdSqlCompiler(),                // IdExpression
-                new SymbolSqlCompiler()             // Symbol (then extendable using)
+                new ExpressionArraySqlCompiler(),    // ExpressionArray
+                new BinaryExpressionSqlCompiler(),   // Divide, Minus, Multiply, Plus
+                new BooleanExpressionSqlCompiler(),  // And, Equals, GreaterThan, GreaterThanOrEquals, In, LessThan, LessThanOrEquals, Like, NotEquals, NotLike, Or, All, Any
+                new AliasSqlCompiler(),              // Alias, ArgumentAlias
+                new CallSqlCompiler(),               // Call
+                new DotSqlCompiler(),                // Dot
+                new SelectExpressionSqlCompiler(),   // SelectExpression, Exists
+                new TernaryExpressionSqlCompiler(),  // TernaryExpression
+                new UnaryExpressionSqlCompiler(),    // Array, As, Not
+                new OrderedSqlCompiler(),            // Ordered
+                new ConstantSqlCompiler(),           // Constant
+                new ParameterReferenceSqlCompiler(), // ParameterReference
+                new IdSqlCompiler(),                 // IdExpression
+                new SymbolSqlCompiler()              // Symbol (then extendable using)
         );
     }
 

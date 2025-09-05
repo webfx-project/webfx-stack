@@ -14,6 +14,7 @@ public abstract class AbstractTermSqlCompiler<E extends Expression> {
 
     private final Class<? extends Expression>[] supportedTermClasses;
 
+    @SafeVarargs
     public AbstractTermSqlCompiler(Class<? extends Expression>... supportedTermClasses) {
         this.supportedTermClasses = supportedTermClasses;
     }
@@ -24,18 +25,18 @@ public abstract class AbstractTermSqlCompiler<E extends Expression> {
 
     public abstract void compileExpressionToSql(E e, Options o);
 
-    protected void compileChildExpressionToSql(Expression e, Options o) {
+    protected void compileChildExpressionToSql(Expression<?> e, Options o) {
         ExpressionSqlCompiler.compileExpression(e, o);
     }
 
     protected void compileExpressionPersistentTermsToSql(Expression e, Options o) {
         List<Expression> persistentTerms = new ArrayList<>();
         e.collectPersistentTerms(persistentTerms);
-        for (Expression term : persistentTerms)
+        for (Expression<?> term : persistentTerms)
             compileChildExpressionToSql(term, o);
     }
 
-    protected void compileSelect(Select select, Options o) {
+    protected void compileSelect(Select<?> select, Options o) {
         ExpressionSqlCompiler.buildSelect(select, o);
     }
 

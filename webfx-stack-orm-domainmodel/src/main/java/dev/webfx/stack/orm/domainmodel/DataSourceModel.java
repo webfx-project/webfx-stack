@@ -20,7 +20,7 @@ public final class DataSourceModel implements HasDomainModel {
     private final DbmsSqlSyntax dbmsSqlSyntax;
     private final DomainModel domainModel;
     private CompilerDomainModelReader compilerDomainModelReader;
-    private Map<String, SqlCompiled> sqlCompiledCache = new /*Weak*/HashMap<>();
+    private final Map<String, SqlCompiled> sqlCompiledCache = new /*Weak*/HashMap<>();
 
     public DataSourceModel(Object dataSourceId, DbmsSqlSyntax dbmsSqlSyntax, DomainModel domainModel) {
         this.dataSourceId = dataSourceId;

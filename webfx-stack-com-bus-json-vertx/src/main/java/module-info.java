@@ -10,7 +10,7 @@ module webfx.stack.com.bus.json.vertx {
     requires webfx.platform.async;
     requires webfx.platform.boot;
     requires webfx.platform.conf;
-    requires webfx.platform.vertx.common;
+    requires webfx.platform.util.vertx;
     requires webfx.stack.com.bus;
     requires webfx.stack.com.bus.client;
     requires webfx.stack.com.bus.json;

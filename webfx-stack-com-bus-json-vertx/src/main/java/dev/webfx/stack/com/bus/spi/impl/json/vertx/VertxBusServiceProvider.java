@@ -1,7 +1,7 @@
 package dev.webfx.stack.com.bus.spi.impl.json.vertx;
 
 import dev.webfx.stack.com.bus.BusFactory;
-import dev.webfx.platform.vertx.common.VertxInstance;
+import dev.webfx.platform.util.vertx.VertxInstance;
 import dev.webfx.stack.com.bus.spi.impl.client.BusServiceProviderBase;
 
 /**

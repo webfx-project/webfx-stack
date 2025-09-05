@@ -13,6 +13,7 @@ public final class QueryArgumentBuilder {
     private String language;
     private String statement;
     private Object[] parameters;
+    private String[] parameterNames;
 
     public QueryArgumentBuilder setOriginalArgument(QueryArgument originalArgument) {
         this.originalArgument = originalArgument;
@@ -48,17 +49,23 @@ public final class QueryArgumentBuilder {
         return this;
     }
 
+    public QueryArgumentBuilder setParameterNames(String... parameterNames) {
+        this.parameterNames = parameterNames;
+        return this;
+    }
+
     public QueryArgumentBuilder copy(QueryArgument argument) {
         return setOriginalArgument(argument)
-                .setDataSourceId(argument.getDataSourceId())
-                .setDataScope(argument.getDataScope())
-                .setLanguage(argument.getLanguage())
-                .setStatement(argument.getStatement())
-                .setParameters(argument.getParameters())
-                ;
+            .setDataSourceId(argument.getDataSourceId())
+            .setDataScope(argument.getDataScope())
+            .setLanguage(argument.getLanguage())
+            .setStatement(argument.getStatement())
+            .setParameters(argument.getParameters())
+            .setParameterNames(argument.getParameterNames())
+            ;
     }
 
     public QueryArgument build() {
-        return new QueryArgument(originalArgument, dataSourceId, dataScope, language, statement, parameters);
+        return new QueryArgument(originalArgument, dataSourceId, dataScope, language, statement, parameters, parameterNames);
     }
 }

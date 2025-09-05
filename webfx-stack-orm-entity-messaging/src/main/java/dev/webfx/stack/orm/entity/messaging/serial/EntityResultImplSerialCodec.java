@@ -46,7 +46,7 @@ public final class EntityResultImplSerialCodec extends SerialCodecBase<EntityRes
     @Override
     public EntityResultImpl decode(ReadOnlyAstObject serial) {
         List<EntityId> entityIds = new ArrayList<>();
-        List<Map > entityFieldsMaps = new ArrayList<>();
+        List<Map> entityFieldsMaps = new ArrayList<>();
         ReadOnlyAstArray entities = serial.getArray(ENTITIES_KEY);
         for (int i = 0; i < entities.size(); i++) {
             ReadOnlyAstObject entity = entities.getObject(i);

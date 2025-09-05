@@ -2,6 +2,7 @@ package dev.webfx.stack.authz.client.spi.impl;
 
 import dev.webfx.platform.async.Future;
 import dev.webfx.stack.authz.client.spi.AuthorizationClientServiceProvider;
+import dev.webfx.stack.session.state.LogoutUserId;
 import dev.webfx.stack.session.state.client.fx.FXUserId;
 
 import java.util.HashMap;
@@ -20,15 +21,20 @@ public abstract class AuthorizationClientServiceProviderBase implements Authoriz
     }
 
     protected UserAuthorizationChecker getOrCreateUserAuthorizationChecker() {
-        return getOrCreateUserAuthorizationChecker(FXUserId.getUserId());
+        Object userId = FXUserId.getUserId();
+        if (LogoutUserId.isLogoutUserIdOrNull(userId))
+            userId = LogoutUserId.LOGOUT_USER_ID;
+        return getOrCreateUserAuthorizationChecker(userId);
     }
 
     protected UserAuthorizationChecker getOrCreateUserAuthorizationChecker(Object userId) {
-        UserAuthorizationChecker userAuthorizationChecker = cache.get(userId);
-        if (userAuthorizationChecker == null)
-            cache.put(userId, userAuthorizationChecker = createUserAuthorizationChecker());
-        return userAuthorizationChecker;
+        synchronized (cache) { // Otherwise createUserAuthorizationChecker() can be called concurrently
+            UserAuthorizationChecker userAuthorizationChecker = cache.get(userId);
+            if (userAuthorizationChecker == null)
+                cache.put(userId, userAuthorizationChecker = createUserAuthorizationChecker(userId));
+            return userAuthorizationChecker;
+        }
     }
 
-    protected abstract UserAuthorizationChecker createUserAuthorizationChecker();
+    protected abstract UserAuthorizationChecker createUserAuthorizationChecker(Object userId);
 }
