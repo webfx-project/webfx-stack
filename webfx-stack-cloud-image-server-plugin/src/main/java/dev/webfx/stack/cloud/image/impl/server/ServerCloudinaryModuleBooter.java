@@ -4,7 +4,7 @@ import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
 import dev.webfx.platform.conf.ConfigLoader;
 import dev.webfx.platform.file.spi.impl.java.JavaFile;
 import dev.webfx.platform.util.Booleans;
-import dev.webfx.platform.vertx.common.VertxInstance;
+import dev.webfx.platform.util.vertx.VertxInstance;
 import dev.webfx.stack.cloud.image.CloudImageService;
 import dev.webfx.stack.cloud.image.impl.cloudinary.Cloudinary;
 import io.vertx.core.http.HttpServerRequest;

@@ -7,7 +7,7 @@ module webfx.stack.routing.router.vertx {
     requires io.vertx.web;
     requires webfx.platform.ast;
     requires webfx.platform.async;
-    requires webfx.platform.vertx.common;
+    requires webfx.platform.util.vertx;
     requires webfx.stack.routing.router;
     requires webfx.stack.session;
     requires webfx.stack.session.vertx;

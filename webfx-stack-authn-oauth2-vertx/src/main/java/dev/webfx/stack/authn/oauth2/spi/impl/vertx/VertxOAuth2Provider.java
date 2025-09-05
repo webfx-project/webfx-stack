@@ -2,7 +2,7 @@ package dev.webfx.stack.authn.oauth2.spi.impl.vertx;
 
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.Promise;
-import dev.webfx.platform.vertx.common.VertxInstance;
+import dev.webfx.platform.util.vertx.VertxInstance;
 import dev.webfx.stack.authn.oauth2.spi.OAuth2Provider;
 import io.vertx.ext.auth.oauth2.OAuth2Options;
 import io.vertx.ext.auth.oauth2.providers.OpenIDConnectAuth;

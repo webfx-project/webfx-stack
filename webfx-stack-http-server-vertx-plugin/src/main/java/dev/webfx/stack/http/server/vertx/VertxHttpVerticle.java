@@ -1,7 +1,7 @@
 package dev.webfx.stack.http.server.vertx;
 
 import dev.webfx.platform.console.Console;
-import dev.webfx.platform.vertx.common.VertxInstance;
+import dev.webfx.platform.util.vertx.VertxInstance;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.net.JdkSSLEngineOptions;

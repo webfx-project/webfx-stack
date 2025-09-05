@@ -5,7 +5,7 @@ import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.util.AsyncQueue;
 import dev.webfx.platform.shutdown.Shutdown;
 import dev.webfx.platform.util.Arrays;
-import dev.webfx.platform.vertx.common.VertxInstance;
+import dev.webfx.platform.util.vertx.VertxInstance;
 import dev.webfx.stack.db.datasource.ConnectionDetails;
 import dev.webfx.stack.db.datasource.LocalDataSource;
 import dev.webfx.stack.db.query.QueryArgument;
@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static dev.webfx.platform.vertx.common.VertxFuture.toVertxFuture;
-import static dev.webfx.platform.vertx.common.VertxFuture.toWebfxFuture;
+import static dev.webfx.platform.util.vertx.VertxAsync.toVertxFuture;
+import static dev.webfx.platform.util.vertx.VertxAsync.toWebfxFuture;
 import static dev.webfx.stack.db.querysubmit.VertxSqlUtil.*;
 
 /**

@@ -9,7 +9,7 @@ module webfx.stack.http.server.vertx.plugin {
     requires webfx.platform.boot;
     requires webfx.platform.conf;
     requires webfx.platform.console;
-    requires webfx.platform.vertx.common;
+    requires webfx.platform.util.vertx;
 
     // Exported packages
     exports dev.webfx.stack.http.server.vertx;

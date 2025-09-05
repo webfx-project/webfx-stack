@@ -6,7 +6,7 @@ module webfx.stack.session.vertx {
     requires io.vertx.core;
     requires io.vertx.web;
     requires webfx.platform.async;
-    requires webfx.platform.vertx.common;
+    requires webfx.platform.util.vertx;
     requires webfx.stack.session;
 
     // Exported packages
