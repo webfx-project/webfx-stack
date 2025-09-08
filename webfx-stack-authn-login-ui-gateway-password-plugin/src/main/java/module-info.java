@@ -13,6 +13,7 @@ module webfx.stack.authn.login.ui.gateway.password.plugin {
     requires webfx.extras.panes;
     requires webfx.extras.styles.bootstrap;
     requires webfx.extras.util.control;
+    requires webfx.extras.util.layout;
     requires webfx.extras.util.scene;
     requires webfx.extras.validation;
     requires webfx.kit.util;

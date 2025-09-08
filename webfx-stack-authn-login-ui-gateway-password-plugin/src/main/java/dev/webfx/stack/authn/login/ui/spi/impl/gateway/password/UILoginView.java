@@ -10,6 +10,7 @@ import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.styles.bootstrap.Bootstrap;
 import dev.webfx.extras.util.control.Controls;
 import dev.webfx.extras.util.control.HtmlInputAutocomplete;
+import dev.webfx.extras.util.layout.Layouts;
 import dev.webfx.extras.validation.ValidationSupport;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.windowlocation.WindowLocation;
@@ -36,15 +37,17 @@ import java.util.function.Consumer;
 /**
  * @author David Hello
  */
-public class UILoginView implements MaterialFactoryMixin {
+public final class UILoginView implements MaterialFactoryMixin {
 
-    private static final String CHECKMARK_PATH = "M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z M14.7 8.39l-3.78 5-1.63-2.11a1 1 0 0 0-1.58 1.23l2.43 3.11a1 1 0 0 0 .79.38 1 1 0 0 0 .79-.39l4.57-6a1 1 0 1 0-1.6-1.22z";
-    private static final String EYE_OPEN_PATH = "M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z";
-    private static final String EYE_CLOSE_PATH = "M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z";
-
+    private static final String CHECKMARK_PATH = "M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8zM14.7 8.4l-3.8 5-1.6-2.1a1 1 0 00-1.6 1.2l2.4 3.1a1 1 0 00.8.4 1 1 0 00.8-.4l4.6-6a1 1 0 10-1.6-1.2z";
+    private static final String EYE_OPEN_PATH = "M11 1.5C6 1.5 1.7 4.6 0 9c1.7 4.4 6 7.5 11 7.5s9.3-3.1 11-7.5c-1.7-4.4-6-7.5-11-7.5zM11 14c-2.8 0-5-2.2-5-5s2.2-5 5-5 5 2.2 5 5-2.2 5-5 5zm0-8c-1.7 0-3 1.3-3 3s1.3 3 3 3 3-1.3 3-3-1.3-3-3-3z";
+    private static final String EYE_CLOSE_PATH = "M11 4c2.8 0 5 2.2 5 5 0 .7-.1 1.3-.4 1.8l2.9 2.9c1.5-1.3 2.7-2.9 3.4-4.8-1.7-4.4-6-7.5-11-7.5-1.4 0-2.7.3-4 .7l2.2 2.2C9.7 4.1 10.3 4 11 4zM1 1.3l2.3 2.3.5.5C2.1 5.3.8 7 0 9c1.7 4.4 6 7.5 11 7.5 1.6 0 3-.3 4.4-.8l.4.4L18.7 19 20 17.7 2.3 0 1 1.3zM6.5 6.8l1.6 1.6c-.1.2-.1.4-.1.7 0 1.7 1.3 3 3 3 .2 0 .4 0 .7-.1l1.6 1.6c-.7.3-1.4.5-2.2.5-2.8 0-5-2.2-5-5 0-.8.2-1.5.5-2.2zm4.3-.8 3.1 3.1 0-.2c0-1.7-1.3-3-3-3l-.2 0z";
 
     private final SVGPath eyeIconOpen = new SVGPath();
-    private final SVGPath eyeIconClose = new SVGPath();
+    private final SVGPath eyeIconClose = new SVGPath(); {
+        eyeIconOpen.setContent(EYE_OPEN_PATH);
+        eyeIconClose.setContent(EYE_CLOSE_PATH);
+    }
 
     private Label loginTitleLabel;
     private Label mainMessageLabel;
@@ -65,7 +68,6 @@ public class UILoginView implements MaterialFactoryMixin {
     private boolean isPasswordVisible = false;
     private int lastCaretPosition = 0;
 
-
     public UILoginView(Consumer<String> emailConsumer) {
         createAccountEmailConsumer = emailConsumer;
     }
@@ -80,16 +82,11 @@ public class UILoginView implements MaterialFactoryMixin {
         loginVBox.setSpacing(60);
         container.setCenter(loginVBox);
 
-        // Initialize eye button after everything is set up and added to scene graph
+        // Initialize the eye button after everything is set up and added to the scene graph
         Platform.runLater(this::initializeEyeButton);
     }
 
     private void initialiseMainVBox(VBox container) {
-        mainVBox = new VBox();
-        mainVBox.setMinWidth(container.getMinWidth());
-        //mainVBox.getStyleClass().add("login");
-        mainVBox.setAlignment(Pos.TOP_CENTER);
-
         loginTitleLabel = Bootstrap.h2Primary(I18nControls.newLabel(PasswordI18nKeys.Recovery));
         int vSpacing = 10;
         loginTitleLabel.setPadding(new Insets(vSpacing, 0, 0, 0));
@@ -121,29 +118,24 @@ public class UILoginView implements MaterialFactoryMixin {
         Controls.setHtmlInputAutocomplete(passwordField, HtmlInputAutocomplete.CURRENT_PASSWORD);
         passwordField.setPrefWidth(340);
 
-        // Create visible text field (hidden by default)
+        // Create the visible text field (hidden by default)
         visiblePasswordField = newMaterialTextField(PasswordI18nKeys.Password);
         Controls.setHtmlInputAutocomplete(visiblePasswordField, HtmlInputAutocomplete.CURRENT_PASSWORD);
         visiblePasswordField.setPrefWidth(340);
-        visiblePasswordField.setVisible(false);
-        visiblePasswordField.setManaged(false);
+        Layouts.setManagedAndVisibleProperties(visiblePasswordField, false);
 
-        // Create eye icon button
+        // Create the eye icon button
         eyeButtonMonoPane = new MonoPane();
         eyeButtonMonoPane.setBackground(Background.EMPTY);
-        eyeButtonMonoPane.setPrefSize(30, 30);
-        eyeButtonMonoPane.setMinSize(30, 30);
-        eyeButtonMonoPane.setMaxSize(30, 30);
+        Layouts.setFixedSize(eyeButtonMonoPane, 22, 19);
         eyeButtonMonoPane.setCursor(Cursor.HAND);
 
         // Set eye icon SVG
         eyeButtonMonoPane.setContent(eyeIconOpen);
-        //HBox.setMargin(eyeButtonMonoPane,new Insets(30, 0, 0, 0));
         passwordContainer.getChildren().addAll(passwordField, visiblePasswordField, eyeButtonMonoPane);
         VBox.setMargin(passwordContainer, new Insets(15, 0, 0, 0));
 
         infoMessageForPasswordFieldLabel = Bootstrap.small(I18nControls.newLabel(PasswordI18nKeys.CaseSensitive));
-        infoMessageForPasswordFieldLabel.setVisible(true);
         passwordFieldAndMessageVbox.getChildren().addAll(passwordContainer, infoMessageForPasswordFieldLabel);
 
         emailAndPasswordContainer.getChildren().setAll(emailTextField, passwordFieldAndMessageVbox);
@@ -159,14 +151,22 @@ public class UILoginView implements MaterialFactoryMixin {
 
         actionButton = Bootstrap.largePrimaryButton(I18nControls.newButton(PasswordI18nKeys.Continue));
         VBox.setMargin(actionButton, new Insets(30, 0, 0, 0));
-        mainVBox.getChildren().addAll(loginTitleLabel, mainMessageLabel, emailAndPasswordContainer, forgetRememberPasswordHyperlink, createAccountHyperlink, actionButton);
+
+        mainVBox = new VBox(
+            loginTitleLabel,
+            mainMessageLabel,
+            emailAndPasswordContainer,
+            forgetRememberPasswordHyperlink,
+            createAccountHyperlink,
+            actionButton
+        );
+        mainVBox.setMinWidth(container.getMinWidth());
+        //mainVBox.getStyleClass().add("login");
+        mainVBox.setAlignment(Pos.TOP_CENTER);
     }
 
     private void initializeEyeButton() {
-        eyeIconOpen.setContent(EYE_OPEN_PATH);
-        eyeIconClose.setContent(EYE_CLOSE_PATH);
-
-        // Create a unified method to update caret position
+        // Create a unified method to update the caret position
         Runnable updateCaretPosition = () -> {
             if (passwordField.isVisible() && passwordField.isFocused()) {
                 lastCaretPosition = passwordField.getCaretPosition();
@@ -213,33 +213,27 @@ public class UILoginView implements MaterialFactoryMixin {
     }
 
     private void togglePasswordVisibility() {
-        if (isPasswordVisible) {
-            hidePassword();
-        } else {
-            showPassword();
-        }
+        showPassword(!isPasswordVisible);
     }
 
-    private void showPassword() {
-        isPasswordVisible = true;
+    private void showPassword(boolean visible) {
+        isPasswordVisible = visible;
 
-        // Get current caret position from the currently visible field
+        // Get the current caret position from the currently visible field
         int caretPosition = lastCaretPosition;
 
-        // Update the visible field with current password text
+        // Update the visible field with the current password text
         visiblePasswordField.setText(passwordField.getText());
 
         // Switch visibility
-        passwordField.setVisible(false);
-        passwordField.setManaged(false);
-        visiblePasswordField.setVisible(true);
-        visiblePasswordField.setManaged(true);
+        Layouts.setManagedAndVisibleProperties(passwordField, !visible);
+        Layouts.setManagedAndVisibleProperties(visiblePasswordField, visible);
 
         // Request focus and set caret position in the next UI cycle
         Platform.runLater(() -> {
             visiblePasswordField.requestFocus();
 
-            // Set caret position after focus is established
+            // Set the caret position after focus is established
             Platform.runLater(() -> {
                 int textLength = visiblePasswordField.getText().length();
                 int safeCaretPosition = Math.min(caretPosition, textLength);
@@ -247,39 +241,10 @@ public class UILoginView implements MaterialFactoryMixin {
             });
         });
 
-        eyeButtonMonoPane.setContent(eyeIconClose);
+        eyeButtonMonoPane.setContent(visible ? eyeIconClose : eyeIconOpen);
+        // Compensating slight vertical translation when switching eye icon
+        eyeButtonMonoPane.setTranslateY(visible ? 0.5 : 0);
     }
-
-    private void hidePassword() {
-        isPasswordVisible = false;
-
-        // Get current caret position from the currently visible field
-        int caretPosition = lastCaretPosition;
-
-        // Update the password field with current visible text
-        passwordField.setText(visiblePasswordField.getText());
-
-        // Switch visibility
-        visiblePasswordField.setVisible(false);
-        visiblePasswordField.setManaged(false);
-        passwordField.setVisible(true);
-        passwordField.setManaged(true);
-
-        // Request focus and set caret position in the next UI cycle
-        Platform.runLater(() -> {
-            passwordField.requestFocus();
-
-            // Set caret position after focus is established
-            Platform.runLater(() -> {
-                int textLength = passwordField.getText().length();
-                int safeCaretPosition = Math.min(caretPosition, textLength);
-                passwordField.positionCaret(safeCaretPosition);
-            });
-        });
-
-        eyeButtonMonoPane.setContent(eyeIconOpen);
-    }
-
 
     private void initFormValidation() {
         if (validationSupport.isEmpty()) {
@@ -358,9 +323,9 @@ public class UILoginView implements MaterialFactoryMixin {
         });
         moveActionButtonUnderEmail();
 
-        // Reset password visibility to hidden state when returning to initial state
+        // Reset password visibility to the hidden state when returning to the initial state
         if (isPasswordVisible) {
-            hidePassword();
+            showPassword(false);
         }
     }
 
