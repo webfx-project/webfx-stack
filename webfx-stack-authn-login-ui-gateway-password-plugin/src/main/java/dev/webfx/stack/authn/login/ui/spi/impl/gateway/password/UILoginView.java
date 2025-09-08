@@ -118,24 +118,29 @@ public final class UILoginView implements MaterialFactoryMixin {
         Controls.setHtmlInputAutocomplete(passwordField, HtmlInputAutocomplete.CURRENT_PASSWORD);
         passwordField.setPrefWidth(340);
 
-        // Create the visible text field (hidden by default)
+        // Create visible text field (hidden by default)
         visiblePasswordField = newMaterialTextField(PasswordI18nKeys.Password);
         Controls.setHtmlInputAutocomplete(visiblePasswordField, HtmlInputAutocomplete.CURRENT_PASSWORD);
         visiblePasswordField.setPrefWidth(340);
-        Layouts.setManagedAndVisibleProperties(visiblePasswordField, false);
+        visiblePasswordField.setVisible(false);
+        visiblePasswordField.setManaged(false);
 
-        // Create the eye icon button
+        // Create eye icon button
         eyeButtonMonoPane = new MonoPane();
         eyeButtonMonoPane.setBackground(Background.EMPTY);
-        Layouts.setFixedSize(eyeButtonMonoPane, 22, 19);
+        eyeButtonMonoPane.setPrefSize(30, 30);
+        eyeButtonMonoPane.setMinSize(30, 30);
+        eyeButtonMonoPane.setMaxSize(30, 30);
         eyeButtonMonoPane.setCursor(Cursor.HAND);
 
         // Set eye icon SVG
         eyeButtonMonoPane.setContent(eyeIconOpen);
+        //HBox.setMargin(eyeButtonMonoPane,new Insets(30, 0, 0, 0));
         passwordContainer.getChildren().addAll(passwordField, visiblePasswordField, eyeButtonMonoPane);
         VBox.setMargin(passwordContainer, new Insets(15, 0, 0, 0));
 
         infoMessageForPasswordFieldLabel = Bootstrap.small(I18nControls.newLabel(PasswordI18nKeys.CaseSensitive));
+        infoMessageForPasswordFieldLabel.setVisible(true);
         passwordFieldAndMessageVbox.getChildren().addAll(passwordContainer, infoMessageForPasswordFieldLabel);
 
         emailAndPasswordContainer.getChildren().setAll(emailTextField, passwordFieldAndMessageVbox);
@@ -223,7 +228,10 @@ public final class UILoginView implements MaterialFactoryMixin {
         int caretPosition = lastCaretPosition;
 
         // Update the visible field with the current password text
-        visiblePasswordField.setText(passwordField.getText());
+        if (visible)
+            visiblePasswordField.setText(passwordField.getText());
+        else // or the password field with current visible text
+            passwordField.setText(visiblePasswordField.getText());
 
         // Switch visibility
         Layouts.setManagedAndVisibleProperties(passwordField, !visible);
