@@ -1,7 +1,8 @@
 package dev.webfx.stack.orm.dql;
 
-import dev.webfx.platform.ast.json.Json;
 import dev.webfx.platform.ast.ReadOnlyAstObject;
+import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.util.Strings;
 
 /**
@@ -211,6 +212,13 @@ public final class DqlStatementBuilder {
         String dql2 = clause2 == null ? null : clause2.getDql();
         if (Strings.isEmpty(dql2))
             return clause1;
+        int param1Count = Arrays.length(clause1.getParameterValues());
+        if (param1Count > 0) {
+            int param2Count = Arrays.length(clause2.getParameterValues());
+            if (param2Count > 0) {
+                dql2 = shiftParameterIndexes(dql2, param1Count);
+            }
+        }
         if (parenthesis) {
             dql1 = "(" + dql1 + ")";
             dql2 = "(" + dql2 + ")";
@@ -225,6 +233,61 @@ public final class DqlStatementBuilder {
 
     private static String mergeColumns(String columns1, String columns2) {
         return Strings.isEmpty(columns1) ? columns2 : Strings.isEmpty(columns2) ? columns1 : Strings.removeSuffix(columns1, "]") + ',' + Strings.removePrefix(columns2, "[");
+    }
+
+    private static String shiftParameterIndexes(String dql, int shift) {
+        // If dql contains indexed parameters $1, $2, ... then we need to increment these indexes by shift
+        // Additionally, replace any positional '?' parameters with next indexes starting at shift, then shift+1, ...
+        StringBuilder sb = new StringBuilder();
+        int nextQIndex = shift + 1; // the first '?' becomes $(shift+1)
+        boolean inSingleQuote = false;
+        boolean inDoubleQuote = false;
+        for (int i = 0; i < dql.length(); i++) {
+            char c = dql.charAt(i);
+            // Handle simple string literal boundaries to avoid rewriting placeholders inside strings
+            if (c == '\'' && !inDoubleQuote) {
+                inSingleQuote = !inSingleQuote;
+                sb.append(c);
+                continue;
+            }
+            if (c == '"' && !inSingleQuote) {
+                inDoubleQuote = !inDoubleQuote;
+                sb.append(c);
+                continue;
+            }
+            if (!inSingleQuote && !inDoubleQuote) {
+                if (c == '$') {
+                    int j = i + 1;
+                    int start = j;
+                    while (j < dql.length()) {
+                        char dj = dql.charAt(j);
+                        if (dj >= '0' && dj <= '9') {
+                            j++;
+                        } else {
+                            break;
+                        }
+                    }
+                    if (j > start) {
+                        int idx = Integer.parseInt(dql.substring(start, j));
+                        int newIdx = idx + shift;
+                        sb.append('$').append(newIdx);
+                        i = j - 1; // advance
+                        continue;
+                    }
+                    // '$' not followed by digits
+                    sb.append(c);
+                    continue;
+                }
+                if (c == '?') {
+                    // Replace '?' with the next sequential index starting at shift
+                    sb.append('$').append(nextQIndex);
+                    nextQIndex++;
+                    continue;
+                }
+            }
+            sb.append(c);
+        }
+        return sb.toString();
     }
 
 }
