@@ -22,7 +22,7 @@ public final class CallSqlCompiler extends AbstractTermSqlCompiler<Call> {
         Expression arg = call.getOperand();
         if (arg instanceof Dot) {
             Dot dot = (Dot) arg;
-            compileChildExpressionToSql(new Dot(dot.getLeft(), new Call(call.getFunctionName(), dot.getRight(), call.getOrderBy()), dot.isOuterJoin(), false), o);
+            compileChildExpressionToSql(Dot.dot(dot.getLeft(), new Call(call.getFunctionName(), dot.getRight(), call.getOrderBy()), dot.isOuterJoin(), false), o);
         } else {
             Function f = call.getFunction();
             if (f instanceof InlineFunction) {

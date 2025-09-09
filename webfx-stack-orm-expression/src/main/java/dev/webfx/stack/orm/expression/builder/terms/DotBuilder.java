@@ -7,13 +7,6 @@ import dev.webfx.stack.orm.expression.terms.Alias;
 import dev.webfx.stack.orm.expression.terms.Dot;
 import dev.webfx.stack.orm.expression.terms.ExpressionArray;
 import dev.webfx.stack.orm.expression.terms.Symbol;
-import dev.webfx.stack.orm.expression.Expression;
-import dev.webfx.stack.orm.expression.builder.ReferenceResolver;
-import dev.webfx.stack.orm.expression.builder.ThreadLocalReferenceResolver;
-import dev.webfx.stack.orm.expression.terms.Alias;
-import dev.webfx.stack.orm.expression.terms.Dot;
-import dev.webfx.stack.orm.expression.terms.ExpressionArray;
-import dev.webfx.stack.orm.expression.terms.Symbol;
 
 /**
  * @author Bruno Salmon
@@ -61,6 +54,6 @@ public final class DotBuilder extends BinaryExpressionBuilder {
 
     @Override
     protected Dot newBinaryOperation(Expression left, Expression right) {
-        return new Dot(left, right, outerJoin);
+        return Dot.dot(left, right, outerJoin);
     }
 }
