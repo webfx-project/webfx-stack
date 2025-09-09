@@ -1,8 +1,8 @@
 package dev.webfx.stack.orm.dql.sqlcompiler.terms;
 
-import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.dql.sqlcompiler.mapping.QueryColumnToEntityFieldMapping;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.SqlClause;
+import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.terms.Alias;
 import dev.webfx.stack.orm.expression.terms.As;
 import dev.webfx.stack.orm.expression.terms.Dot;
@@ -37,12 +37,16 @@ public final class DotSqlCompiler extends AbstractTermSqlCompiler<Dot> {
             left = as.getOperand();
             asAlias = as.getAlias();
         }
+        if (left instanceof ArgumentAlias) // Resolving argument alias with the actual argument expression
+            left = (Expression) ((ArgumentAlias) left).getArgument();
+        if (left instanceof Dot) { // the initial leftDot was not a dot, but the argument alias might have introduced one. Ex: p.frontendAccount with p = document.person
+            compileExpressionToSql(Dot.dot(left, dot.getRight(), dot.isOuterJoin(), o.readForeignFields), o);
+            return;
+        }
         Object rightClass = o.modelReader.getSymbolForeignDomainClass(leftClass, left, true); // was e.getType().getForeignClass();
         final String leftTableAlias = o.build.getCompilingTableAlias();
         final String leftSql;
         final String rightTableAlias;
-        if (left instanceof ArgumentAlias)
-            left = (Expression) ((ArgumentAlias) left).getArgument();
         String leftSqlColumnName = o.modelReader.getSymbolSqlColumnName(leftClass, left);
         if (leftSqlColumnName != null) { // typically a persistent field
             leftSql = leftSqlColumnName;
