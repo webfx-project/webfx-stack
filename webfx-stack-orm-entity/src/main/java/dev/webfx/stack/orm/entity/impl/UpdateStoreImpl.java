@@ -144,7 +144,14 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
             EntityResult insertedUpdatedEntityResult = changes.getInsertedUpdatedEntityResult();
             if (insertedUpdatedEntityResult != null) {
                 for (EntityId entityId : insertedUpdatedEntityResult.getEntityIds()) {
+                    // Normally the entity that has been inserted or updated comes from the underlying store, and we can
+                    // retrieve it from this store
                     Entity underlyingEntity = underlyingStore.getEntity(entityId);
+                    // If not however, this is probably because the user called updateEntity(entity) where entity comes
+                    // from another store than the underlying store. In this case, we still try to apply the committed
+                    // changes to that entity (that we consider like the underlying entity)
+                    if (underlyingEntity == null && getEntity(entityId) instanceof DynamicEntity dynamicEntity)
+                        underlyingEntity = dynamicEntity.getUnderlyingEntity();
                     if (underlyingEntity != null) {
                         for (Object fieldId : insertedUpdatedEntityResult.getFieldIds(entityId)) {
                             if (fieldId != null) {

@@ -34,6 +34,10 @@ public class DynamicEntity implements Entity {
         this.underlyingEntity = underlyingEntity;
     }
 
+    public Entity getUnderlyingEntity() {
+        return underlyingEntity;
+    }
+
     @Override
     public EntityId getId() {
         return id;
