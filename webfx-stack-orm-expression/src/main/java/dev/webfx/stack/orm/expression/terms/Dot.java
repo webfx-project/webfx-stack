@@ -17,15 +17,8 @@ public final class Dot<T> extends BinaryExpression<T> {
     private final boolean outerJoin;
     private final boolean readLeftKey;
 
-    public Dot(Expression<T> left, Expression<?> right) {
-        this(left, right, false);
-    }
-
-    public Dot(Expression<T> left, Expression<?> right, boolean outerJoin) {
-        this(left, right, outerJoin, true);
-    }
-
-    public Dot(Expression<T> left, Expression<?> right, boolean outerJoin, boolean readLeftKey) {
+    /* Constructor is private to force the use of the static dot() methods which ensure the left expression is not a Dot */
+    private Dot(Expression<T> left, Expression<?> right, boolean outerJoin, boolean readLeftKey) {
         // TODO Avoid this false right cast by extending (new) PipeExpression<T1, T2> instead of BinaryExpression<T>
         super(left, outerJoin ? ".." : ".", (Expression<T>) right, 8);
         this.outerJoin = outerJoin;
@@ -56,7 +49,7 @@ public final class Dot<T> extends BinaryExpression<T> {
 
     @Override
     public Object evaluate(Object leftValue, Object rightValue, DomainReader<T> domainReader) {
-        return null; // never called due to above evaluate method override
+        return null; // never called due to the above evaluate method override
     }
 
     @Override
@@ -80,13 +73,13 @@ public final class Dot<T> extends BinaryExpression<T> {
             if (!rightTerms.isEmpty()) {
                 Dot<T> persistentDot;
                 if (rightTerms.size() != 1) {
-                    persistentDot = new Dot<>(left, new ExpressionArray<>(rightTerms), outerJoin);
+                    persistentDot = Dot.dot(left, new ExpressionArray<>(rightTerms), outerJoin);
                 }
                 else if (rightTerms.get(0) == right) {
                     persistentDot = this;
                 }
                 else {
-                    persistentDot = new Dot<>(left, rightTerms.get(0), outerJoin);
+                    persistentDot = Dot.dot(left, rightTerms.get(0), outerJoin);
                 }
                 Expression<T> expandLeft = persistentDot.expandLeft();
                 if (expandLeft == persistentDot) {
@@ -104,23 +97,36 @@ public final class Dot<T> extends BinaryExpression<T> {
             Call<T> call = (Call<T>) this.left;
             Function<T> function = call.getFunction();
             if (function.isIdentity())
-                return new Call<>(function.getName(), new Dot<>(call.getOperand(), getRight(), isOuterJoin()).expandLeft(), call.getOrderBy());
+                return new Call<>(function.getName(), Dot.dot(call.getOperand(), getRight(), isOuterJoin()).expandLeft(), call.getOrderBy());
         }
         if (left instanceof Dot) {
-            Dot<T> leftDot = (Dot<T>) left;
-            return new Dot<>(leftDot.getLeft(), new Dot<>(leftDot.getRight(), getRight(), isOuterJoin()), leftDot.isOuterJoin()).expandLeft();
+            return dot(left, getRight(), isOuterJoin(), true).expandLeft();
         }
         Expression<?> leftForwardingTypeExpression = left.getForwardingTypeExpression();
         if (leftForwardingTypeExpression == left)
             return this;
         if (leftForwardingTypeExpression instanceof Dot) {
-            Dot<T> leftDot = (Dot<T>) leftForwardingTypeExpression;
-            return new Dot<>(leftDot.getLeft(), new Dot<>(leftDot.getRight(), getRight(), isOuterJoin()), leftDot.isOuterJoin()).expandLeft();
+            return dot((Dot<T>) leftForwardingTypeExpression, getRight(), isOuterJoin()).expandLeft();
         }
         if (leftForwardingTypeExpression instanceof TernaryExpression) {
             TernaryExpression<T> leftTernaryExpression = (TernaryExpression<T>) leftForwardingTypeExpression;
-            return new TernaryExpression<T>(leftTernaryExpression.getQuestion(), new Dot<>(leftTernaryExpression.getYes(), getRight(), isOuterJoin()).expandLeft(), new Dot(leftTernaryExpression.getNo(), getRight(), isOuterJoin()).expandLeft());
+            return new TernaryExpression<>(leftTernaryExpression.getQuestion(), dot(leftTernaryExpression.getYes(), getRight(), isOuterJoin()).expandLeft(), dot(leftTernaryExpression.getNo(), getRight(), isOuterJoin()).expandLeft());
         }
         return this;
+    }
+
+    public static <T> Dot<T> dot(Expression<T> left, Expression<?> right) {
+        return dot(left, right, false);
+    }
+
+    public static <T> Dot<T> dot(Expression<T> left, Expression<?> right, boolean outerJoin) {
+        return dot(left, right, outerJoin, true);
+    }
+
+    public static <T> Dot<T> dot(Expression<T> left, Expression<?> right, boolean outerJoin, boolean readLeftKey) {
+        if (left instanceof Dot leftDot) {
+            return new Dot<>(leftDot.getLeft(), dot(leftDot.getRight(), right, outerJoin, readLeftKey), leftDot.isOuterJoin(), readLeftKey);
+        }
+        return new Dot<>(left, right, outerJoin, readLeftKey);
     }
 }

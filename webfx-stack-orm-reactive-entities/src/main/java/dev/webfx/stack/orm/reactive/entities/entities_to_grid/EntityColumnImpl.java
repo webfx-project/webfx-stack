@@ -143,7 +143,7 @@ public class EntityColumnImpl<E extends Entity> implements EntityColumn<E> {
     @Override
     public Expression<E> getDisplayExpression() {
         if (displayExpression == null)
-            displayExpression = getForeignColumns() == null ? expression : new Dot<>(expression, foreignFields);
+            displayExpression = getForeignColumns() == null ? expression : Dot.dot(expression, foreignFields);
         return displayExpression;
     }
 
