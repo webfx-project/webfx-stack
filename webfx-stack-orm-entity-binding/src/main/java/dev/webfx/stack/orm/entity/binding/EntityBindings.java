@@ -53,35 +53,48 @@ public final class EntityBindings {
     }
 
     public static BooleanProperty getBooleanFieldProperty(Entity entity, String fieldId) {
-        return (BooleanProperty) getFieldProperty(entity, fieldId, SimpleBooleanProperty::new);
+        return (BooleanProperty) getFieldProperty(entity, fieldId, false, false, SimpleBooleanProperty::new);
     }
 
     public static StringProperty getStringFieldProperty(Entity entity, String fieldId) {
-        return (StringProperty) getFieldProperty(entity, fieldId, SimpleStringProperty::new);
+        return (StringProperty) getFieldProperty(entity, fieldId, false, false, SimpleStringProperty::new);
     }
 
     public static IntegerProperty getIntegerFieldProperty(Entity entity, String fieldId) {
-        return (IntegerProperty) getFieldProperty(entity, fieldId, SimpleIntegerProperty::new);
+        return (IntegerProperty) getFieldProperty(entity, fieldId, false, false, SimpleIntegerProperty::new);
     }
 
     public static DoubleProperty getDoubleFieldProperty(Entity entity, String fieldId) {
-        return (DoubleProperty) getFieldProperty(entity, fieldId, SimpleDoubleProperty::new);
+        return (DoubleProperty) getFieldProperty(entity, fieldId, false, false, SimpleDoubleProperty::new);
     }
 
     public static ObjectProperty<LocalDate> getLocalDateFieldProperty(Entity entity, String fieldId) {
-        return (ObjectProperty<LocalDate>) getFieldProperty(entity, fieldId, SimpleObjectProperty::new);
+        return (ObjectProperty<LocalDate>) getFieldProperty(entity, fieldId, false, false, SimpleObjectProperty::new);
     }
 
-    private static Property getFieldProperty(Entity entity, String fieldId, Supplier<Property> propertyFactory) {
+    public static ObjectProperty<EntityId> getForeignEntityIdProperty(Entity entity, String fieldId) {
+        return (ObjectProperty<EntityId>) getFieldProperty(entity, fieldId, true, false, SimpleObjectProperty::new);
+    }
+
+    public static <E extends Entity> ObjectProperty<E> getForeignEntityProperty(Entity entity, String fieldId) {
+        return (ObjectProperty<E>) getFieldProperty(entity, fieldId, false, true, SimpleObjectProperty::new);
+    }
+
+    private static Property<?> getFieldProperty(Entity entity, String fieldId, boolean foreignEntityId, boolean foreignEntity, Supplier<Property<?>> propertyFactory) {
         // Checking if that field property has already been instantiated
         DynamicEntity dynamicEntity = (DynamicEntity) entity;
         Property fieldProperty = (Property) dynamicEntity.getFieldProperty(fieldId);
         if (fieldProperty == null) { // if not, we create it and initialize it
             Property finalFieldProperty = fieldProperty = propertyFactory.get();
             // Setting its initial value
-            fieldProperty.setValue(entity.getFieldValue(fieldId));
+            fieldProperty.setValue(foreignEntityId ? entity.getForeignEntityId(fieldId) : foreignEntity ? entity.getForeignEntity(fieldId) : entity.getFieldValue(fieldId));
             // Changes made on this property will be applied back to the entity
-            fieldProperty.addListener(observable -> entity.setFieldValue(fieldId, finalFieldProperty.getValue()));
+            fieldProperty.addListener(observable -> {
+                if (foreignEntityId || foreignEntity)
+                    entity.setForeignField(fieldId, finalFieldProperty.getValue());
+                else
+                    entity.setFieldValue(fieldId, finalFieldProperty.getValue());
+            });
             // And changes to the entity will be sent back to the property
             DynamicEntity.setFieldPropertyUpdater(EntityBindings::onEntityFieldValueChanged);
             // Memorizing this new field property into the entity

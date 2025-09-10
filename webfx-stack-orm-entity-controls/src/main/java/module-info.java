@@ -20,12 +20,10 @@ module webfx.stack.orm.entity.controls {
     requires webfx.extras.visual.grid;
     requires webfx.kit.util;
     requires webfx.platform.ast;
-    requires webfx.platform.async;
     requires webfx.platform.console;
     requires webfx.platform.scheduler;
     requires webfx.platform.uischeduler;
     requires webfx.platform.util;
-    requires webfx.stack.db.submit;
     requires webfx.stack.orm.domainmodel;
     requires webfx.stack.orm.dql;
     requires webfx.stack.orm.entity;

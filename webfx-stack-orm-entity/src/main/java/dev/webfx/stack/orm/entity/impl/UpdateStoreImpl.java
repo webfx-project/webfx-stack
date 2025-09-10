@@ -7,13 +7,9 @@ import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.util.Numbers;
 import dev.webfx.stack.db.datascope.DataScope;
 import dev.webfx.stack.db.submit.SubmitArgument;
-import dev.webfx.stack.db.submit.SubmitResult;
 import dev.webfx.stack.db.submit.SubmitService;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
-import dev.webfx.stack.orm.entity.Entity;
-import dev.webfx.stack.orm.entity.EntityId;
-import dev.webfx.stack.orm.entity.EntityStore;
-import dev.webfx.stack.orm.entity.UpdateStore;
+import dev.webfx.stack.orm.entity.*;
 import dev.webfx.stack.orm.entity.result.EntityChanges;
 import dev.webfx.stack.orm.entity.result.EntityChangesBuilder;
 import dev.webfx.stack.orm.entity.result.EntityChangesToSubmitBatchGenerator;
@@ -75,7 +71,7 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
     }
 
     @Override
-    public Future<Batch<SubmitResult>> submitChanges(SubmitArgument... initialSubmits) {
+    public Future<SubmitChangesResult> submitChanges(SubmitArgument... initialSubmits) {
         try {
             EntityChangesToSubmitBatchGenerator.BatchGenerator updateBatchGenerator = EntityChangesToSubmitBatchGenerator.
                 createSubmitBatchGenerator(getEntityChanges(), getDataSourceModel(), submitScope, initialSubmits);
@@ -85,9 +81,10 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
             return SubmitService.executeSubmitBatch(argBatch).compose(resBatch -> {
                 // TODO: perf optimization: make these steps optional if not required by application code
                 markChangesAsCommitted();
-                updateBatchGenerator.applyGeneratedKeys(resBatch, this);
+                SubmitChangesResult result = new SubmitChangesResult(resBatch, updateBatchGenerator.getNewEntityIdIndexInBatch(), updateBatchGenerator.getNewEntityIdIndexInGeneratedKeys());
+                result.forEachIdWithGeneratedKey(this::applyEntityIdRefactor);
                 submitting = false;
-                return Future.succeededFuture(resBatch);
+                return Future.succeededFuture(result);
             });
         } catch (Exception e) {
             submitting = false;
@@ -147,7 +144,7 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
                     // Normally the entity that has been inserted or updated comes from the underlying store, and we can
                     // retrieve it from this store
                     Entity underlyingEntity = underlyingStore.getEntity(entityId);
-                    // If not however, this is probably because the user called updateEntity(entity) where entity comes
+                    // If not, however, this is probably because the user called updateEntity(entity) where entity comes
                     // from another store than the underlying store. In this case, we still try to apply the committed
                     // changes to that entity (that we consider like the underlying entity)
                     if (underlyingEntity == null && getEntity(entityId) instanceof DynamicEntity dynamicEntity)
@@ -171,8 +168,8 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
             Console.log("[UpdateStore][WARNING] ⚠️ Making changes during submitChanges() is not yet supported, and leads to inconsistent UpdateStore state.", new Exception("Please use this exception stacktrace to identify the faulty call"));
     }
 
-    // methods meant to be used by EntityBindings only
 
+    // methods meant to be used by EntityBindings only
 
     public EntityChangesBuilder getChangesBuilder() {
         return changesBuilder;
