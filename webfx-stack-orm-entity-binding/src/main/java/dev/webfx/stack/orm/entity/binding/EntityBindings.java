@@ -2,10 +2,7 @@ package dev.webfx.stack.orm.entity.binding;
 
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.util.collection.Collections;
-import dev.webfx.stack.orm.entity.Entity;
-import dev.webfx.stack.orm.entity.EntityId;
-import dev.webfx.stack.orm.entity.EntityStore;
-import dev.webfx.stack.orm.entity.UpdateStore;
+import dev.webfx.stack.orm.entity.*;
 import dev.webfx.stack.orm.entity.impl.DynamicEntity;
 import dev.webfx.stack.orm.entity.impl.UpdateStoreImpl;
 import dev.webfx.stack.orm.entity.result.EntityChangesBuilder;
@@ -53,44 +50,50 @@ public final class EntityBindings {
     }
 
     public static BooleanProperty getBooleanFieldProperty(Entity entity, String fieldId) {
-        return (BooleanProperty) getFieldProperty(entity, fieldId, false, false, SimpleBooleanProperty::new);
+        return (BooleanProperty) getFieldProperty(entity, fieldId, false, SimpleBooleanProperty::new);
     }
 
     public static StringProperty getStringFieldProperty(Entity entity, String fieldId) {
-        return (StringProperty) getFieldProperty(entity, fieldId, false, false, SimpleStringProperty::new);
+        return (StringProperty) getFieldProperty(entity, fieldId, false, SimpleStringProperty::new);
     }
 
     public static IntegerProperty getIntegerFieldProperty(Entity entity, String fieldId) {
-        return (IntegerProperty) getFieldProperty(entity, fieldId, false, false, SimpleIntegerProperty::new);
+        return (IntegerProperty) getFieldProperty(entity, fieldId, false, SimpleIntegerProperty::new);
     }
 
     public static DoubleProperty getDoubleFieldProperty(Entity entity, String fieldId) {
-        return (DoubleProperty) getFieldProperty(entity, fieldId, false, false, SimpleDoubleProperty::new);
+        return (DoubleProperty) getFieldProperty(entity, fieldId, false, SimpleDoubleProperty::new);
     }
 
     public static ObjectProperty<LocalDate> getLocalDateFieldProperty(Entity entity, String fieldId) {
-        return (ObjectProperty<LocalDate>) getFieldProperty(entity, fieldId, false, false, SimpleObjectProperty::new);
+        return (ObjectProperty<LocalDate>) getFieldProperty(entity, fieldId, false, SimpleObjectProperty::new);
     }
 
     public static ObjectProperty<EntityId> getForeignEntityIdProperty(Entity entity, String fieldId) {
-        return (ObjectProperty<EntityId>) getFieldProperty(entity, fieldId, true, false, SimpleObjectProperty::new);
+        return (ObjectProperty<EntityId>) getFieldProperty(entity, fieldId, true, SimpleObjectProperty::new);
     }
 
     public static <E extends Entity> ObjectProperty<E> getForeignEntityProperty(Entity entity, String fieldId) {
-        return (ObjectProperty<E>) getFieldProperty(entity, fieldId, false, true, SimpleObjectProperty::new);
+        ObjectProperty<EntityId> foreignEntityIdProperty = getForeignEntityIdProperty(entity, fieldId);
+        ObjectProperty<E> foreignEntityProperty = new SimpleObjectProperty<>();
+        // Updating the foreign entity property when the foreign entity id property changes
+        FXProperties.runNowAndOnPropertyChange(id -> foreignEntityProperty.set(entity.getStore().getOrCreateEntity(id)) , foreignEntityIdProperty);
+        // Updating the foreign entity id property when the foreign entity property changes
+        FXProperties.runOnPropertyChange(e -> foreignEntityIdProperty.set(Entities.getId(e)), foreignEntityProperty);
+        return foreignEntityProperty;
     }
 
-    private static Property<?> getFieldProperty(Entity entity, String fieldId, boolean foreignEntityId, boolean foreignEntity, Supplier<Property<?>> propertyFactory) {
+    private static Property<?> getFieldProperty(Entity entity, String fieldId, boolean foreignEntityId, Supplier<Property<?>> propertyFactory) {
         // Checking if that field property has already been instantiated
         DynamicEntity dynamicEntity = (DynamicEntity) entity;
         Property fieldProperty = (Property) dynamicEntity.getFieldProperty(fieldId);
         if (fieldProperty == null) { // if not, we create it and initialize it
             Property finalFieldProperty = fieldProperty = propertyFactory.get();
             // Setting its initial value
-            fieldProperty.setValue(foreignEntityId ? entity.getForeignEntityId(fieldId) : foreignEntity ? entity.getForeignEntity(fieldId) : entity.getFieldValue(fieldId));
+            fieldProperty.setValue(foreignEntityId ? entity.getForeignEntityId(fieldId) : entity.getFieldValue(fieldId));
             // Changes made on this property will be applied back to the entity
             fieldProperty.addListener(observable -> {
-                if (foreignEntityId || foreignEntity)
+                if (foreignEntityId)
                     entity.setForeignField(fieldId, finalFieldProperty.getValue());
                 else
                     entity.setFieldValue(fieldId, finalFieldProperty.getValue());
