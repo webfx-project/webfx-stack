@@ -1,13 +1,10 @@
 package dev.webfx.stack.orm.entity.result;
 
+import dev.webfx.platform.util.collection.HashList;
 import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.result.impl.EntityResultImpl;
-import dev.webfx.platform.util.collection.HashList;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Bruno Salmon
@@ -79,9 +76,15 @@ public final class EntityResultBuilder {
     void considerEntityIdRefactor(EntityId entityId, Object newPk) {
         int index = entityIds.indexOf(entityId);
         if (index != -1) {
-            Object oldPk = entityIds.get(index).getPrimaryKey();
-            if (oldPk != newPk) {
-                entityIds.set(index, EntityId.create(entityId.getDomainClass(), newPk));
+            entityIds.set(index, EntityId.create(entityId.getDomainClass(), newPk));
+        }
+        // Replace any occurrence of the old entityId in all field maps
+        for (Map map : entityFieldsMaps) {
+            for (Object key : map.keySet()) {
+                Object value = map.get(key);
+                if (Objects.equals(value, entityId)) {
+                    map.put(key, EntityId.create(entityId.getDomainClass(), newPk));
+                }
             }
         }
     }
