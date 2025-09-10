@@ -19,7 +19,7 @@ public final class EntityChangesBuilder {
     private Collection<EntityId> deletedEntities;
     private boolean hasChanges;
     private Consumer<Boolean> hasChangesPropertyUpdater; // used by EntityBindings only
-    private UpdateStore updateStore; // Optional, used to sort the deleted entities when provided
+    private UpdateStore updateStore; // Optional, just used to sort the deleted entities when provided
 
     private EntityChangesBuilder() {}
 
@@ -68,6 +68,15 @@ public final class EntityChangesBuilder {
         if (rsb != null)
             rsb.removeEntityId(id);
         return updateHasChanges();
+    }
+
+    public EntityChangesBuilder considerEntityIdRefactor(EntityId entityId, Object newPk) {
+        if (deletedEntities != null && deletedEntities.remove(entityId)) {
+            deletedEntities.add(EntityId.create(entityId.getDomainClass(), newPk));
+        }
+        if (rsb != null)
+            rsb.considerEntityIdRefactor(entityId, newPk);
+        return this;
     }
 
     public EntityChangesBuilder addFilteredEntityChanges(EntityChanges ec, Object domainClassId, Object... fieldIds) {

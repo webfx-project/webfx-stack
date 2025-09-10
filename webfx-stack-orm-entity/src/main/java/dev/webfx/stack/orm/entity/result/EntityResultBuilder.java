@@ -22,8 +22,8 @@ public final class EntityResultBuilder {
     }
 
     public boolean setFieldValue(EntityId id, Object fieldId, Object fieldValue) {
-        Map fieldMap = entityFieldMap(id); // This method also detects first changes for new entities
-        // Detecting first change for non-new entities:
+        Map fieldMap = entityFieldMap(id); // This method also detects the first changes for new entities
+        // Detecting the first change for non-new entities:
         if (!id.isNew() && fieldId != null && hasEntityNoChange(id, fieldMap)) {
             changedEntitiesCount++;
         }
@@ -74,6 +74,16 @@ public final class EntityResultBuilder {
         entityIds.remove(entityIndex);
         changedEntitiesCount--;
         return true;
+    }
+
+    void considerEntityIdRefactor(EntityId entityId, Object newPk) {
+        int index = entityIds.indexOf(entityId);
+        if (index != -1) {
+            Object oldPk = entityIds.get(index).getPrimaryKey();
+            if (oldPk != newPk) {
+                entityIds.set(index, EntityId.create(entityId.getDomainClass(), newPk));
+            }
+        }
     }
 
     private Map entityFieldMap(EntityId id) {
