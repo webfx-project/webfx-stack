@@ -1,6 +1,9 @@
 package dev.webfx.stack.orm.entity.binding;
 
 import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.kit.util.properties.Unregisterable;
+import dev.webfx.platform.scheduler.Scheduled;
+import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.stack.orm.entity.*;
 import dev.webfx.stack.orm.entity.impl.DynamicEntity;
@@ -13,7 +16,9 @@ import javafx.scene.Node;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -75,12 +80,34 @@ public final class EntityBindings {
 
     public static <E extends Entity> ObjectProperty<E> getForeignEntityProperty(Entity entity, String fieldId) {
         ObjectProperty<EntityId> foreignEntityIdProperty = getForeignEntityIdProperty(entity, fieldId);
+        // TODO: not creating a new property on each call on the same entity & fieldId
         ObjectProperty<E> foreignEntityProperty = new SimpleObjectProperty<>();
         // Updating the foreign entity property when the foreign entity id property changes
         FXProperties.runNowAndOnPropertyChange(id -> foreignEntityProperty.set(entity.getStore().getOrCreateEntity(id)) , foreignEntityIdProperty);
         // Updating the foreign entity id property when the foreign entity property changes
         FXProperties.runOnPropertyChange(e -> foreignEntityIdProperty.set(Entities.getId(e)), foreignEntityProperty);
         return foreignEntityProperty;
+    }
+
+    public static <E extends Entity> Unregisterable onForeignFieldsChanged(Consumer<E> consumer, Entity entity, String foreignFieldId, String... foreignFieldIds) {
+        ObjectProperty<E> foreignEntityProperty = getForeignEntityProperty(entity, foreignFieldId);
+        Unregisterable[] lastForeignFieldListener = { null };
+        Scheduled[] consumerCallScheduled = { null };
+        return FXProperties.runOnPropertyChange(foreignEntity -> {
+            Property[] foreignFieldFieldProperties = Arrays.stream(foreignFieldIds)
+                // TODO: investigate if it's an issue creating generic Object properties instead of Boolean, String, Integer, etc...
+                .map(fid -> getFieldProperty(foreignEntity, fid, false, SimpleObjectProperty::new))
+                .toArray(Property[]::new);
+            // Unregistering the last foreign field listener
+            if (lastForeignFieldListener[0] != null)
+                lastForeignFieldListener[0].unregister();
+            // Registering a new listener for the foreign fields
+            lastForeignFieldListener[0] = FXProperties.runOnPropertiesChange(() -> {
+                // Calling the consumer only once (if several fields are changed during one push notification)
+                if (consumerCallScheduled[0] == null || consumerCallScheduled[0].isFinished())
+                    consumerCallScheduled[0] = Scheduler.scheduleDeferred(() -> consumer.accept(foreignEntity));
+            }, foreignFieldFieldProperties);
+        }, foreignEntityProperty);
     }
 
     private static Property<?> getFieldProperty(Entity entity, String fieldId, boolean foreignEntityId, Supplier<Property<?>> propertyFactory) {
