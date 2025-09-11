@@ -213,11 +213,13 @@ public final class DqlStatementBuilder {
         if (Strings.isEmpty(dql2))
             return clause1;
         int param1Count = Arrays.length(clause1.getParameterValues());
-        if (param1Count > 0) {
-            int param2Count = Arrays.length(clause2.getParameterValues());
-            if (param2Count > 0) {
-                dql2 = shiftParameterIndexes(dql2, param1Count);
-            }
+        int param2Count = Arrays.length(clause2.getParameterValues());
+        // If dql2 has parameters, we shift their indexes by param1Count. We do that always if param1Count > 0, but also
+        // if param1Count = 0 in the case where dql2 contains "?" parameters, the reason being that we prefer to convert
+        // them to positional parameters "$1", "$2", ... because they are more reliable when used in inline functions.
+        // Ex: if fn(p) = p + p, then fn($1) = $1 + $1 works, but not fn(?) = ? + ? (consumes 2 parameters instead of 1).
+        if (param2Count > 0 && (param1Count > 0 || dql2.contains("?"))) {
+            dql2 = shiftParameterIndexes(dql2, param1Count);
         }
         if (parenthesis) {
             dql1 = "(" + dql1 + ")";
