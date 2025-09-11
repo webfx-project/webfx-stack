@@ -123,16 +123,34 @@ public final class EntityBindings {
 
     public static void applyEntityChangesToRegisteredStores(EntityResult entityChanges) {
         for (EntityStore entityStore : STORES_LISTENING_ENTITY_CHANGES) {
-            for (EntityId entityId : entityChanges.getEntityIds()) {
-                Entity entity = entityStore.getEntity(entityId);
-                if (entity != null) {
-                    for (Object fieldId : entityChanges.getFieldIds(entityId)) {
-                        Object fieldValue = entityChanges.getFieldValue(entityId, fieldId);
-                        entity.setFieldValue(fieldId, fieldValue);
-                    }
+            List<EntityId> changedIds = new ArrayList<>(entityChanges.getEntityIds());
+            List<EntityId> changedIdsToCreate = new ArrayList<>();
+            // First pass: we apply the changed field values only on the entities already present in the store, but we
+            // also memorize if those values point to a foreign entity not present in the store but present in the
+            // changes, in which case we will force the creation of those entities in the store on the second pass.
+            // Ex: if listening event.livestreamMessageLabel, the first pass may only set the EntityId for this field
+            // but won't create the label itself.
+            applyEntityChangesToRegisteredStore(entityChanges, entityStore, changedIds, changedIdsToCreate, false);
+            // Second pass: we force the creation of the foreign entities detected in the first pass and apply the
+            // changed field values to them, while continuing to detect and create more possible later foreign entities.
+            // Ex: will create the Label with all its fields (if notified as well).
+            applyEntityChangesToRegisteredStore(entityChanges, entityStore, changedIds, changedIdsToCreate, true);
+        }
+    }
+
+    private static void applyEntityChangesToRegisteredStore(EntityResult entityChanges, EntityStore entityStore, List<EntityId> changedIds, List<EntityId> changedIdsToCreate, boolean secondPass) {
+        List<EntityId> iteratingEntityIds = secondPass ? changedIdsToCreate : changedIds;
+        for (int i = 0; i < iteratingEntityIds.size(); i++) {
+            EntityId entityId = iteratingEntityIds.get(i);
+            Entity entity = secondPass ? entityStore.getOrCreateEntity(entityId) : entityStore.getEntity(entityId);
+            if (entity != null) {
+                for (Object fieldId : entityChanges.getFieldIds(entityId)) {
+                    Object fieldValue = entityChanges.getFieldValue(entityId, fieldId);
+                    entity.setFieldValue(fieldId, fieldValue);
+                    if (fieldValue instanceof EntityId id && !changedIdsToCreate.contains(id) && changedIds.contains(id) && entityStore.getEntity(id) == null)
+                        changedIdsToCreate.add(id);
                 }
             }
         }
     }
-
 }
