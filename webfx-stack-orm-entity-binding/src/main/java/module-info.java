@@ -6,6 +6,7 @@ module webfx.stack.orm.entity.binding {
     requires javafx.base;
     requires javafx.graphics;
     requires webfx.kit.util;
+    requires webfx.platform.scheduler;
     requires webfx.platform.util;
     requires webfx.stack.orm.entity;
 
