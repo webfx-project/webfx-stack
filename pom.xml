@@ -78,6 +78,8 @@
         <module>webfx-stack-authn-server-portal</module>
         <module>webfx-stack-authz-client</module>
         <module>webfx-stack-authz-server</module>
+        <module>webfx-stack-cloud-deepl-client</module>
+        <module>webfx-stack-cloud-deepl-server-plugin</module>
         <module>webfx-stack-cloud-image</module>
         <module>webfx-stack-cloud-image-client</module>
         <module>webfx-stack-cloud-image-cloudinary</module>
