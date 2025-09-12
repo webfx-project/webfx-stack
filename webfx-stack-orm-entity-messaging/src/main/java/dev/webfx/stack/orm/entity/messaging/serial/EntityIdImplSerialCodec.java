@@ -27,6 +27,6 @@ public final class EntityIdImplSerialCodec extends SerialCodecBase<EntityIdImpl>
 
     @Override
     public EntityIdImpl decode(ReadOnlyAstObject serial) {
-        return EntityIdImpl.create(serial.getObject(CLASS_KEY), serial.getObject(PRIMARY_KEY));
+        return EntityIdImpl.create(serial.get(CLASS_KEY), serial.get(PRIMARY_KEY));
     }
 }

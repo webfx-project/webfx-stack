@@ -93,7 +93,9 @@ public final class EntityBindings {
         ObjectProperty<E> foreignEntityProperty = getForeignEntityProperty(entity, foreignFieldId);
         Unregisterable[] lastForeignFieldListener = { null };
         Scheduled[] consumerCallScheduled = { null };
-        return FXProperties.runOnPropertyChange(foreignEntity -> {
+        return FXProperties.runNowAndOnPropertyChange(foreignEntity -> {
+            if (foreignEntity == null)
+                return;
             Property[] foreignFieldFieldProperties = Arrays.stream(foreignFieldIds)
                 // TODO: investigate if it's an issue creating generic Object properties instead of Boolean, String, Integer, etc...
                 .map(fid -> getFieldProperty(foreignEntity, fid, false, SimpleObjectProperty::new))

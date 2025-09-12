@@ -1,6 +1,7 @@
 package dev.webfx.stack.orm.entity.messaging.serial;
 
 import dev.webfx.platform.ast.*;
+import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.result.impl.EntityResultImpl;
@@ -27,15 +28,18 @@ public final class EntityResultImplSerialCodec extends SerialCodecBase<EntityRes
     }
 
     @Override
-    public void encode(EntityResultImpl javaObject, AstObject serial) {
+    public void encode(EntityResultImpl o, AstObject serial) {
         AstArray entities = AST.createArray();
-        for (EntityId entityId : javaObject.getEntityIds()) {
+        for (EntityId entityId : o.getEntityIds()) {
             AstObject entity = AST.createObject();
             entity.set(CLASS_KEY, entityId.getDomainClass().getId());
             entity.set(PRIMARY_KEY, entityId.getPrimaryKey());
             AstObject values = AST.createObject();
-            for (Object fieldId : javaObject.getFieldIds(entityId)) {
-                values.set(fieldId.toString(), javaObject.getFieldValue(entityId, fieldId));
+            for (Object fieldId : o.getFieldIds(entityId)) {
+                Object fieldValue = o.getFieldValue(entityId, fieldId);
+                if (fieldValue instanceof EntityId)
+                    fieldValue = SerialCodecManager.encodeToJson(fieldValue);
+                values.set(fieldId.toString(), fieldValue);
             }
             entity.set(VALUES_KEY, values);
             entities.push(entity);
@@ -56,7 +60,10 @@ public final class EntityResultImplSerialCodec extends SerialCodecBase<EntityRes
             Map fieldsMap = new HashMap();
             ReadOnlyAstObject values = entity.getObject(VALUES_KEY);
             for (Object key : values.keys()) {
-                fieldsMap.put(key, values.get(key.toString()));
+                Object value = values.get(key.toString());
+                if (AST.isObject(value))
+                    value = SerialCodecManager.decodeFromJson(value);
+                fieldsMap.put(key, value);
             }
             entityIds.add(entityId);
             entityFieldsMaps.add(fieldsMap);
