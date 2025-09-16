@@ -4,6 +4,7 @@ import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.Unregisterable;
 import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.scheduler.Scheduler;
+import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.stack.orm.entity.*;
 import dev.webfx.stack.orm.entity.impl.DynamicEntity;
@@ -137,7 +138,7 @@ public final class EntityBindings {
 
     private static void onEntityFieldValueChanged(Object fieldProperty, Object value) {
         // Checking it's not equals to prevent a possible bound exception if the change comes from a binding already (ex: i18n)
-        FXProperties.setIfNotEquals((Property) fieldProperty, value);
+        UiScheduler.runInUiThread(() -> FXProperties.setIfNotEquals((Property) fieldProperty, value));
     }
 
     private static final List<EntityStore> STORES_LISTENING_ENTITY_CHANGES = new ArrayList<>();

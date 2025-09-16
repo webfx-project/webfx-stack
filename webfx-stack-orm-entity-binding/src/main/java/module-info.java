@@ -9,6 +9,7 @@ module webfx.stack.orm.entity.binding {
     requires webfx.platform.scheduler;
     requires webfx.platform.util;
     requires webfx.stack.orm.entity;
+    requires webfx.platform.uischeduler;
 
     // Exported packages
     exports dev.webfx.stack.orm.entity.binding;
