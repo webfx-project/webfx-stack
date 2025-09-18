@@ -34,14 +34,25 @@ public final class InMemoryAuthorizationRuleRegistry implements InMemoryAuthoriz
     }
 
     public void clearAllAuthorizationRules() {
-        registeredInMemoryAuthorizationRules.clear();
+        synchronized (registeredInMemoryAuthorizationRules) {
+            registeredInMemoryAuthorizationRules.clear();
+        }
     }
 
     public <A> void registerAuthorizationRule(Class<A> operationRequestClass, InMemoryAuthorizationRule<A> authorizationRule) {
-        Collection<InMemoryAuthorizationRule> inMemoryAuthorizationRules = registeredInMemoryAuthorizationRules.get(operationRequestClass);
-        if (inMemoryAuthorizationRules == null)
-            registeredInMemoryAuthorizationRules.put(operationRequestClass, inMemoryAuthorizationRules = new ArrayList<>());
-        inMemoryAuthorizationRules.add(authorizationRule);
+        Collection<InMemoryAuthorizationRule> rules;
+        // Ensure thread-safe creation/lookup of the list in the map
+        synchronized (registeredInMemoryAuthorizationRules) {
+            rules = registeredInMemoryAuthorizationRules.get(operationRequestClass);
+            if (rules == null) {
+                rules = new ArrayList<>();
+                registeredInMemoryAuthorizationRules.put(operationRequestClass, rules);
+            }
+        }
+        // Protect list mutation while other threads may iterate
+        synchronized (rules) {
+            rules.add(authorizationRule);
+        }
     }
 
     public <A> void registerAuthorizationRule(InMemoryAuthorizationRule authorizationRule) {
@@ -73,7 +84,7 @@ public final class InMemoryAuthorizationRuleRegistry implements InMemoryAuthoriz
                     for (InMemoryAuthorizationRule rule : rules) {
                         switch (rule.computeRuleResult(operationRequest)) {
                             case DENIED:  result = AuthorizationRuleResult.DENIED; break; // Breaking as it's a final decision
-                            case GRANTED: result = AuthorizationRuleResult.GRANTED; // Not breaking, as we need to check there is not another denying rule (which is priority)
+                            case GRANTED: result = AuthorizationRuleResult.GRANTED; // Not breaking, as we need to check if there is not another denying rule (denying rules have priority)
                             case OUT_OF_RULE_CONTEXT: // just ignoring it and looping to the next
                         }
                     }
