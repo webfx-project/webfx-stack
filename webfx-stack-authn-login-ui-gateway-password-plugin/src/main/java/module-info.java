@@ -27,6 +27,9 @@ module webfx.stack.authn.login.ui.gateway.password.plugin {
     // Exported packages
     exports dev.webfx.stack.authn.login.ui.spi.impl.gateway.password;
 
+    // Resources packages
+    opens dev.webfx.kit.css.fonts.password;
+
     // Provided services
     provides dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGateway with dev.webfx.stack.authn.login.ui.spi.impl.gateway.password.PasswordUiLoginGateway;
 

@@ -20,9 +20,6 @@ module webfx.stack.authn.login.ui.portal {
     // Exported packages
     exports dev.webfx.stack.authn.login.ui.spi.impl.portal;
 
-    // Resources packages
-    opens dev.webfx.kit.css.fonts.password;
-
     // Used services
     uses dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGateway;
 

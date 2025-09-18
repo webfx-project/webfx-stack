@@ -38,56 +38,7 @@ final class LoginPortalUi implements UiLoginPortalCallback {
     private final Region rightLine = new Region();
     private Node userUI;
     private final List<Node> otherLoginButtons = new ArrayList<>();
-
     private final GoldenRatioPane loginPaneContainer = new GoldenRatioPane();
-    private final Pane loginPane = new HPane(backgroundRegion, leftLine, orText, rightLine) {
-
-        @Override
-        protected void layoutChildren(double width, double height) {
-            double margin = 40, x = margin, y = margin, w = width - 2 * margin, h, wor = orText.prefWidth(w), wl = w * 0.5 - wor;
-            layoutInArea(backgroundRegion, 0, 0, width, height);
-            layoutInArea(userUI, x, y, w, h = Math.min(userUI.prefHeight(w), height - 2 * margin), 0, Insets.EMPTY, false, false, HPos.CENTER, VPos.TOP);
-            int n = otherLoginButtons.size();
-            boolean hasOtherLoginButtons = n > 0;
-            orText.setVisible(hasOtherLoginButtons);
-            leftLine.setVisible(hasOtherLoginButtons);
-            rightLine.setVisible(hasOtherLoginButtons);
-            if (hasOtherLoginButtons) {
-                layoutInArea(orText, x, y += h + margin, w, 0, 0, null, false, false, HPos.CENTER, VPos.CENTER);
-                layoutInArea(leftLine, x, y, wl, 1, Pos.CENTER_LEFT);
-                layoutInArea(rightLine, x + w -wl, y, wl, 1, Pos.CENTER_RIGHT);
-                double[] prefWidths = new double[n];
-                double prefWidthTotal = 24 * (n - 1);
-                for (int i = 0; i < n; i++) {
-                    prefWidthTotal += prefWidths[i] = otherLoginButtons.get(i).prefWidth(24);
-                }
-                x = x + w / 2 - prefWidthTotal / 2;
-                y += margin;
-                h = 24;
-                for (int i = 0; i < n; i++) {
-                    layoutInArea(otherLoginButtons.get(i), x, y, prefWidths[i], h , 0, Insets.EMPTY, false, true, HPos.CENTER, VPos.CENTER);
-                    x += prefWidths[i] + 24;
-                }
-            }
-        }
-
-        {
-            setMinHeight(USE_PREF_SIZE);
-            setMaxSize(586, Region.USE_PREF_SIZE);
-        }
-
-        @Override
-        protected double computePrefHeight(double width) {
-            double margin = 40, y = margin, w = Math.max(-1 , width - 2 * margin);
-            double h = userUI.prefHeight(w); // userPasswordUI
-            y += h;
-            if (!otherLoginButtons.isEmpty()) {
-                y += margin; // orText
-            }
-            h = 24;
-            return y + h + margin;
-        }
-    };
 
     public LoginPortalUi(StringProperty magicLinkTokenProperty, Consumer<String> requestedPathConsumer) {
         //If MagicLink, we display only the MagikLink panel
@@ -129,6 +80,56 @@ final class LoginPortalUi implements UiLoginPortalCallback {
                 }
             }
         }
+        // userPasswordUI
+        // orText
+        Pane loginPane = new HPane(backgroundRegion, leftLine, orText, rightLine) {
+
+            @Override
+            protected void layoutChildren(double width, double height) {
+                double margin = 40, x = margin, y = margin, w = width - 2 * margin, h, wor = orText.prefWidth(w), wl = w * 0.5 - wor;
+                layoutInArea(backgroundRegion, 0, 0, width, height);
+                layoutInArea(userUI, x, y, w, h = Math.min(userUI.prefHeight(w), height - 2 * margin), 0, Insets.EMPTY, false, false, HPos.CENTER, VPos.TOP);
+                int n = otherLoginButtons.size();
+                boolean hasOtherLoginButtons = n > 0;
+                orText.setVisible(hasOtherLoginButtons);
+                leftLine.setVisible(hasOtherLoginButtons);
+                rightLine.setVisible(hasOtherLoginButtons);
+                if (hasOtherLoginButtons) {
+                    layoutInArea(orText, x, y += h + margin, w, 0, 0, null, false, false, HPos.CENTER, VPos.CENTER);
+                    layoutInArea(leftLine, x, y, wl, 1, Pos.CENTER_LEFT);
+                    layoutInArea(rightLine, x + w - wl, y, wl, 1, Pos.CENTER_RIGHT);
+                    double[] prefWidths = new double[n];
+                    double prefWidthTotal = 24 * (n - 1);
+                    for (int i = 0; i < n; i++) {
+                        prefWidthTotal += prefWidths[i] = otherLoginButtons.get(i).prefWidth(24);
+                    }
+                    x = x + w / 2 - prefWidthTotal / 2;
+                    y += margin;
+                    h = 24;
+                    for (int i = 0; i < n; i++) {
+                        layoutInArea(otherLoginButtons.get(i), x, y, prefWidths[i], h, 0, Insets.EMPTY, false, true, HPos.CENTER, VPos.CENTER);
+                        x += prefWidths[i] + 24;
+                    }
+                }
+            }
+
+            {
+                setMinHeight(USE_PREF_SIZE);
+                setMaxSize(586, Region.USE_PREF_SIZE);
+            }
+
+            @Override
+            protected double computePrefHeight(double width) {
+                double margin = 40, y = margin, w = Math.max(-1, width - 2 * margin);
+                double h = userUI.prefHeight(w); // userPasswordUI
+                y += h;
+                if (!otherLoginButtons.isEmpty()) {
+                    y += margin; // orText
+                }
+                h = 24;
+                return y + h + margin;
+            }
+        };
         loginPaneContainer.setContent(loginPane);
         loginPaneContainer.setPadding(new Insets(10)); // breathing padding on mobiles
         loginPane.getChildren().add(userUI);

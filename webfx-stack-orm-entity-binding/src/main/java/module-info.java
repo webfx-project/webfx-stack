@@ -7,9 +7,9 @@ module webfx.stack.orm.entity.binding {
     requires javafx.graphics;
     requires webfx.kit.util;
     requires webfx.platform.scheduler;
+    requires webfx.platform.uischeduler;
     requires webfx.platform.util;
     requires webfx.stack.orm.entity;
-    requires webfx.platform.uischeduler;
 
     // Exported packages
     exports dev.webfx.stack.orm.entity.binding;
