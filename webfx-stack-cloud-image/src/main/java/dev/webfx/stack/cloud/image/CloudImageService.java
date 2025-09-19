@@ -35,4 +35,9 @@ public interface CloudImageService {
 
     String urlPattern();
 
+    default boolean isReady() {
+        return urlPattern() != null;
+    }
+
+    Future<Void> readyFuture();
 }

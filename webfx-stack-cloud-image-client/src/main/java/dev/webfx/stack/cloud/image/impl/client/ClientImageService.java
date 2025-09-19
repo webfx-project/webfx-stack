@@ -89,4 +89,9 @@ public class ClientImageService implements CloudImageService {
     public String urlPattern() {
         return urlPattern;
     }
+
+    @Override
+    public Future<Void> readyFuture() {
+        return urlPatternFuture;
+    }
 }
