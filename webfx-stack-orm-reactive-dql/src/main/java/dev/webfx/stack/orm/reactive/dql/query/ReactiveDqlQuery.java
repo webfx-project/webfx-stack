@@ -26,6 +26,7 @@ import dev.webfx.stack.orm.reactive.call.query.ReactiveQueryCall;
 import dev.webfx.stack.orm.reactive.dql.statement.ReactiveDqlStatement;
 import dev.webfx.stack.routing.activity.impl.elementals.activeproperty.HasActiveProperty;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 
 import java.util.HashMap;
@@ -146,6 +147,11 @@ public class ReactiveDqlQuery<E> implements ReactiveDqlQueryAPI<E, ReactiveDqlQu
     @Override
     public final BooleanProperty activeProperty() {
         return reactiveQueryCall.activeProperty();
+    }
+
+    @Override
+    public ObservableBooleanValue callingProperty() {
+        return reactiveQueryCall.callingProperty();
     }
 
     @Override

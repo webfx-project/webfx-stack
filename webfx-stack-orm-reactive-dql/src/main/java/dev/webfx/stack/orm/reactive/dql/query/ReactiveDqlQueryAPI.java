@@ -15,6 +15,7 @@ import dev.webfx.stack.orm.reactive.dql.statement.ReactiveDqlStatement;
 import dev.webfx.stack.orm.reactive.dql.statement.ReactiveDqlStatementAPI;
 import dev.webfx.stack.routing.activity.impl.elementals.activeproperty.HasActiveProperty;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 
 /**
@@ -49,6 +50,14 @@ public interface ReactiveDqlQueryAPI<E, THIS> extends HasDataSourceModel, HasAct
 
     default void setActive(boolean active) {
         getReactiveDqlQuery().setActive(active);
+    }
+
+    default ObservableBooleanValue callingProperty() {
+        return getReactiveDqlQuery().callingProperty();
+    }
+
+    default boolean isCalling() {
+        return callingProperty().get();
     }
 
     default void refreshWhenActive() {
