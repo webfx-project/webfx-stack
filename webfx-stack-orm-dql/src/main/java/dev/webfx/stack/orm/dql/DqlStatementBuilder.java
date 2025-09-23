@@ -271,7 +271,8 @@ public final class DqlStatementBuilder {
         int nextQIndex = shift + 1; // the first '?' becomes $(shift+1)
         boolean inSingleQuote = false;
         boolean inDoubleQuote = false;
-        for (int i = 0; i < dql.length(); i++) {
+        int length = dql.length();
+        for (int i = 0; i < length; i++) {
             char c = dql.charAt(i);
             // Handle simple string literal boundaries to avoid rewriting placeholders inside strings
             if (c == '\'' && !inDoubleQuote) {
@@ -288,7 +289,7 @@ public final class DqlStatementBuilder {
                 if (c == '$') {
                     int j = i + 1;
                     int start = j;
-                    while (j < dql.length()) {
+                    while (j < length) {
                         char dj = dql.charAt(j);
                         if (dj >= '0' && dj <= '9') {
                             j++;
@@ -311,6 +312,13 @@ public final class DqlStatementBuilder {
                     // Replace '?' with the next sequential index starting at shift
                     sb.append('$').append(nextQIndex);
                     nextQIndex++;
+                    // If it's a named parameter such as ?search, we skip the next letters because it is now completely
+                    // replaced by a positional parameter such as $1.
+                    while (i + 1 < length) {
+                        if (!Character.isLetterOrDigit(dql.charAt(i + 1)))
+                            break;
+                        i++;
+                    }
                     continue;
                 }
             }
