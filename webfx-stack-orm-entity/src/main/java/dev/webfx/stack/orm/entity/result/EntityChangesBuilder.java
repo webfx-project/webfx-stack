@@ -79,6 +79,25 @@ public final class EntityChangesBuilder {
         return this;
     }
 
+    public EntityChangesBuilder addEntityChanges(EntityChanges ec) {
+        if (ec != null) {
+            Collection<EntityId> deletedEntityIds = ec.getDeletedEntityIds();
+            if (deletedEntityIds != null) {
+                if (deletedEntities == null)
+                    deletedEntities = new HashList<>(); // Hash for uniqueness and List for keeping sequence order
+                deletedEntities.addAll(deletedEntityIds);
+            }
+            EntityResult er = ec.getInsertedUpdatedEntityResult();
+            for (EntityId id : er.getEntityIds()) {
+                for (Object fieldId : er.getFieldIds(id)) {
+                    Object fieldValue = er.getFieldValue(id, fieldId);
+                    addFieldChange(id, fieldId, fieldValue);
+                }
+            }
+        }
+        return this;
+    }
+
     public EntityChangesBuilder addFilteredEntityChanges(EntityChanges ec, Object domainClassId, Object... fieldIds) {
         return addFilteredEntityResult(ec.getInsertedUpdatedEntityResult(), domainClassId, fieldIds);
     }

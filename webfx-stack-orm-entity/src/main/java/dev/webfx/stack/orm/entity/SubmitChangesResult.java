@@ -2,6 +2,8 @@ package dev.webfx.stack.orm.entity;
 
 import dev.webfx.platform.async.Batch;
 import dev.webfx.stack.db.submit.SubmitResult;
+import dev.webfx.stack.orm.entity.result.EntityChanges;
+import dev.webfx.stack.orm.entity.result.EntityChangesBuilder;
 
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -10,7 +12,7 @@ import java.util.function.BiConsumer;
  * @author Bruno Salmon
  */
 @SuppressWarnings("unusable-by-js")
-public record SubmitChangesResult(Batch<SubmitResult> batch, Map<EntityId, Integer> newEntityIdIndexInBatch, Map<EntityId, Integer> newEntityIdIndexInGeneratedKeys) {
+public record SubmitChangesResult(EntityChanges changes, Batch<SubmitResult> batch, Map<EntityId, Integer> newEntityIdIndexInBatch, Map<EntityId, Integer> newEntityIdIndexInGeneratedKeys) {
 
     public int getRowCount() {
         return batch.getArray()[0].getRowCount();
@@ -30,5 +32,12 @@ public record SubmitChangesResult(Batch<SubmitResult> batch, Map<EntityId, Integ
             Object generatedKey = submitResult.getGeneratedKeys()[generatedKeyIndex];
             refactorer.accept(newEntityId, generatedKey);
         }
+    }
+
+    public EntityChanges getCommittedChanges() {
+        EntityChangesBuilder ecb = EntityChangesBuilder.create();
+        ecb.addEntityChanges(changes);
+        forEachIdWithGeneratedKey(ecb::considerEntityIdRefactor);
+        return ecb.build();
     }
 }

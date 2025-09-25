@@ -73,6 +73,12 @@ public final class EntityResultBuilder {
         return true;
     }
 
+    void addEntityResult(EntityResultImpl er) {
+        // TODO:
+        entityIds.addAll(er.getEntityIds());
+        entityFieldsMaps.addAll(er.entityFieldsMaps());
+    }
+
     void considerEntityIdRefactor(EntityId entityId, Object newPk) {
         int index = entityIds.indexOf(entityId);
         if (index != -1) {
@@ -96,7 +102,7 @@ public final class EntityResultBuilder {
             entityFieldsMap = entityFieldsMaps.get(entityIndex);
         else {
             entityIds.add(id);
-            entityFieldsMaps.add(entityFieldsMap = new HashMap());
+            entityFieldsMaps.add(entityFieldsMap = new HashMap<>());
             if (id.isNew())
                 changedEntitiesCount++;
         }

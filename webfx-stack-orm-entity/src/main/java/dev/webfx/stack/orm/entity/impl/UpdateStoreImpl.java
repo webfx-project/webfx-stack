@@ -73,15 +73,17 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
     @Override
     public Future<SubmitChangesResult> submitChanges(SubmitArgument... initialSubmits) {
         try {
+            EntityChanges changes = getEntityChanges();
             EntityChangesToSubmitBatchGenerator.BatchGenerator updateBatchGenerator = EntityChangesToSubmitBatchGenerator.
-                createSubmitBatchGenerator(getEntityChanges(), getDataSourceModel(), submitScope, initialSubmits);
+                createSubmitBatchGenerator(changes, getDataSourceModel(), submitScope, initialSubmits);
             Batch<SubmitArgument> argBatch = updateBatchGenerator.generate();
             Console.log("Executing submit batch " + Arrays.toStringWithLineFeeds(argBatch.getArray()));
             submitting = true;
             return SubmitService.executeSubmitBatch(argBatch).compose(resBatch -> {
                 // TODO: perf optimization: make these steps optional if not required by application code
                 markChangesAsCommitted();
-                SubmitChangesResult result = new SubmitChangesResult(resBatch, updateBatchGenerator.getNewEntityIdIndexInBatch(), updateBatchGenerator.getNewEntityIdIndexInGeneratedKeys());
+                SubmitChangesResult result = new SubmitChangesResult(changes, resBatch, updateBatchGenerator.getNewEntityIdIndexInBatch(), updateBatchGenerator.getNewEntityIdIndexInGeneratedKeys());
+                // Applying the generated keys to the entities in this store
                 result.forEachIdWithGeneratedKey(this::applyEntityIdRefactor);
                 submitting = false;
                 return Future.succeededFuture(result);
