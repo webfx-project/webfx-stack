@@ -3,7 +3,7 @@ package dev.webfx.stack.authn.login.ui.spi.impl.gateway.magiclink;
 import dev.webfx.extras.controlfactory.MaterialFactoryMixin;
 import dev.webfx.extras.i18n.I18n;
 import dev.webfx.extras.i18n.controls.I18nControls;
-import dev.webfx.extras.operation.OperationUtil;
+import dev.webfx.extras.async.AsyncSpinner;
 import dev.webfx.extras.styles.bootstrap.Bootstrap;
 import dev.webfx.extras.validation.ValidationSupport;
 import dev.webfx.kit.util.properties.FXProperties;
@@ -127,12 +127,12 @@ public class MagicLinkUi implements MaterialFactoryMixin {
                 uiLoginView.getActionButton().setDisable(false);
                 uiLoginView.getActionButton().setOnAction(event -> {
                     Object credentials = new RenewMagicLinkCredentials(tokenProperty.get());
-                    OperationUtil.turnOnButtonsWaitMode(uiLoginView.getActionButton());
+                    AsyncSpinner.displayButtonSpinner(uiLoginView.getActionButton());
                     new AuthenticationRequest()
                         .setUserCredentials(credentials)
                         .executeAsync()
                         .inUiThread()
-                        .onComplete(ar -> OperationUtil.turnOffButtonsWaitMode(uiLoginView.getActionButton()))
+                        .onComplete(ar -> AsyncSpinner.hideButtonSpinner(uiLoginView.getActionButton()))
                         .onFailure(failure -> Console.log("Fail to renew Magik Link:" + failure.getMessage()))
                         .onSuccess(ignored -> {
                             uiLoginView.setMainMessage(PasswordI18nKeys.LinkSent, Bootstrap.TEXT_SUCCESS);

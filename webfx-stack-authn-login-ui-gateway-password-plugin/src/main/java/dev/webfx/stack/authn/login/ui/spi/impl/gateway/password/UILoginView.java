@@ -4,7 +4,7 @@ package dev.webfx.stack.authn.login.ui.spi.impl.gateway.password;
 import dev.webfx.extras.controlfactory.MaterialFactoryMixin;
 import dev.webfx.extras.i18n.I18n;
 import dev.webfx.extras.i18n.controls.I18nControls;
-import dev.webfx.extras.operation.OperationUtil;
+import dev.webfx.extras.async.AsyncSpinner;
 import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.styles.bootstrap.Bootstrap;
@@ -255,12 +255,12 @@ public final class UILoginView implements MaterialFactoryMixin {
         actionButton.setOnAction(event -> {
             if (validateForm()) {
                 Object credentials = new InitiateAccountCreationCredentials(emailTextField.getText().trim().toLowerCase(), WindowLocation.getOrigin(), WindowLocation.getPath(), I18n.getLanguage(), FXLoginContext.getLoginContext());
-                OperationUtil.turnOnButtonsWaitMode(actionButton);
+                AsyncSpinner.displayButtonSpinner(actionButton);
                 new AuthenticationRequest()
                     .setUserCredentials(credentials)
                     .executeAsync()
                     .inUiThread()
-                    .onComplete(ar -> OperationUtil.turnOffButtonsWaitMode(actionButton))
+                    .onComplete(ar -> AsyncSpinner.hideButtonSpinner(actionButton))
                     .onFailure(failure -> {
                         callback.notifyUserLoginFailed(failure);
                         setInfoMessageForPasswordFieldLabel(PasswordI18nKeys.ErrorOccurred, Bootstrap.TEXT_DANGER);
@@ -334,12 +334,12 @@ public final class UILoginView implements MaterialFactoryMixin {
         actionButton.setOnAction(event -> {
             if (validateForm()) {
                 Object credentials = new AuthenticateWithUsernamePasswordCredentials(emailTextField.getText().trim().toLowerCase(), passwordField.getText().trim());
-                OperationUtil.turnOnButtonsWaitMode(actionButton);
+                AsyncSpinner.displayButtonSpinner(actionButton);
                 new AuthenticationRequest()
                     .setUserCredentials(credentials)
                     .executeAsync()
                     .inUiThread()
-                    .onComplete(ar -> OperationUtil.turnOffButtonsWaitMode(actionButton))
+                    .onComplete(ar -> AsyncSpinner.hideButtonSpinner(actionButton))
                     .onFailure(failure -> {
                         callback.notifyUserLoginFailed(failure);
                         setInfoMessageForPasswordFieldLabel(PasswordI18nKeys.IncorrectLoginOrPassword, Bootstrap.TEXT_DANGER);
@@ -363,12 +363,12 @@ public final class UILoginView implements MaterialFactoryMixin {
         actionButton.setOnAction(event -> {
             if(validateForm()) {
                 Object credentials = new SendMagicLinkCredentials(emailTextField.getText().trim().toLowerCase(), WindowLocation.getOrigin(), WindowLocation.getPath(), I18n.getLanguage(), FXLoginContext.getLoginContext());
-                OperationUtil.turnOnButtonsWaitMode(actionButton);
+                AsyncSpinner.displayButtonSpinner(actionButton);
                 new AuthenticationRequest()
                     .setUserCredentials(credentials)
                     .executeAsync()
                     .inUiThread()
-                    .onComplete(ar -> OperationUtil.turnOffButtonsWaitMode(actionButton))
+                    .onComplete(ar -> AsyncSpinner.hideButtonSpinner(actionButton))
                     .onFailure(failure -> {
                         callback.notifyUserLoginFailed(failure);
                         setInfoMessageForPasswordFieldLabel(PasswordI18nKeys.IncorrectLoginOrPassword, Bootstrap.TEXT_DANGER);
