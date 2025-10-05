@@ -41,11 +41,12 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
     private static final long WARNING_MILLIS = 5000;
     private static final int POOL_SIZE = 10; // Note: it's for each instance (1 pool for queries = reading, another one for submissions = writing)
 
+    private final AsyncQueue asyncQueue;
     private final Pool pool;
 
-    private final AsyncQueue asyncQueue = new AsyncQueue(POOL_SIZE, "POSTGRES");
+    public VertxLocalPostgresQuerySubmitServiceProvider(LocalDataSource localDataSource, boolean submit) {
+        asyncQueue = new AsyncQueue(POOL_SIZE, "POSTGRES-" + (submit ? "SUBMIT" : "QUERY"));
 
-    public VertxLocalPostgresQuerySubmitServiceProvider(LocalDataSource localDataSource) {
         ConnectionDetails cd = localDataSource.getLocalConnectionDetails();
         PgConnectOptions connectOptions = new PgConnectOptions()
             .setPort(cd.getPort())
