@@ -21,6 +21,7 @@ import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.bridge.BridgeEventType;
 import io.vertx.ext.web.Session;
+import io.vertx.ext.web.handler.sockjs.BridgeEvent;
 import io.vertx.ext.web.handler.sockjs.SockJSSocket;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import java.util.List;
 final class VertxBus implements Bus {
 
     private static final boolean REPLY_PONG_TO_PING = true;
+    private static final String PONG_MESSAGE = "{\"type\":\"pong\"}";
 
     private final EventBus eventBus;
     private boolean open = true;
@@ -44,107 +46,110 @@ final class VertxBus implements Bus {
         // Initialising state management
         ServerJsonBusStateManager.initialiseStateManagement(this);
         // Also intercepting the incoming and outgoing JSON messages for the state management
-        VertxInstance.setBridgeEventHandler(bridgeEvent -> {
-            boolean callBridgeEventComplete = true;
-            BridgeEventType type = bridgeEvent.type();
-            // Incoming messages (from client to server): type = send or publish
-            boolean isIncomingMessage = type.equals(BridgeEventType.SEND) || type.equals(BridgeEventType.PUBLISH);
-            // Outgoing messages (from server to client): type = receive
-            boolean isOutgoingMessage = type.equals(BridgeEventType.RECEIVE);
-            boolean isPing = type.equals(BridgeEventType.SOCKET_PING);
-            // We get the web session. It is based on cookies, so 2 different tabs in the same browser share the same
-            // web session, which is annoying, we don't want to mix sessions, as each tab can be a different application
-            // (ex: back-office, front-office, etc...), and each communicates with the server with its own web socket
-            // connection. So we will use the socket itself as an identifier of the session.
-            SockJSSocket socket = bridgeEvent.socket();
-            Session vertxWebSession = socket.webSession();
-            // We will use the socket uri as the identifier, as it's unique per client (something like /eventbus/568/rzhmtc04/websocket)
-            String socketUri = socket.uri();
-            // And we will use the web session to store "inside" each possible client session running under that same
-            // browser. It's possible that 1 client disconnect and reconnect, which will produce 2 sessions inside (as
-            // the second websocket is new). However, the second session should retrieve the data of the first as they
-            // will have actually the same serverSessionId (re-communicated by the client).
-            // So we retrieve that session from the web session or create a new session if we can't find it.
-            dev.webfx.stack.session.Session webfxSession = vertxWebSession.get(socketUri);
-            if (webfxSession == null) {
-                webfxSession = SessionService.getSessionStore().createSession();
-                vertxWebSession.put(socketUri, webfxSession);
-            }
+        VertxInstance.setBridgeEventHandler(this::handleBridgeEvent);
+    }
 
-            if (isPing) { // receiving or sending a ping (note: there is no way to distinguish receiving or sending)
-                // When receiving a ping from the client, we reply with a simple pong message
-                if (REPLY_PONG_TO_PING)
-                    socket.write("{\"type\":\"pong\"}");
-                // and also indicate the state manager that the client is live
-                ServerJsonBusStateManager.clientIsLive(null, webfxSession);
-                // When sending a ping, we don't enrich the client state. This includes when the server pushes a new
-                // state to the client (via a ping with headers), such as when the user authenticates; the endpoint
-                // has already defined precisely the state to send. This ping state may even be delivered to another
-                // client (ex: during a magic link authentication, the original session is also authenticated).
-                // So it's very important to not enrich this state with the original client state.
-            } else if (isIncomingMessage || isOutgoingMessage) { // message exchange between client and server
-                JsonObject rawMessage = bridgeEvent.getRawMessage();
-                if (rawMessage != null) {
-                    // What we want to achieve here when intercepting such messages is to automatically manage the state
-                    // of these incoming and outgoing messages. The state is enriched with all information known about
-                    // the client, such as its sessionId, userId, runId when it's appropriate to communicate them. They
-                    // are communicated either to the final server endpoint point (for incoming messages) or back to the
-                    // client through a reply (for outgoing messages) after a possible change made by the endpoint,
-                    // which can result in an update of the client (ex: login or logout).
+    private void handleBridgeEvent(BridgeEvent bridgeEvent) {
+        boolean callBridgeEventComplete = true;
+        BridgeEventType type = bridgeEvent.type();
+        // Incoming messages (from client to server): type = send or publish
+        boolean isIncomingMessage = type.equals(BridgeEventType.SEND) || type.equals(BridgeEventType.PUBLISH);
+        // Outgoing messages (from server to client): type = receive
+        boolean isOutgoingMessage = type.equals(BridgeEventType.RECEIVE);
+        boolean isPing = type.equals(BridgeEventType.SOCKET_PING);
+        // We get the web session. It is based on cookies, so 2 different tabs in the same browser share the same
+        // web session, which is annoying, we don't want to mix sessions, as each tab can be a different application
+        // (ex: back-office, front-office, etc...), and each communicates with the server with its own web socket
+        // connection. So we will use the socket itself as an identifier of the session.
+        SockJSSocket socket = bridgeEvent.socket();
+        Session vertxWebSession = socket.webSession();
+        // We will use the socket uri as the identifier, as it's unique per client (something like /eventbus/568/rzhmtc04/websocket)
+        String socketUri = socket.uri();
+        // And we will use the web session to store "inside" each possible client session running under that same
+        // browser. It's possible that 1 client disconnect and reconnect, which will produce 2 sessions inside (as
+        // the second websocket is new). However, the second session should retrieve the data of the first as they
+        // will have actually the same serverSessionId (re-communicated by the client).
+        // So we retrieve that session from the web session or create a new session if we can't find it.
+        dev.webfx.stack.session.Session webfxSession = vertxWebSession.get(socketUri);
+        if (webfxSession == null) {
+            webfxSession = SessionService.getSessionStore().createSession();
+            vertxWebSession.put(socketUri, webfxSession);
+        }
 
-                    // Case 1) Detection of incoming endpoints calls, typically:
-                    // - pingState: especially on client start, when it communicates its runId, last sessionId, etc...
-                    // - busServerCall: main endpoint exposed to the network, which then dispatches to the different
-                    //   internal local endpoints (which execute the actual service requested by the client)
-                    // => STATE MANAGEMENT REQUIRED? YES: the possible incoming state communicated by the client needs
-                    // to be saved in the session and then enriched with all other known info about that client so that
-                    // the local endpoints can easily access them.
-                    AstObject astMessage = AST.createObject(rawMessage);
-                    String address = astMessage.getString(JsonBusConstants.ADDRESS);
-                    boolean isIncomingEndpoint = isIncomingMessage && networkEndpoints.contains(address);
+        if (isPing) { // receiving or sending a ping (note: there is no way to distinguish receiving or sending)
+            // When receiving a ping from the client, we reply with a simple pong message
+            if (REPLY_PONG_TO_PING)
+                socket.write(PONG_MESSAGE);
+            // and also indicate the state manager that the client is live
+            ServerJsonBusStateManager.clientIsLive(null, webfxSession, true);
+            // When sending a ping, we don't enrich the client state. This includes when the server pushes a new
+            // state to the client (via a ping with headers), such as when the user authenticates; the endpoint
+            // has already defined precisely the state to send. This ping state may even be delivered to another
+            // client (ex: during a magic link authentication, the original session is also authenticated).
+            // So it's very important to not enrich this state with the original client state.
+        } else if (isIncomingMessage || isOutgoingMessage) { // message exchange between client and server
+            JsonObject rawMessage = bridgeEvent.getRawMessage();
+            if (rawMessage != null) {
+                // What we want to achieve here when intercepting such messages is to automatically manage the state
+                // of these incoming and outgoing messages. The state is enriched with all information known about
+                // the client, such as its sessionId, userId, runId when it's appropriate to communicate them. They
+                // are communicated either to the final server endpoint point (for incoming messages) or back to the
+                // client through a reply (for outgoing messages) after a possible change made by the endpoint,
+                // which can result in an update of the client (ex: login or logout).
 
-                    // Case 2) Detection of outgoing unicast calls, i.e., when the server sends a private message to a
-                    // specific client, typically:
-                    // - message reply, i.e., when the server calls reply()
-                    // - point-to-point request, i.e., when the server calls request()
-                    // Note that unicast push-notifications, such as those emitted by the WebFX Stack PushServerService
-                    // (used, for example, by ModalityMagicLinkAuthenticationGateway to push the userId to the original
-                    // client who requested the magic link to cause an automatic login) are covered by this Case 2).
-                    // => STATE MANAGEMENT REQUIRED? YES: the possible changes made by the server (local endpoints) on
-                    // the client state need to be communicated to the client.
-                    // To detect this case, we use the "unicast" header, which is set to true when the server replies to
-                    // a client or requests a specific client (see reply() & request() implementations below).
-                    AstObject astHeaders = astMessage.get(JsonBusConstants.HEADERS);
-                    boolean isOutgoingUnicast = isOutgoingMessage && astHeaders != null && "true".equals(astHeaders.remove(JsonBusConstants.HEADERS_UNICAST));
+                // Case 1) Detection of incoming endpoints calls, typically:
+                // - pingState: especially on client start, when it communicates its runId, last sessionId, etc...
+                // - busServerCall: main endpoint exposed to the network, which then dispatches to the different
+                //   internal local endpoints (which execute the actual service requested by the client)
+                // => STATE MANAGEMENT REQUIRED? YES: the possible incoming state communicated by the client needs
+                // to be saved in the session and then enriched with all other known info about that client so that
+                // the local endpoints can easily access them.
+                AstObject astMessage = AST.createObject(rawMessage);
+                String address = astMessage.getString(JsonBusConstants.ADDRESS);
+                boolean isIncomingEndpoint = isIncomingMessage && networkEndpoints.contains(address);
 
-                    // Case 3) Everything else, typically:
-                    // - multicast message, i.e., when the server calls publish()
-                    // - point-to-point communication, i.e., when the server calls send(), but the client consumer is
-                    //   not specific
-                    // - "peer-to-peer" communication between 2 clients (not true p2p because it goes through the server)
-                    //   such as publish("")
-                    // => STATE MANAGEMENT REQUIRED? NO: it's very important to not communicate any outgoing state in
-                    // this case, otherwise, these clients would consider this state to be their own, causing them a
-                    // login switch or a logout!
-                    boolean isEverythingElse = !isIncomingEndpoint && !isOutgoingUnicast;
+                // Case 2) Detection of outgoing unicast calls, i.e., when the server sends a private message to a
+                // specific client, typically:
+                // - message reply, i.e., when the server calls reply()
+                // - point-to-point request, i.e., when the server calls request()
+                // Note that unicast push-notifications, such as those emitted by the WebFX Stack PushServerService
+                // (used, for example, by ModalityMagicLinkAuthenticationGateway to push the userId to the original
+                // client who requested the magic link to cause an automatic login) are covered by this Case 2).
+                // => STATE MANAGEMENT REQUIRED? YES: the possible changes made by the server (local endpoints) on
+                // the client state need to be communicated to the client.
+                // To detect this case, we use the "unicast" header, which is set to true when the server replies to
+                // a client or requests a specific client (see reply() & request() implementations below).
+                AstObject astHeaders = astMessage.get(JsonBusConstants.HEADERS);
+                boolean isOutgoingUnicast = isOutgoingMessage && astHeaders != null &&
+                                            "true".equals(astHeaders.remove(JsonBusConstants.HEADERS_UNICAST));
 
-                    if (!isEverythingElse) { // Statement management is required except for the last case
-                        Future<?> sessionFuture = ServerJsonBusStateManager.manageStateOnIncomingOrOutgoingRawJsonMessage(
-                                astMessage, webfxSession, isIncomingMessage)
-                            .onSuccess(finalSession -> vertxWebSession.put(socketUri, finalSession));
-                        // If the session is not ready right now (this may happen because of a session switch), then
-                        // we need to wait this operation to complete before continuing the message delivery
-                        if (isIncomingMessage && !sessionFuture.isComplete()) {
-                            callBridgeEventComplete = false;
-                            sessionFuture.onComplete(x -> bridgeEvent.complete(true));
-                        }
+                // Case 3) Everything else, typically:
+                // - multicast message, i.e., when the server calls publish()
+                // - point-to-point communication, i.e., when the server calls send(), but the client consumer is
+                //   not specific
+                // - "peer-to-peer" communication between 2 clients (not true p2p because it goes through the server)
+                //   such as publish("")
+                // => STATE MANAGEMENT REQUIRED? NO: it's very important to not communicate any outgoing state in
+                // this case, otherwise, these clients would consider this state to be their own, causing them a
+                // login switch or a logout!
+                boolean isEverythingElse = !isIncomingEndpoint && !isOutgoingUnicast;
+
+                if (!isEverythingElse) { // Statement management is required except for the last case
+                    Future<?> sessionFuture = ServerJsonBusStateManager.manageStateOnIncomingOrOutgoingRawJsonMessage(
+                            astMessage, webfxSession, isIncomingMessage)
+                        .onSuccess(finalSession -> vertxWebSession.put(socketUri, finalSession));
+                    // If the session is not ready right now (this may happen because of a session switch), then
+                    // we need to wait this operation to complete before continuing the message delivery
+                    if (isIncomingMessage && !sessionFuture.isComplete()) {
+                        callBridgeEventComplete = false;
+                        sessionFuture.onComplete(x -> bridgeEvent.complete(true));
                     }
                 }
             }
-            // If the session is ready right now, we continue the message delivery right now
-            if (callBridgeEventComplete)
-                bridgeEvent.complete(true);
-        });
+        }
+        // If the session is ready right now, we continue the message delivery right now
+        if (callBridgeEventComplete)
+            bridgeEvent.complete(true);
     }
 
     private static Object getMessageState(io.vertx.core.eventbus.Message<?> message) {
@@ -164,13 +169,7 @@ final class VertxBus implements Bus {
 
     @Override
     public void close() {
-        /* Not accessible in Vert.x 5 anymore...
-        if (eventBus instanceof EventBusInternal) {
-            Promise<Void> promise = Promise.promise();
-            ((EventBusInternal) eventBus).close(promise);
-            promise.future().onSuccess(e -> open = false);
-        } else*/
-            open = false;
+         open = false;
     }
 
     @Override
@@ -242,6 +241,7 @@ final class VertxBus implements Bus {
             private dev.webfx.stack.com.bus.DeliveryOptions options;
 
             @Override
+            @SuppressWarnings("unchecked")
             public T body() {
                 return (T) vertxToWebfxBody(vertxMessage.body());
             }
