@@ -37,15 +37,17 @@ import static dev.webfx.stack.db.querysubmit.VertxSqlUtil.*;
  */
 public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServiceProvider, SubmitServiceProvider {
 
-    private static final boolean LOG_TIMINGS = true;
-    private static final long WARNING_MILLIS = 5000;
     private static final int POOL_SIZE = 10; // Note: it's for each instance (1 pool for queries = reading, another one for submissions = writing)
+    private static final boolean LOG_TIMINGS = true;
+    private static final long SQL_OPERATION_WARNING_MILLIS = 5_000;
+    private static final long SQL_OPERATION_TIMEOUT_MILLIS = 5 * 60 * 1000; // 5-minute timeout for SQL operations
 
     private final AsyncQueue asyncQueue;
     private final Pool pool;
 
     public VertxLocalPostgresQuerySubmitServiceProvider(LocalDataSource localDataSource, boolean submit) {
-        asyncQueue = new AsyncQueue(POOL_SIZE, "POSTGRES-" + (submit ? "SUBMIT" : "QUERY"));
+        asyncQueue = new AsyncQueue(POOL_SIZE, "POSTGRES-" + (submit ? "SUBMIT" : "QUERY"))
+            .setExecutionTimeout(SQL_OPERATION_TIMEOUT_MILLIS);
 
         ConnectionDetails cd = localDataSource.getLocalConnectionDetails();
         PgConnectOptions connectOptions = new PgConnectOptions()
@@ -59,8 +61,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
         PoolOptions poolOptions = new PoolOptions()
             .setMaxSize(POOL_SIZE)
             .setIdleTimeout(30) // We release the connection after 30 min of inactivity (especially for remote databases)
-            .setIdleTimeoutUnit(TimeUnit.MINUTES)
-            ;
+            .setIdleTimeoutUnit(TimeUnit.MINUTES);
 
         Supplier<Pool> poolFactory = () ->
             PgBuilder.pool()
@@ -92,7 +93,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
             .onSuccess(x -> { // Just for time report
                 if (LOG_TIMINGS) {
                     long executionTimeMillis = System.currentTimeMillis() - t0;
-                    log((executionTimeMillis < WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Query executed in " + executionTimeMillis + "ms: " + argument);
+                    log((executionTimeMillis < SQL_OPERATION_WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Query executed in " + executionTimeMillis + "ms: " + argument);
                 }
             });
     }
@@ -112,7 +113,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
             .onSuccess(x -> { // Just for time report
                 if (LOG_TIMINGS) {
                     long executionTimeMillis = System.currentTimeMillis() - t0;
-                    log((executionTimeMillis < WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Query batch executed in " + executionTimeMillis + "ms");
+                    log((executionTimeMillis < SQL_OPERATION_WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Query batch executed in " + executionTimeMillis + "ms");
                 }
             });
     }
@@ -161,7 +162,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
         )).onSuccess(x -> { // Just for time report
             if (LOG_TIMINGS) {
                 long executionTimeMillis = System.currentTimeMillis() - t0;
-                log((executionTimeMillis < WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Submit batch executed in " + executionTimeMillis + "ms");
+                log((executionTimeMillis < SQL_OPERATION_WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Submit batch executed in " + executionTimeMillis + "ms");
             }
             onSuccessfulSubmitBatch(batch);
         });
@@ -203,7 +204,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
             .map(rs -> { // on success, returns rs as a Vert.x RowSet<Row>
                 if (LOG_TIMINGS) {
                     long executionTimeMillis = System.currentTimeMillis() - t0;
-                    log((executionTimeMillis < WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Submit executed in " + executionTimeMillis + "ms: " + argument);
+                    log((executionTimeMillis < SQL_OPERATION_WARNING_MILLIS ? "" : "⚠️ WARNING: ") + "Submit executed in " + executionTimeMillis + "ms: " + argument);
                 }
                 onSuccessfulSubmit(argument);
                 // We convert that Vert.x RowSet into a WebFX SubmitResult
