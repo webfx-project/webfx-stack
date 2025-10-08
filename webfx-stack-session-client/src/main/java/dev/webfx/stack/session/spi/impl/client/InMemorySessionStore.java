@@ -41,4 +41,9 @@ final class InMemorySessionStore implements SessionStore {
         sessions.clear();
         return Future.succeededFuture(true);
     }
+
+    @Override
+    public Future<Integer> size() {
+        return Future.succeededFuture(sessions.size());
+    }
 }

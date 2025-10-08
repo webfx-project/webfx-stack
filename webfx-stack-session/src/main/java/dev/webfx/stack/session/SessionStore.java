@@ -40,4 +40,11 @@ public interface SessionStore {
      */
     Future<Boolean> clear();
 
+    /**
+     * Get the number of sessions in the store.
+     *
+     * @return future that will be called with a result, or a failure
+     */
+    Future<Integer> size();
+
 }

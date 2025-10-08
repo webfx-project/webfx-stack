@@ -7,6 +7,7 @@ import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.ast.json.Json;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.storage.LocalStorage;
+import dev.webfx.platform.util.Strings;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.session.Session;
 import dev.webfx.stack.session.SessionStore;
@@ -69,6 +70,16 @@ final class LocalStorageSessionStore implements SessionStore {
                 LocalStorage.removeItem(key);
         });
         return Future.succeededFuture(true);
+    }
+
+    @Override
+    public Future<Integer> size() {
+        int[] size = { 0 };
+        LocalStorage.getKeys().forEachRemaining(key -> {
+            if (Strings.startsWith(key, ITEM_KEY_PREFIX))
+               size[0]++;
+        });
+        return Future.succeededFuture(size[0]);
     }
 
     private static String sessionIdToLocalStorageItemKey(String sessionId) {

@@ -82,6 +82,8 @@ final class VertxBus implements Bus {
             webfxSession = SessionService.getSessionStore().createSession(timeout);
             vertxWebSession.put(socketUri, webfxSession);
             Console.log("👉 Created new session for client " + socketUri + " (id = " + webfxSession.id() + ", timeout = " + timeout + " ms)");
+            SessionService.getSessionStore().size()
+                .onSuccess(size -> Console.log("👉 " + size + " active session(s)"));
         }
         // Also informing Vert.x that the session is now accessed to postpone its expiration
         if (vertxWebSession != null)

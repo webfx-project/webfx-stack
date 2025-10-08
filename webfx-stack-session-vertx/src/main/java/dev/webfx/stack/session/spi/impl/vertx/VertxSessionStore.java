@@ -48,4 +48,9 @@ final class VertxSessionStore implements SessionStore {
         return VertxAsync.toWebfxFuture(vertxSessionStore.clear())
             .map(v -> true);
     }
+
+    @Override
+    public Future<Integer> size() {
+        return VertxAsync.toWebfxFuture(vertxSessionStore.size());
+    }
 }
