@@ -75,12 +75,12 @@ final class VertxBus implements Bus {
         dev.webfx.stack.session.Session webfxSession = vertxWebSession == null ? null : vertxWebSession.get(socketUri);
         if (webfxSession == null) {
             webfxSession = SessionService.getSessionStore().createSession();
-            if (vertxWebSession != null) {
+            if (vertxWebSession != null)
                 vertxWebSession.put(socketUri, webfxSession);
-                // Also informing Vert.x that the session is now accessed to postpone its expiration
-                vertxWebSession.setAccessed();
-            }
         }
+        // Also informing Vert.x that the session is now accessed to postpone its expiration
+        if (vertxWebSession != null)
+            vertxWebSession.setAccessed();
 
         if (isPing) { // receiving or sending a ping (note: there is no way to distinguish receiving or sending)
             // When receiving a ping from the client, we reply with a simple pong message
