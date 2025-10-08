@@ -38,7 +38,8 @@ final class VertxBus implements Bus {
     private final EventBus eventBus;
     private boolean open = true;
     // The list "networkEndpoints" will contain all non-local addresses registered on the Vert.x bus. These addresses
-    // are therefore all the server public endpoints exposed to the clients on the network.
+    // are therefore all the server public endpoints exposed to the clients on the network. It is initialized at the
+    // server start and then doesn't change anymore, so it's then thread safe.
     private final List<String> networkEndpoints = new ArrayList<>();
 
     VertxBus(EventBus eventBus) {
@@ -63,17 +64,22 @@ final class VertxBus implements Bus {
         // connection. So we will use the socket itself as an identifier of the session.
         SockJSSocket socket = bridgeEvent.socket();
         Session vertxWebSession = socket.webSession();
-        // We will use the socket uri as the identifier, as it's unique per client (something like /eventbus/568/rzhmtc04/websocket)
+        // We will use the socket uri as the identifier, as it's unique per client
+        // (it is something like /eventbus/568/rzhmtc04/websocket)
         String socketUri = socket.uri();
         // And we will use the web session to store "inside" each possible client session running under that same
         // browser. It's possible that 1 client disconnect and reconnect, which will produce 2 sessions inside (as
         // the second websocket is new). However, the second session should retrieve the data of the first as they
         // will have actually the same serverSessionId (re-communicated by the client).
         // So we retrieve that session from the web session or create a new session if we can't find it.
-        dev.webfx.stack.session.Session webfxSession = vertxWebSession.get(socketUri);
+        dev.webfx.stack.session.Session webfxSession = vertxWebSession == null ? null : vertxWebSession.get(socketUri);
         if (webfxSession == null) {
             webfxSession = SessionService.getSessionStore().createSession();
-            vertxWebSession.put(socketUri, webfxSession);
+            if (vertxWebSession != null) {
+                vertxWebSession.put(socketUri, webfxSession);
+                // Also informing Vert.x that the session is now accessed to postpone its expiration
+                vertxWebSession.setAccessed();
+            }
         }
 
         if (isPing) { // receiving or sending a ping (note: there is no way to distinguish receiving or sending)
@@ -136,8 +142,9 @@ final class VertxBus implements Bus {
 
                 if (!isEverythingElse) { // Statement management is required except for the last case
                     Future<?> sessionFuture = ServerJsonBusStateManager.manageStateOnIncomingOrOutgoingRawJsonMessage(
-                            astMessage, webfxSession, isIncomingMessage)
-                        .onSuccess(finalSession -> vertxWebSession.put(socketUri, finalSession));
+                            astMessage, webfxSession, isIncomingMessage);
+                    if (vertxWebSession != null)
+                        sessionFuture.onSuccess(finalSession -> vertxWebSession.put(socketUri, finalSession));
                     // If the session is not ready right now (this may happen because of a session switch), then
                     // we need to wait this operation to complete before continuing the message delivery
                     if (isIncomingMessage && !sessionFuture.isComplete()) {
