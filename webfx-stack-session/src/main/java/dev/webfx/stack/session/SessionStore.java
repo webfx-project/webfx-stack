@@ -7,7 +7,7 @@ import dev.webfx.platform.async.Future;
  */
 public interface SessionStore {
 
-    Session createSession();
+    Session createSession(long timeout);
 
     /**
      * Get the session with the specified ID

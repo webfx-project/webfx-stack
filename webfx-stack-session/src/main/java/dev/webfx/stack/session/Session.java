@@ -39,6 +39,8 @@ public interface Session {
 
     boolean isEmpty();
 
+    long timeout();
+
     default Future<Boolean> store() {
         return SessionService.getSessionStore().put(this);
     }

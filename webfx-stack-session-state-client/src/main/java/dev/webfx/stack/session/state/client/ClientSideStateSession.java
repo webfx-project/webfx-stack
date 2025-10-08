@@ -52,7 +52,7 @@ public final class ClientSideStateSession {
     }
 
     public ClientSideStateSession(SessionStore sessionStore) {
-        this(sessionStore, sessionStore.createSession());
+        this(sessionStore, sessionStore.createSession(Long.MAX_VALUE));
         String clientSessionId = LocalStorage.getItem(ACTIVE_CLIENT_SESSION_ID);
         if (clientSessionId != null)
             sessionStore.get(clientSessionId)

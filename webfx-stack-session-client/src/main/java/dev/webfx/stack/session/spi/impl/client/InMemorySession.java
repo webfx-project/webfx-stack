@@ -12,14 +12,16 @@ import java.util.Map;
 final class InMemorySession implements Session {
 
     private final String id;
+    private final long timeout;
     final Map<String, Object> values = new HashMap<>();
 
-    public InMemorySession() {
-        this(Uuid.randomUuid());
+    public InMemorySession(long timeout) {
+        this(Uuid.randomUuid(), timeout);
     }
 
-    InMemorySession(String id) {
+    InMemorySession(String id, long timeout) {
         this.id = id;
+        this.timeout = timeout;
     }
 
     @Override
@@ -46,5 +48,10 @@ final class InMemorySession implements Session {
     @Override
     public boolean isEmpty() {
         return values.isEmpty();
+    }
+
+    @Override
+    public long timeout() {
+        return timeout;
     }
 }

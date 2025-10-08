@@ -21,8 +21,8 @@ final class LocalStorageSessionStore implements SessionStore {
     private final static String ITEM_KEY_PREFIX = "Session-";
 
     @Override
-    public Session createSession() {
-        return new InMemorySession();
+    public Session createSession(long timeout) {
+        return new InMemorySession(timeout);
     }
 
     @Override
@@ -32,7 +32,7 @@ final class LocalStorageSessionStore implements SessionStore {
             return Future.failedFuture("No such session in this store");
         try {
             ReadOnlyAstObject jsonObject = Json.parseObject(sessionItem);
-            InMemorySession session = new InMemorySession(id);
+            InMemorySession session = new InMemorySession(id, Long.MAX_VALUE);
             ReadOnlyAstArray keys = jsonObject.keys();
             for (int i = 0; i < keys.size(); i++) {
                 String key = keys.getElement(i);

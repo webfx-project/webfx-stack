@@ -6,6 +6,7 @@ import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.async.AsyncResult;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.Handler;
+import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.vertx.VertxInstance;
 import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.stack.com.bus.BusHook;
@@ -64,6 +65,9 @@ final class VertxBus implements Bus {
         // connection. So we will use the socket itself as an identifier of the session.
         SockJSSocket socket = bridgeEvent.socket();
         Session vertxWebSession = socket.webSession();
+        // Note: vertxWebSession is never null because VertxHttpRouterConfigurator has configured a session store to the
+        // router, but because this method is annotated @Nullable, we perform null checks in the code to remove warnings.
+
         // We will use the socket uri as the identifier, as it's unique per client
         // (it is something like /eventbus/568/rzhmtc04/websocket)
         String socketUri = socket.uri();
@@ -73,10 +77,11 @@ final class VertxBus implements Bus {
         // will have actually the same serverSessionId (re-communicated by the client).
         // So we retrieve that session from the web session or create a new session if we can't find it.
         dev.webfx.stack.session.Session webfxSession = vertxWebSession == null ? null : vertxWebSession.get(socketUri);
-        if (webfxSession == null) {
-            webfxSession = SessionService.getSessionStore().createSession();
-            if (vertxWebSession != null)
-                vertxWebSession.put(socketUri, webfxSession);
+        if (webfxSession == null && vertxWebSession != null) {
+            long timeout = vertxWebSession.timeout();
+            webfxSession = SessionService.getSessionStore().createSession(timeout);
+            vertxWebSession.put(socketUri, webfxSession);
+            Console.log("👉 Created new session for client " + socketUri + " (id = " + webfxSession.id() + ", timeout = " + timeout + " ms)");
         }
         // Also informing Vert.x that the session is now accessed to postpone its expiration
         if (vertxWebSession != null)

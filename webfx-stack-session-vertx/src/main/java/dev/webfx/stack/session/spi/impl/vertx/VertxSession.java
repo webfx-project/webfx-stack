@@ -56,4 +56,9 @@ public class VertxSession implements Session {
     public boolean isEmpty() {
         return vertxSession.isEmpty();
     }
+
+    @Override
+    public long timeout() {
+        return vertxSession.timeout();
+    }
 }

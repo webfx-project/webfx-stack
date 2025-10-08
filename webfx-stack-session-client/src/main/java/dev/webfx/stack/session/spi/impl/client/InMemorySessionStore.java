@@ -15,8 +15,8 @@ final class InMemorySessionStore implements SessionStore {
     private final Map<String, Session> sessions = new HashMap<>();
 
     @Override
-    public Session createSession() {
-        return new InMemorySession();
+    public Session createSession(long timeout) {
+        return new InMemorySession(timeout);
     }
 
     @Override
