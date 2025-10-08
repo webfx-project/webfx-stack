@@ -3,6 +3,7 @@ package dev.webfx.stack.com.bus.spi.impl.json.vertx;
 import dev.webfx.platform.ast.AST;
 import dev.webfx.platform.ast.AstObject;
 import dev.webfx.platform.ast.ReadOnlyAstObject;
+import dev.webfx.platform.ast.json.Json;
 import dev.webfx.platform.async.AsyncResult;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.Handler;
@@ -35,6 +36,7 @@ final class VertxBus implements Bus {
 
     private static final boolean REPLY_PONG_TO_PING = true;
     private static final String PONG_MESSAGE = "{\"type\":\"pong\"}";
+    private static final ReadOnlyAstObject AST_PONG_MESSAGE = Json.parseObject(PONG_MESSAGE);
 
     private final EventBus eventBus;
     private boolean open = true;
@@ -78,23 +80,35 @@ final class VertxBus implements Bus {
         // So we retrieve that session from the web session or create a new session if we can't find it.
         dev.webfx.stack.session.Session webfxSession = vertxWebSession == null ? null : vertxWebSession.get(socketUri);
         if (webfxSession == null && vertxWebSession != null) {
-            long timeout = vertxWebSession.timeout();
-            webfxSession = SessionService.getSessionStore().createSession(timeout);
+            webfxSession = SessionService.getSessionStore().createSession(vertxWebSession.timeout());
             vertxWebSession.put(socketUri, webfxSession);
-            Console.log("👉 Created new session for client " + socketUri + " (id = " + webfxSession.id() + ", timeout = " + timeout + " ms)");
-            SessionService.getSessionStore().size()
-                .onSuccess(size -> Console.log("👉 " + size + " active session(s)"));
+            Console.log("👉 Created new session for client " + socketUri + " (id = " + webfxSession.id() + ", ping = " + isPing + ")");
+            SessionService.getSessionStore().size().onSuccess(size -> Console.log("👉 " + size + " active session(s)"));
         }
         // Also informing Vert.x that the session is now accessed to postpone its expiration
         if (vertxWebSession != null)
             vertxWebSession.setAccessed();
 
-        if (isPing) { // receiving or sending a ping (note: there is no way to distinguish receiving or sending)
-            // When receiving a ping from the client, we reply with a simple pong message
-            if (REPLY_PONG_TO_PING)
-                socket.write(PONG_MESSAGE);
-            // and also indicate the state manager that the client is live
-            ServerJsonBusStateManager.clientIsLive(null, webfxSession, true);
+        if (isPing) { // Receiving or sending a ping (note: there is no way to distinguish receiving or sending).
+            // We tell the state manager that the client is live
+            boolean foundRunId = ServerJsonBusStateManager.clientIsLive(null, webfxSession, true);
+            // Then we reply to the client with a pong message
+            if (REPLY_PONG_TO_PING && webfxSession != null) {
+                // When receiving a ping from a client whom we know the runId, we reply with a standard pong message
+                if (foundRunId)
+                    socket.write(PONG_MESSAGE);
+                else { // but if we didn't find its runId, this probably means that we lost the previous session holding
+                    // it, and a brand new empty session was recreated. This can happen, for example, on a server restart.
+                    // We need to reconstruct the client state because, without knowing its runId, we can't make push
+                    // notifications anymore to that client. So we reply with a special pong message and pass the new
+                    // server session id in its state. The client will understand it's a session changed and will send
+                    // its whole state again (this special pong case is coded in JsonBus on the client side).
+                    AstObject specialPongMessage = AST.cloneObject(AST_PONG_MESSAGE);
+                    Object serverSessionIdState = StateAccessor.setServerSessionId(null, webfxSession.id());
+                    ServerJsonBusStateManager.setJsonRawMessageState(specialPongMessage, null, serverSessionIdState);
+                    socket.write(Json.formatObject(specialPongMessage));
+                }
+            }
             // When sending a ping, we don't enrich the client state. This includes when the server pushes a new
             // state to the client (via a ping with headers), such as when the user authenticates; the endpoint
             // has already defined precisely the state to send. This ping state may even be delivered to another

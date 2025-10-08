@@ -1,20 +1,3 @@
-/*
- * Note: this code is a fork of Goodow realtime-channel project https://github.com/goodow/realtime-channel
- */
-
-/*
- * Copyright 2013 Goodow.com
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
 package dev.webfx.stack.com.bus.spi.impl.json.client;
 
 import dev.webfx.platform.ast.AST;
@@ -26,6 +9,7 @@ import dev.webfx.stack.com.bus.Message;
 import dev.webfx.stack.com.bus.spi.impl.client.NetworkBus;
 import dev.webfx.stack.com.bus.spi.impl.json.JsonBusConstants;
 import dev.webfx.stack.session.state.StateAccessor;
+import dev.webfx.stack.session.state.client.ClientSideStateSessionSyncer;
 
 /**
  * @author Bruno Salmon
@@ -49,6 +33,10 @@ public abstract class JsonBus extends NetworkBus implements JsonBusConstants {
         return "{\"type\":\"pong\"}".equals(rawMessage);
     }
 
+    protected boolean isPongMessage(ReadOnlyAstObject jsonRawMessage) {
+        return "pong".equals(jsonRawMessage.getString("type"));
+    }
+
     @Override
     protected Message<?> parseIncomingNetworkRawMessage(String rawMessage) {
         if (isPongRawMessage(rawMessage))
@@ -56,7 +44,21 @@ public abstract class JsonBus extends NetworkBus implements JsonBusConstants {
         ReadOnlyAstObject jsonRawMessage = parseJsonRawMessage(rawMessage);
         ReadOnlyAstObject headers = jsonRawMessage.getObject(HEADERS);
         Object state = headers == null ? null : StateAccessor.decodeState(headers.getString(HEADERS_STATE));
-        return parseIncomingNetworkRawMessage(jsonRawMessage.getString(ADDRESS), jsonRawMessage.getString(REPLY_ADDRESS), jsonRawMessage.get(BODY), new DeliveryOptions().setState(state));
+        String address = jsonRawMessage.getString(ADDRESS);
+        if (address != null)
+            return parseIncomingNetworkRawMessage(address, jsonRawMessage.getString(REPLY_ADDRESS), jsonRawMessage.get(BODY), new DeliveryOptions().setState(state));
+        // Particular case of a pong with a state. This happens when the server received a ping but couldn't retrieve
+        // the previous session (ex: on server restart). This special pong is passing the new server session id, and
+        // is also a request to send the whole client state back again to the server. Because, without knowing its runId,
+        // the server can't make push notifications anymore to that client.
+        if (isPongMessage(jsonRawMessage)) {
+            // We ask ClientSideStateSessionSyncer to consider this incoming state. It will mark all client states as
+            // to be sent to the server again on the next client call.
+            ClientSideStateSessionSyncer.syncIncomingState(state);
+            // We don't wait for the next possible server call caused by a user interaction but make one right now
+            sendPingStateNow(); // The whole client state should be sent with that ping.
+        }
+        return null;
     }
 
     protected ReadOnlyAstObject parseJsonRawMessage(String rawMessage) {
@@ -65,7 +67,7 @@ public abstract class JsonBus extends NetworkBus implements JsonBusConstants {
 
     @Override
     protected String createOutgoingNetworkRawMessage(boolean send, String address, Object body, DeliveryOptions options, String replyAddress) {
-        // We first create its Json raw representation.
+        // We first create its JSON raw representation.
         AstObject jsonRawMessage = AST.createObject()
                 .set(TYPE, send ? SEND : PUBLISH)
                 .set(ADDRESS, address)

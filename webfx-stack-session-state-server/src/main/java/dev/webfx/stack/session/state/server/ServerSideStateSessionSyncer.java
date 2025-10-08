@@ -20,7 +20,7 @@ import java.util.Objects;
  */
 public final class ServerSideStateSessionSyncer {
 
-    private final static boolean LOG_STATES = false; // Set to true to log incoming and outgoing states on server side
+    private final static boolean LOG_STATES = false; // Set to true to log incoming and outgoing states on the server side
 
     private static AsyncFunction<Object, Object> userIdChecker;
 

@@ -7,9 +7,11 @@ module webfx.stack.com.bus.json.vertx {
     requires io.vertx.eventbusbridge;
     requires io.vertx.web;
     requires webfx.platform.ast;
+    requires webfx.platform.ast.json.plugin;
     requires webfx.platform.async;
     requires webfx.platform.boot;
     requires webfx.platform.conf;
+    requires webfx.platform.console;
     requires webfx.platform.util.vertx;
     requires webfx.stack.com.bus;
     requires webfx.stack.com.bus.client;
@@ -17,7 +19,6 @@ module webfx.stack.com.bus.json.vertx {
     requires webfx.stack.com.bus.json.server;
     requires webfx.stack.session;
     requires webfx.stack.session.state;
-    requires webfx.platform.console;
 
     // Exported packages
     exports dev.webfx.stack.com.bus.spi.impl.json.vertx;
