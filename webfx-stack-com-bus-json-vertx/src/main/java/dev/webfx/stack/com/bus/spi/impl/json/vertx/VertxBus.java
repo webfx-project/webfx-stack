@@ -246,8 +246,8 @@ final class VertxBus implements Bus {
             body = SerialCodecManager.encodeToJson(body);
         } catch (IllegalArgumentException ignored) { }
         // TODO: check if we can generify this with AST
-        if (AST.NATIVE_FACTORY != null && AST.isObject(body)) {
-            body = AST.NATIVE_FACTORY.astToNativeObject((ReadOnlyAstObject) body);
+        if (AST.NATIVE_FACTORY != null && AST.isObject(body) && body instanceof ReadOnlyAstObject astBody) {
+            body = AST.NATIVE_FACTORY.astToNativeObject(astBody);
         }
         return body;
     }
