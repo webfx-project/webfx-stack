@@ -48,7 +48,7 @@ public class ServerAuthenticationPortalProvider implements AuthenticationService
         Object userId = ThreadLocalStateHolder.getUserId();
         FutureBroadcaster<?> userVerificationBroadcaster = userVerificationBroadcasters.get(userId);
         if (userVerificationBroadcaster != null) {
-            Console.log("👮👮 Joining same user verification broadcaster");
+            Console.log("👮 Joining same user verification broadcaster");
             return userVerificationBroadcaster.newClient();
         }
         for (ServerAuthenticationGateway gateway : getGateways()) {
