@@ -10,6 +10,10 @@ import io.vertx.core.net.PemKeyCertOptions;
 import static dev.webfx.stack.http.server.vertx.VertxHttpModuleBooter.*;
 
 /**
+ * We embed the http server in a verticle so that its event loop is executed in a separate thread, which provides better
+ * performance. Note that if a bridge event handler is registered on http router, it will be executed in this http
+ * server event loop thread, and not in the main app event loop thread. See VertxBusModuleBooter class, for example.
+ *
  * @author Bruno Salmon
  */
 final class VertxHttpVerticle extends AbstractVerticle {
@@ -29,10 +33,9 @@ final class VertxHttpVerticle extends AbstractVerticle {
     }
 
     private void createAndStartHttpServer(String protocol, int port, PemKeyCertOptions pemKeyCertOptions) {
-        //Console.log("Starting " + protocol + " server on port " + port);
         // Creating the http server with the following options:
         vertx.createHttpServer(new HttpServerOptions()
-                .setMaxWebSocketFrameSize(65536 * 100) // Increasing the frame size to allow big client request
+                .setMaxWebSocketFrameSize(65536 * 100) // Increasing the frame size to allow big client requests
                 .setCompressionSupported(true) // enabling gzip and deflate compression
                 .setPort(port) // web port
                 .setSsl(pemKeyCertOptions != null)
@@ -40,7 +43,7 @@ final class VertxHttpVerticle extends AbstractVerticle {
                 .setUseAlpn(JdkSSLEngineOptions.isAlpnAvailable()) // Enabling http2 if ALPN package is available
         ) // Then plugging the http router
                 .requestHandler(VertxInstance.getHttpRouter())
-                // And finally starting the http server by listening the web port
+                // And finally starting the http server by listening to the web port
                 .listen()
                 .onFailure(e -> Console.log("❌ Error while starting " + protocol + " server on port " + port, e))
                 .onSuccess(x -> Console.log("✅ Successfully started " + protocol + " server on port " + port))

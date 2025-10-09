@@ -3,12 +3,14 @@
 module webfx.stack.authn.server.portal {
 
     // Direct dependencies modules
+    requires webfx.platform.ast;
     requires webfx.platform.async;
     requires webfx.platform.boot;
     requires webfx.platform.console;
     requires webfx.platform.service;
     requires webfx.stack.authn;
     requires webfx.stack.authn.server.gateway;
+    requires webfx.stack.com.bus;
     requires webfx.stack.session.state;
     requires webfx.stack.session.state.server;
 

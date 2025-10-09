@@ -15,6 +15,7 @@ import dev.webfx.stack.com.bus.Message;
 import dev.webfx.stack.com.bus.Registration;
 import dev.webfx.stack.com.bus.spi.impl.json.JsonBusConstants;
 import dev.webfx.stack.com.bus.spi.impl.json.server.ServerJsonBusStateManager;
+import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.session.SessionService;
 import dev.webfx.stack.session.state.StateAccessor;
 import io.vertx.core.eventbus.DeliveryOptions;
@@ -219,7 +220,7 @@ final class VertxBus implements Bus {
 
     @Override
     public <T> Bus request(String address, Object body, dev.webfx.stack.com.bus.DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler) {
-        eventBus.<T>request(address, webfxToVertxBody(body), webfxToVertxDeliveryOptions(options, true))
+        eventBus.<T>request(address, webfxToVertxBody(body), webfxToVertxDeliveryOptions(options, !options.isLocalOnly()))
             .onComplete(ar -> replyHandler.handle(vertxToWebfxMessageAsyncResult(ar, options.isLocalOnly())));
         return this;
     }
@@ -241,6 +242,9 @@ final class VertxBus implements Bus {
     private static Object webfxToVertxBody(Object body) {
         if (body == null)
             body = AST.createObject();
+        else try {
+            body = SerialCodecManager.encodeToJson(body);
+        } catch (IllegalArgumentException ignored) { }
         // TODO: check if we can generify this with AST
         if (AST.NATIVE_FACTORY != null && AST.isObject(body)) {
             body = AST.NATIVE_FACTORY.astToNativeObject((ReadOnlyAstObject) body);
@@ -254,7 +258,7 @@ final class VertxBus implements Bus {
         if (AST.NATIVE_FACTORY != null && AST.NATIVE_FACTORY.acceptAsNativeObject(body)) {
             object = AST.NATIVE_FACTORY.nativeToAstObject(body);
         }
-        return object;
+        return SerialCodecManager.decodeFromJson(object);
     }
 
     private static <T> AsyncResult<Message<T>> vertxToWebfxMessageAsyncResult(io.vertx.core.AsyncResult<io.vertx.core.eventbus.Message<T>> ar, boolean local) {

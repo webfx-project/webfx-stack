@@ -92,7 +92,7 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
             }
             if (runId != null) {
                 clientLiveListener.accept(runId);
-                return true; // to tell we found the runId
+                return true; // to tell that we found the runId
             }
             Console.log("⚠️ ServerJsonBusStateManager.clientIsLive() was called but no runId could be found (session id = " + session.id() + ", ping = " + ping + ")");
         }

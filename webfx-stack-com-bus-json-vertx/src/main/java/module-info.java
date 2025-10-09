@@ -17,6 +17,7 @@ module webfx.stack.com.bus.json.vertx {
     requires webfx.stack.com.bus.client;
     requires webfx.stack.com.bus.json;
     requires webfx.stack.com.bus.json.server;
+    requires webfx.stack.com.serial;
     requires webfx.stack.session;
     requires webfx.stack.session.state;
 
