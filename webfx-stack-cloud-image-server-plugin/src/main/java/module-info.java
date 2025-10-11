@@ -8,7 +8,7 @@ module webfx.stack.cloud.image.server.plugin {
     requires webfx.platform.async;
     requires webfx.platform.boot;
     requires webfx.platform.conf;
-    requires webfx.platform.file.java;
+    requires webfx.platform.file.jre;
     requires webfx.platform.util;
     requires webfx.platform.util.http;
     requires webfx.platform.util.vertx;
