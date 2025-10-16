@@ -87,7 +87,12 @@ public final class SerialCodecManager {
             return encodePrefixedLocalTime((LocalTime) object);
         if (object instanceof Object[])
             return encodeJavaArrayToAstArray((Object[]) object);
-        // Other java objects are serialized into json
+        // Used for serializing Vertx objects or arrays from JSON database results, for ex when using jsonb_build_array(...)
+        if (AST.NATIVE_FACTORY != null && AST.NATIVE_FACTORY.acceptAsNativeObject(object))
+            return AST.NATIVE_FACTORY.nativeToAstObject(object);
+        if (AST.NATIVE_FACTORY != null && AST.NATIVE_FACTORY.acceptAsNativeArray(object))
+            return AST.NATIVE_FACTORY.nativeToAstArray(object);
+        // Other java objects are serialized into JSON
         return encodeToAstObject(object);
     }
 
