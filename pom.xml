@@ -63,8 +63,8 @@
         <module>webfx-stack-authn-login-ui-gateway-mojoauth-plugin</module>
         <module>webfx-stack-authn-login-ui-gateway-password-plugin</module>
         <module>webfx-stack-authn-login-ui-gateway-webviewbased</module>
-        <module>webfx-stack-authn-login-ui-gateway-webviewbased-gwt</module>
         <module>webfx-stack-authn-login-ui-gateway-webviewbased-openjfx</module>
+        <module>webfx-stack-authn-login-ui-gateway-webviewbased-web</module>
         <module>webfx-stack-authn-login-ui-portal</module>
         <module>webfx-stack-authn-logout-client</module>
         <module>webfx-stack-authn-logout-server</module>
@@ -98,8 +98,8 @@
         <module>webfx-stack-com-bus-simple</module>
         <module>webfx-stack-com-serial</module>
         <module>webfx-stack-com-websocket</module>
-        <module>webfx-stack-com-websocket-gwt-j2cl-native</module>
-        <module>webfx-stack-com-websocket-gwt-j2cl-sockjs</module>
+        <module>webfx-stack-com-websocket-elemental2-native</module>
+        <module>webfx-stack-com-websocket-elemental2-sockjs</module>
         <module>webfx-stack-com-websocket-jre</module>
         <module>webfx-stack-db-datascope</module>
         <module>webfx-stack-db-datasource</module>
@@ -161,7 +161,7 @@
         <module>webfx-stack-shareddata</module>
         <module>webfx-stack-shareddata-ast</module>
         <module>webfx-stack-shareddata-cache</module>
-        <module>webfx-stack-shareddata-cache-cachestorage-gwt-j2cl</module>
+        <module>webfx-stack-shareddata-cache-cachestorage-elemental2</module>
         <module>webfx-stack-shareddata-cache-localstorage-plugin</module>
         <module>webfx-stack-shareddata-cache-serial</module>
         <module>webfx-stack-shareddata-cache-storage</module>

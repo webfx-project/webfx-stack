@@ -34,7 +34,7 @@ public class HttpCookieSerialCodec extends SerialCodecBase<HttpCookie> {
         // We need to know the cookie creation time to serialize the expiration time (see below). HttpCookie has a
         // whenCreated field for that, but we can't use it as it's a private & inaccessible field. Instead, we use an
         // alternative solution provided by FXLoginCookieStore that keeps an internal record of the cookie creation date.
-        long whenCreated = FXLoginCookieStore.getWhenCreated(c); // cookie creation time in millis
+        long whenCreated = OpenJFXLoginCookieStore.getWhenCreated(c); // cookie creation time in millis
         encodeString( serial, NAME_KEY,       c.getName(), NullEncoding.NULL_VALUE_NOT_ALLOWED);
         encodeString( serial, VALUE_KEY,      c.getValue());
         encodeBoolean(serial, SECURE_KEY,     c.getSecure());
@@ -55,7 +55,7 @@ public class HttpCookieSerialCodec extends SerialCodecBase<HttpCookie> {
         HttpCookie cookie = new HttpCookie(
                 decodeString(serial, NAME_KEY, NullEncoding.NULL_VALUE_NOT_ALLOWED),
                 decodeString(serial, VALUE_KEY));
-        long whenCreated = FXLoginCookieStore.getWhenCreated(cookie); // will return 'now', as it's a new cookie
+        long whenCreated = OpenJFXLoginCookieStore.getWhenCreated(cookie); // will return 'now', as it's a new cookie
         cookie.setSecure(    decodeBoolean(serial, SECURE_KEY));
         cookie.setDomain(    decodeString( serial, DOMAIN_KEY));
         // We recalculate maxAge, which is the difference between the expiration and the creation time
