@@ -8,6 +8,7 @@ import dev.webfx.platform.util.Numbers;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.stack.com.serial.spi.SerialCodec;
 import dev.webfx.stack.com.serial.spi.impl.ExceptionSerialCodec;
+import dev.webfx.stack.com.serial.spi.impl.ast.AstNodeSerialCodec;
 import dev.webfx.stack.com.serial.spi.impl.time.InstantSerialCodec;
 import dev.webfx.stack.com.serial.spi.impl.time.LocalDateSerialCodec;
 import dev.webfx.stack.com.serial.spi.impl.time.LocalDateTimeSerialCodec;
@@ -32,9 +33,10 @@ public final class SerialCodecManager {
     private final static String LOCAL_DATE_TIME_VALUE_PREFIX = "$LDT:";
     private final static String LOCAL_TIME_VALUE_PREFIX = "$LT:";
 
-    private static final Map<Class<?>, SerialCodec<?>> encoders = new HashMap<>();
-    private static final Map<String, SerialCodec<?>> decoders = new HashMap<>();
-    private static final Map<String, Class<?>> javaClasses = new HashMap<>();
+    private static final Map<Class<?>, SerialCodec<?>> ENCODERS = new HashMap<>();
+    private static final Map<String, SerialCodec<?>> DECODERS = new HashMap<>();
+    private static final Map<String, Class<?>> JAVA_CLASSES = new HashMap<>();
+    private static final AstNodeSerialCodec AST_NODE_SERIAL_CODEC = new AstNodeSerialCodec();
 
     static {
         registerSerialCodec(new ExceptionSerialCodec());
@@ -46,9 +48,9 @@ public final class SerialCodecManager {
 
     public static void registerSerialCodec(SerialCodec<?> codec) {
         Class<?> javaClass = codec.getJavaClass();
-        encoders.put(javaClass, codec);
-        decoders.put(codec.getCodecId(), codec);
-        javaClasses.put(codec.getCodecId(), javaClass);
+        ENCODERS.put(javaClass, codec);
+        DECODERS.put(codec.getCodecId(), codec);
+        JAVA_CLASSES.put(codec.getCodecId(), javaClass);
     }
 
     /* Not supported in J2ME CLDC
@@ -58,7 +60,7 @@ public final class SerialCodecManager {
 
     public static <T> SerialCodec<T> getSerialEncoder(Class<T> javaClass) {
         for (Class<?> c = javaClass; c != null; c = c.getSuperclass()) {
-            SerialCodec<T> codec = (SerialCodec<T>) encoders.get(c);
+            SerialCodec<T> codec = (SerialCodec<T>) ENCODERS.get(c);
             if (codec != null)
                 return codec;
         }
@@ -66,11 +68,11 @@ public final class SerialCodecManager {
     }
 
     public static <T> SerialCodec<T> getSerialDecoder(String codecId) {
-        return (SerialCodec<T>) decoders.get(codecId);
+        return (SerialCodec<T>) DECODERS.get(codecId);
     }
 
     public static Class<?> getJavaClass(String codecId) {
-        return javaClasses.get(codecId);
+        return JAVA_CLASSES.get(codecId);
     }
 
     public static Object encodeToJson(Object object) {
@@ -87,11 +89,6 @@ public final class SerialCodecManager {
             return encodePrefixedLocalTime((LocalTime) object);
         if (object instanceof Object[])
             return encodeJavaArrayToAstArray((Object[]) object);
-        // Used for serializing Vertx objects or arrays from JSON database results, for ex when using jsonb_build_array(...)
-        if (AST.NATIVE_FACTORY != null && AST.NATIVE_FACTORY.acceptAsNativeObject(object))
-            return AST.NATIVE_FACTORY.nativeToAstObject(object);
-        if (AST.NATIVE_FACTORY != null && AST.NATIVE_FACTORY.acceptAsNativeArray(object))
-            return AST.NATIVE_FACTORY.nativeToAstArray(object);
         // Other java objects are serialized into JSON
         return encodeToAstObject(object);
     }
@@ -131,13 +128,22 @@ public final class SerialCodecManager {
     public static ReadOnlyAstObject encodeToAstObject(Object object) {
         if (object == null)
             return null;
-        if (AST.isObject(object))
-            return (ReadOnlyAstObject) object;
+        if (AST.isObject(object) && object instanceof ReadOnlyAstObject astObject && astObject.has(CODEC_ID_KEY))
+            return astObject;
         return encodeJavaObjectToAstObject(object, AST.createObject());
     }
 
     private static <T> AstObject encodeJavaObjectToAstObject(T javaObject, AstObject json) {
-        SerialCodec<T> encoder = getSerialEncoder((Class<T>) javaObject.getClass());
+        // Used for serializing Vertx objects or arrays from JSON database results, for ex when using jsonb_build_array(...)
+        if (AST.NATIVE_FACTORY != null && AST.NATIVE_FACTORY.acceptAsNativeObject(javaObject))
+            javaObject = (T) AST.NATIVE_FACTORY.nativeToAstObject(javaObject);
+        if (AST.NATIVE_FACTORY != null && AST.NATIVE_FACTORY.acceptAsNativeArray(javaObject))
+            javaObject = (T) AST.NATIVE_FACTORY.nativeToAstArray(javaObject);
+        SerialCodec<T> encoder;
+        if (AST.isNode(javaObject)) // ReadOnlyAstNode is an interface and can't be found by getSerialEncoder(),
+            encoder = (SerialCodec<T>) AST_NODE_SERIAL_CODEC; // which is why we retrieve its SerialCodec differently here
+        else
+            encoder = getSerialEncoder((Class<T>) javaObject.getClass());
         if (encoder == null)
             throw new IllegalArgumentException("No SerialCodec for type: " + javaObject.getClass());
         json.set(CODEC_ID_KEY, encoder.getCodecId());
