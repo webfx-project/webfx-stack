@@ -44,6 +44,7 @@ public final class SerialCodecManager {
         registerSerialCodec(new LocalDateSerialCodec());
         registerSerialCodec(new LocalDateTimeSerialCodec());
         registerSerialCodec(new LocalTimeSerialCodec());
+        registerSerialCodec(AST_NODE_SERIAL_CODEC); // works for deserialization, not serialization but workaround in encodeJavaObjectToAstObject()
     }
 
     public static void registerSerialCodec(SerialCodec<?> codec) {
@@ -179,8 +180,7 @@ public final class SerialCodecManager {
         if (AST.isArray(object))
             return (T) decodeAstArrayToJavaArray((ReadOnlyAstArray) object, Object.class);
         // Case 3: it's a String with instant value prefix => we decode and return the instant value
-        if (object instanceof String) {
-            String s = (String) object;
+        if (object instanceof String s) {
             if (s.startsWith(INSTANT_VALUE_PREFIX)) {
                 try {
                     object = decodePrefixedInstant(s);
