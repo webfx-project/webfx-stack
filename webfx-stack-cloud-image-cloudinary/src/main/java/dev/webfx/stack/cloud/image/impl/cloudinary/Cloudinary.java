@@ -3,6 +3,7 @@ package dev.webfx.stack.cloud.image.impl.cloudinary;
 import dev.webfx.platform.ast.AST;
 import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.async.Future;
+import dev.webfx.platform.async.Promise;
 import dev.webfx.platform.blob.Blob;
 import dev.webfx.platform.conf.ConfigLoader;
 import dev.webfx.platform.console.Console;
@@ -30,12 +31,16 @@ public class Cloudinary extends FetchBasedCloudImageService {
     private String cloudName;
     private String apiKey;
     private String apiSecret;
+    private final Future<Void> configFuture;
 
     public Cloudinary() {
+        Promise<Void> configPromise = Promise.promise();
+        configFuture = configPromise.future();
         ConfigLoader.onConfigLoaded(CONFIG_PATH, config -> {
             cloudName = config.getString("cloudName");
             apiKey = config.getString("apiKey");
             apiSecret = config.getString("apiSecret");
+            configPromise.complete();
         });
     }
 
@@ -89,6 +94,11 @@ public class Cloudinary extends FetchBasedCloudImageService {
         return "https://res.cloudinary.com/" + cloudName + "/image/upload/w_:width/h_:height/:source";
     }
 
+    @Override
+    public Future<Void> readyFuture() {
+        return configFuture;
+    }
+
     private FormData signFormData(FormData formData) {
         if (!formData.has("timestamp"))
             formData.set("timestamp", timestamp());
@@ -119,8 +129,7 @@ public class Cloudinary extends FetchBasedCloudImageService {
         }
 
         String to_sign = Collections.toStringAmpersandSeparated(params);
-        String hash = Sha1.hash(to_sign + apiSecret);
-        return hash;
+        return Sha1.hash(to_sign + apiSecret);
     }
 
 }

@@ -10,6 +10,7 @@ import dev.webfx.stack.session.spi.SessionServiceProvider;
 public final class VertxSessionServiceProvider implements SessionServiceProvider {
 
     private final SessionStore sessionStore = VertxSessionStore.create(VertxInstance.getSessionStore());
+
     @Override
     public SessionStore getSessionStore() {
         return sessionStore;

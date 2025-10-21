@@ -1,5 +1,6 @@
 package dev.webfx.stack.authn.login.ui.spi.impl.gateway.password;
 
+import dev.webfx.extras.i18n.I18nKeys;
 import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;
@@ -26,9 +27,7 @@ public final class PasswordUiLoginGateway extends UiLoginGatewayBase implements 
    private static Consumer<String> CREATE_ACCOUNT_EMAIL_CONSUMER;
 
    private UILoginView uiLoginView;
-
    private UiLoginPortalCallback uiLoginPortalcallback;
-
     // SignInMode = true => username/password, false => magic link
     private final Property<Boolean> signInModeProperty = new SimpleObjectProperty<>(true);
 
@@ -55,15 +54,11 @@ public final class PasswordUiLoginGateway extends UiLoginGatewayBase implements 
         uiLoginView = new UILoginView(CREATE_ACCOUNT_EMAIL_CONSUMER);
         uiLoginView.initializeComponents();
 
-
-        FXProperties.runNowAndOnPropertiesChange(() -> {
-            boolean signIn = signInModeProperty.getValue();
-            if (!signIn) {
-                uiLoginView.transformPaneToForgetPasswordState(callback);
-            }
-            else {
+        FXProperties.runNowAndOnPropertyChange(signIn -> {
+            if (signIn)
                 uiLoginView.transformPaneToInitialState(callback);
-            }
+            else
+                uiLoginView.transformPaneToForgetPasswordState(callback);
         }, signInModeProperty);
         FXProperties.runNowAndOnPropertiesChange(this::prepareShowing, uiLoginView.getContainer().sceneProperty());
         return uiLoginView.getContainer();
@@ -71,12 +66,14 @@ public final class PasswordUiLoginGateway extends UiLoginGatewayBase implements 
 
     private void resetUXToLogin() {
         signInModeProperty.setValue(true);
-        //We wait one second to reset the UXLogin (otherwise it change to quickly, and we notice it on the UI if we have go to the password page to the home page (which take 1s), this change occurs between the two, and we don't want it to be noticed
-        UiScheduler.scheduleDelay(1000,()->uiLoginView.transformPaneToInitialState(uiLoginPortalcallback));
+        // We wait for 1 s to reset the UXLogin, otherwise it changes too quickly, and we notice it on the UI if we go
+        // from the password page to the home page (which take 1 s) => this change occurs between the two, which is
+        // noticeable, and we don't want it.
+        UiScheduler.scheduleDelay(1000, () -> uiLoginView.transformPaneToInitialState(uiLoginPortalcallback));
     }
 
     public void prepareShowing() {
-        I18nControls.bindI18nProperties(uiLoginView.getActionButton(), signInModeProperty.getValue() ? "Continue" : "SendLink>>");
+        I18nControls.bindI18nProperties(uiLoginView.getActionButton(), signInModeProperty.getValue() ? PasswordI18nKeys.Continue : I18nKeys.appendArrows(PasswordI18nKeys.SendLink));
         // Resetting the default button (required for JavaFX if displayed a second time)
         ButtonFactory.resetDefaultButton(uiLoginView.getActionButton());
         SceneUtil.autoFocusIfEnabled(uiLoginView.getEmailTextField());

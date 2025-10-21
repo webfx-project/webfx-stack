@@ -4,11 +4,7 @@ import dev.webfx.extras.controlfactory.MaterialFactoryMixin;
 import dev.webfx.extras.controlfactory.button.ButtonFactoryMixin;
 import dev.webfx.extras.util.dialog.builder.DialogBuilderUtil;
 import dev.webfx.extras.util.dialog.builder.DialogContent;
-import dev.webfx.platform.async.Batch;
-import dev.webfx.platform.async.Future;
-import dev.webfx.platform.async.Promise;
 import dev.webfx.platform.console.Console;
-import dev.webfx.stack.db.submit.SubmitResult;
 import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.entity.UpdateStore;
 import dev.webfx.stack.orm.expression.Expression;
@@ -23,13 +19,6 @@ abstract class EntityUpdateDialog<E extends Entity> implements MaterialFactoryMi
     Entity updateEntity;
     private DialogContent dialogContent;
     private UpdateStore updateStore;
-    private Promise<Batch<SubmitResult>> userSubmitPromise;
-
-    public Future<Batch<SubmitResult>> createUserSubmitFuture() {
-        if (userSubmitPromise == null)
-            userSubmitPromise = Promise.promise();
-        return userSubmitPromise.future();
-    }
 
     public E getEntity() {
         return entity;
@@ -79,14 +68,9 @@ abstract class EntityUpdateDialog<E extends Entity> implements MaterialFactoryMi
                         if (!updateStore.hasChanges())
                             dialogCallback.closeDialog();
                         else {
-                            Future<Batch<SubmitResult>> submitFuture = updateStore.submitChanges();
-                            submitFuture
+                            updateStore.submitChanges()
                                 .onFailure(dialogCallback::showException)
-                                .onSuccess(result -> dialogCallback.closeDialog())
-                                .onComplete(result -> {
-                                    if (userSubmitPromise != null)
-                                        userSubmitPromise.handle(submitFuture);
-                                });
+                                .onSuccess(result -> dialogCallback.closeDialog());
                         }
                     });
                     updateOkButton();

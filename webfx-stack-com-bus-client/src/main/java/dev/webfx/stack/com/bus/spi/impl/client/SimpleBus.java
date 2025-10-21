@@ -1,20 +1,3 @@
-/*
- * Note: this code is a fork of Goodow realtime-channel project https://github.com/goodow/realtime-channel
- */
-
-/*
- * Copyright 2013 Goodow.com
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
 package dev.webfx.stack.com.bus.spi.impl.client;
 
 import dev.webfx.platform.ast.AstObject;
@@ -31,13 +14,13 @@ import java.util.*;
 /*
  * Simple bus implementation that can be used as a basis for more complex implementations. This simple implementation
  * doesn't know how to send messages over the network. So it works only as a single local bus instance that sends local
- * message only (to itself), or as a local node in a distributed environment that can handle received messages that
+ * messages only (to itself), or as a local node in a distributed environment that can handle received messages that
  * are passed to it. To make this bus able to send messages over the network itself (through the send() and publish()
  * methods), it must be extended. In particular, the doSendOrPublishImpl() method must be overridden to implement the
  * network delivery of non-local messages.
  *
  * Also, this implementation doesn't do any message encoding/decoding. So when receiving a raw message from the network,
- * the calling code is responsible for decoding that raw message first, and then passing the extracted address, body and
+ * the calling code is responsible for decoding that raw message first and then passing the extracted address, body and
  * reply address to the onMessage() method.
  *
  * @author Bruno Salmon
@@ -156,7 +139,6 @@ public class SimpleBus implements Bus {
         return this;
     }
 
-    @SuppressWarnings("unchecked")
     protected <T> void doSendOrPublishImpl(boolean send, String address, Object body, DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler) {
         checkNotNull("address", address);
         // Registering the reply handler (if set)
@@ -169,6 +151,7 @@ public class SimpleBus implements Bus {
             unregisterReplyHandler(replyAddress);
     }
 
+    @SuppressWarnings("unchecked")
     protected <T> String registerReplyHandlerIfSet(Handler<AsyncResult<Message<T>>> replyHandler) {
         String replyAddress = null;
         if (replyHandler != null) {
@@ -182,11 +165,11 @@ public class SimpleBus implements Bus {
         replyHandlers.remove(replyAddress);
     }
 
-    // Message API. All incoming messages, either local, or from the network, should be passed to a onMessage() method,
+    // Message API. All incoming messages, either local or from the network, should be passed to a onMessage() method,
     // that will try to deliver the message to a handler registered on this bus.
 
     protected boolean onMessage(boolean send, String address, String replyAddress, Object body, DeliveryOptions options) {
-        // Embedding all the parameters into a single message object, and passing it to onMessage(Message).
+        // Embedding all the parameters into a single message object and passing it to onMessage(Message).
         Message message = createMessage(send, address, replyAddress, body, options);
         return onMessage(message);
     }
@@ -208,7 +191,7 @@ public class SimpleBus implements Bus {
         if (handlers == null)
             handlers = getHandlerMap(false).get(address);
         if (handlers != null) {
-            // We make a copy since the handler might get unregistered from within the handler itself,
+            // We make a copy as the handler might get unregistered from within the handler itself,
             // which would screw up our iteration
             List<Handler<Message>> copy = new ArrayList<>(handlers);
             // Drain any messages that came in while the channel was not open.
@@ -238,6 +221,7 @@ public class SimpleBus implements Bus {
         return registerImpl(local, address, handler);
     }
 
+    @SuppressWarnings("unchecked")
     protected boolean doRegister(boolean local, String address, Handler<? extends Message> handler) {
         checkNotNull("address", address);
         checkNotNull("handler", handler);

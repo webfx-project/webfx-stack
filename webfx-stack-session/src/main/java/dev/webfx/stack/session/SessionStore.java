@@ -7,7 +7,7 @@ import dev.webfx.platform.async.Future;
  */
 public interface SessionStore {
 
-    Session createSession();
+    Session createSession(long timeout);
 
     /**
      * Get the session with the specified ID
@@ -39,5 +39,12 @@ public interface SessionStore {
      * @return  a future holding true/false, or a failure
      */
     Future<Boolean> clear();
+
+    /**
+     * Get the number of sessions in the store.
+     *
+     * @return future that will be called with a result, or a failure
+     */
+    Future<Integer> size();
 
 }

@@ -1,10 +1,8 @@
 package dev.webfx.stack.orm.entity;
 
-import dev.webfx.platform.async.Batch;
 import dev.webfx.platform.async.Future;
 import dev.webfx.stack.db.datascope.DataScope;
 import dev.webfx.stack.db.submit.SubmitArgument;
-import dev.webfx.stack.db.submit.SubmitResult;
 import dev.webfx.stack.orm.datasourcemodel.service.DataSourceModelService;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
 import dev.webfx.stack.orm.entity.impl.DynamicEntity;
@@ -64,7 +62,7 @@ public interface UpdateStore extends EntityStore {
 
     void setSubmitScope(DataScope submitScope);
 
-    Future<Batch<SubmitResult>> submitChanges(SubmitArgument... initialSubmits);
+    Future<SubmitChangesResult> submitChanges(SubmitArgument... initialSubmits);
 
     // Factory
 

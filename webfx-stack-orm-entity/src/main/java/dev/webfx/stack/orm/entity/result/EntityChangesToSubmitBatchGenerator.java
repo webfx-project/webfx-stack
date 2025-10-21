@@ -5,7 +5,6 @@ import dev.webfx.platform.util.Arrays;
 import dev.webfx.stack.db.datascope.DataScope;
 import dev.webfx.stack.db.submit.GeneratedKeyReference;
 import dev.webfx.stack.db.submit.SubmitArgument;
-import dev.webfx.stack.db.submit.SubmitResult;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
 import dev.webfx.stack.orm.domainmodel.DomainField;
 import dev.webfx.stack.orm.dql.sqlcompiler.ExpressionSqlCompiler;
@@ -14,7 +13,6 @@ import dev.webfx.stack.orm.dql.sqlcompiler.sql.SqlCompiled;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.dbms.DbmsSqlSyntax;
 import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.entity.EntityId;
-import dev.webfx.stack.orm.entity.EntityStore;
 import dev.webfx.stack.orm.entity.UpdateStore;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.parser.lci.ParserDomainModelReader;
@@ -69,16 +67,16 @@ public final class EntityChangesToSubmitBatchGenerator {
         }
 
         public Batch<SubmitArgument> generate() {
-            // Generating insert and update statements. Statements parameters values may temporary contains EntityId
-            // objects, which will be replaced on next step while sorting statements.
+            // Generating insert and update statements. Statement parameters values may temporarily contain EntityId
+            // objects, which will be replaced on the next step while sorting statements.
             generateInsertUpdates();
-            // Then generating delete statements. Better to execute after update statements, because some updates may
-            // clear the foreign keys pointing the rows we are about to delete. If deletes are executed before this
+            // Then generating delete statements. Better to execute after update statements because some updates may
+            // clear the foreign keys pointing to the rows we are about to delete. If deletes are executed before this
             // clearing, it's very likely that the database will raise a reference constraint error. Note that these
             // delete statements will be executed in the same order as called by the application code, which therefore
             // is responsible for this order (in case there are references between deleted objects).
             generateDeletes();
-            // Finally sorting the statements so that any statement (insert or update) that is referring to a new entity
+            // Finally, sorting the statements so that any statement (insert or update) that is referring to a new entity
             // will be executed after that entity has been inserted into the database. For such statements, the parameter
             // value referring to the new entity is replaced with a GeneratedKeyReference object that contains the index
             // of the insert statement in the batch. The SubmitService must replace that value with the generated key
@@ -90,22 +88,18 @@ public final class EntityChangesToSubmitBatchGenerator {
             // update X set f=? where id=? [p1, p2]
             // update X set f=? where id=? [p3, p4]
             // ...
-            // => update X set f=? where id=? [Batch([p1, p2], [p3, p4], ...] (=> single call to database)
+            // => update X set f=? where id=? [Batch([p1, p2], [p3, p4], ...] (=> single call to the database)
             groupIdenticalStatements();
             // Returning the batch of SubmitArguments
             return new Batch<>(submitArguments.toArray(new SubmitArgument[0]));
         }
 
-        public void applyGeneratedKeys(Batch<SubmitResult> ar, EntityStore store) {
-            // Updating the Ids of the entities newly created with the generated keys returned by the database
-            for (Map.Entry<EntityId, Integer> entry : newEntityIdIndexInBatch.entrySet()) {
-                EntityId newEntityId = entry.getKey();
-                int indexInBatch = entry.getValue();
-                SubmitResult submitResult = ar.get(indexInBatch);
-                int generatedKeyIndex = newEntityIdIndexInGeneratedKeys.getOrDefault(newEntityId, 0);
-                Object generatedKey = submitResult.getGeneratedKeys()[generatedKeyIndex];
-                store.applyEntityIdRefactor(newEntityId, generatedKey);
-            }
+        public Map<EntityId, Integer> getNewEntityIdIndexInBatch() {
+            return newEntityIdIndexInBatch;
+        }
+
+        public Map<EntityId, Integer> getNewEntityIdIndexInGeneratedKeys() {
+            return newEntityIdIndexInGeneratedKeys;
         }
 
         void sortStatementsByDependencyOrder() {
@@ -113,12 +107,12 @@ public final class EntityChangesToSubmitBatchGenerator {
             int size = submitArguments.size();
             // sortedList will be temporarily used to sort the SubmitArguments, and once finished, will be copied back to submitArguments
             List<SubmitArgument> sortedList = new ArrayList<>(Collections.nCopies(size, null)); // correct size already, but initially filled with null
-            // This second list will memorize the index translation of the SubmitArguments (index in initial list => index in the sorted list)
+            // This second list will memorize the index translation of the SubmitArguments (index in the initial list => index in the sorted list)
             List<Integer> newEntityIndexTranslationAfterSort = new ArrayList<>(Collections.nCopies(size, null)); // correct size already, but initially filled with null
             boolean indexChanged = false; // flag to skip the final index update loop if not necessary (optimization)
-            int sortedIndex = 0; // Index of future sorted statement
+            int sortedIndex = 0; // Index of the future sorted statement
             while (sortedIndex < size) { // means the sort is not finished
-                // We are looking for the next statements with parameters resolved (i.e. value = literal or a newly
+                // We are looking for the next statements with parameters resolved (i.e., value = literal or a newly
                 // generated id that is coming from a previous statement already sorted)
                 boolean someResolved = false; // will be set to true once we found one, which should happen unless cyclic references are present
                 loop: // iterating over all submitArguments not yet sorted
@@ -153,7 +147,7 @@ public final class EntityChangesToSubmitBatchGenerator {
                         // submitArgument and therefore, it is suitable to be executed as next in the sorted list.
                         submitArguments.set(index, null); // Moving the submitArgument from the original list
                         sortedList.set(sortedIndex, arg); // to the sorted list
-                        // and memorising the index translation between the 2 lists
+                        // and memorizing the index translation between the 2 lists
                         newEntityIndexTranslationAfterSort.set(index, sortedIndex);
                         if (sortedIndex != index)
                             indexChanged = true;
@@ -189,12 +183,12 @@ public final class EntityChangesToSubmitBatchGenerator {
             List<Object[]> groupParameters = null;
             // We iterate over all submitArguments and try to group them
             for (SubmitArgument submitArgument : submitArguments) {
-                // We try to add the submitArgument in the existing group (won't work with initial empty group)
+                // We try to add the submitArgument in the existing group (won't work with the initial empty group)
                 boolean added = addToExistingStatementGroup(submitArgument, groupSample, groupParameters);
                 if (!added) { // => group break
                     // We record the possible existing group into the groupList (initial null will be skipped)
                     recordExistingStatementGroup(groupSample, groupParameters, groupList, batchIndexTranslations);
-                    // and start a new group with this submitArgument as sample
+                    // and start a new group with this submitArgument as a sample
                     groupSample = submitArgument;
                     groupParameters = new ArrayList<>();
                 }
@@ -301,13 +295,13 @@ public final class EntityChangesToSubmitBatchGenerator {
                         }
                     if (assignments.isEmpty() && !id.isNew())
                         continue;
-                    ExpressionArray<?> setClause = new ExpressionArray(assignments);
+                    ExpressionArray setClause = new ExpressionArray(assignments);
                     if (id.isNew()) { // insert statement
                         newEntityIdIndexInBatch.put(id, submitArguments.size());
-                        Insert<?> insert = new Insert(id.getDomainClass(), setClause);
+                        Insert insert = new Insert(id.getDomainClass(), setClause);
                         addToBatch(insert, values.isEmpty() ? null : values.toArray());
                     } else { // update statement
-                        Update<?> update = new Update(id.getDomainClass(), setClause, WHERE_ID_EQUALS_PARAM);
+                        Update update = new Update(id.getDomainClass(), setClause, WHERE_ID_EQUALS_PARAM);
                         values.add(id.getPrimaryKey());
                         addToBatch(update, values.toArray());
                     }
@@ -364,7 +358,7 @@ public final class EntityChangesToSubmitBatchGenerator {
             }
             // We reverse the previous sort, because if we delete first the independent entities whose other entities
             // refer to (meaning that there are foreign keys pointing to them), then the database will raise a constraint
-            // exception. We need to proceed the deletes in the exact opposite order (deleting first the entities
+            // exception. We need to proceed with the deletes in the exact opposite order (deleting first the entities
             // referring to other entities).
             Collections.reverse(sorted);
             return sorted;

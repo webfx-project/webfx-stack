@@ -52,7 +52,7 @@ public final class ClientSideStateSession {
     }
 
     public ClientSideStateSession(SessionStore sessionStore) {
-        this(sessionStore, sessionStore.createSession());
+        this(sessionStore, sessionStore.createSession(Long.MAX_VALUE));
         String clientSessionId = LocalStorage.getItem(ACTIVE_CLIENT_SESSION_ID);
         if (clientSessionId != null)
             sessionStore.get(clientSessionId)
@@ -131,7 +131,8 @@ public final class ClientSideStateSession {
 
     private void callRunnable(Runnable runnable) {
         // When the JavaFX UI has not yet started (only the application logic started), we don't postpone the call in
-        // the UI thread, we run it immediately because 1) there is no danger of UI thread exception at this point, and
+        // the UI thread, we run it immediately, because:
+        // 1) there is no danger of UI thread exception at this point
         // 2) the sequencing can be very sensitive on boot time, and postponing the call will probably alter the boot
         // sequence and create problems.
         if (!WebFxKitLauncher.isReady())
@@ -164,8 +165,10 @@ public final class ClientSideStateSession {
     public void changeServerSessionId(String serverSessionId, boolean skipNullValue, boolean fromServer) {
         if (SessionAccessor.changeServerSessionId(clientSession, serverSessionId, skipNullValue)) {
             serverSessionIdChanged = true;
-            if (!fromServer)
-                nextSessionIdSendingSequence = -1; // forcing a resend of the server session id to the server
+            if (fromServer) // if the server sent a new session id, it's probably a session loss (the new session is empty),
+                forceSendingClientStatesBackToServer(false); // so we need to send the client states again
+            else // if the change is from the client,
+                nextSessionIdSendingSequence = -1; // we force a resend of the server session id only to the server
             scheduleSessionStoreAndListenerCall();
         }
     }
@@ -179,7 +182,7 @@ public final class ClientSideStateSession {
             userIdChanged = true;
             if (!fromServer)
                 nextUserIdSendingSequence = -1; // forcing a resend of the user id to the server
-            // Erasing userId from client session if logged out
+            // Erasing userId from the client session if logged out
             if (LogoutUserId.isLogoutUserId(userId))
                 SessionAccessor.changeUserId(clientSession, null, false);
             scheduleSessionStoreAndListenerCall();
@@ -212,14 +215,19 @@ public final class ClientSideStateSession {
             connectedChanged = true;
             scheduleListenerCall();
             if (!connected) {
-                // forcing a resend of the server session id to the server
-                nextSessionIdSendingSequence =
-                    nextUserIdSendingSequence =
-                        nextRunIdSendingSequence =
-                            nextBackofficeSendingSequence =
-                                -1;
+                // forcing a resend of all client states to the server
+                forceSendingClientStatesBackToServer(true);
             }
         }
+    }
+
+    private void forceSendingClientStatesBackToServer(boolean includingSessionId) {
+        nextUserIdSendingSequence =
+            nextRunIdSendingSequence =
+                nextBackofficeSendingSequence =
+                    -1;
+        if (includingSessionId)
+            nextSessionIdSendingSequence = -1;
     }
 
     // The following methods are called by ClientSideStateSessionSyncer.syncOutgoingState() and so this is where we

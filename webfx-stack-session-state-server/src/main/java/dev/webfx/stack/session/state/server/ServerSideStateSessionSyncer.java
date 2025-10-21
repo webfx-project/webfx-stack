@@ -2,7 +2,6 @@ package dev.webfx.stack.session.state.server;
 
 import dev.webfx.platform.async.AsyncFunction;
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.async.Promise;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.tuples.Pair;
 import dev.webfx.stack.authn.logout.server.LogoutPush;
@@ -20,7 +19,7 @@ import java.util.Objects;
  */
 public final class ServerSideStateSessionSyncer {
 
-    private final static boolean LOG_STATES = false; // Set to true to log incoming and outgoing states on server side
+    private final static boolean LOG_STATES = false; // Set to true to log incoming and outgoing states on the server side
 
     private static AsyncFunction<Object, Object> userIdChecker;
 
@@ -66,15 +65,13 @@ public final class ServerSideStateSessionSyncer {
 
     private static Future<Session> syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(Session serverSession, Object clientState, boolean forceStore) {
         Object userId = StateAccessor.getUserId(clientState);
-        // Case when the user hasn't changed (userId == null => not yet logged in or same user as last time in this server session)
+        // Case when the user hasn't changed (userId == null => not yet logged in or is the same user as last time in this server session)
         if (userId == null || userIdChecker == null)
             return syncFixedServerSessionFromIncomingClientState(serverSession, clientState, forceStore);
         // Case when the user is set => login or user switch, or logout (LOGOUT_USER_ID)
-        Promise<Session> promise = Promise.promise();
-        ThreadLocalStateHolder.runWithState(clientState, () -> userIdChecker.apply(userId))
-            .onComplete(ar -> {
+        return ThreadLocalStateHolder.runWithState(clientState, () -> userIdChecker.apply(userId))
+            .compose(finalUserId -> {
                 // Setting the new user id (should be the same as the passed on if valid, or something like "INVALID" if not)
-                Object finalUserId = ar.result();
                 Console.log("️🛡🛡🛡🛡🛡 UserIdCheck: userId=" + userId + " => finalUserId = " + finalUserId);
                 // If the user identity check failed, we log out the user
                 if (finalUserId == null)
@@ -82,9 +79,7 @@ public final class ServerSideStateSessionSyncer {
                 // Memorizing the final user id in the client state
                 StateAccessor.setUserId(clientState, finalUserId);
                 // We continue with the normal session <-> state sync process
-                syncFixedServerSessionFromIncomingClientState(serverSession, clientState, forceStore)
-                    .onFailure(promise::fail)
-                    .onSuccess(promise::complete);
+                Future<Session> future = syncFixedServerSessionFromIncomingClientState(serverSession, clientState, forceStore);
                 // At the same time, we do a push to the client of either the logout userId (if it's a logout), or the
                 // new authorizations (if it's a login or user switch). To prepare this push, we need to ensure that the
                 // userId is set in the client state (the runId is what identifies which client to push to).
@@ -102,8 +97,8 @@ public final class ServerSideStateSessionSyncer {
                         userIdAuthorizer.apply(null);
                     }
                 });
+                return future;
             });
-        return promise.future();
     }
 
     private static Future<Session> syncFixedServerSessionFromIncomingClientState(Session serverSession, Object clientState, boolean forceStore) {

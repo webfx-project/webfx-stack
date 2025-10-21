@@ -48,7 +48,7 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
                         // We memorize that final state in the raw message
                         setJsonRawMessageState(rawJsonMessage, headers, finalIncomingState);
                         // We tell the client is live
-                        clientIsLive(finalIncomingState, finalServerSession);
+                        clientIsLive(finalIncomingState, finalServerSession, false);
                         // We tell the message delivery can now continue into the server and return the serverSession (not
                         // sure if the serverSession object will be useful - the most important thing is to complete this
                         // asynchronous operation so the delivery can go on)
@@ -68,7 +68,7 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
         return Future.succeededFuture(serverSession);
     }
 
-    private static void setJsonRawMessageState(AstObject rawJsonMessage, AstObject headers, Object state) {
+    public static void setJsonRawMessageState(AstObject rawJsonMessage, AstObject headers, Object state) {
         if (state != null) {
             if (headers == null)
                 rawJsonMessage.set(JsonBusConstants.HEADERS, headers = AST.createObject());
@@ -82,7 +82,7 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
         ServerJsonBusStateManager.clientLiveListener = clientLiveListener;
     }
 
-    public static void clientIsLive(Object state, Session session) {
+    public static boolean clientIsLive(Object state, Session session, boolean ping) {
         if (clientLiveListener != null) {
             // Trying to get the client runId from the state
             String runId = StateAccessor.getRunId(state);
@@ -90,11 +90,13 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
                 // If not found, trying to get it from the session
                 runId = SessionAccessor.getRunId(session);
             }
-            if (runId != null)
+            if (runId != null) {
                 clientLiveListener.accept(runId);
-            else
-                Console.log("⚠️ ServerJsonBusStateManager.clientIsLive() was called but no runId could be found");
+                return true; // to tell that we found the runId
+            }
+            Console.log("⚠️ ServerJsonBusStateManager.clientIsLive() was called but no runId could be found (session id = " + session.id() + ", ping = " + ping + ")");
         }
+        return false;
     }
 
 }

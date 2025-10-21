@@ -1,17 +1,16 @@
 package dev.webfx.stack.push.server.spi.impl.simple;
 
+import dev.webfx.platform.async.Future;
 import dev.webfx.platform.console.Console;
-import dev.webfx.stack.com.bus.DeliveryOptions;
-import dev.webfx.stack.push.server.UnresponsivePushClientListener;
-import dev.webfx.stack.push.server.spi.PushServerServiceProvider;
-import dev.webfx.stack.push.ClientPushBusAddressesSharedByBothClientAndServer;
-import dev.webfx.stack.com.bus.Bus;
-import dev.webfx.stack.com.bus.BusService;
-import dev.webfx.stack.com.bus.call.BusCallService;
 import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.scheduler.Scheduler;
-import dev.webfx.platform.async.Future;
-import dev.webfx.platform.async.Promise;
+import dev.webfx.stack.com.bus.Bus;
+import dev.webfx.stack.com.bus.BusService;
+import dev.webfx.stack.com.bus.DeliveryOptions;
+import dev.webfx.stack.com.bus.call.BusCallService;
+import dev.webfx.stack.push.ClientPushBusAddressesSharedByBothClientAndServer;
+import dev.webfx.stack.push.server.UnresponsivePushClientListener;
+import dev.webfx.stack.push.server.spi.PushServerServiceProvider;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,20 +31,19 @@ public final class SimplePushServerServiceProvider implements PushServerServiceP
 
     @Override
     public <T> Future<T> push(String clientServiceAddress, Object javaArgument, DeliveryOptions options, Bus bus, Object clientRunId) {
-        Promise<T> promise = Promise.promise();
         PushClientInfo pushClientInfo = getOrCreatePushClientInfo(clientRunId);
         String clientBusCallServiceAddress = ClientPushBusAddressesSharedByBothClientAndServer.computeClientBusCallServiceAddress(clientRunId);
-        if (LOG_PUSH)
-            Console.log("Pushing " + clientBusCallServiceAddress + " -> " + clientServiceAddress);
         pushClientInfo.touchCalled();
-        BusCallService.<T>call(clientBusCallServiceAddress, clientServiceAddress, javaArgument, options, bus)
+        return BusCallService.<T>call(clientBusCallServiceAddress, clientServiceAddress, javaArgument, options, bus)
             .onComplete(ar -> {
                 pushClientInfo.touchReceived(ar.cause());
-                if (ar.failed())
-                    pushFailed(clientRunId);
-                promise.handle(ar);
+                if (LOG_PUSH) {
+                    if (ar.succeeded())
+                        Console.log("✅ Push " + clientBusCallServiceAddress + " -> " + clientServiceAddress + " was successful");
+                    else
+                        Console.log("❌ Push " + clientBusCallServiceAddress + " -> " + clientServiceAddress + " failed: " + ar.cause());
+                }
             });
-        return promise.future();
     }
 
     @Override
@@ -77,10 +75,7 @@ public final class SimplePushServerServiceProvider implements PushServerServiceP
     }
 
     private PushClientInfo getOrCreatePushClientInfo(Object clientRunId) {
-        PushClientInfo pushClientInfo = pushClientInfos.get(clientRunId);
-        if (pushClientInfo == null)
-            pushClientInfos.put(clientRunId, pushClientInfo = new PushClientInfo(clientRunId));
-        return pushClientInfo;
+        return pushClientInfos.computeIfAbsent(clientRunId, PushClientInfo::new);
     }
 
     final class PushClientInfo {

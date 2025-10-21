@@ -10,6 +10,8 @@ import dev.webfx.extras.visual.controls.grid.VisualGrid;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.Arrays;
+import dev.webfx.platform.util.Numbers;
+import dev.webfx.platform.util.Objects;
 import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.platform.util.function.Callable;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
@@ -267,6 +269,9 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
         store.setParameterValue("lowerSearch", search.toLowerCase());
         store.setParameterValue("searchLike", "%" + search + "%");
         store.setParameterValue("lowerSearchLike", "%" + search.toLowerCase() + "%");
+        store.setParameterValue("searchEmailLike", search.contains("@") ? "%" + search.toLowerCase() + "%" : "");
+        store.setParameterValue("searchInteger", Objects.coalesce(Numbers.parseInteger(search), 0));
+        // TODO: find a lighter way for the app code to add parameters than having to override this method
     }
 
     public EntityButtonSelector<E> autoSelectFirstEntity() {

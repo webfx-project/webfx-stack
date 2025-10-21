@@ -15,7 +15,7 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 /**
  * @author Bruno Salmon
  */
-public class VertxBusModuleBooter implements ApplicationModuleBooter {
+public final class VertxBusModuleBooter implements ApplicationModuleBooter {
 
     private final static String CONFIG_PATH = "webfx.stack.com.bus.vertx";
     private final static String BUS_PREFIX_CONFIG_KEY = "busPrefix";
@@ -59,10 +59,25 @@ public class VertxBusModuleBooter implements ApplicationModuleBooter {
                                 .addOutboundPermitted(new PermittedOptions(new JsonObject()))
                             , bridgeEvent -> { // Calling the VertxInstance bridge event handler if set
                                 Handler<BridgeEvent> bridgeEventHandler = VertxInstance.getBridgeEventHandler();
-                                if (bridgeEventHandler != null)
-                                    bridgeEventHandler.handle(bridgeEvent);
-                                else
+                                if (bridgeEventHandler == null)
                                     bridgeEvent.complete(true);
+                                else {
+                                    // Note: Vert.x is calling this code from the HTTP server verticle event loop thread!
+                                    // Not from the main app verticle event loop thread. As opposed to the message
+                                    // consumers (called by the clients) that have been registered over the event bus by
+                                    // the main app verticle, and that are therefore executed in the main app verticle
+                                    // thread.
+                                    // Concretely, bridgeEventHandler has been set by VertxBus to control the message
+                                    // states, including the authentication and authorization of the user, via the
+                                    // ServerSideStateSessionSyncer. ServerAuthenticationJob and AuthorizationServerJob
+                                    // have registered AuthenticationService and AuthorizationServerService respectively
+                                    // to do these jobs. But these classes are not thread-safe and are also called from
+                                    // the main app verticle event loop thread via the client calls over the event bus.
+                                    // This is why AuthenticationService and AuthorizationServerService go through the
+                                    // event bus also to invoke them rather than calling them directly. This prevents
+                                    // any concurrency issue.
+                                    bridgeEventHandler.handle(bridgeEvent);
+                                }
                             }
                         )
                     );

@@ -164,6 +164,7 @@ public abstract class ButtonSelector<T> {
         button.setCursor(Cursor.HAND);
         button.setOnMouseEntered(e -> onMouseEntered());
         button.setOnMouseExited( e -> onMouseExited());
+        button.setMinHeight(24); // min height for null content
         updateButtonContentFromSelectedItem();
         return this;
     }

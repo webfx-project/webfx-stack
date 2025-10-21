@@ -1,1 +1,2 @@
+dev.webfx.stack.orm.entity.messaging.serial.EntityIdImplSerialCodec
 dev.webfx.stack.orm.entity.messaging.serial.EntityResultImplSerialCodec

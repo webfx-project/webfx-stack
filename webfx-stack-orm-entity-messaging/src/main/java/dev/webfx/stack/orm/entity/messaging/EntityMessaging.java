@@ -33,20 +33,20 @@ public final class EntityMessaging {
     public void publishMessage(Object messageBody) {
         // We serialize the java object into JSON before publishing it on the event bus
         Object encodedBody = SerialCodecManager.encodeToJson(messageBody);
-        // We publish the json-encoded body to all front-office clients who are listening (because they called
+        // We publish the json-encoded body to all front-office clients who are listening to (because they called
         // addFrontOfficeMessageBodyHandler() before).
         BusService.bus().publish(address, encodedBody);
     }
 
-    // This is the method to use for the front-office client to listen messages published by the back-office.
+    // This is the method to use for the front-office client to listen to the messages published by the back-office.
     public Registration addMessageBodyHandler(Handler<Object> messageBodyHandler) {
-        if (messageHandlers == null) { // Initialization on first call
+        if (messageHandlers == null) { // Initialization on the first call
             messageHandlers = new ArrayList<>();
-            // To make this work, the client bus call service must listen server calls! This takes place as soon as the
-            // connection to the server is ready, or each time we reconnect to the server:
+            // To make this work, the client bus call service must listen to the server calls! This takes place as soon
+            // as the connection to the server is ready, or each time we reconnect to the server:
             FXConnected.runOnEachConnected(() ->
                 BusService.bus().register(address, message -> {
-                    // Since the message body is encoded into json, we decode it into a java object
+                    // Since the message body is encoded into JSON, we decode it into a java object
                     Object messageBody = SerialCodecManager.decodeFromJson(message.body());
                     // Then we call each handler with that java message body
                     messageHandlers.forEach(h -> h.handle(messageBody));

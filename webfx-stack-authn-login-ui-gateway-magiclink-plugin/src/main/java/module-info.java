@@ -6,10 +6,10 @@ module webfx.stack.authn.login.ui.gateway.magiclink.plugin {
     requires javafx.base;
     requires javafx.controls;
     requires javafx.graphics;
+    requires webfx.extras.async;
     requires webfx.extras.controlfactory;
     requires webfx.extras.i18n;
     requires webfx.extras.i18n.controls;
-    requires webfx.extras.operation;
     requires webfx.extras.styles.bootstrap;
     requires webfx.extras.validation;
     requires webfx.kit.util;

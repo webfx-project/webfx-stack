@@ -15,8 +15,8 @@ final class InMemorySessionStore implements SessionStore {
     private final Map<String, Session> sessions = new HashMap<>();
 
     @Override
-    public Session createSession() {
-        return new InMemorySession();
+    public Session createSession(long timeout) {
+        return new InMemorySession(timeout);
     }
 
     @Override
@@ -40,5 +40,10 @@ final class InMemorySessionStore implements SessionStore {
     public Future<Boolean> clear() {
         sessions.clear();
         return Future.succeededFuture(true);
+    }
+
+    @Override
+    public Future<Integer> size() {
+        return Future.succeededFuture(sessions.size());
     }
 }

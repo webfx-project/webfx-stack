@@ -11,6 +11,7 @@
     </dependencies>
 
     <providers>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.orm.entity.messaging.serial.EntityIdImplSerialCodec</provider>
         <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.orm.entity.messaging.serial.EntityResultImplSerialCodec</provider>
     </providers>
 

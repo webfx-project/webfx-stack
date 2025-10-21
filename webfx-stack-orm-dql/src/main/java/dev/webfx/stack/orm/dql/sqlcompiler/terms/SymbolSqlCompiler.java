@@ -39,7 +39,7 @@ public final class SymbolSqlCompiler extends AbstractTermSqlCompiler<Symbol> {
             if (foreignField == null)
                 o.build.addColumnInClause(o.build.getClassAlias(termDomainClass, o.modelReader), o.modelReader.getSymbolSqlColumnName(termDomainClass, e), e, o.modelReader.getSymbolForeignDomainClass(termDomainClass, e, false), o.clause, o.separator, o.grouped, Types.isBooleanType(e.getType()), o.generateQueryMapping);
             else
-                compileChildExpressionToSql(new Dot(e, foreignField, true), o);
+                compileChildExpressionToSql(Dot.dot(e, foreignField, true), o);
         }
     }
 }

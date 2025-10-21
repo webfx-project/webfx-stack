@@ -436,7 +436,7 @@ public final class SqlBuild {
 
         @Override
         public int hashCode() {
-            int result = table1Alias.hashCode();
+            int result = table1Alias == null ? 0 : table1Alias.hashCode();
             result = 31 * result + column1Name.hashCode();
             result = 31 * result + table2Name.hashCode();
             result = 31 * result + column2Name.hashCode();

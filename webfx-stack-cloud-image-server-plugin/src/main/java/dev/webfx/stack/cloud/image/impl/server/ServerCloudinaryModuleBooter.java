@@ -2,7 +2,7 @@ package dev.webfx.stack.cloud.image.impl.server;
 
 import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
 import dev.webfx.platform.conf.ConfigLoader;
-import dev.webfx.platform.file.spi.impl.java.JavaFile;
+import dev.webfx.platform.file.spi.impl.jre.JreFile;
 import dev.webfx.platform.util.Booleans;
 import dev.webfx.platform.util.vertx.VertxInstance;
 import dev.webfx.stack.cloud.image.CloudImageService;
@@ -73,7 +73,7 @@ public class ServerCloudinaryModuleBooter implements ApplicationModuleBooter {
                         else {
                             FileUpload fileUpload = fileUploads.get(0);
                             File file = Path.of(fileUpload.uploadedFileName()).toFile();
-                            JavaFile javaFile = new JavaFile(file, fileUpload.contentType());
+                            JreFile javaFile = new JreFile(file, fileUpload.contentType());
                             String id = ctx.request().getParam("id");
                             boolean overwrite = Booleans.parseBoolean(ctx.request().getParam("overwrite"));
                             imageService.upload(javaFile, id, overwrite)

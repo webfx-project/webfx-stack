@@ -7,6 +7,7 @@ import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.ast.json.Json;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.storage.LocalStorage;
+import dev.webfx.platform.util.Strings;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.session.Session;
 import dev.webfx.stack.session.SessionStore;
@@ -21,8 +22,8 @@ final class LocalStorageSessionStore implements SessionStore {
     private final static String ITEM_KEY_PREFIX = "Session-";
 
     @Override
-    public Session createSession() {
-        return new InMemorySession();
+    public Session createSession(long timeout) {
+        return new InMemorySession(timeout);
     }
 
     @Override
@@ -32,7 +33,7 @@ final class LocalStorageSessionStore implements SessionStore {
             return Future.failedFuture("No such session in this store");
         try {
             ReadOnlyAstObject jsonObject = Json.parseObject(sessionItem);
-            InMemorySession session = new InMemorySession(id);
+            InMemorySession session = new InMemorySession(id, Long.MAX_VALUE);
             ReadOnlyAstArray keys = jsonObject.keys();
             for (int i = 0; i < keys.size(); i++) {
                 String key = keys.getElement(i);
@@ -69,6 +70,16 @@ final class LocalStorageSessionStore implements SessionStore {
                 LocalStorage.removeItem(key);
         });
         return Future.succeededFuture(true);
+    }
+
+    @Override
+    public Future<Integer> size() {
+        int[] size = { 0 };
+        LocalStorage.getKeys().forEachRemaining(key -> {
+            if (Strings.startsWith(key, ITEM_KEY_PREFIX))
+               size[0]++;
+        });
+        return Future.succeededFuture(size[0]);
     }
 
     private static String sessionIdToLocalStorageItemKey(String sessionId) {

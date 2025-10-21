@@ -10,7 +10,7 @@ import dev.webfx.stack.session.state.StateAccessor;
  */
 public final class ClientSideStateSessionSyncer {
 
-    private static final boolean LOG_STATES = false; // Set to true to log incoming and outgoing states on client side
+    private static final boolean LOG_STATES = false; // Set to true to log incoming and outgoing states on the client side
 
     private static ClientSideStateSession getClientSideStateSession() {
         return ClientSideStateSession.getInstance();
@@ -28,7 +28,7 @@ public final class ClientSideStateSessionSyncer {
 
 
     // ======================================== INCOMING STATE ON CLIENT ========================================
-    // Sync method to be used on client side, when the client receives an incoming state from the server
+    // Sync method to be used on the client side, when the client receives an incoming state from the server
 
     public static Object syncIncomingState(Object incomingState) {
         Object incomingStateCapture = LOG_STATES ? "" + incomingState : null;
@@ -65,7 +65,7 @@ public final class ClientSideStateSessionSyncer {
     }
 
     // ======================================== OUTGOING STATE ON CLIENT ========================================
-    // Sync method to be used on client side, when the client is about to send an outgoing state to the server
+    // Sync method to be used on the client side, when the client is about to send an outgoing state to the server
 
     public static Object syncOutgoingState(Object outgoingState) {
         Object outgoingStateCapture = LOG_STATES ? "" + outgoingState : null;

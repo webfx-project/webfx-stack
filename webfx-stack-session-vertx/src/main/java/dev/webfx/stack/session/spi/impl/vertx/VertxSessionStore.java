@@ -1,14 +1,14 @@
 package dev.webfx.stack.session.spi.impl.vertx;
 
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.async.Promise;
+import dev.webfx.platform.util.vertx.VertxAsync;
 import dev.webfx.stack.session.Session;
 import dev.webfx.stack.session.SessionStore;
 
 /**
  * @author Bruno Salmon
  */
-class VertxSessionStore implements SessionStore {
+final class VertxSessionStore implements SessionStore {
 
     private final io.vertx.ext.web.sstore.SessionStore vertxSessionStore;
 
@@ -21,43 +21,36 @@ class VertxSessionStore implements SessionStore {
     }
 
     @Override
-    public Session createSession() {
-        return VertxSession.create(vertxSessionStore.createSession(Long.MAX_VALUE));
+    public Session createSession(long timeout) {
+        return VertxSession.create(vertxSessionStore.createSession(timeout));
     }
 
     @Override
     public Future<Session> get(String id) {
-        Promise<Session> promise = Promise.promise();
-        vertxSessionStore.get(id)
-                .onFailure(promise::fail)
-                .onSuccess(s -> promise.complete(VertxSession.create(s)));
-        return promise.future();
+        return VertxAsync.toWebfxFuture(vertxSessionStore.get(id))
+            .map(VertxSession::create);
     }
 
     @Override
     public Future<Boolean> delete(String id) {
-        Promise<Boolean> promise = Promise.promise();
-        vertxSessionStore.delete(id)
-                .onFailure(promise::fail)
-                .onSuccess(s -> promise.complete(true));
-        return promise.future();
+       return VertxAsync.toWebfxFuture(vertxSessionStore.delete(id))
+           .map(v -> true);
     }
 
     @Override
     public Future<Boolean> put(Session session) {
-        Promise<Boolean> promise = Promise.promise();
-        vertxSessionStore.put(((VertxSession) session).getVertxSession())
-                .onFailure(promise::fail)
-                .onSuccess(s -> promise.complete(true));
-        return promise.future();
+        return VertxAsync.toWebfxFuture(vertxSessionStore.put(((VertxSession) session).getVertxSession()))
+            .map(v -> true);
     }
 
     @Override
     public Future<Boolean> clear() {
-        Promise<Boolean> promise = Promise.promise();
-        vertxSessionStore.clear()
-                .onFailure(promise::fail)
-                .onSuccess(s -> promise.complete(true));
-        return promise.future();
+        return VertxAsync.toWebfxFuture(vertxSessionStore.clear())
+            .map(v -> true);
+    }
+
+    @Override
+    public Future<Integer> size() {
+        return VertxAsync.toWebfxFuture(vertxSessionStore.size());
     }
 }
