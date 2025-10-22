@@ -3,13 +3,18 @@ package dev.webfx.stack.http.server.vertx;
 import dev.webfx.platform.ast.ReadOnlyAstArray;
 import dev.webfx.platform.util.vertx.VertxInstance;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.client.HttpRequest;
+import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.handler.*;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.file.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,6 +65,74 @@ final class VertxHttpRouterConfigurator {
             routingContext.next();
         });*/
 
+        // Proxy route to bypass CORS restrictions TODO Move this into a plugin module
+        router.route("/proxy/*").handler(routingContext -> {
+            String fullPath = routingContext.request().path();
+            // Extract the target URL from the path (everything after "/proxy/")
+            String targetUrl = fullPath.substring("/proxy/".length());
+
+            // Validate that the target URL is a valid HTTP/HTTPS URL
+            if (!targetUrl.startsWith("http://") && !targetUrl.startsWith("https://")) {
+                routingContext.response()
+                    .setStatusCode(400)
+                    .end("Invalid URL: must start with http:// or https://");
+                return;
+            }
+
+            WebClient client = WebClient.create(vertx);
+
+            try {
+                // Parse the target URL
+                URL url = new URL(targetUrl);
+                int port = url.getPort() != -1 ? url.getPort() : url.getDefaultPort();
+                String path = url.getPath();
+                if (url.getQuery() != null) {
+                    path += "?" + url.getQuery();
+                }
+
+                // Create the request
+                HttpRequest<Buffer> request = client
+                    .request(HttpMethod.GET, port, url.getHost(), path);
+
+                if ("https".equals(url.getProtocol())) {
+                    request.ssl(true);
+                }
+
+                // Forward the request
+                request.send()
+                    .onSuccess(response -> {
+                        // Set CORS headers to allow cross-origin access
+                        routingContext.response()
+                            .setStatusCode(response.statusCode())
+                            .putHeader("Access-Control-Allow-Origin", "*")
+                            .putHeader("Access-Control-Allow-Methods", "GET, OPTIONS")
+                            .putHeader("Access-Control-Allow-Headers", "*");
+
+                        // Forward relevant headers from the proxied response
+                        String contentType = response.getHeader("Content-Type");
+                        if (contentType != null) {
+                            routingContext.response().putHeader("Content-Type", contentType);
+                        }
+                        String contentLength = response.getHeader("Content-Length");
+                        if (contentLength != null) {
+                            routingContext.response().putHeader("Content-Length", contentLength);
+                        }
+
+                        // Send the response body
+                        routingContext.response().end(response.body());
+                    })
+                    .onFailure(cause -> {
+                        routingContext.response()
+                            .setStatusCode(502)
+                            .end("Proxy error: " + cause.getMessage());
+                    });
+            } catch (Exception e) {
+                routingContext.response()
+                    .setStatusCode(400)
+                    .end("Invalid URL format: " + e.getMessage());
+            }
+        });
+
         return router;
     }
 
@@ -80,7 +153,7 @@ final class VertxHttpRouterConfigurator {
         Path staticPath = Paths.get(pathToStaticFolder);
         boolean absolute = staticPath.isAbsolute();
         int bangIndex = pathToStaticFolder.indexOf("!/");
-        if (bangIndex != - 1) {
+        if (bangIndex != -1) {
             Path path = extractArchivedFolder(pathToStaticFolder);
             pathToStaticFolder = path.toAbsolutePath().toString();
             absolute = true;
