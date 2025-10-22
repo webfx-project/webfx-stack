@@ -3,12 +3,12 @@ package dev.webfx.stack.http.server.vertx;
 import dev.webfx.platform.ast.ReadOnlyAstArray;
 import dev.webfx.platform.util.vertx.VertxInstance;
 import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.RequestOptions;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.client.HttpRequest;
-import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.handler.*;
 
 import java.io.IOException;
@@ -79,52 +79,88 @@ final class VertxHttpRouterConfigurator {
                 return;
             }
 
-            WebClient client = WebClient.create(vertx);
-
             try {
                 // Parse the target URL
                 URL url = new URL(targetUrl);
+                boolean isHttps = "https".equals(url.getProtocol());
                 int port = url.getPort() != -1 ? url.getPort() : url.getDefaultPort();
                 String path = url.getPath();
                 if (url.getQuery() != null) {
                     path += "?" + url.getQuery();
                 }
 
-                // Create the request
-                HttpRequest<Buffer> request = client
-                    .request(HttpMethod.GET, port, url.getHost(), path);
+                // Create HttpClient with appropriate options
+                HttpClientOptions options = new HttpClientOptions()
+                    .setSsl(isHttps)
+                    .setTrustAll(true) // For simplicity; in production, use proper SSL certificates
+                    .setConnectTimeout(10000)
+                    .setIdleTimeout(120); // 2 minutes idle timeout
 
-                if ("https".equals(url.getProtocol())) {
-                    request.ssl(true);
-                }
+                HttpClient client = vertx.createHttpClient(options);
 
-                // Forward the request
-                request.send()
-                    .onSuccess(response -> {
-                        // Set CORS headers to allow cross-origin access
-                        routingContext.response()
-                            .setStatusCode(response.statusCode())
-                            .putHeader("Access-Control-Allow-Origin", "*")
-                            .putHeader("Access-Control-Allow-Methods", "GET, OPTIONS")
-                            .putHeader("Access-Control-Allow-Headers", "*");
+                // Create request options
+                RequestOptions requestOptions = new RequestOptions()
+                    .setHost(url.getHost())
+                    .setPort(port)
+                    .setURI(path)
+                    .setMethod(HttpMethod.GET);
 
-                        // Forward relevant headers from the proxied response
-                        String contentType = response.getHeader("Content-Type");
-                        if (contentType != null) {
-                            routingContext.response().putHeader("Content-Type", contentType);
-                        }
-                        String contentLength = response.getHeader("Content-Length");
-                        if (contentLength != null) {
-                            routingContext.response().putHeader("Content-Length", contentLength);
-                        }
-
-                        // Send the response body
-                        routingContext.response().end(response.body());
-                    })
+                // Make the request
+                client.request(requestOptions)
                     .onFailure(cause -> {
                         routingContext.response()
                             .setStatusCode(502)
-                            .end("Proxy error: " + cause.getMessage());
+                            .end("Connection error: " + cause.getMessage());
+                    })
+                    .onSuccess(request -> {
+                        // Handle response
+                        request.send()
+                            .onFailure(cause -> {
+                                routingContext.response()
+                                    .setStatusCode(502)
+                                    .end("Proxy error: " + cause.getMessage());
+                                client.close();
+                            })
+                            .onSuccess(response -> {
+                                // Set CORS headers
+                                routingContext.response()
+                                    .setStatusCode(response.statusCode())
+                                    .putHeader("Access-Control-Allow-Origin", "*")
+                                    .putHeader("Access-Control-Allow-Methods", "GET, OPTIONS")
+                                    .putHeader("Access-Control-Allow-Headers", "*");
+
+                                // Forward relevant headers
+                                String contentType = response.getHeader("Content-Type");
+                                if (contentType != null) {
+                                    routingContext.response().putHeader("Content-Type", contentType);
+                                }
+                                String contentLength = response.getHeader("Content-Length");
+                                if (contentLength != null) {
+                                    routingContext.response().putHeader("Content-Length", contentLength);
+                                }
+                                String contentDisposition = response.getHeader("Content-Disposition");
+                                if (contentDisposition != null) {
+                                    routingContext.response().putHeader("Content-Disposition", contentDisposition);
+                                }
+                                String acceptRanges = response.getHeader("Accept-Ranges");
+                                if (acceptRanges != null) {
+                                    routingContext.response().putHeader("Accept-Ranges", acceptRanges);
+                                }
+
+                                // Set chunked transfer encoding for streaming
+                                routingContext.response().setChunked(true);
+
+                                // Stream the response body directly
+                                response.pipeTo(routingContext.response())
+                                    .onFailure(cause -> {
+                                        if (!routingContext.response().ended()) {
+                                            routingContext.response().end();
+                                        }
+                                    })
+                                    .onComplete(ar -> {
+                                        client.close();
+                                    });
+                            });
                     });
             } catch (Exception e) {
                 routingContext.response()
