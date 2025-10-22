@@ -39,6 +39,11 @@ final class VertxHttpRouterConfigurator {
         // We assume the SPA is hosted under the root / or under any path ending with / or /index.html or any path
         // including /#/ (which is used for UI routing).
         router.routeWithRegex(".*").handler(routingContext -> {
+            // Skip cache control for proxy route
+            if (routingContext.request().path().startsWith("/proxy/")) {
+                routingContext.next();
+                return;
+            }
             routingContext.response()
                 .putHeader("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0")
                 .putHeader("Pragma", "no-cache")
@@ -134,10 +139,32 @@ final class VertxHttpRouterConfigurator {
                                 if (contentType != null) {
                                     routingContext.response().putHeader("Content-Type", contentType);
                                 }
+
+                                // Forward caching headers from the origin
+                                String cacheControl = response.getHeader("Cache-Control");
+                                if (cacheControl != null) {
+                                    routingContext.response().putHeader("Cache-Control", cacheControl);
+                                }
+                                String expires = response.getHeader("Expires");
+                                if (expires != null) {
+                                    routingContext.response().putHeader("Expires", expires);
+                                }
+                                String etag = response.getHeader("ETag");
+                                if (etag != null) {
+                                    routingContext.response().putHeader("ETag", etag);
+                                }
+
                                 String contentLength = response.getHeader("Content-Length");
+
+                                // Don't forward Content-Encoding to avoid browser decompression issues with progress
+                                // The proxy will receive compressed data and forward it as-is
+
                                 if (contentLength != null) {
                                     routingContext.response().putHeader("Content-Length", contentLength);
+                                } else {
+                                    routingContext.response().setChunked(true);
                                 }
+
                                 String contentDisposition = response.getHeader("Content-Disposition");
                                 if (contentDisposition != null) {
                                     routingContext.response().putHeader("Content-Disposition", contentDisposition);
@@ -146,13 +173,6 @@ final class VertxHttpRouterConfigurator {
                                 if (acceptRanges != null) {
                                     routingContext.response().putHeader("Accept-Ranges", acceptRanges);
                                 }
-
-                                // Only set chunked if we don't have the content length
-                                // When content-length is set, Vert.x will use it instead of chunked encoding
-                                if (contentLength == null) {
-                                    routingContext.response().setChunked(true);
-                                }
-
                                 // Stream the response body directly
                                 response.pipeTo(routingContext.response())
                                     .onFailure(cause -> {
