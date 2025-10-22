@@ -5,6 +5,7 @@ module webfx.stack.http.server.vertx.plugin {
     // Direct dependencies modules
     requires io.vertx.core;
     requires io.vertx.web;
+    requires io.vertx.web.client;
     requires webfx.platform.ast;
     requires webfx.platform.boot;
     requires webfx.platform.conf;
