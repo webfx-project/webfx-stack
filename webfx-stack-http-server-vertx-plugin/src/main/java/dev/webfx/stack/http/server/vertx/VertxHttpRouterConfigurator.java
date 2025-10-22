@@ -147,8 +147,11 @@ final class VertxHttpRouterConfigurator {
                                     routingContext.response().putHeader("Accept-Ranges", acceptRanges);
                                 }
 
-                                // Set chunked transfer encoding for streaming
-                                routingContext.response().setChunked(true);
+                                // Only set chunked if we don't have the content length
+                                // When content-length is set, Vert.x will use it instead of chunked encoding
+                                if (contentLength == null) {
+                                    routingContext.response().setChunked(true);
+                                }
 
                                 // Stream the response body directly
                                 response.pipeTo(routingContext.response())
