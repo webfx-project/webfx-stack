@@ -40,6 +40,7 @@ public class Function<T> {
         new Function("max").register();
         new Function("nullif").register();
         new Function("greatest").register();
+        new Function("jsonb_build_array").register();
 
         new Sum().register();
         new StringAgg().register();
