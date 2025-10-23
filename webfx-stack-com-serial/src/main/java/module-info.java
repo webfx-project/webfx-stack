@@ -15,6 +15,7 @@ module webfx.stack.com.serial {
     exports dev.webfx.stack.com.serial;
     exports dev.webfx.stack.com.serial.spi;
     exports dev.webfx.stack.com.serial.spi.impl;
+    exports dev.webfx.stack.com.serial.spi.impl.ast;
     exports dev.webfx.stack.com.serial.spi.impl.time;
 
     // Used services
