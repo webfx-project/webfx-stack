@@ -93,7 +93,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
         this(jsonOrClass, dataSourceModel, new ButtonSelectorParameters().setButtonFactory(buttonFactory).setDropParentGetter(parentGetter).setDropParent(parent));
     }
 
-    protected EntityButtonSelector(Object jsonOrClass, DataSourceModel dataSourceModel, ButtonSelectorParameters buttonSelectorParameters) {
+    public EntityButtonSelector(Object jsonOrClass, DataSourceModel dataSourceModel, ButtonSelectorParameters buttonSelectorParameters) {
         super(buttonSelectorParameters);
         this.dataSourceModel = dataSourceModel;
         setJsonOrClass(jsonOrClass);
