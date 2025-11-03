@@ -4,6 +4,7 @@ module webfx.stack.shareddata.ast {
 
     // Direct dependencies modules
     requires webfx.platform.ast;
+    requires webfx.platform.util;
     requires webfx.stack.shareddata;
 
     // Exported packages
