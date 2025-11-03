@@ -3,10 +3,10 @@ package dev.webfx.stack.authz.client.spi.impl.inmemory;
 /**
  * @author Bruno Salmon
  */
-public interface InMemoryAuthorizationRule<R> {
+public interface InMemoryAuthorizationRule {
 
-    AuthorizationRuleResult computeRuleResult(R authorizationRequest);
+    AuthorizationRuleResult computeRuleResult(Object authorizationRequest);
 
-    Class<R> operationRequestClass(); // used for registration when coming from parsing
+    Class<?> operationRequestClass(); // used for registration when coming from parsing
 
 }

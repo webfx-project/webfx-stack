@@ -10,7 +10,7 @@ import java.util.*;
  */
 public final class InMemoryAuthorizationRuleRegistry implements InMemoryAuthorizationRule {
 
-    private final Map<Class, Collection<InMemoryAuthorizationRule>> registeredInMemoryAuthorizationRules = new HashMap<>();
+    private final Map<Class<?>, Collection<InMemoryAuthorizationRule>> registeredInMemoryAuthorizationRules = new HashMap<>();
     private InMemoryAuthorizationRuleParser inMemoryAuthorizationRuleParser;
 
     public void setAuthorizationRuleParser(InMemoryAuthorizationRuleParser ruleParser) {
@@ -39,15 +39,11 @@ public final class InMemoryAuthorizationRuleRegistry implements InMemoryAuthoriz
         }
     }
 
-    public <A> void registerAuthorizationRule(Class<A> operationRequestClass, InMemoryAuthorizationRule<A> authorizationRule) {
+    public <A> void registerAuthorizationRule(Class<?> operationRequestClass, InMemoryAuthorizationRule authorizationRule) {
         Collection<InMemoryAuthorizationRule> rules;
         // Ensure thread-safe creation/lookup of the list in the map
         synchronized (registeredInMemoryAuthorizationRules) {
-            rules = registeredInMemoryAuthorizationRules.get(operationRequestClass);
-            if (rules == null) {
-                rules = new ArrayList<>();
-                registeredInMemoryAuthorizationRules.put(operationRequestClass, rules);
-            }
+            rules = registeredInMemoryAuthorizationRules.computeIfAbsent(operationRequestClass, k -> new ArrayList<>());
         }
         // Protect list mutation while other threads may iterate
         synchronized (rules) {
@@ -55,7 +51,7 @@ public final class InMemoryAuthorizationRuleRegistry implements InMemoryAuthoriz
         }
     }
 
-    public <A> void registerAuthorizationRule(InMemoryAuthorizationRule authorizationRule) {
+    public void registerAuthorizationRule(InMemoryAuthorizationRule authorizationRule) {
         if (authorizationRule != null)
             registerAuthorizationRule(authorizationRule.operationRequestClass(), authorizationRule);
     }
@@ -65,12 +61,12 @@ public final class InMemoryAuthorizationRuleRegistry implements InMemoryAuthoriz
     }
 
     @Override
-    public Class operationRequestClass() {
+    public Class<?> operationRequestClass() {
         return Object.class;
     }
 
-    public boolean doesRulesAuthorize(Object operationAuthorizationRequest) {
-        return computeRuleResult(operationAuthorizationRequest) == AuthorizationRuleResult.GRANTED;
+    public boolean doesRulesAuthorize(Object operationRequest) {
+        return computeRuleResult(operationRequest) == AuthorizationRuleResult.GRANTED;
     }
 
     @Override

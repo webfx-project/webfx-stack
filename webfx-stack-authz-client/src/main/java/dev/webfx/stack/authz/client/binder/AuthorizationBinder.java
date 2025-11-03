@@ -1,4 +1,4 @@
-package dev.webfx.stack.authz.client.factory;
+package dev.webfx.stack.authz.client.binder;
 
 import dev.webfx.platform.async.AsyncFunction;
 import dev.webfx.stack.session.state.client.fx.FXAuthorizationsChanged;
@@ -11,24 +11,27 @@ import java.util.function.Function;
 /**
  * @author Bruno Salmon
  */
-public final class AuthorizationUtil {
+public final class AuthorizationBinder {
 
-    public static <C, Rq> ObservableBooleanValue authorizedOperationProperty(Function<C, Rq> operationRequestFactory, AsyncFunction<Rq, Boolean> authorizationFunction, ObservableValue<C> contextProperty) {
+    public static <I, Rq> ObservableBooleanValue authorizedOperationProperty(
+        ObservableValue<I> inputProperty,
+        Function<I, Rq> operationRequestFactory,
+        AsyncFunction<Rq, Boolean> authorizationFunction) {
         return new BooleanBinding() {
-            C context;
+            I input;
             Boolean value;
 
             {
                 // Indicating the dependencies for this property
-                bind(contextProperty, FXAuthorizationsChanged.authorizationsChangedProperty());
+                bind(inputProperty, FXAuthorizationsChanged.authorizationsChangedProperty());
             }
 
             @Override
             protected void onInvalidating() {
-                // The context property is, for example, an operationActionProperty (null first, then non-null once the
-                // operations have been loaded). We get the context.
-                C context = contextProperty.getValue();
-                boolean authorizationCallNeeded = this.context != context || FXAuthorizationsChanged.hasAuthorizationsChanged() || value == null;
+                // The state property is, for example, an operationActionProperty (null first, then non-null once the
+                // operations have been loaded). We get the state.
+                I state = inputProperty.getValue();
+                boolean authorizationCallNeeded = this.input != state || FXAuthorizationsChanged.hasAuthorizationsChanged() || value == null;
                 if (!authorizationCallNeeded) { // No need to call the authorization this time, but:
                     // We mark this property as valid again right now, because otherwise the JavaFX API calls onInvalidating()
                     // only when valid transits from false to true, but NOT IF VALID STAYS TO TRUE, and this, even if
@@ -39,17 +42,17 @@ public final class AuthorizationUtil {
                     // Because we don't know yet the result of the authorization function, we set the value to false
                     // by default (better to not authorize the user for now until we really know the authorization result).
                     value = false;
-                    // We generate the request from the context, and pass it to the authorization function and wait its completion
-                    Rq operationRequest = operationRequestFactory.apply(context);
+                    // We generate the request from the state and pass it to the authorization function and wait its completion
+                    Rq operationRequest = operationRequestFactory.apply(state);
                     authorizationFunction.apply(operationRequest)
-                            .onComplete(ar -> {
-                                this.context = context;
-                                // Memorizing the new value to return from now for this property
-                                if (ar.succeeded())
-                                    value = ar.result();
-                                // We call markAsValid() for the same reason explained above
-                                markAsValid();
-                            });
+                        .onComplete(ar -> {
+                            this.input = state;
+                            // Memorizing the new value to return from now for this property
+                            if (ar.succeeded())
+                                value = ar.result();
+                            // We call markAsValid() for the same reason explained above
+                            markAsValid();
+                        });
                 }
             }
 
