@@ -1,11 +1,15 @@
 package dev.webfx.stack.authz.client.binder;
 
 import dev.webfx.platform.async.AsyncFunction;
+import dev.webfx.stack.authz.client.context.AuthorizationContext;
 import dev.webfx.stack.session.state.client.fx.FXAuthorizationsChanged;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -18,20 +22,21 @@ public final class AuthorizationBinder {
         Function<I, Rq> operationRequestFactory,
         AsyncFunction<Rq, Boolean> authorizationFunction) {
         return new BooleanBinding() {
-            I input;
-            Boolean value;
+            private I lastInput;
+            private final Map<String, Object> lastContextProperties = new HashMap<>();
+            private Boolean lastComputedValue;
 
             {
                 // Indicating the dependencies for this property
-                bind(inputProperty, FXAuthorizationsChanged.authorizationsChangedProperty());
+                bind(inputProperty, FXAuthorizationsChanged.authorizationsChangedProperty(), AuthorizationContext.getContextProperties());
             }
 
             @Override
             protected void onInvalidating() {
-                // The state property is, for example, an operationActionProperty (null first, then non-null once the
-                // operations have been loaded). We get the state.
-                I state = inputProperty.getValue();
-                boolean authorizationCallNeeded = this.input != state || FXAuthorizationsChanged.hasAuthorizationsChanged() || value == null;
+                // The input property is, for example, an operationActionProperty (null first, then non-null once the
+                // operations have been loaded). We get the input.
+                I input = inputProperty.getValue();
+                boolean authorizationCallNeeded = this.lastInput != input || FXAuthorizationsChanged.hasAuthorizationsChanged() || lastComputedValue == null || !Objects.equals(AuthorizationContext.getContextProperties(), lastContextProperties);
                 if (!authorizationCallNeeded) { // No need to call the authorization this time, but:
                     // We mark this property as valid again right now, because otherwise the JavaFX API calls onInvalidating()
                     // only when valid transits from false to true, but NOT IF VALID STAYS TO TRUE, and this, even if
@@ -39,17 +44,19 @@ public final class AuthorizationBinder {
                     // because we need to eventually call the asynchronous authorization function when this happens.
                     markAsValid();
                 } else {
-                    // Because we don't know yet the result of the authorization function, we set the value to false
+                    // Because we don't know the result of the authorization function yet, we set the value to false
                     // by default (better to not authorize the user for now until we really know the authorization result).
-                    value = false;
-                    // We generate the request from the state and pass it to the authorization function and wait its completion
-                    Rq operationRequest = operationRequestFactory.apply(state);
+                    lastComputedValue = false;
+                    // We generate the request from the input and pass it to the authorization function and wait its completion
+                    Rq operationRequest = operationRequestFactory.apply(input);
                     authorizationFunction.apply(operationRequest)
                         .onComplete(ar -> {
-                            this.input = state;
+                            this.lastInput = input;
+                            lastContextProperties.clear();
+                            lastContextProperties.putAll(AuthorizationContext.getContextProperties());
                             // Memorizing the new value to return from now for this property
                             if (ar.succeeded())
-                                value = ar.result();
+                                lastComputedValue = ar.result();
                             // We call markAsValid() for the same reason explained above
                             markAsValid();
                         });
@@ -62,9 +69,9 @@ public final class AuthorizationBinder {
 
             @Override
             protected boolean computeValue() {
-                if (value == null) // This happens on the first call
+                if (lastComputedValue == null) // This happens on the first call
                     onInvalidating(); // Now the value is false, but the authorization function is pending and may change the value later
-                return value;
+                return lastComputedValue;
             }
         };
     }

@@ -1,9 +1,9 @@
 package dev.webfx.stack.authz.client;
 
 import dev.webfx.platform.async.AsyncFunction;
-import dev.webfx.platform.async.util.AsyncUtil;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.Promise;
+import dev.webfx.platform.async.util.AsyncUtil;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -79,16 +79,16 @@ public final class AuthorizationClientRequest<Rq, Rs> {
                         .apply(getOperationRequest())
                         // and complete the promise with the result of the operation execution
                         .onComplete(promise);
-            } else { // No it's not authorized (or there was an exception during the authorization check)
-                // We ask the unauthorised operation executor
+            } else { // No, it's not authorized (or there was an exception during the authorization check)
+                // We ask the unauthorized operation executor
                 getUnauthorizedOperationAsyncExecutor()
                         // to execute what's needed to report this non-authorization (ex: display a message to user)
-                        .apply(ar.cause()) // Note: in general ar.cause() is null, meaning that there was no error during authorization check
+                        .apply(ar.cause()) // Note: in general ar.cause() is null, meaning that there was no error during the authorization check
                         // and we fail the promise
                         .onComplete(ignored -> {
-                            if (ar.cause() != null) // Rare cases where an exception arose during authorization check
+                            if (ar.cause() != null) // Rare cases where an exception arose during the authorization check
                                 promise.fail(ar.cause());
-                            else // General case where the authorization check was ok but result was not authorized
+                            else // General case where the authorization check was ok but the result was not authorized
                                 promise.fail(new UnauthorizedOperationException());
                         });
             }

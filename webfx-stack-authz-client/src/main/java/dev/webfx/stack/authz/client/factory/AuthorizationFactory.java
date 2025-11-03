@@ -8,6 +8,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -20,7 +21,9 @@ public final class AuthorizationFactory {
     }
 
     public static <Rq, Rs> AuthorizationClientRequest<Rq, Rs> newAuthorizationRequest(Rq operationRequest) {
-        return AuthorizationFactory.<Rq, Rs>newAuthorizationRequest().setOperationRequest(operationRequest);
+        return AuthorizationFactory.<Rq, Rs>newAuthorizationRequest()
+            .setOperationRequest(operationRequest)
+            ;
     }
 
     public static Future<Boolean> isAuthorized(Object operationRequest) {
@@ -36,7 +39,7 @@ public final class AuthorizationFactory {
     }
 
     public static <I> ObservableBooleanValue authorizedOperationProperty(ObservableValue<I> inputProperty, Function<I, ?> operationRequestFactory) {
-        return AuthorizationBinder.authorizedOperationProperty(operationRequestFactory, AuthorizationFactory::isAuthorized, inputProperty);
+        return AuthorizationBinder.authorizedOperationProperty(inputProperty, operationRequestFactory, AuthorizationFactory::isAuthorized);
     }
 
 }
