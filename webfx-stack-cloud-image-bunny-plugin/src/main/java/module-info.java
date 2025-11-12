@@ -3,16 +3,13 @@
 module webfx.stack.cloud.image.bunny.plugin {
 
     // Direct dependencies modules
-    requires webfx.platform.ast;
     requires webfx.platform.async;
     requires webfx.platform.blob;
     requires webfx.platform.conf;
     requires webfx.platform.console;
     requires webfx.platform.fetch;
-    requires webfx.platform.util;
     requires webfx.platform.util.http;
     requires webfx.stack.cloud.image;
-    requires webfx.stack.hash.sha1;
 
     // Exported packages
     exports dev.webfx.stack.cloud.image.impl.bunny;
