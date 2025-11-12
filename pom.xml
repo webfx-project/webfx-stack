@@ -81,6 +81,7 @@
         <module>webfx-stack-cloud-deepl-client</module>
         <module>webfx-stack-cloud-deepl-server-plugin</module>
         <module>webfx-stack-cloud-image</module>
+        <module>webfx-stack-cloud-image-bunny-plugin</module>
         <module>webfx-stack-cloud-image-cloudinary-plugin</module>
         <module>webfx-stack-cloud-image-rest-client-plugin</module>
         <module>webfx-stack-cloud-image-rest-server-plugin</module>
