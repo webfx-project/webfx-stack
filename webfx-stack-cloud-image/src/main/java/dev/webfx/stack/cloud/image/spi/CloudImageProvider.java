@@ -28,8 +28,8 @@ public interface CloudImageProvider {
             .replace(":width", String.valueOf(width))
             .replace(":height", String.valueOf(height));
 
-        //We add a random parameter to prevent the cache to display an old image
-        url = url + "?t=" + System.currentTimeMillis();
+        // We add a random parameter to prevent the cache to display an old image
+        url = url + (url.contains("?") ? "&t=" : "?t=") + System.currentTimeMillis();
         return url;
     }
 

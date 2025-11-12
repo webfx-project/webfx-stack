@@ -14,6 +14,7 @@ module webfx.stack.cloud.image {
     // Exported packages
     exports dev.webfx.stack.cloud.image;
     exports dev.webfx.stack.cloud.image.spi;
+    exports dev.webfx.stack.cloud.image.spi.impl;
     exports dev.webfx.stack.cloud.image.spi.impl.jsonfetchapi;
 
     // Used services
