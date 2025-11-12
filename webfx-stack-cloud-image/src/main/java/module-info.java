@@ -8,10 +8,15 @@ module webfx.stack.cloud.image {
     requires webfx.platform.blob;
     requires webfx.platform.fetch;
     requires webfx.platform.fetch.ast.json;
+    requires webfx.platform.service;
     requires webfx.platform.util.http;
 
     // Exported packages
     exports dev.webfx.stack.cloud.image;
-    exports dev.webfx.stack.cloud.image.impl.fetchbased;
+    exports dev.webfx.stack.cloud.image.spi;
+    exports dev.webfx.stack.cloud.image.spi.impl.jsonfetchapi;
+
+    // Used services
+    uses dev.webfx.stack.cloud.image.spi.CloudImageProvider;
 
 }
