@@ -6,6 +6,8 @@ module webfx.stack.cloud.image {
     requires transitive webfx.platform.ast;
     requires webfx.platform.async;
     requires webfx.platform.blob;
+    requires webfx.platform.conf;
+    requires webfx.platform.console;
     requires webfx.platform.fetch;
     requires webfx.platform.fetch.ast.json;
     requires webfx.platform.service;
@@ -15,7 +17,7 @@ module webfx.stack.cloud.image {
     exports dev.webfx.stack.cloud.image;
     exports dev.webfx.stack.cloud.image.spi;
     exports dev.webfx.stack.cloud.image.spi.impl;
-    exports dev.webfx.stack.cloud.image.spi.impl.jsonfetchapi;
+    exports dev.webfx.stack.cloud.image.spi.impl.fetch;
 
     // Used services
     uses dev.webfx.stack.cloud.image.spi.CloudImageProvider;

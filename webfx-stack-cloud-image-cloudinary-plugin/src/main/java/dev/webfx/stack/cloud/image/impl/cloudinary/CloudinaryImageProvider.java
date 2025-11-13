@@ -3,16 +3,15 @@ package dev.webfx.stack.cloud.image.impl.cloudinary;
 import dev.webfx.platform.ast.AST;
 import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.async.Promise;
 import dev.webfx.platform.blob.Blob;
-import dev.webfx.platform.conf.ConfigLoader;
+import dev.webfx.platform.conf.Config;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.fetch.*;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.util.collection.Collections;
 import dev.webfx.platform.util.http.HttpHeaders;
 import dev.webfx.platform.util.http.HttpMethod;
-import dev.webfx.stack.cloud.image.spi.impl.jsonfetchapi.JsonFetchApiCloudImageProvider;
+import dev.webfx.stack.cloud.image.spi.impl.fetch.JsonFetchApiCloudImageProvider;
 import dev.webfx.stack.hash.sha1.Sha1;
 
 import java.util.ArrayList;
@@ -25,93 +24,60 @@ import java.util.Map;
  */
 public final class CloudinaryImageProvider extends JsonFetchApiCloudImageProvider {
 
-    private static final boolean LOG_JSON_REPLY = true;
     private static final String CONFIG_PATH = "webfx.stack.cloud.image.cloudinary";
+    private static final boolean LOG_JSON_REPLY = true;
 
     private String cloudName;
     private String apiKey;
     private String apiSecret;
-    private final Future<Void> configFuture;
 
     public CloudinaryImageProvider() {
-        Promise<Void> configPromise = Promise.promise();
-        configFuture = configPromise.future();
-        ConfigLoader.onConfigLoaded(CONFIG_PATH, config -> {
-            cloudName = config.getString("cloudName");
-            apiKey = config.getString("apiKey");
-            apiSecret = config.getString("apiSecret");
-            configPromise.complete();
-        });
+        super(CONFIG_PATH);
     }
 
     @Override
-    public Future<Void> readyFuture() {
-        return configFuture;
-    }
-
-
-    // Public API (authentication not required)
-
-    public Future<Boolean> exists(String id) {
-        return Fetch.fetch(url(id, -1, -1), new FetchOptions().setMethod(HttpMethod.HEAD))
-            .map(Response::ok);
-    }
-
-    @Override
-    public String urlPattern() {
-        return "https://res.cloudinary.com/" + cloudName + "/image/upload/w_:width/h_:height/:source";
-    }
-
-    @Override
-    public String url(String source, int width, int height) {
-        String url = super.url(source, width, height);
-        if (width < 0)
-            url = url.replaceFirst("w_:-1", "");
-        if (height < 0)
-            url = url.replaceFirst("h_:-1", "");
-        return url;
+    protected void onConfigLoaded(Config config) {
+        cloudName = config.getString("cloudName");
+        apiKey = config.getString("apiKey");
+        apiSecret = config.getString("apiSecret");
+        setUrlPattern("https://res.cloudinary.com/" + cloudName + "/image/upload(/w_:width)(/h_:height)/:source?t=:timestamp");
     }
 
     // Private API (authentication required)
 
     public Future<Void> upload(Blob blob, String id, boolean overwrite) {
-        return fetchJsonApiObject(
-                "https://api.cloudinary.com/v1_1/" + cloudName + "/image/upload",
-                HttpMethod.POST,
-                new FetchOptions().setBody(
-                        signFormData(new FormData()
-                            .append("public_id", id)
-                            .append("overwrite", overwrite)
-                            .append("invalidate", true) // Otherwise the new image might not be displayed immediately after upload
-                        ).append("file", blob, id)
-                )
-        ).map(json -> logJsonReply("upload", json));
+        return callCloudinaryApi("upload", signFormData(new FormData()
+            .append("public_id", id)
+            .append("overwrite", overwrite)
+            .append("invalidate", true) // Otherwise the new image might not be displayed immediately after upload
+        ).append("file", blob, id));
     }
 
     public Future<Void> delete(String id, boolean invalidate) {
-        return fetchJsonApiObject(
-                "https://api.cloudinary.com/v1_1/" + cloudName + "/image/destroy",
-                HttpMethod.POST,
-                new FetchOptions().setBody(
-                        signFormData(new FormData()
-                                .append("public_id", id)
-                                .append("invalidate", invalidate)
-                        )
-                )
-        ).map(json -> logJsonReply("delete", json));
+        return callCloudinaryApi("destroy", signFormData(new FormData()
+                .append("public_id", id)
+                .append("invalidate", invalidate)
+            )
+        );
+    }
+
+    private Future<Void> callCloudinaryApi(String operation, FormData body) {
+        return fetchJsonApiObject("https://api.cloudinary.com/v1_1/" + cloudName + "/image/" + operation, body, HttpMethod.POST)
+            .compose(json -> {
+                if (LOG_JSON_REPLY)
+                    Console.log("[CLOUDINARY] - " + operation + " - json reply = " + AST.formatObject(json, "json"));
+                ReadOnlyAstObject error = json.getObject("error");
+                if (error != null && error.has("message")) {
+                    return Future.failedFuture(error.getString("message"));
+                }
+                return Future.succeededFuture(json);
+            }).mapEmpty();
     }
 
     @Override
-    protected Headers createJsonApiHeaders() {
-        return super.createJsonApiHeaders()
+    protected Headers createApiHeaders(String contentType) {
+        return super.createApiHeaders(contentType)
             .set(HttpHeaders.AUTHORIZATION, HttpHeaders.basicAuth(apiKey, apiSecret));
-    }
-
-    private static Void logJsonReply(String operation, ReadOnlyAstObject jsonReply) {
-        if (LOG_JSON_REPLY) {
-            Console.log("[CLOUDINARY] - " + operation + " - json reply = " + AST.formatObject(jsonReply, "json"));
-        }
-        return null;
     }
 
     private FormData signFormData(FormData formData) {
@@ -123,7 +89,7 @@ public final class CloudinaryImageProvider extends JsonFetchApiCloudImageProvide
     }
 
     private static String timestamp() {
-        return Long.toString(System.currentTimeMillis() / 1000L);
+        return String.valueOf(System.currentTimeMillis() / 1000L);
     }
 
     private static String apiSignRequest(FormData paramsToSign, String apiSecret) {
@@ -142,7 +108,6 @@ public final class CloudinaryImageProvider extends JsonFetchApiCloudImageProvide
                 }
             }
         }
-
         String to_sign = Collections.toStringAmpersandSeparated(params);
         return Sha1.hash(to_sign + apiSecret);
     }
