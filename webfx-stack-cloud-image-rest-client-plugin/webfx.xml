@@ -11,7 +11,7 @@
     </dependencies>
 
     <providers>
-        <provider interface="dev.webfx.stack.cloud.image.spi.CloudImageProvider">dev.webfx.stack.cloud.image.impl.rest.client.RestClientImageProvider</provider>
+        <provider interface="dev.webfx.stack.cloud.image.spi.CloudImageProvider">dev.webfx.stack.cloud.image.impl.rest.client.ClientRestImageProvider</provider>
     </providers>
 
 

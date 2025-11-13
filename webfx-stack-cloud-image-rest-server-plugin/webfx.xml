@@ -13,7 +13,7 @@
     </dependencies>
 
     <providers>
-        <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.cloud.image.impl.rest.server.RestServerCloudImageServiceBooter</provider>
+        <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.cloud.image.impl.rest.server.ServerRestCloudImageService</provider>
     </providers>
 
 </project>

@@ -18,6 +18,6 @@ module webfx.stack.cloud.image.rest.server.plugin {
     exports dev.webfx.stack.cloud.image.impl.rest.server;
 
     // Provided services
-    provides dev.webfx.platform.boot.spi.ApplicationModuleBooter with dev.webfx.stack.cloud.image.impl.rest.server.RestServerCloudImageServiceBooter;
+    provides dev.webfx.platform.boot.spi.ApplicationModuleBooter with dev.webfx.stack.cloud.image.impl.rest.server.ServerRestCloudImageService;
 
 }

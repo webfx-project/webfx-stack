@@ -12,7 +12,7 @@ import dev.webfx.stack.cloud.image.spi.impl.fetch.FetchApiCloudImageProvider;
 /**
  * @author Bruno Salmon
  */
-public final class RestClientImageProvider extends FetchApiCloudImageProvider {
+public final class ClientRestImageProvider extends FetchApiCloudImageProvider {
 
     private static final String CONFIG_PATH = "webfx.stack.cloud.image.rest";
 
@@ -20,7 +20,7 @@ public final class RestClientImageProvider extends FetchApiCloudImageProvider {
     private String uploadUrl;
     private String deleteUrl;
 
-    public RestClientImageProvider() {
+    public ClientRestImageProvider() {
         super(CONFIG_PATH);
     }
 

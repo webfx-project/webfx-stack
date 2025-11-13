@@ -15,6 +15,6 @@ module webfx.stack.cloud.image.rest.client.plugin {
     exports dev.webfx.stack.cloud.image.impl.rest.client;
 
     // Provided services
-    provides dev.webfx.stack.cloud.image.spi.CloudImageProvider with dev.webfx.stack.cloud.image.impl.rest.client.RestClientImageProvider;
+    provides dev.webfx.stack.cloud.image.spi.CloudImageProvider with dev.webfx.stack.cloud.image.impl.rest.client.ClientRestImageProvider;
 
 }

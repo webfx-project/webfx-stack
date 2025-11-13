@@ -20,7 +20,7 @@ import static dev.webfx.platform.util.http.HttpResponseStatus.*;
 /**
  * @author Bruno Salmon
  */
-public final class RestServerCloudImageServiceBooter implements ApplicationModuleBooter {
+public final class ServerRestCloudImageService implements ApplicationModuleBooter {
 
     private static final String CONFIG_PATH = "webfx.stack.cloud.image.rest";
 
