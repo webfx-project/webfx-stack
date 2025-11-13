@@ -39,8 +39,7 @@ public abstract class FetchApiCloudImageProvider extends CloudImageProviderBase 
     }
 
     protected FetchOptions createApiFetchOptions(String method, Object body, String contentType) {
-        FetchOptions fetchOptions = createFetchOptions(method)
-            .setHeaders(createApiHeaders(contentType));
+        FetchOptions fetchOptions = createFetchOptions(method).setHeaders(createApiHeaders(contentType));
         if (body instanceof FormData formData)
             fetchOptions.setBody(formData);
         else if (body instanceof Blob blob)

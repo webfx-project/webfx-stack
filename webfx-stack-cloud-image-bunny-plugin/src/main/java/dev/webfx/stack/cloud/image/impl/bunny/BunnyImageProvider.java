@@ -74,15 +74,16 @@ public final class BunnyImageProvider extends FetchApiCloudImageProvider {
 
         return fetchApi(url, HttpMethod.PUT, blob, HttpHeaders.APPLICATION_OCTET_STREAM)
             .compose(response -> {
-            if (response.ok()) {
-                return Future.succeededFuture();
-            } else {
-                return response.text().compose(errorText -> {
-                    Console.log("[BUNNY] - Upload failed for '" + idWithImageExtension + "': " + errorText);
-                    return Future.failedFuture("Upload failed: " + errorText);
-                });
-            }
-        });
+                if (response.ok()) {
+                    Console.log("[BUNNY] - Upload successful for '" + idWithImageExtension + "'");
+                    return Future.succeededFuture();
+                } else {
+                    return response.text().compose(errorText -> {
+                        Console.log("[BUNNY] - Upload failed for '" + idWithImageExtension + "': " + errorText);
+                        return Future.failedFuture("Upload failed: " + errorText);
+                    });
+                }
+            });
     }
 
     @Override
