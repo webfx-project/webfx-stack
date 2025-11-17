@@ -1,17 +1,17 @@
 package dev.webfx.stack.authz.client.operation;
 
+import dev.webfx.extras.operation.HasOperationCode;
 import dev.webfx.stack.authz.client.spi.impl.inmemory.AuthorizationRuleType;
 import dev.webfx.stack.authz.client.spi.impl.inmemory.SimpleInMemoryAuthorizationRuleBase;
-import dev.webfx.extras.operation.HasOperationCode;
 
 /**
  * @author Bruno Salmon
  */
-public final class OperationAuthorizationRule<R> extends SimpleInMemoryAuthorizationRuleBase<R> {
+public final class OperationAuthorizationRule extends SimpleInMemoryAuthorizationRuleBase {
 
     private final Object operationRequestCode;
 
-    public OperationAuthorizationRule(AuthorizationRuleType type, Class<R> operationRequestClass) {
+    public OperationAuthorizationRule(AuthorizationRuleType type, Class<?> operationRequestClass) {
         this(type, operationRequestClass, null);
 
     }
@@ -20,7 +20,7 @@ public final class OperationAuthorizationRule<R> extends SimpleInMemoryAuthoriza
         this(type, null, operationRequestCode);
     }
 
-    public OperationAuthorizationRule(AuthorizationRuleType type, Class operationRequestClass, Object operationRequestCode) {
+    public OperationAuthorizationRule(AuthorizationRuleType type, Class<?> operationRequestClass, Object operationRequestCode) {
         super(type, operationRequestClass);
         this.operationRequestCode = operationRequestCode;
     }

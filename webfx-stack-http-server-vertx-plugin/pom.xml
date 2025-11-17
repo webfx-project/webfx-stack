@@ -26,11 +26,6 @@
         </dependency>
 
         <dependency>
-            <groupId>io.vertx</groupId>
-            <artifactId>vertx-web-client</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>dev.webfx</groupId>
             <artifactId>webfx-platform-ast</artifactId>
             <version>0.1.0-SNAPSHOT</version>
