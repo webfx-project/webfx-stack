@@ -13,6 +13,8 @@ module webfx.stack.authz.client {
 
     // Exported packages
     exports dev.webfx.stack.authz.client;
+    exports dev.webfx.stack.authz.client.binder;
+    exports dev.webfx.stack.authz.client.context;
     exports dev.webfx.stack.authz.client.factory;
     exports dev.webfx.stack.authz.client.operation;
     exports dev.webfx.stack.authz.client.spi;

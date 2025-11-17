@@ -3,6 +3,10 @@ package dev.webfx.stack.http.server.vertx;
 import dev.webfx.platform.ast.ReadOnlyAstArray;
 import dev.webfx.platform.util.vertx.VertxInstance;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.RequestOptions;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.*;
@@ -10,6 +14,7 @@ import io.vertx.ext.web.handler.*;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.file.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +39,11 @@ final class VertxHttpRouterConfigurator {
         // We assume the SPA is hosted under the root / or under any path ending with / or /index.html or any path
         // including /#/ (which is used for UI routing).
         router.routeWithRegex(".*").handler(routingContext -> {
+            // Skip cache control for proxy route
+            if (routingContext.request().path().startsWith("/proxy/")) {
+                routingContext.next();
+                return;
+            }
             routingContext.response()
                 .putHeader("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0")
                 .putHeader("Pragma", "no-cache")
@@ -60,6 +70,128 @@ final class VertxHttpRouterConfigurator {
             routingContext.next();
         });*/
 
+        // Proxy route to bypass CORS restrictions TODO Move this into a plugin module
+        router.route("/proxy/*").handler(routingContext -> {
+            String fullPath = routingContext.request().path();
+            // Extract the target URL from the path (everything after "/proxy/")
+            String targetUrl = fullPath.substring("/proxy/".length());
+
+            // Validate that the target URL is a valid HTTP/HTTPS URL
+            if (!targetUrl.startsWith("http://") && !targetUrl.startsWith("https://")) {
+                routingContext.response()
+                    .setStatusCode(400)
+                    .end("Invalid URL: must start with http:// or https://");
+                return;
+            }
+
+            try {
+                // Parse the target URL
+                URL url = new URL(targetUrl);
+                boolean isHttps = "https".equals(url.getProtocol());
+                int port = url.getPort() != -1 ? url.getPort() : url.getDefaultPort();
+                String path = url.getPath();
+                if (url.getQuery() != null) {
+                    path += "?" + url.getQuery();
+                }
+
+                // Create HttpClient with appropriate options
+                HttpClientOptions options = new HttpClientOptions()
+                    .setSsl(isHttps)
+                    .setTrustAll(true) // For simplicity; in production, use proper SSL certificates
+                    .setConnectTimeout(10000)
+                    .setIdleTimeout(120); // 2 minutes idle timeout
+
+                HttpClient client = vertx.createHttpClient(options);
+
+                // Create request options
+                RequestOptions requestOptions = new RequestOptions()
+                    .setHost(url.getHost())
+                    .setPort(port)
+                    .setURI(path)
+                    .setMethod(HttpMethod.GET);
+
+                // Make the request
+                client.request(requestOptions)
+                    .onFailure(cause -> {
+                        routingContext.response()
+                            .setStatusCode(502)
+                            .end("Connection error: " + cause.getMessage());
+                    })
+                    .onSuccess(request -> {
+                        // Handle response
+                        request.send()
+                            .onFailure(cause -> {
+                                routingContext.response()
+                                    .setStatusCode(502)
+                                    .end("Proxy error: " + cause.getMessage());
+                                client.close();
+                            })
+                            .onSuccess(response -> {
+                                // Set CORS headers
+                                routingContext.response()
+                                    .setStatusCode(response.statusCode())
+                                    .putHeader("Access-Control-Allow-Origin", "*")
+                                    .putHeader("Access-Control-Allow-Methods", "GET, OPTIONS")
+                                    .putHeader("Access-Control-Allow-Headers", "*");
+
+                                // Forward relevant headers
+                                String contentType = response.getHeader("Content-Type");
+                                if (contentType != null) {
+                                    routingContext.response().putHeader("Content-Type", contentType);
+                                }
+
+                                // Forward caching headers from the origin
+                                String cacheControl = response.getHeader("Cache-Control");
+                                if (cacheControl != null) {
+                                    routingContext.response().putHeader("Cache-Control", cacheControl);
+                                }
+                                String expires = response.getHeader("Expires");
+                                if (expires != null) {
+                                    routingContext.response().putHeader("Expires", expires);
+                                }
+                                String etag = response.getHeader("ETag");
+                                if (etag != null) {
+                                    routingContext.response().putHeader("ETag", etag);
+                                }
+
+                                String contentLength = response.getHeader("Content-Length");
+
+                                // Don't forward Content-Encoding to avoid browser decompression issues with progress
+                                // The proxy will receive compressed data and forward it as-is
+
+                                if (contentLength != null) {
+                                    routingContext.response().putHeader("Content-Length", contentLength);
+                                } else {
+                                    routingContext.response().setChunked(true);
+                                }
+
+                                String contentDisposition = response.getHeader("Content-Disposition");
+                                if (contentDisposition != null) {
+                                    routingContext.response().putHeader("Content-Disposition", contentDisposition);
+                                }
+                                String acceptRanges = response.getHeader("Accept-Ranges");
+                                if (acceptRanges != null) {
+                                    routingContext.response().putHeader("Accept-Ranges", acceptRanges);
+                                }
+                                // Stream the response body directly
+                                response.pipeTo(routingContext.response())
+                                    .onFailure(cause -> {
+                                        if (!routingContext.response().ended()) {
+                                            routingContext.response().end();
+                                        }
+                                    })
+                                    .onComplete(ar -> {
+                                        client.close();
+                                    });
+                            });
+                    });
+            } catch (Exception e) {
+                routingContext.response()
+                    .setStatusCode(400)
+                    .end("Invalid URL format: " + e.getMessage());
+            }
+        });
+
         return router;
     }
 
@@ -80,7 +212,7 @@ final class VertxHttpRouterConfigurator {
         Path staticPath = Paths.get(pathToStaticFolder);
         boolean absolute = staticPath.isAbsolute();
         int bangIndex = pathToStaticFolder.indexOf("!/");
-        if (bangIndex != - 1) {
+        if (bangIndex != -1) {
             Path path = extractArchivedFolder(pathToStaticFolder);
             pathToStaticFolder = path.toAbsolutePath().toString();
             absolute = true;

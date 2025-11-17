@@ -23,7 +23,6 @@ import io.vertx.sqlclient.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 import static dev.webfx.platform.util.vertx.VertxAsync.toVertxFuture;
 import static dev.webfx.platform.util.vertx.VertxAsync.toWebfxFuture;
@@ -63,16 +62,13 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
             .setIdleTimeout(30) // We release the connection after 30 min of inactivity (especially for remote databases)
             .setIdleTimeoutUnit(TimeUnit.MINUTES);
 
-        Supplier<Pool> poolFactory = () ->
-            PgBuilder.pool()
-                .with(poolOptions)
-                .connectingTo(connectOptions)
-                .using(VertxInstance.getVertx())
-                .build();
-
         // Create the pool from the data object
         log("Creating pool on server start");
-        pool = poolFactory.get();
+        pool = PgBuilder.pool()
+            .with(poolOptions)
+            .connectingTo(connectOptions)
+            .using(VertxInstance.getVertx())
+            .build();
 
         // Closing properly the poll on the server shutdown
         Shutdown.addShutdownHook(e -> {

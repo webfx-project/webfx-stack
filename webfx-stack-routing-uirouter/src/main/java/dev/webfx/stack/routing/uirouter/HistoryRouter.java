@@ -70,12 +70,12 @@ public class HistoryRouter {
     protected void onNewHistoryLocation(BrowsingHistoryLocation browsingHistoryLocation) {
         String path;
         Object state;
-        // On first call, browsingHistoryLocation might be null when not running in the browser
-        if (browsingHistoryLocation == null) { // in-memory history not yet initialised
+        // On the first call, browsingHistoryLocation might be null when not running in the browser
+        if (browsingHistoryLocation == null) { // in-memory history not yet initialized
             path = defaultInitialHistoryPath;
             state = null;
             history.push(path); // initialising in-memory history to the default initial path
-        } else { // general case (browser history or in-memory history but initialised)
+        } else { // general case (browser history or in-memory history but initialized)
             path = history.getPath(browsingHistoryLocation);
             state = browsingHistoryLocation.getState();
         }

@@ -72,7 +72,7 @@ public final class ServerSideStateSessionSyncer {
         return ThreadLocalStateHolder.runWithState(clientState, () -> userIdChecker.apply(userId))
             .compose(finalUserId -> {
                 // Setting the new user id (should be the same as the passed on if valid, or something like "INVALID" if not)
-                Console.log("️🛡🛡🛡🛡🛡 UserIdCheck: userId=" + userId + " => finalUserId = " + finalUserId);
+                Console.log("️🛡 UserIdCheck: userId=" + userId + " => finalUserId = " + finalUserId);
                 // If the user identity check failed, we log out the user
                 if (finalUserId == null)
                     finalUserId = LogoutUserId.LOGOUT_USER_ID;

@@ -6,7 +6,7 @@ import dev.webfx.stack.authz.client.spi.impl.inmemory.SimpleInMemoryAuthorizatio
 /**
  * @author Bruno Salmon
  */
-public final class RoutingAuthorizationRule extends SimpleInMemoryAuthorizationRuleBase<RouteRequest> {
+public final class RoutingAuthorizationRule extends SimpleInMemoryAuthorizationRuleBase {
 
     private final String route;
     private final boolean includeSubRoutes;
@@ -18,8 +18,11 @@ public final class RoutingAuthorizationRule extends SimpleInMemoryAuthorizationR
     }
 
     @Override
-    protected boolean matchRule(RouteRequest operationRequest) {
-        String requestedRoute = operationRequest.getRoutePath();
-        return requestedRoute != null && (requestedRoute.equals(route) || includeSubRoutes && requestedRoute.startsWith(route));
+    protected boolean matchRule(Object operationRequest) {
+        if (operationRequest instanceof RouteRequest routeRequest) {
+            String requestedRoute = routeRequest.getRoutePath();
+            return requestedRoute != null && (requestedRoute.equals(route) || includeSubRoutes && requestedRoute.startsWith(route));
+        }
+        return false;
     }
 }
