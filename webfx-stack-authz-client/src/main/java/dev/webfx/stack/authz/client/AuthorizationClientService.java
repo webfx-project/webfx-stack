@@ -1,8 +1,8 @@
 package dev.webfx.stack.authz.client;
 
-import dev.webfx.stack.authz.client.spi.AuthorizationClientServiceProvider;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.service.SingleServiceProvider;
+import dev.webfx.stack.authz.client.spi.AuthorizationClientServiceProvider;
 
 import java.util.ServiceLoader;
 
