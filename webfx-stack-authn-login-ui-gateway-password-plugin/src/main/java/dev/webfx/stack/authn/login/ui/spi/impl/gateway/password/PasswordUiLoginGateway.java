@@ -1,17 +1,17 @@
 package dev.webfx.stack.authn.login.ui.spi.impl.gateway.password;
 
+import dev.webfx.extras.controlfactory.MaterialFactoryMixin;
+import dev.webfx.extras.controlfactory.button.ButtonFactory;
 import dev.webfx.extras.i18n.I18nKeys;
+import dev.webfx.extras.i18n.controls.I18nControls;
 import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGatewayBase;
 import dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginPortalCallback;
-import dev.webfx.extras.i18n.controls.I18nControls;
 import dev.webfx.stack.session.state.client.fx.FXUserId;
-import dev.webfx.extras.controlfactory.MaterialFactoryMixin;
-import dev.webfx.extras.controlfactory.button.ButtonFactory;
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
 import javafx.scene.text.Text;
 
@@ -29,7 +29,7 @@ public final class PasswordUiLoginGateway extends UiLoginGatewayBase implements 
    private UILoginView uiLoginView;
    private UiLoginPortalCallback uiLoginPortalcallback;
     // SignInMode = true => username/password, false => magic link
-    private final Property<Boolean> signInModeProperty = new SimpleObjectProperty<>(true);
+    private final BooleanProperty signInModeProperty = new SimpleBooleanProperty(true);
 
     public static void setCreateAccountEmailConsumer(Consumer<String> createAccountEmailConsumer) {
         CREATE_ACCOUNT_EMAIL_CONSUMER = createAccountEmailConsumer;
