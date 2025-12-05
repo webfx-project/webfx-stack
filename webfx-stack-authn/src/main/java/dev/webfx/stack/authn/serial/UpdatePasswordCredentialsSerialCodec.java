@@ -20,8 +20,8 @@ public final class UpdatePasswordCredentialsSerialCodec extends SerialCodecBase<
 
     @Override
     public void encode(UpdatePasswordCredentials arg, AstObject serial) {
-        encodeString(serial, OLD_PASSWORD_KEY, arg.getOldPassword());
-        encodeString(serial, NEW_PASSWORD_KEY, arg.getNewPassword());
+        encodeString(serial, OLD_PASSWORD_KEY, arg.oldPassword());
+        encodeString(serial, NEW_PASSWORD_KEY, arg.newPassword());
     }
 
     @Override

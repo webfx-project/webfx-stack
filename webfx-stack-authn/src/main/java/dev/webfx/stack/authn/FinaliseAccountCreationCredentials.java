@@ -3,21 +3,6 @@ package dev.webfx.stack.authn;
 /**
  * @author Bruno Salmon
  */
-public final class FinaliseAccountCreationCredentials {
+public record FinaliseAccountCreationCredentials(String magicLinkTokenOrVerificationCode, String password) {
 
-    private final String token;
-    private final String password;
-
-    public FinaliseAccountCreationCredentials(String token, String password) {
-        this.token = token;
-        this.password = password;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public String getPassword() {
-        return password;
-    }
 }

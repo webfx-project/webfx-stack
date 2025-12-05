@@ -19,7 +19,7 @@ public final class ContinueAccountCreationCredentialsSerialCodec extends SerialC
 
     @Override
     public void encode(ContinueAccountCreationCredentials arg, AstObject serial) {
-        encodeString(serial, TOKEN_KEY, arg.getToken());
+        encodeString(serial, TOKEN_KEY, arg.magicLinkTokenOrVerificationCode());
     }
 
     @Override

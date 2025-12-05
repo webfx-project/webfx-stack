@@ -13,6 +13,7 @@ public abstract class AlternativeLoginActionCredentialsSerialCodec<T extends Alt
     protected static final String CLIENT_ORIGIN_KEY = "origin";
     protected static final String REQUESTED_PATH_KEY = "path";
     protected static final String LANGUAGE_KEY = "lang";
+    protected static final String VERIFICATION_CODE_ONLY_KEY = "codeOnly";
     protected static final String CONTEXT_KEY = "context";
 
     public AlternativeLoginActionCredentialsSerialCodec(Class<? extends T> javaClass, String codecId) {
@@ -21,11 +22,12 @@ public abstract class AlternativeLoginActionCredentialsSerialCodec<T extends Alt
 
     @Override
     public void encode(T arg, AstObject serial) {
-        encodeString(serial, EMAIL_KEY,          arg.getEmail());
-        encodeString(serial, CLIENT_ORIGIN_KEY,  arg.getClientOrigin());
-        encodeString(serial, REQUESTED_PATH_KEY, arg.getRequestedPath());
-        encodeObject(serial, LANGUAGE_KEY,       arg.getLanguage());
-        encodeObject(serial, CONTEXT_KEY,        arg.getContext());
+        encodeString(serial, EMAIL_KEY,                   arg.getEmail());
+        encodeString(serial, CLIENT_ORIGIN_KEY,           arg.getClientOrigin());
+        encodeString(serial, REQUESTED_PATH_KEY,          arg.getRequestedPath());
+        encodeObject(serial, LANGUAGE_KEY,                arg.getLanguage());
+        encodeBoolean(serial, VERIFICATION_CODE_ONLY_KEY, arg.isVerificationCodeOnly());
+        encodeObject(serial, CONTEXT_KEY,                 arg.getContext());
     }
 
 }

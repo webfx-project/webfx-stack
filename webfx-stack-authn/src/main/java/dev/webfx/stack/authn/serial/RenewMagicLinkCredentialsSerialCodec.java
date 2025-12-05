@@ -19,7 +19,7 @@ public final class RenewMagicLinkCredentialsSerialCodec extends SerialCodecBase<
 
     @Override
     public void encode(RenewMagicLinkCredentials arg, AstObject serial) {
-        encodeString(serial, PREVIOUS_TOKEN_KEY, arg.getPreviousToken());
+        encodeString(serial, PREVIOUS_TOKEN_KEY, arg.previousToken());
     }
 
     @Override

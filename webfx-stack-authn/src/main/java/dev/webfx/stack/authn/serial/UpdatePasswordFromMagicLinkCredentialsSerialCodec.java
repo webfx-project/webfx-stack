@@ -19,7 +19,7 @@ public final class UpdatePasswordFromMagicLinkCredentialsSerialCodec extends Ser
 
     @Override
     public void encode(UpdatePasswordFromMagicLinkCredentials arg, AstObject serial) {
-        encodeString(serial, NEW_PASSWORD_KEY, arg.getNewPassword());
+        encodeString(serial, NEW_PASSWORD_KEY, arg.newPassword());
     }
 
     @Override
