@@ -6,6 +6,8 @@ public interface PasswordI18nKeys {
     Object AccountCreationLinkSent = "AccountCreationLinkSent";
     Object Back = "Back";
     Object CaseSensitive = "CaseSensitive";
+    Object CodeResent = "CodeResent";
+    Object CodeSentToEmail = "CodeSentToEmail";
     Object Continue = "Continue";
     Object CreateAccount = "CreateAccount";
     Object CreateAccountInfoMessage = "CreateAccountInfoMessage";
@@ -17,16 +19,22 @@ public interface PasswordI18nKeys {
     Object GoToLogin = "GoToLogin";
     Object IncorrectLoginOrPassword = "IncorrectLoginOrPassword";
     Object InvalidEmail = "InvalidEmail";
+    Object InvalidOrExpiredCode = "InvalidOrExpiredCode";
+    Object InvalidVerificationCode = "InvalidVerificationCode";
     Object LinkSent = "LinkSent";
     Object Login = "Login";
     Object Next = "Next";
+    Object OrClickLinkInEmail = "OrClickLinkInEmail";
     Object Password = "Password";
     Object PasswordUpdated = "PasswordUpdated";
     Object Recovery = "Recovery";
     Object RememberPassword = "RememberPassword";
+    Object ResendCode = "ResendCode";
     Object SendEmailToValidate = "SendEmailToValidate";
     Object SendLink = "SendLink";
     Object SignIn = "SignIn";
+    Object Verify = "Verify";
+    Object VerifyYourEmail = "VerifyYourEmail";
     Object YouMayCloseThisWindow = "YouMayCloseThisWindow";
 
 }

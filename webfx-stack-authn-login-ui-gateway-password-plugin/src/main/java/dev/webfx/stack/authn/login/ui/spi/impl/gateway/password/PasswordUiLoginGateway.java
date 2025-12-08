@@ -25,6 +25,7 @@ public final class PasswordUiLoginGateway extends UiLoginGatewayBase implements 
    private final static String GATEWAY_ID = "Password";
 
    private static Consumer<String> CREATE_ACCOUNT_EMAIL_CONSUMER;
+   private static boolean CREATE_ACCOUNT_LINK_VISIBLE = true;
 
    private UILoginView uiLoginView;
    private UiLoginPortalCallback uiLoginPortalcallback;
@@ -33,6 +34,10 @@ public final class PasswordUiLoginGateway extends UiLoginGatewayBase implements 
 
     public static void setCreateAccountEmailConsumer(Consumer<String> createAccountEmailConsumer) {
         CREATE_ACCOUNT_EMAIL_CONSUMER = createAccountEmailConsumer;
+    }
+
+    public static void setCreateAccountLinkVisible(boolean visible) {
+        CREATE_ACCOUNT_LINK_VISIBLE = visible;
     }
 
     public PasswordUiLoginGateway() {
@@ -53,6 +58,9 @@ public final class PasswordUiLoginGateway extends UiLoginGatewayBase implements 
         uiLoginPortalcallback = callback;
         uiLoginView = new UILoginView(CREATE_ACCOUNT_EMAIL_CONSUMER);
         uiLoginView.initializeComponents();
+        if (!CREATE_ACCOUNT_LINK_VISIBLE) {
+            uiLoginView.hideCreateAccountHyperlink();
+        }
 
         FXProperties.runNowAndOnPropertyChange(signIn -> {
             if (signIn)

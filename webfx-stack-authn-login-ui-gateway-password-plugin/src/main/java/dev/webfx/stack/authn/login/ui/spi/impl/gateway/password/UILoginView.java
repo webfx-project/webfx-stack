@@ -16,6 +16,7 @@ import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.windowlocation.WindowLocation;
 import dev.webfx.stack.authn.AuthenticateWithUsernamePasswordCredentials;
+import dev.webfx.stack.authn.AuthenticateWithVerificationCodeCredentials;
 import dev.webfx.stack.authn.AuthenticationRequest;
 import dev.webfx.stack.authn.InitiateAccountCreationCredentials;
 import dev.webfx.stack.authn.SendMagicLinkCredentials;
@@ -67,7 +68,17 @@ public final class UILoginView implements MaterialFactoryMixin {
     private BorderPane container;
     private final Consumer<String> createAccountEmailConsumer;
     private boolean isPasswordVisible = false;
+    private boolean createAccountLinkForceHidden = false;
     private int lastAnchor, lastCaretPosition;
+
+    // Verification code UI components
+    private HBox verificationCodeContainer;
+    private TextField[] codeDigitFields;
+    private Label codeErrorLabel;
+    private Hyperlink resendCodeHyperlink;
+    private Label orClickLinkLabel;
+    private String currentEmail;
+    private UiLoginPortalCallback currentCallback;
 
     public UILoginView(Consumer<String> emailConsumer) {
         createAccountEmailConsumer = emailConsumer;
@@ -296,6 +307,7 @@ public final class UILoginView implements MaterialFactoryMixin {
         hideMessageForPasswordField();
         hideForgetPasswordHyperlink();
         I18nControls.bindI18nProperties(actionButton, PasswordI18nKeys.Continue);
+        actionButton.setDisable(false);
         showCreateAccountHyperlink();
         createAccountHyperlink.setOnAction(e-> transformPaneToCreateAccount(callback));
         actionButton.setOnAction(e->{
@@ -303,6 +315,16 @@ public final class UILoginView implements MaterialFactoryMixin {
                 transformPaneToLoginAndPasswordState(callback);
             }
         });
+
+        // Reset verification code UI state
+        hideVerificationCodeUI();
+        clearCodeFields();
+        currentEmail = null;
+
+        // Re-enable and show email field
+        emailTextField.setDisable(false);
+        showEmailField();
+
         moveActionButtonUnderEmail();
 
         // Reset password visibility to the hidden state when returning to the initial state
@@ -375,25 +397,22 @@ public final class UILoginView implements MaterialFactoryMixin {
                         showMessageForPasswordField();
                     })
                     .onSuccess(ignored -> {
-                        setTitle(PasswordI18nKeys.Recovery);
-                        setMainMessage(PasswordI18nKeys.LinkSent, Bootstrap.TEXT_SUCCESS);
-                        showMainMessage();
-                        actionButton.setDisable(true);
-                        emailTextField.setDisable(true);
-                        hidePasswordField();
-                        hideForgetPasswordHyperlink();
-                        showGraphicFromActionButton();
+                        currentEmail = emailTextField.getText().trim().toLowerCase();
+                        transformPaneToVerificationCodeEntryState(callback);
                     });
             }
         });
     }
 
     public void hideCreateAccountHyperlink() {
+        createAccountLinkForceHidden = true;
         Layouts.setManagedAndVisibleProperties(createAccountHyperlink, false);
     }
 
     public void showCreateAccountHyperlink() {
-        Layouts.setManagedAndVisibleProperties(createAccountHyperlink, true);
+        if (!createAccountLinkForceHidden) {
+            Layouts.setManagedAndVisibleProperties(createAccountHyperlink, true);
+        }
     }
 
     public void hideForgetPasswordHyperlink() {
@@ -503,5 +522,261 @@ public final class UILoginView implements MaterialFactoryMixin {
 
     public PasswordField getPasswordField() {
         return passwordField;
+    }
+
+    // ==================== Verification Code UI Methods ====================
+
+    private void createVerificationCodeUI() {
+        codeDigitFields = new TextField[6];
+        verificationCodeContainer = new HBox(10);
+        verificationCodeContainer.setAlignment(Pos.CENTER);
+
+        for (int i = 0; i < 6; i++) {
+            TextField field = createCodeDigitField(i);
+            codeDigitFields[i] = field;
+            verificationCodeContainer.getChildren().add(field);
+        }
+
+        codeErrorLabel = Bootstrap.small(new Label());
+        codeErrorLabel.getStyleClass().add(Bootstrap.TEXT_DANGER);
+        codeErrorLabel.setWrapText(true);
+        codeErrorLabel.setTextAlignment(TextAlignment.CENTER);
+        hideCodeError();
+
+        orClickLinkLabel = Bootstrap.textSecondary(I18nControls.newLabel(PasswordI18nKeys.OrClickLinkInEmail));
+        orClickLinkLabel.setWrapText(true);
+        orClickLinkLabel.setTextAlignment(TextAlignment.CENTER);
+        VBox.setMargin(orClickLinkLabel, new Insets(20, 0, 10, 0));
+
+        resendCodeHyperlink = Bootstrap.textSecondary(I18nControls.newHyperlink(PasswordI18nKeys.ResendCode));
+    }
+
+    private TextField createCodeDigitField(int index) {
+        TextField field = new TextField();
+        field.setPrefWidth(45);
+        field.setMinWidth(45);
+        field.setMaxWidth(45);
+        field.setPrefHeight(55);
+        field.setMinHeight(55);
+        field.setMaxHeight(55);
+        field.setAlignment(Pos.CENTER);
+        field.setStyle("-fx-font-family: 'Courier New', monospace; -fx-font-size: 24px; -fx-font-weight: bold;");
+        setupCodeDigitField(field, index);
+        return field;
+    }
+
+    private void setupCodeDigitField(TextField field, int index) {
+        field.textProperty().addListener((obs, oldVal, newVal) -> {
+            // Filter non-digits
+            if (!newVal.matches("\\d*")) {
+                field.setText(newVal.replaceAll("[^\\d]", ""));
+                return;
+            }
+            // Handle paste of full code (6+ digits pasted into a field)
+            if (newVal.length() >= 6) {
+                distributeCodeToFields(newVal.substring(0, 6));
+                // Auto-validate after paste
+                Platform.runLater(this::autoValidateIfComplete);
+                return;
+            }
+            // Limit to 1 digit
+            if (newVal.length() > 1) {
+                field.setText(newVal.substring(0, 1));
+                return;
+            }
+            // Auto-advance to next field when digit entered
+            if (newVal.length() == 1 && index < 5) {
+                codeDigitFields[index + 1].requestFocus();
+            }
+            // Clear error on input
+            hideCodeError();
+            // Auto-validate when all 6 digits are entered
+            if (newVal.length() == 1) {
+                Platform.runLater(this::autoValidateIfComplete);
+            }
+        });
+
+        // Handle backspace navigation
+        field.setOnKeyPressed(event -> {
+            if (event.getCode() == javafx.scene.input.KeyCode.BACK_SPACE && field.getText().isEmpty() && index > 0) {
+                codeDigitFields[index - 1].requestFocus();
+                codeDigitFields[index - 1].clear();
+            }
+        });
+    }
+
+    private void autoValidateIfComplete() {
+        String code = getEnteredCode();
+        if (code.length() == 6 && currentCallback != null) {
+            onVerifyCode(currentCallback);
+        }
+    }
+
+    private void distributeCodeToFields(String code) {
+        for (int i = 0; i < 6 && i < code.length(); i++) {
+            codeDigitFields[i].setText(String.valueOf(code.charAt(i)));
+        }
+        codeDigitFields[5].requestFocus();
+        codeDigitFields[5].positionCaret(1);
+    }
+
+    public void transformPaneToVerificationCodeEntryState(UiLoginPortalCallback callback) {
+        currentCallback = callback;
+
+        // Create verification code UI components if not already created
+        if (verificationCodeContainer == null) {
+            createVerificationCodeUI();
+        }
+
+        // Set title
+        I18nControls.bindI18nProperties(loginTitleLabel, PasswordI18nKeys.VerifyYourEmail);
+
+        // Set main message with email parameter
+        I18nControls.bindI18nProperties(mainMessageLabel, PasswordI18nKeys.CodeSentToEmail, currentEmail);
+        mainMessageLabel.getStyleClass().setAll(Bootstrap.TEXT_SECONDARY);
+        mainMessageLabel.setPadding(new Insets(20, 15, 20, 15));
+        showMainMessage();
+
+        // Hide email/password fields
+        hideEmailField();
+        hidePasswordField();
+        hideMessageForPasswordField();
+
+        // Configure action button for verification
+        I18nControls.bindI18nProperties(actionButton, PasswordI18nKeys.Verify);
+        actionButton.setDisable(false);
+        actionButton.setOnAction(e -> onVerifyCode(callback));
+        hideGraphicFromActionButton();
+
+        // Configure resend hyperlink
+        resendCodeHyperlink.setOnAction(e -> onResendCode(callback));
+
+        // Hide other elements
+        hideForgetPasswordHyperlink();
+        hideCreateAccountHyperlink();
+
+        // Clear any previous code entries
+        clearCodeFields();
+        hideCodeError();
+
+        // Show and rearrange mainVBox layout for verification code entry
+        showVerificationCodeUI();
+        rearrangeForVerificationCodeEntry();
+
+        // Focus first code field
+        Platform.runLater(() -> codeDigitFields[0].requestFocus());
+    }
+
+    private void rearrangeForVerificationCodeEntry() {
+        mainVBox.getChildren().setAll(
+            loginTitleLabel,
+            mainMessageLabel,
+            verificationCodeContainer,
+            codeErrorLabel,
+            actionButton,
+            orClickLinkLabel,
+            resendCodeHyperlink
+        );
+    }
+
+    private void onVerifyCode(UiLoginPortalCallback callback) {
+        String code = getEnteredCode();
+
+        if (code.length() != 6) {
+            showCodeError(PasswordI18nKeys.InvalidVerificationCode);
+            return;
+        }
+
+        AsyncSpinner.displayButtonSpinner(actionButton);
+        new AuthenticationRequest()
+            .setUserCredentials(new AuthenticateWithVerificationCodeCredentials(code))
+            .executeAsync()
+            .inUiThread()
+            .onComplete(ar -> AsyncSpinner.hideButtonSpinner(actionButton))
+            .onFailure(failure -> {
+                callback.notifyUserLoginFailed(failure);
+                showCodeError(PasswordI18nKeys.InvalidOrExpiredCode);
+                clearCodeFields();
+                Platform.runLater(() -> codeDigitFields[0].requestFocus());
+            });
+        // Success is handled by FXUserId listener in PasswordUiLoginGateway
+    }
+
+    private void onResendCode(UiLoginPortalCallback callback) {
+        Object credentials = new SendMagicLinkCredentials(
+            currentEmail,
+            WindowLocation.getOrigin(),
+            WindowLocation.getPath(),
+            I18n.getLanguage(),
+            false,
+            FXLoginContext.getLoginContext()
+        );
+
+        AsyncSpinner.displayButtonSpinner(actionButton);
+        new AuthenticationRequest()
+            .setUserCredentials(credentials)
+            .executeAsync()
+            .inUiThread()
+            .onComplete(ar -> AsyncSpinner.hideButtonSpinner(actionButton))
+            .onFailure(failure -> {
+                callback.notifyUserLoginFailed(failure);
+                showCodeError(PasswordI18nKeys.ErrorOccurred);
+            })
+            .onSuccess(ignored -> {
+                I18nControls.bindI18nProperties(mainMessageLabel, PasswordI18nKeys.CodeResent);
+                mainMessageLabel.getStyleClass().setAll(Bootstrap.TEXT_SUCCESS);
+                // Reset message after a delay
+                UiScheduler.scheduleDelay(3000, () -> {
+                    I18nControls.bindI18nProperties(mainMessageLabel, PasswordI18nKeys.CodeSentToEmail, currentEmail);
+                    mainMessageLabel.getStyleClass().setAll(Bootstrap.TEXT_SECONDARY);
+                });
+            });
+    }
+
+    private String getEnteredCode() {
+        StringBuilder code = new StringBuilder();
+        for (TextField field : codeDigitFields) {
+            code.append(field.getText());
+        }
+        return code.toString();
+    }
+
+    private void clearCodeFields() {
+        if (codeDigitFields != null) {
+            for (TextField field : codeDigitFields) {
+                field.clear();
+            }
+        }
+    }
+
+    private void showCodeError(Object i18nKey) {
+        I18nControls.bindI18nProperties(codeErrorLabel, i18nKey);
+        codeErrorLabel.setVisible(true);
+        codeErrorLabel.setManaged(true);
+    }
+
+    private void hideCodeError() {
+        if (codeErrorLabel != null) {
+            codeErrorLabel.setVisible(false);
+            codeErrorLabel.setManaged(false);
+        }
+    }
+
+    private void hideVerificationCodeUI() {
+        if (verificationCodeContainer != null) {
+            Layouts.setManagedAndVisibleProperties(verificationCodeContainer, false);
+            Layouts.setManagedAndVisibleProperties(codeErrorLabel, false);
+            Layouts.setManagedAndVisibleProperties(orClickLinkLabel, false);
+            Layouts.setManagedAndVisibleProperties(resendCodeHyperlink, false);
+        }
+    }
+
+    private void showVerificationCodeUI() {
+        if (verificationCodeContainer != null) {
+            Layouts.setManagedAndVisibleProperties(verificationCodeContainer, true);
+            Layouts.setManagedAndVisibleProperties(orClickLinkLabel, true);
+            Layouts.setManagedAndVisibleProperties(resendCodeHyperlink, true);
+            // codeErrorLabel visibility is managed separately by showCodeError/hideCodeError
+        }
     }
 }
