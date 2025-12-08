@@ -355,7 +355,7 @@ public final class UILoginView implements MaterialFactoryMixin {
 
         actionButton.setOnAction(event -> {
             if (validateForm()) {
-                Object credentials = new AuthenticateWithUsernamePasswordCredentials(emailTextField.getText().trim().toLowerCase(), passwordField.getText().trim());
+                Object credentials = new AuthenticateWithUsernamePasswordCredentials(emailTextField.getText().trim().toLowerCase(), getPassword().trim());
                 AsyncSpinner.displayButtonSpinner(actionButton);
                 new AuthenticationRequest()
                     .setUserCredentials(credentials)
@@ -367,7 +367,7 @@ public final class UILoginView implements MaterialFactoryMixin {
                         setInfoMessageForPasswordFieldLabel(PasswordI18nKeys.IncorrectLoginOrPassword, Bootstrap.TEXT_DANGER);
                         showMessageForPasswordField();
                     })
-                    .onSuccess(ignored -> UiScheduler.scheduleDelay(1000,() -> passwordField.setText("")));
+                    .onSuccess(ignored -> UiScheduler.scheduleDelay(1000, this::clearPassword));
             }
         });
         moveActionButtonAtTheBottom();
@@ -522,6 +522,22 @@ public final class UILoginView implements MaterialFactoryMixin {
 
     public PasswordField getPasswordField() {
         return passwordField;
+    }
+
+    /**
+     * Gets the current password text from the active password field (visible or hidden).
+     * @return the password text
+     */
+    public String getPassword() {
+        return isPasswordVisible ? visiblePasswordField.getText() : passwordField.getText();
+    }
+
+    /**
+     * Clears both password fields.
+     */
+    public void clearPassword() {
+        passwordField.setText("");
+        visiblePasswordField.setText("");
     }
 
     // ==================== Verification Code UI Methods ====================
