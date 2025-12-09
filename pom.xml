@@ -97,6 +97,7 @@
         <module>webfx-stack-com-bus-json-server</module>
         <module>webfx-stack-com-bus-json-vertx</module>
         <module>webfx-stack-com-bus-simple</module>
+        <module>webfx-stack-com-origin-client</module>
         <module>webfx-stack-com-serial</module>
         <module>webfx-stack-com-websocket</module>
         <module>webfx-stack-com-websocket-elemental2-native</module>

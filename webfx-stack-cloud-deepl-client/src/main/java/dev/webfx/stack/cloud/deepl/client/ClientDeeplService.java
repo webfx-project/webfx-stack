@@ -2,12 +2,11 @@ package dev.webfx.stack.cloud.deepl.client;
 
 import dev.webfx.platform.ast.ReadOnlyAstArray;
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.conf.ConfigLoader;
 import dev.webfx.platform.fetch.json.JsonFetch;
+import dev.webfx.stack.origin.client.ClientOrigin;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 
 /**
  * @author Bruno Salmon
@@ -37,21 +36,7 @@ public final class ClientDeeplService {
     }
 
     private static String getDeeplRestApiUrl(String deeplCommand) {
-        return getHttpServerOrigin() + "/rest/deepl/" + deeplCommand;
-    }
-
-    private static String getHttpServerOrigin() {
-        String origin = evaluateOrNull("${{ HTTP_SERVER_ORIGIN }}");
-        if (origin == null)
-            origin = "https://" + evaluateOrNull("${{ HTTP_SERVER_HOST | BUS_SERVER_HOST | SERVER_HOST }}");
-        return origin;
-    }
-
-    private static String evaluateOrNull(String expression) {
-        String value = ConfigLoader.getRootConfig().get(expression);
-        if (Objects.equals(value, expression))
-            value = null;
-        return value;
+        return ClientOrigin.getHttpServerRestUrl("/rest/deepl/" + deeplCommand);
     }
 
 }
