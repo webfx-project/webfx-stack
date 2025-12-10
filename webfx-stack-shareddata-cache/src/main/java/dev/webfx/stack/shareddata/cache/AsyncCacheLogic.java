@@ -26,18 +26,20 @@ public final class AsyncCacheLogic {
         Future<R> cacheFuture = cacheEntry == null ? Future.succeededFuture() : cacheEntry.getValue()
             .map(pair -> {
                 R result = null;
-                try {
-                    if (!noCacheFuture.isComplete() && Objects.equals(argument, pair.get1())) {
-                        result = pair.get2();
-                        if (result != null) {
-                            Console.log("Restoring cache '" + cacheEntry.getKey() + "'");
-                            T finalResult = resultMapper.apply(result);
-                            promise.emitCacheValue(finalResult);
-                        }
-                    } else
-                        Console.log("Cache for '" + cacheEntry.getKey() + "' can't be used, as its argument was different: " + pair.get1());
-                } catch (Exception e) {
-                    Console.log("WARNING: Restoring '" + cacheEntry.getKey() + "' cache failed: " + e.getMessage());
+                if (pair != null) {
+                    try {
+                        if (!noCacheFuture.isComplete() && Objects.equals(argument, pair.get1())) {
+                            result = pair.get2();
+                            if (result != null) {
+                                Console.log("Restoring cache '" + cacheEntry.getKey() + "'");
+                                T finalResult = resultMapper.apply(result);
+                                promise.emitCacheValue(finalResult);
+                            }
+                        } else
+                            Console.log("Cache for '" + cacheEntry.getKey() + "' can't be used, as its argument was different: " + pair.get1());
+                    } catch (Exception e) {
+                        Console.log("WARNING: Restoring '" + cacheEntry.getKey() + "' cache failed: " + e.getMessage());
+                    }
                 }
                 return result;
             });
@@ -63,18 +65,20 @@ public final class AsyncCacheLogic {
         Future<Object[]> cacheFuture = cacheEntry == null ? Future.succeededFuture() : cacheEntry.getValue()
             .map(pair -> {
                 Object[] results = null;
-                try {
-                    if (!noCacheFuture.isComplete() && Objects.deepEquals(arguments, pair.get1())) {
-                        results = pair.get2();
-                        if (results != null) {
-                            Console.log("Restoring cache '" + cacheEntry.getKey() + "'");
-                            T[] finalResults = Arrays.map(results, (i, r) -> resultMapper.apply(i, (R) r), generator);
-                            promise.emitCacheValue(finalResults);
-                        }
-                    } else
-                        Console.log("Cache for '" + cacheEntry.getKey() + "' can't be used, as its argument was different: " + pair.get1());
-                } catch (Exception e) {
-                    Console.log("WARNING: Restoring '" + cacheEntry.getKey() + "' cache failed: " + e.getMessage());
+                if (pair != null) {
+                    try {
+                        if (!noCacheFuture.isComplete() && Objects.deepEquals(arguments, pair.get1())) {
+                            results = pair.get2();
+                            if (results != null) {
+                                Console.log("Restoring cache '" + cacheEntry.getKey() + "'");
+                                T[] finalResults = Arrays.map(results, (i, r) -> resultMapper.apply(i, (R) r), generator);
+                                promise.emitCacheValue(finalResults);
+                            }
+                        } else
+                            Console.log("Cache for '" + cacheEntry.getKey() + "' can't be used, as its argument was different: " + pair.get1());
+                    } catch (Exception e) {
+                        Console.log("WARNING: Restoring '" + cacheEntry.getKey() + "' cache failed: " + e.getMessage());
+                    }
                 }
                 return results;
             });
