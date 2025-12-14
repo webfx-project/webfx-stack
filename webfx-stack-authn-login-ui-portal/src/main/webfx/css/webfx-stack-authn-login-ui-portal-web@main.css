@@ -10,7 +10,6 @@
     --fx-background-position: center;
     --fx-background-size: cover;
     --fx-background-repeat: no-repeat;
-    --fx-border-radius: 21px;
 }
 
 .login input {
@@ -20,6 +19,7 @@
 .login-child {
     --fx-background-color: rgba(255, 255, 255, var(--webfx-login-portal-opacity));
     --fx-background-radius: 21px;
+    --fx-border-radius: 21px;
    /* border: 1px solid lightgray;*/
    /* box-shadow: 0px 0px 10px lightgray;*/
     width: 586px; /* Sets the fixed width */
