@@ -27,6 +27,10 @@ public final class Options {
         this.modelReader = modelReader;
     }
 
+    public boolean isTopLevelSelect() {
+        return clause == SqlClause.SELECT && !build.hasParent();
+    }
+
     public Options changeSeparator(String separator) {
         if (Objects.areEquals(this.separator, separator))
             return this;

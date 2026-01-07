@@ -12,33 +12,23 @@ import dev.webfx.stack.orm.expression.terms.function.ArgumentAlias;
 /**
  * @author Bruno Salmon
  */
-public final class DotSqlCompiler extends AbstractTermSqlCompiler<Dot> {
+public final class DotSqlCompiler extends AbstractTermSqlCompiler<Dot<?>> {
 
     public DotSqlCompiler() {
         super(Dot.class);
     }
 
     @Override
-    public void compileExpressionToSql(Dot dot, Options o) {
-/*
-        Expression expandLeft = dot.expandLeft();
-        if (expandLeft == dot || expandLeft instanceof Dot)
-            dot = (Dot) expandLeft;
-        else {
-            compileChildExpressionToSql(expandLeft, o);
-            return;
-        }
-*/
-        Expression left = dot.getLeft();
+    public void compileExpressionToSql(Dot<?> dot, Options o) {
+        Expression<?> left = dot.getLeft();
         Object leftClass = o.build.getCompilingClass();
         String asAlias = null;
-        if (left instanceof As) {
-            As as = (As) left;
+        if (left instanceof As<?> as) {
             left = as.getOperand();
             asAlias = as.getAlias();
         }
-        if (left instanceof ArgumentAlias) // Resolving argument alias with the actual argument expression
-            left = (Expression) ((ArgumentAlias) left).getArgument();
+        if (left instanceof ArgumentAlias argumentAlias) // Resolving argument alias with the actual argument expression
+            left = (Expression<?>) argumentAlias.getArgument();
         if (left instanceof Dot) { // the initial leftDot was not a dot, but the argument alias might have introduced one. Ex: p.frontendAccount with p = document.person
             compileExpressionToSql(Dot.dot(left, dot.getRight(), dot.isOuterJoin(), o.readForeignFields), o);
             return;
@@ -51,22 +41,21 @@ public final class DotSqlCompiler extends AbstractTermSqlCompiler<Dot> {
         if (leftSqlColumnName != null) { // typically a persistent field
             leftSql = leftSqlColumnName;
             rightTableAlias = o.build.addJoinCondition(leftTableAlias, leftSql, asAlias, o.modelReader.getDomainClassSqlTableName(rightClass), o.modelReader.getDomainClassPrimaryKeySqlColumnName(rightClass), dot.isOuterJoin() || o.clause == SqlClause.SELECT);
-        } else if (left instanceof Alias) {
+        } else if (left instanceof Alias<?> alias) {
             leftSql = null;
-            Alias alias = (Alias) left;
             rightClass = alias.getDomainClass();
             rightTableAlias = alias.getName();
         } else // should never occur
             leftSql = rightTableAlias = null;
         QueryColumnToEntityFieldMapping leftJoinMapping = null;
-        if (o.clause == SqlClause.SELECT && leftSql != null && dot.isReadLeftKey() && o.readForeignFields) // lecture de la clé étrangère pour pouvoir faire la jointure en mémoire
+        if (o.isTopLevelSelect() && leftSql != null && dot.isReadLeftKey() && o.readForeignFields) // lecture de la clé étrangère pour pouvoir faire la jointure en mémoire
             leftJoinMapping = o.build.addColumnInClause(leftTableAlias, leftSql, left, rightClass, o.clause, o.separator, o.grouped, false, o.generateQueryMapping);
         o.build.setCompilingClass(rightClass);
         o.build.setCompilingTableAlias(rightTableAlias);
         QueryColumnToEntityFieldMapping oldLeftJoinMapping = o.build.getLeftJoinMapping();
         o.build.setLeftJoinMapping(leftJoinMapping);
-        Expression right = dot.getRight();
-        if (o.clause == SqlClause.SELECT && (!(right instanceof Symbol) || ((Symbol) right).getExpression() != null))
+        Expression<?> right = dot.getRight();
+        if (o.isTopLevelSelect() && o.separator != null && (!(right instanceof Symbol) || ((Symbol<?>) right).getExpression() != null))
             compileExpressionPersistentTermsToSql(right, o);
         else
             compileChildExpressionToSql(right, o);

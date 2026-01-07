@@ -79,6 +79,10 @@ public final class SqlBuild {
         return parameterNames;
     }
 
+    public boolean hasParent() {
+        return parent != null;
+    }
+
     private SqlBuild getTopParent() {
         return parent == null ? this : parent.getTopParent();
     }
@@ -98,7 +102,7 @@ public final class SqlBuild {
         return sqlUncompilableCondition;
     }
 
-    public void setSqlUncompilableCondition(Expression sqlUncompilableCondition) {
+    public void setSqlUncompilableCondition(Expression<?> sqlUncompilableCondition) {
         this.sqlUncompilableCondition = sqlUncompilableCondition;
     }
 
