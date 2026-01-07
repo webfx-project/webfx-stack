@@ -11,30 +11,28 @@ import dev.webfx.stack.orm.expression.terms.function.InlineFunction;
 /**
  * @author Bruno Salmon
  */
-public final class CallSqlCompiler extends AbstractTermSqlCompiler<Call> {
+public final class CallSqlCompiler extends AbstractTermSqlCompiler<Call<?>> {
 
     public CallSqlCompiler() {
         super(Call.class);
     }
 
     @Override
-    public void compileExpressionToSql(Call call, Options o) {
-        Expression arg = call.getOperand();
-        if (arg instanceof Dot) {
-            Dot dot = (Dot) arg;
+    public void compileExpressionToSql(Call<?> call, Options o) {
+        Expression<?> arg = call.getOperand();
+        if (arg instanceof Dot<?> dot) {
             compileChildExpressionToSql(Dot.dot(dot.getLeft(), new Call(call.getFunctionName(), dot.getRight(), call.getOrderBy()), dot.isOuterJoin(), false), o);
         } else {
-            Function f = call.getFunction();
-            if (f instanceof InlineFunction) {
-                InlineFunction inline = (InlineFunction) f;
+            Function<?> f = call.getFunction();
+            if (f instanceof InlineFunction<?> inlineFunction) {
                 if (o.clause == SqlClause.SELECT && o.readForeignFields)
                     compileExpressionPersistentTermsToSql(arg, o);
                 else
                     try {
-                        inline.pushArguments(arg);
-                        compileChildExpressionToSql(inline.getBody(), o);
+                        inlineFunction.pushArguments(arg);
+                        compileChildExpressionToSql(inlineFunction.getBody(), o);
                     } finally {
-                        inline.popArguments();
+                        inlineFunction.popArguments();
                     }
             } else {
                 StringBuilder sb;

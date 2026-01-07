@@ -10,15 +10,15 @@ import dev.webfx.extras.type.Types;
 /**
  * @author Bruno Salmon
  */
-public final class SymbolSqlCompiler extends AbstractTermSqlCompiler<Symbol> {
+public final class SymbolSqlCompiler extends AbstractTermSqlCompiler<Symbol<?>> {
 
     public SymbolSqlCompiler() {
         super(Symbol.class);
     }
 
     @Override
-    public void compileExpressionToSql(Symbol e, Options o) {
-        Expression expression = e.getExpression();
+    public void compileExpressionToSql(Symbol<?> e, Options o) {
+        Expression<?> expression = e.getExpression();
         if (expression != null) { // Ex: a domain field which is actually an expression.
             // Should the expression be directly compiled in SQL (1), or should we load the persistent fields for its
             // later evaluation on the client-side (2)?
@@ -29,8 +29,8 @@ public final class SymbolSqlCompiler extends AbstractTermSqlCompiler<Symbol> {
             else // Ex: in a where or order by clause, or inside an As expression to be stored in an alias
                 compileChildExpressionToSql(expression, o); // (1) => we need to evaluate the expression directly in SQL
         } else {
-            Expression foreignField = null;
-            Object termDomainClass = e instanceof HasDomainClass /*ex: domain field */ ? ((HasDomainClass) e).getDomainClass() : o.build.getCompilingClass();
+            Expression<?> foreignField = null;
+            Object termDomainClass = e instanceof HasDomainClass hasDomainClass /*ex: domain field */ ? hasDomainClass.getDomainClass() : o.build.getCompilingClass();
             if (o.clause == SqlClause.SELECT && o.readForeignFields) {
                 Object foreignClass = o.modelReader.getSymbolForeignDomainClass(termDomainClass, e, false);
                 if (foreignClass != null /* && build.getJoinMapping() == null  to avoid infinite recursion, see item.icon*/)
