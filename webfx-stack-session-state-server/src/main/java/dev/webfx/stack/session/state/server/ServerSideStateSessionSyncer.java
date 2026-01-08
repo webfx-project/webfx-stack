@@ -70,11 +70,12 @@ public final class ServerSideStateSessionSyncer {
             return syncFixedServerSessionFromIncomingClientState(serverSession, clientState, forceStore);
         // Case when the user is set => login or user switch, or logout (LOGOUT_USER_ID)
         return ThreadLocalStateHolder.runWithState(clientState, () -> userIdChecker.apply(userId))
+            // If the user identity check failed (ex: no such user exception), we log out the user
+            .recover(e -> Future.succeededFuture(LogoutUserId.LOGOUT_USER_ID))
             .compose(finalUserId -> {
                 // Setting the new user id (should be the same as the passed on if valid, or something like "INVALID" if not)
                 Console.log("️🛡 UserIdCheck: userId=" + userId + " => finalUserId = " + finalUserId);
-                // If the user identity check failed, we log out the user
-                if (finalUserId == null)
+                if (finalUserId == null) // Shouldn't arrive but just in case (the user identity check should raise an exception instead)
                     finalUserId = LogoutUserId.LOGOUT_USER_ID;
                 // Memorizing the final user id in the client state
                 StateAccessor.setUserId(clientState, finalUserId);
