@@ -44,7 +44,8 @@ public class ServerAuthenticationJob implements ApplicationJob {
                         if (ar.succeeded())
                             body = ar.result();
                         else
-                            body = AST.createReadOnlySingleKeyAstObject("failure", ar.cause().getMessage());
+                            // body = AST.createReadOnlySingleKeyAstObject("failure", ar.cause().getMessage()); TODO: solve ClassCastException in AST.nativeToAstObject() when serialized over event bus
+                            body = AST.createObject().set("failure", ar.cause().getMessage());
                         message.reply(body, DeliveryOptions.localOnlyDeliveryOptions());
                     });
             }));
