@@ -1,13 +1,12 @@
 package dev.webfx.stack.orm.dql.sqlcompiler.terms;
 
-import dev.webfx.stack.orm.dql.sqlcompiler.sql.SqlClause;
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.terms.*;
 
 /**
  * @author Bruno Salmon
  */
-public final class BooleanExpressionSqlCompiler extends BinaryExpressionSqlCompiler<BinaryBooleanExpression> {
+public final class BooleanExpressionSqlCompiler extends BinaryExpressionSqlCompiler<BinaryBooleanExpression<?>> {
 
     public BooleanExpressionSqlCompiler() {
         super(And.class, Equals.class, GreaterThan.class, GreaterThanOrEquals.class,
@@ -16,29 +15,18 @@ public final class BooleanExpressionSqlCompiler extends BinaryExpressionSqlCompi
     }
 
     @Override
-    public void compileExpressionToSql(BinaryBooleanExpression e, Options o) {
-        Expression left = e.getLeft();
-        Expression right = e.getRight();
-        if (o.clause == SqlClause.WHERE) {
-            if (right == Constant.NULL) {
-                String specialOperator = e instanceof Equals ? " is null" : e instanceof NotEquals ? " is not null" : null;
-                if (specialOperator != null) {
-                    compileChildExpressionToSql(left, o);
-                    o.build.prepareAppend(o.clause, specialOperator);
-                    return;
-                }
+    public void compileExpressionToSql(BinaryBooleanExpression<?> e, Options o) {
+        Expression<?> left = e.getLeft();
+        Expression<?> right = e.getRight();
+        boolean isLeftNull = left == Constant.NULL;
+        boolean isRightNull = right == Constant.NULL;
+        if (isLeftNull || isRightNull) {
+            String specialOperator = e instanceof Equals ? " is null" : e instanceof NotEquals ? " is not null" : null;
+            if (specialOperator != null) {
+                compileChildExpressionToSql(isRightNull ? left : right, o);
+                o.build.prepareAppend(o.clause, specialOperator);
+                return;
             }
-/*
-            if (right instanceof Parameter) {
-                String specialOperator = e instanceof Equals ? " is not distinct from " : e instanceof NotEquals ? " is distinct from " : null;
-                if (specialOperator != null) {
-                    compileChildExpressionToSql(left, o);
-                    o.build.prepareAppend(o.clause, specialOperator);
-                    compileChildExpressionToSql(right, o);
-                    return;
-                }
-            }
-*/
         }
         boolean lowerLeftPrecedence = getSqlPrecedenceLevel(left) < e.getPrecedenceLevel();
         StringBuilder sb = o.build.prepareAppend(o);
@@ -62,10 +50,10 @@ public final class BooleanExpressionSqlCompiler extends BinaryExpressionSqlCompi
             sb.append(')');
     }
 
-    private int getSqlPrecedenceLevel(Expression e) {
+    private int getSqlPrecedenceLevel(Expression<?> e) {
         int precedenceLevel = e.getPrecedenceLevel();
-        if (e instanceof Dot) // may be decomposed (ex: document.(cancelled or !arrived) -> document.cancelled or document.!arrived)
-            precedenceLevel = Math.min(precedenceLevel, getSqlPrecedenceLevel(((Dot) e).getRight()));
+        if (e instanceof Dot<?> dot) // may be decomposed (ex: document.(cancelled or !arrived) -> document.cancelled or document.!arrived)
+            precedenceLevel = Math.min(precedenceLevel, getSqlPrecedenceLevel(dot.getRight()));
         return precedenceLevel;
     }
 }
