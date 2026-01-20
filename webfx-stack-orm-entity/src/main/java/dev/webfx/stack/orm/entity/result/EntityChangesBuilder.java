@@ -50,10 +50,10 @@ public final class EntityChangesBuilder {
         return rsb != null && rsb.hasEntityId(id);
     }
 
-    public boolean addFieldChange(EntityId id, Object fieldId, Object fieldValue) {
-        boolean fieldChanged = rsb().setFieldValue(id, fieldId, fieldValue);
+    public EntityChangesBuilder addFieldChange(EntityId id, Object fieldId, Object fieldValue) {
+        rsb().setFieldValue(id, fieldId, fieldValue);
         updateHasChanges();
-        return fieldChanged;
+        return this;
     }
 
     public EntityChangesBuilder removeFieldChange(EntityId id, Object fieldId) {
