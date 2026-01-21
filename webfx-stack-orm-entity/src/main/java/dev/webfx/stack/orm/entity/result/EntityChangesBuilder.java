@@ -2,6 +2,7 @@ package dev.webfx.stack.orm.entity.result;
 
 import dev.webfx.platform.util.collection.HashList;
 import dev.webfx.stack.orm.domainmodel.DomainClass;
+import dev.webfx.stack.orm.entity.Entity;
 import dev.webfx.stack.orm.entity.EntityDomainClassIdRegistry;
 import dev.webfx.stack.orm.entity.EntityId;
 import dev.webfx.stack.orm.entity.UpdateStore;
@@ -34,10 +35,18 @@ public final class EntityChangesBuilder {
         return updateHasChanges();
     }
 
+    public EntityChangesBuilder addDeletedEntity(Entity entity) { // Entity shortcut method
+        return addDeletedEntityId(entity.getId());
+    }
+
     public EntityChangesBuilder addInsertedEntityId(EntityId id) {
         if (id.isNew())
             addFieldChange(id, null, null);
         return updateHasChanges();
+    }
+
+    public EntityChangesBuilder addInsertedEntity(Entity entity) { // Entity shortcut method
+        return addInsertedEntityId(entity.getId());
     }
 
     public EntityChangesBuilder addUpdatedEntityId(EntityId id) {
@@ -46,20 +55,40 @@ public final class EntityChangesBuilder {
         return updateHasChanges();
     }
 
+    public EntityChangesBuilder addUpdatedEntity(Entity entity) { // Entity shortcut method
+        return addUpdatedEntityId(entity.getId());
+    }
+
     public boolean hasEntityId(EntityId id) {
         return rsb != null && rsb.hasEntityId(id);
     }
 
-    public boolean addFieldChange(EntityId id, Object fieldId, Object fieldValue) {
-        boolean fieldChanged = rsb().setFieldValue(id, fieldId, fieldValue);
+    public boolean hasEntity(Entity entity) { // Entity shortcut method
+        return hasEntityId(entity.getId());
+    }
+
+    public EntityChangesBuilder addFieldChange(EntityId id, Object fieldId, Object fieldValue) {
+        rsb().setFieldValue(id, fieldId, fieldValue);
         updateHasChanges();
-        return fieldChanged;
+        return this;
+    }
+
+    public EntityChangesBuilder addFieldChange(Entity entity, Object fieldId, Object fieldValue) { // Entity shortcut method
+        return addFieldChange(entity.getId(), fieldId, fieldValue);
+    }
+
+    public EntityChangesBuilder addFieldChange(Entity entity, Object fieldId) {
+        return addFieldChange(entity, fieldId, entity.getFieldValue(fieldId));
     }
 
     public EntityChangesBuilder removeFieldChange(EntityId id, Object fieldId) {
         if (rsb != null)
             rsb.unsetFieldValue(id, fieldId);
         return updateHasChanges();
+    }
+
+    public EntityChangesBuilder removeFieldChange(Entity entity, Object fieldId) { // Entity shortcut method
+        return removeFieldChange(entity.getId(), fieldId);
     }
 
     public EntityChangesBuilder cancelEntityChanges(EntityId id) {
@@ -70,6 +99,10 @@ public final class EntityChangesBuilder {
         return updateHasChanges();
     }
 
+    public EntityChangesBuilder cancelEntityChanges(Entity entity) { // Entity shortcut method
+        return cancelEntityChanges(entity.getId());
+    }
+
     public EntityChangesBuilder considerEntityIdRefactor(EntityId entityId, Object newPk) {
         if (deletedEntities != null && deletedEntities.remove(entityId)) {
             deletedEntities.add(EntityId.create(entityId.getDomainClass(), newPk));
@@ -77,6 +110,10 @@ public final class EntityChangesBuilder {
         if (rsb != null)
             rsb.considerEntityIdRefactor(entityId, newPk);
         return this;
+    }
+
+    public EntityChangesBuilder considerEntityIdRefactor(Entity entity, Object newPk) { // Entity shortcut method
+        return considerEntityIdRefactor(entity.getId(), newPk);
     }
 
     public EntityChangesBuilder addEntityChanges(EntityChanges ec) {
