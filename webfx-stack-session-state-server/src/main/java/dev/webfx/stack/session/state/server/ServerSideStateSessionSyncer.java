@@ -47,10 +47,18 @@ public final class ServerSideStateSessionSyncer {
         boolean isNewServerSession = serverSessionRunId == null;
         if (requestedServerSessionId != null /*&& isNewServerSession*/ && !Objects.equals(requestedServerSessionId, serverSession.id())) {
             sessionFuture = SessionService.getSessionStore().get(requestedServerSessionId)
-                .compose(loadedSession ->
-                    syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(loadedSession != null ? loadedSession : serverSession, incomingState, false));
-        } else
+                .compose(loadedSession -> {
+                    if (loadedSession != null) {
+                        // We clear the runId to ensure tab isolation: the persisted runId (from another tab) must be ignored
+                        SessionAccessor.changeRunId(loadedSession, null, false);
+                    }
+                    return syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(loadedSession != null ? loadedSession : serverSession, incomingState, false);
+                });
+        } else {
+            // We clear the runId to ensure tab isolation (as explained above)
+            SessionAccessor.changeRunId(serverSession, null, false);
             sessionFuture = syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(serverSession, incomingState, isNewServerSession);
+        }
 
         return sessionFuture.map(finalServerSession -> {
             // Finally, we enrich the incoming state with possible further info coming from the serverSession
