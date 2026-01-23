@@ -5,6 +5,7 @@ import dev.webfx.platform.async.Future;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.tuples.Pair;
 import dev.webfx.stack.authn.logout.server.LogoutPush;
+import dev.webfx.stack.session.IsolatedSession;
 import dev.webfx.stack.session.Session;
 import dev.webfx.stack.session.SessionService;
 import dev.webfx.stack.session.state.LogoutUserId;
@@ -48,14 +49,26 @@ public final class ServerSideStateSessionSyncer {
         if (requestedServerSessionId != null /*&& isNewServerSession*/ && !Objects.equals(requestedServerSessionId, serverSession.id())) {
             sessionFuture = SessionService.getSessionStore().get(requestedServerSessionId)
                 .compose(loadedSession -> {
-                    if (loadedSession != null) {
-                        // We clear the runId to ensure tab isolation: the persisted runId (from another tab) must be ignored
-                        SessionAccessor.changeRunId(loadedSession, null, false);
+                    Session finalLoadedSession = loadedSession;
+                    if (finalLoadedSession != null) {
+                        // We wrap the loaded session in an isolated session to ensure tab isolation. If the same app is
+                        // opened several times in different tabs, it's likely that each tab will request the same server
+                        // id. If we return the same session instance for each, each client will store its runId inside,
+                        // erasing the runId of the other clients. But by wrapping the session in an isolated session,
+                        // each client will keep its own runId.
+                        finalLoadedSession = new IsolatedSession(finalLoadedSession);
                     }
-                    return syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(loadedSession != null ? loadedSession : serverSession, incomingState, false);
+                    return syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(finalLoadedSession != null ? finalLoadedSession : serverSession, incomingState, false);
                 });
         } else {
-            sessionFuture = syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(serverSession, incomingState, isNewServerSession);
+            // Also, wrapping the current session in an isolated session to ensure tab isolation. This is because
+            // the same session instance might be shared across different socketUri entries in VertxBus, so we want
+            // to make sure that each tab has its own session instance to store its specific runId.
+            Session finalServerSession = serverSession;
+            if (!(finalServerSession instanceof IsolatedSession)) {
+                finalServerSession = new IsolatedSession(finalServerSession);
+            }
+            sessionFuture = syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(finalServerSession, incomingState, isNewServerSession);
         }
 
         return sessionFuture.map(finalServerSession -> {
