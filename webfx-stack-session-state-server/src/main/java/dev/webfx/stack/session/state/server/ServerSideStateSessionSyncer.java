@@ -55,8 +55,6 @@ public final class ServerSideStateSessionSyncer {
                     return syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(loadedSession != null ? loadedSession : serverSession, incomingState, false);
                 });
         } else {
-            // We clear the runId to ensure tab isolation (as explained above)
-            SessionAccessor.changeRunId(serverSession, null, false);
             sessionFuture = syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(serverSession, incomingState, isNewServerSession);
         }
 
