@@ -1,5 +1,6 @@
 package dev.webfx.stack.session.isolation;
 
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.session.Session;
 
 import java.util.HashMap;
@@ -29,6 +30,10 @@ public final class IsolatedSession implements Session {
 
     public String getConversationId() {
         return conversationId;
+    }
+
+    public void log(String message) {
+        Console.log("☸️ [CONVERSATION-" + conversationId + "] " + message);
     }
 
     @Override

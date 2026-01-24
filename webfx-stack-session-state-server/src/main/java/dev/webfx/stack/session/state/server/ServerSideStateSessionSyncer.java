@@ -48,8 +48,12 @@ public final class ServerSideStateSessionSyncer {
         if (requestedServerSessionId != null /*&& isNewServerSession*/ && !Objects.equals(requestedServerSessionId, serverSession.id())) {
             sessionFuture = SessionService.getSessionStore().get(requestedServerSessionId)
                 .compose(loadedSession -> {
-                    if (loadedSession != null)
+                    if (loadedSession != null) {
+                        serverSession.log("Swapped underlying session (session id = " + serverSession.id() + " -> " + loadedSession.id() + ")");
                         serverSession.setUnderlyingSession(loadedSession);
+                    } else {
+                        serverSession.log("Unable to load requested session id " + requestedServerSessionId + " -> keeping session id = " + serverSession.id());
+                    }
                     return syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(serverSession, incomingState, false);
                 });
         } else {

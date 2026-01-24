@@ -65,6 +65,7 @@ final class VertxBus implements Bus {
         // Outgoing messages (from server to client): type = receive
         boolean isOutgoingMessage = type.equals(BridgeEventType.RECEIVE);
         boolean isPing = type.equals(BridgeEventType.SOCKET_PING);
+        boolean isSocketClosed = type.equals(BridgeEventType.SOCKET_CLOSED);
         // We get the web session. It is based on cookies, so 2 different tabs in the same browser share the same
         // web session, which is annoying, we don't want to mix sessions, as each tab can be a different application
         // (ex: back-office, front-office, etc...), and each communicates with the server with its own web socket
@@ -77,14 +78,22 @@ final class VertxBus implements Bus {
 
         // We will use the socket writeHandlerID as the conversation identifier, as it's unique per client
         String conversationId = socket.writeHandlerID(); // Not null because VertxBusModuleBooter called SockJSHandlerOptions.setRegisterWriteHandler(true)
+        if (isSocketClosed) {
+            IsolatedSession removedSession = conversationRegistry.removeIsolatedSession(conversationId);
+            removedSession.log("👈 Removed client session (session id = " + removedSession.id() + ", socket closed)");
+            logSessionsCount();
+            bridgeEvent.complete(true);
+            return;
+        }
         IsolatedSession previousWebfxSession = conversationRegistry.getIsolatedSession(conversationId);
         IsolatedSession webfxSession;
         if (previousWebfxSession != null)
             webfxSession = previousWebfxSession;
         else {
-            webfxSession = conversationRegistry.getOrCreateIsolatedSession(conversationId, vertxWebSession.timeout());
-            Console.log("👉 Created new session for client " + conversationId + " (id = " + webfxSession.id() + ", ping = " + isPing + ")");
-            SessionService.getSessionStore().size().onSuccess(size -> Console.log("👉 " + size + " active session(s)"));
+            dev.webfx.stack.session.Session session = SessionService.getSessionStore().createSession(vertxWebSession.timeout());
+            webfxSession = conversationRegistry.getOrCreateIsolatedSession(conversationId, session);
+            webfxSession.log("👉 Created new client session (session id = " + session.id() + ", ping = " + isPing + ")");
+            logSessionsCount();
         }
         // Also informing Vert.x that the session is now accessed to postpone its expiration
         vertxWebSession.setAccessed();
@@ -176,6 +185,12 @@ final class VertxBus implements Bus {
         // If the session is ready right now, we continue the message delivery right now
         if (callBridgeEventComplete)
             bridgeEvent.complete(true);
+    }
+
+    private void logSessionsCount() {
+        SessionService.getSessionStore().size().onSuccess(size -> {
+            Console.log("👉 " + size + " active session(s) - " + conversationRegistry.getIsolatedSessionsCount() + " active conversations");
+        });
     }
 
     private static Object getMessageState(io.vertx.core.eventbus.Message<?> message) {

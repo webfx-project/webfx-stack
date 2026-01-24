@@ -4,6 +4,7 @@ module webfx.stack.session {
 
     // Direct dependencies modules
     requires webfx.platform.async;
+    requires webfx.platform.console;
     requires webfx.platform.service;
 
     // Exported packages
