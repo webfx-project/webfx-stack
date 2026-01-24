@@ -8,6 +8,7 @@ module webfx.stack.session {
 
     // Exported packages
     exports dev.webfx.stack.session;
+    exports dev.webfx.stack.session.isolation;
     exports dev.webfx.stack.session.spi;
 
     // Used services

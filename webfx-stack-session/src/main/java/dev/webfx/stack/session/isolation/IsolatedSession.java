@@ -1,4 +1,6 @@
-package dev.webfx.stack.session;
+package dev.webfx.stack.session.isolation;
+
+import dev.webfx.stack.session.Session;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,13 +8,27 @@ import java.util.Map;
 /**
  * @author Bruno Salmon
  */
-public class IsolatedSession implements Session {
+public final class IsolatedSession implements Session {
 
-    private final Session underlyingSession;
+    private Session underlyingSession;
+    private final String conversationId;
     private final Map<String, Object> isolatedValues = new HashMap<>();
 
-    public IsolatedSession(Session underlyingSession) {
+    public IsolatedSession(Session underlyingSession, String conversationId) {
         this.underlyingSession = underlyingSession;
+        this.conversationId = conversationId;
+    }
+
+    public Session getUnderlyingSession() {
+        return underlyingSession;
+    }
+
+    public void setUnderlyingSession(Session underlyingSession) {
+        this.underlyingSession = underlyingSession;
+    }
+
+    public String getConversationId() {
+        return conversationId;
     }
 
     @Override
