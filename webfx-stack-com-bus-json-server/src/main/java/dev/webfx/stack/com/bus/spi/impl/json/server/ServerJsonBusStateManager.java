@@ -9,6 +9,7 @@ import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.stack.com.bus.DeliveryOptions;
 import dev.webfx.stack.com.bus.spi.impl.json.JsonBusConstants;
 import dev.webfx.stack.session.Session;
+import dev.webfx.stack.session.isolation.IsolatedSession;
 import dev.webfx.stack.session.state.SessionAccessor;
 import dev.webfx.stack.session.state.StateAccessor;
 import dev.webfx.stack.session.state.server.ServerSideStateSessionSyncer;
@@ -30,7 +31,7 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
         serverJsonBus.register(JsonBusConstants.PING_STATE_ADDRESS, message -> message.reply(null, new DeliveryOptions()));
     }
 
-    public static Future<Session> manageStateOnIncomingOrOutgoingRawJsonMessage(AstObject rawJsonMessage, Session serverSession, boolean incoming) {
+    public static Future<IsolatedSession> manageStateOnIncomingOrOutgoingRawJsonMessage(AstObject rawJsonMessage, IsolatedSession serverSession, boolean incoming) {
         AstObject headers = rawJsonMessage.getObject(JsonBusConstants.HEADERS);
         Object originalState = headers == null ? null : StateAccessor.decodeState(headers.getString(JsonBusConstants.HEADERS_STATE));
 
@@ -43,7 +44,7 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
             return ServerSideStateSessionSyncer.syncIncomingState(serverSession, originalState)
                     .compose(pair -> {
                         // Getting the final session and incoming state as a result
-                        Session finalServerSession = pair.get1();
+                        IsolatedSession finalServerSession = pair.get1();
                         Object finalIncomingState = pair.get2();
                         // We memorize that final state in the raw message
                         setJsonRawMessageState(rawJsonMessage, headers, finalIncomingState);

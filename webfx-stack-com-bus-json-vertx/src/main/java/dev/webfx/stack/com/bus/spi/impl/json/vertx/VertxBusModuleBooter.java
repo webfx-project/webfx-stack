@@ -10,6 +10,7 @@ import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeEvent;
 import io.vertx.ext.web.handler.sockjs.SockJSBridgeOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
+import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 
 
 /**
@@ -52,7 +53,7 @@ public final class VertxBusModuleBooter implements ApplicationModuleBooter {
                 VertxInstance.getHttpRouter()
                     .route("/" + busPrefix + "/*")
                     .handler(BodyHandler.create()) // Required since Vert.x 4.3.0 to handle XHR POST requests (see https://github.com/vert-x3/vertx-web/issues/2188)
-                    .subRouter(SockJSHandler.create(VertxInstance.getVertx())
+                    .subRouter(SockJSHandler.create(VertxInstance.getVertx(), new SockJSHandlerOptions().setRegisterWriteHandler(true))
                         .bridge(new SockJSBridgeOptions()
                                 .setPingTimeout(pingTimeout) // Should be higher than client WebSocketBusOptions.pingInterval (which is set to 30_000 at the time of writing this code)
                                 .addInboundPermitted(new PermittedOptions(new JsonObject()))

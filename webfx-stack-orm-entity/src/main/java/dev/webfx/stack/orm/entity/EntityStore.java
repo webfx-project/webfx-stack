@@ -82,15 +82,15 @@ public interface EntityStore extends HasDataSourceModel {
         return getEntity(entityId, false);
     }
 
-    default <E extends Entity> E getEntity(Class<E> entityClass, Object primaryKey, boolean includeUnderlyingStore) {
-        return getEntity((Object) entityClass, primaryKey, includeUnderlyingStore);
+        default <E extends Entity> E getEntity(Class<E> entityClass, Object primaryKey, boolean searchAlsoInUnderlyingStore) {
+        return getEntity((Object) entityClass, primaryKey, searchAlsoInUnderlyingStore);
     }
 
-    default <E extends Entity> E getEntity(Object domainClassId, Object primaryKey, boolean includeUnderlyingStore) {
-        return primaryKey == null ? null : getEntity(getEntityId(domainClassId, primaryKey), includeUnderlyingStore);
+    default <E extends Entity> E getEntity(Object domainClassId, Object primaryKey, boolean searchAlsoInUnderlyingStore) {
+        return primaryKey == null ? null : getEntity(getEntityId(domainClassId, primaryKey), searchAlsoInUnderlyingStore);
     }
 
-    <E extends Entity> E getEntity(EntityId entityId, boolean includeUnderlyingStore);
+    <E extends Entity> E getEntity(EntityId entityId, boolean searchAlsoInUnderlyingStore);
 
     default <E extends Entity> E getOrCreateEntity(Class<E> entityClass, Object primaryKey) {
         return getOrCreateEntity(entityClass, primaryKey, false);
@@ -104,18 +104,18 @@ public interface EntityStore extends HasDataSourceModel {
         return getOrCreateEntity(id, false);
     }
 
-    default <E extends Entity> E getOrCreateEntity(Class<E> entityClass, Object primaryKey, boolean includeUnderlyingStore) {
-        return getOrCreateEntity((Object) entityClass, primaryKey, includeUnderlyingStore);
+    default <E extends Entity> E getOrCreateEntity(Class<E> entityClass, Object primaryKey, boolean searchAlsoInUnderlyingStore) {
+        return getOrCreateEntity((Object) entityClass, primaryKey, searchAlsoInUnderlyingStore);
     }
 
-    default <E extends Entity> E getOrCreateEntity(Object domainClassId, Object primaryKey, boolean includeUnderlyingStore) {
-        return primaryKey == null ? null : getOrCreateEntity(getEntityId(domainClassId, primaryKey), includeUnderlyingStore);
+    default <E extends Entity> E getOrCreateEntity(Object domainClassId, Object primaryKey, boolean searchAlsoInUnderlyingStore) {
+        return primaryKey == null ? null : getOrCreateEntity(getEntityId(domainClassId, primaryKey), searchAlsoInUnderlyingStore);
     }
 
-    default <E extends Entity> E getOrCreateEntity(EntityId id, boolean includeUnderlyingStore) {
+    default <E extends Entity> E getOrCreateEntity(EntityId id, boolean searchAlsoInUnderlyingStore) {
         if (id == null)
             return null;
-        E entity = getEntity(id, includeUnderlyingStore);
+        E entity = getEntity(id, searchAlsoInUnderlyingStore);
         if (entity == null)
             entity = createEntity(id);
         return entity;
