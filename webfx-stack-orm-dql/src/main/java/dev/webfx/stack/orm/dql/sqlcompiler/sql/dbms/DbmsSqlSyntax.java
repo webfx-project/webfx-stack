@@ -30,7 +30,7 @@ public interface DbmsSqlSyntax {
     }
 
     default String generateParameterToken(int parameterIndex) {
-        return "?";
+        return "$" + parameterIndex;
     }
 
 }
