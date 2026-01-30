@@ -132,6 +132,7 @@ OrderBy = [Oo][Rr][Dd][Ee][Rr]{WhiteSpace}+[Bb][Yy]
     "!"                            { return symbol(NOT); }
     "not"                          { return symbol(NOT); }
     "?"                            { return symbol(QUESTION); }
+    "?."                           { return symbol(QUESTION_DOT); }
     ":"                            { return symbol(COLON); }
     "=="                           { return symbol(EQEQ); }
     "<="                           { return symbol(LTEQ); }
