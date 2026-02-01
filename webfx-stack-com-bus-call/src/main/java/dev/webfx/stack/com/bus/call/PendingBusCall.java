@@ -20,6 +20,10 @@ public final class PendingBusCall<T> {
         PENDING_CALLS_COUNT_HANDLERS.add(pendingCallsCountHandler);
     }
 
+    public static int getPendingCallsCount() {
+        return PENDING_CALLS.size();
+    }
+
     private final Promise<T> promise = Promise.promise();
     PendingBusCall() {
         updatePendingCalls(true);

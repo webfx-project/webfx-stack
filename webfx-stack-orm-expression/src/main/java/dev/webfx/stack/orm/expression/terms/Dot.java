@@ -20,7 +20,7 @@ public final class Dot<T> extends BinaryExpression<T> {
     /* Constructor is private to force the use of the static dot() methods which ensure the left expression is not a Dot */
     private Dot(Expression<T> left, Expression<?> right, boolean outerJoin, boolean readLeftKey) {
         // TODO Avoid this false right cast by extending (new) PipeExpression<T1, T2> instead of BinaryExpression<T>
-        super(left, outerJoin ? ".." : ".", (Expression<T>) right, 8);
+        super(left, outerJoin ? "?." : ".", (Expression<T>) right, 8);
         this.outerJoin = outerJoin;
         this.readLeftKey = readLeftKey;
     }

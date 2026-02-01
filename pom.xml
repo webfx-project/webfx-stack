@@ -97,6 +97,7 @@
         <module>webfx-stack-com-bus-json-server</module>
         <module>webfx-stack-com-bus-json-vertx</module>
         <module>webfx-stack-com-bus-simple</module>
+        <module>webfx-stack-com-origin-client</module>
         <module>webfx-stack-com-serial</module>
         <module>webfx-stack-com-websocket</module>
         <module>webfx-stack-com-websocket-elemental2-native</module>
@@ -135,7 +136,9 @@
         <module>webfx-stack-orm-entity</module>
         <module>webfx-stack-orm-entity-binding</module>
         <module>webfx-stack-orm-entity-controls</module>
-        <module>webfx-stack-orm-entity-messaging</module>
+        <module>webfx-stack-orm-entity-message-receiver</module>
+        <module>webfx-stack-orm-entity-message-sender</module>
+        <module>webfx-stack-orm-entity-message-serial</module>
         <module>webfx-stack-orm-expression</module>
         <module>webfx-stack-orm-reactive-call</module>
         <module>webfx-stack-orm-reactive-dql</module>

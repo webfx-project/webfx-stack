@@ -19,7 +19,7 @@ public final class FinaliseEmailUpdateCredentialsSerialCodec extends SerialCodec
 
     @Override
     public void encode(FinaliseEmailUpdateCredentials arg, AstObject serial) {
-        encodeString(serial, TOKEN_KEY, arg.getToken());
+        encodeString(serial, TOKEN_KEY, arg.magicLinkTokenOrVerificationCode());
     }
 
     @Override

@@ -277,7 +277,7 @@ public class SimpleBus implements Bus {
         try {
             handler.handle(Future.succeededFuture(message));
         } catch (Throwable e) {
-            Console.log("Failed to handle on address: " + address, e);
+            Console.error("Failed to handle on address: " + address, e);
             AstObject astObject = AST.createObject();
             publish(ON_ERROR, astObject.set("address", address).set("message", message).set("cause", e), DeliveryOptions.localOnlyDeliveryOptions());
         }
@@ -286,7 +286,7 @@ public class SimpleBus implements Bus {
     private void scheduleHandle(String address, Handler<Message> handler, Message message) {
         scheduleHandleAsync(address, ar -> {
             if (ar.failed())
-                Console.log(ar.cause());
+                Console.error(ar.cause());
             else
                 handler.handle(ar.result());
         }, message);

@@ -22,10 +22,10 @@ public final class UserClaimsSerialCodec extends SerialCodecBase<UserClaims> {
 
     @Override
     public void encode(UserClaims arg, AstObject serial) {
-        encodeString(serial, USERNAME_KEY,     arg.getUsername());
-        encodeString(serial, EMAIL_KEY,        arg.getEmail());
-        encodeString(serial, PHONE_KEY,        arg.getPhone());
-        encodeObject(serial, OTHER_CLAIMS_KEY, arg.getOtherClaims());
+        encodeString(serial, USERNAME_KEY,     arg.username());
+        encodeString(serial, EMAIL_KEY,        arg.email());
+        encodeString(serial, PHONE_KEY,        arg.phone());
+        encodeObject(serial, OTHER_CLAIMS_KEY, arg.otherClaims());
     }
 
     @Override

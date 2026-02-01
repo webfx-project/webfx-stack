@@ -2,6 +2,7 @@ package dev.webfx.stack.session.spi.impl.vertx;
 
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.util.vertx.VertxAsync;
+import dev.webfx.stack.session.isolation.IsolatedSession;
 import dev.webfx.stack.session.Session;
 import dev.webfx.stack.session.SessionStore;
 
@@ -39,6 +40,8 @@ final class VertxSessionStore implements SessionStore {
 
     @Override
     public Future<Boolean> put(Session session) {
+        if (session instanceof IsolatedSession isolatedSession)
+            session = isolatedSession.getUnderlyingSession();
         return VertxAsync.toWebfxFuture(vertxSessionStore.put(((VertxSession) session).getVertxSession()))
             .map(v -> true);
     }

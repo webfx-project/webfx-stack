@@ -10,7 +10,6 @@
     --fx-background-position: center;
     --fx-background-size: cover;
     --fx-background-repeat: no-repeat;
-    --fx-border-radius: 21px;
 }
 
 .login input {
@@ -20,18 +19,19 @@
 .login-child {
     --fx-background-color: rgba(255, 255, 255, var(--webfx-login-portal-opacity));
     --fx-background-radius: 21px;
+    --fx-border-radius: 21px;
    /* border: 1px solid lightgray;*/
    /* box-shadow: 0px 0px 10px lightgray;*/
     width: 586px; /* Sets the fixed width */
     height: 506px; /* Sets the fixed height */
-}
-
-.login-child > fx-background {
     /* To increase the contrast between the text and the bg */
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    /* Optional outer shadow/filter controlled by variable */
     filter: var(--webfx-login-portal-filter);
 }
+
+/* Removed legacy fx-background usage; background now paints on host element */
 
 .login .h2 { /* Login word on top */
     font-family: 'Poppins', sans-serif; /* Sets the font to Poppins, with a fallback to sans-serif */

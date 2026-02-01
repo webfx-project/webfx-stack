@@ -89,15 +89,19 @@ public class DynamicEntity implements Entity {
         EntityId foreignEntityId;
         if (foreignFieldValue == null)
             foreignEntityId = null;
-        else if (foreignFieldValue instanceof EntityId)
-            foreignEntityId = (EntityId) foreignFieldValue;
-        else if (foreignFieldValue instanceof Entity) {
-            Entity entity = (Entity) foreignFieldValue;
+        else if (foreignFieldValue instanceof EntityId entityId)
+            foreignEntityId = entityId;
+        else if (foreignFieldValue instanceof Entity entity) {
             foreignEntityId = entity.getId();
             if (entity.getStore() != store && store.getEntity(foreignEntityId) == null) {
-                store.copyEntity(entity);
-                // Note: logging only entity id, not revealing the full entity that may contain sensitive data
-                Console.log("Warning: this foreign entity has been copied into the store otherwise it was not accessible: " + entity.getId());
+                Entity newEntity = store.createEntity(foreignEntityId);
+                if (newEntity instanceof DynamicEntity newDynamicEntity) {
+                    newDynamicEntity.underlyingEntity = entity;
+                } else { // Will probably never happen in practice as all entities are DynamicEntity
+                    store.copyEntity(entity);
+                    // Note: logging only entity id, not revealing the full entity that may contain sensitive data
+                    Console.log("Warning: this foreign entity has been copied into the store otherwise it was not accessible: " + entity.getId());
+                }
             }
         } else {
             Object foreignClass = getDomainClass().getForeignClass(foreignFieldId);

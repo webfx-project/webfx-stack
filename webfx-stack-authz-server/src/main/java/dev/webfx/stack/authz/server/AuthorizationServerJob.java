@@ -35,7 +35,7 @@ public class AuthorizationServerJob implements ApplicationJob {
         // to first set these 2 parameters (userId and runId) in ThreadLocalStateHolder before calling this method.
         // This responsibility is fulfilled by ServerSideStateSessionSyncer.
         return AuthorizationServerService.pushAuthorizations()
-            .onFailure(e -> Console.log("⛔️ An error occurred while fetching and/or pushing authorizations to user", e));
+            .onFailure(e -> Console.error("An error occurred while fetching and/or pushing authorizations to user", e));
     }
 
     private static void registerAuthorizationServerServiceOnEventBus() {

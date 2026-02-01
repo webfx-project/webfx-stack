@@ -130,7 +130,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
         }
         entityRenderer = renderingExpression == null ? null : ValueRendererFactory.getDefault().createValueRenderer(renderingExpression.getType());
         if (entityRenderer == null) {
-            Console.log("⚠️ WARNING: EntityButtonSelector couldn't find any domain renderer! Please fix this issue by specifying fields or columns in : " + jsonOrClass);
+            Console.warn("EntityButtonSelector couldn't find any domain renderer! Please fix this issue by specifying fields or columns in : " + jsonOrClass);
         }
         forceDialogRebuiltOnNextShow();
         return this;
@@ -208,7 +208,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
                         });
                         return where[0];
                     })
-                    .always(dialogHeightProperty(), height -> limit("?", updateAdaptiveLimit(height)));
+                    .always(dialogHeightProperty(), height -> limit("$1", updateAdaptiveLimit(height)));
             //dialogDataGrid.setOnMouseClicked(e -> {if (e.isPrimaryButtonDown() && e.getClickCount() == 1) onDialogOk(); });
             if (dialogFullHeight) {
                 // Embedding the visual grid in a ScalePane that can only grow (up to 3x times) to avoid small rows on big screens

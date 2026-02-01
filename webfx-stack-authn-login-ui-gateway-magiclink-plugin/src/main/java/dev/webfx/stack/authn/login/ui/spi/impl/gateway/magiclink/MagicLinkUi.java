@@ -77,7 +77,7 @@ public class MagicLinkUi implements MaterialFactoryMixin {
                 AuthenticationService.updateCredentials(new UpdatePasswordFromMagicLinkCredentials(uiLoginView.getPasswordField().getText()))
                     .inUiThread()
                     .onFailure(e -> {
-                        Console.log("Error Updating password: ", e);
+                        Console.error("Error Updating password", e);
                         onFailure(e);
                     })
                     .onSuccess(ignored -> {

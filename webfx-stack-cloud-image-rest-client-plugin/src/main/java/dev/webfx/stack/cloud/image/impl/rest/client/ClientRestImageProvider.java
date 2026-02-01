@@ -30,7 +30,7 @@ public final class ClientRestImageProvider extends FetchApiCloudImageProvider {
         deleteUrl = config.getString("deleteUrl");
         String urlPatternUrl = config.getString("urlPatternUrl");
         Fetch.fetchText(urlPatternUrl, createFetchOptions(HttpMethod.GET))
-            .onFailure(Console::log)
+            .onFailure(Console::error)
             .onSuccess(this::setUrlPattern);
     }
 

@@ -19,7 +19,7 @@ public final class AuthenticateWithMagicLinkCredentialsSerialCodec extends Seria
 
     @Override
     public void encode(AuthenticateWithMagicLinkCredentials arg, AstObject serial) {
-        encodeString(serial, TOKEN_KEY, arg.getToken());
+        encodeString(serial, TOKEN_KEY, arg.token());
     }
 
     @Override

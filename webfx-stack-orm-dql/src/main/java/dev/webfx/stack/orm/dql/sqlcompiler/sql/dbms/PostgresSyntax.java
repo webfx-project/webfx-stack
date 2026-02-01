@@ -22,9 +22,4 @@ public final class PostgresSyntax extends DbmsSqlSyntaxImpl {
             default -> super.isReservedIdentifier(identifier);
         };
     }
-
-    @Override
-    public String generateParameterToken(int parameterIndex) {
-        return "$" + parameterIndex;
-    }
 }

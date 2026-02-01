@@ -166,7 +166,7 @@ public final class BusCallService {
                 // and calling the java handler with that java object
                 javaHandler.accept(javaObject, jsonMessage);
             } catch (Throwable throwable) {
-                Console.log(throwable); // what else to do?
+                Console.error(throwable); // what else to do?
             }
         });
     }

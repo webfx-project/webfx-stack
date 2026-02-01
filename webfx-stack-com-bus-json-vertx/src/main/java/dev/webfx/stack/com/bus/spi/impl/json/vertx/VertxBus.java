@@ -17,6 +17,8 @@ import dev.webfx.stack.com.bus.spi.impl.json.JsonBusConstants;
 import dev.webfx.stack.com.bus.spi.impl.json.server.ServerJsonBusStateManager;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.session.SessionService;
+import dev.webfx.stack.session.isolation.IsolatedSession;
+import dev.webfx.stack.session.isolation.ConversationRegistry;
 import dev.webfx.stack.session.state.StateAccessor;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
@@ -45,6 +47,7 @@ final class VertxBus implements Bus {
     // are therefore all the server public endpoints exposed to the clients on the network. It is initialized at the
     // server start and then doesn't change anymore, so it's then thread safe.
     private final List<String> networkEndpoints = new ArrayList<>();
+    private final ConversationRegistry conversationRegistry = new ConversationRegistry();
 
     VertxBus(EventBus eventBus) {
         this.eventBus = eventBus;
@@ -62,33 +65,38 @@ final class VertxBus implements Bus {
         // Outgoing messages (from server to client): type = receive
         boolean isOutgoingMessage = type.equals(BridgeEventType.RECEIVE);
         boolean isPing = type.equals(BridgeEventType.SOCKET_PING);
+        boolean isSocketClosed = type.equals(BridgeEventType.SOCKET_CLOSED);
         // We get the web session. It is based on cookies, so 2 different tabs in the same browser share the same
         // web session, which is annoying, we don't want to mix sessions, as each tab can be a different application
         // (ex: back-office, front-office, etc...), and each communicates with the server with its own web socket
-        // connection. So we will use the socket itself as an identifier of the session.
+        // connection. So we will use conversationRegistry instead for storing isolated sessions.
         SockJSSocket socket = bridgeEvent.socket();
         Session vertxWebSession = socket.webSession();
         // Note: vertxWebSession is never null because VertxHttpRouterConfigurator has configured a session store to the
         // router, but because this method is annotated @Nullable, we perform null checks in the code to remove warnings.
+        assert vertxWebSession != null;
 
-        // We will use the socket uri as the identifier, as it's unique per client
-        // (it is something like /eventbus/568/rzhmtc04/websocket)
-        String socketUri = socket.uri();
-        // And we will use the web session to store "inside" each possible client session running under that same
-        // browser. It's possible that 1 client disconnect and reconnect, which will produce 2 sessions inside (as
-        // the second websocket is new). However, the second session should retrieve the data of the first as they
-        // will have actually the same serverSessionId (re-communicated by the client).
-        // So we retrieve that session from the web session or create a new session if we can't find it.
-        dev.webfx.stack.session.Session webfxSession = vertxWebSession == null ? null : vertxWebSession.get(socketUri);
-        if (webfxSession == null && vertxWebSession != null) {
-            webfxSession = SessionService.getSessionStore().createSession(vertxWebSession.timeout());
-            vertxWebSession.put(socketUri, webfxSession);
-            Console.log("👉 Created new session for client " + socketUri + " (id = " + webfxSession.id() + ", ping = " + isPing + ")");
-            SessionService.getSessionStore().size().onSuccess(size -> Console.log("👉 " + size + " active session(s)"));
+        // We will use the socket writeHandlerID as the conversation identifier, as it's unique per client
+        String conversationId = socket.writeHandlerID(); // Not null because VertxBusModuleBooter called SockJSHandlerOptions.setRegisterWriteHandler(true)
+        if (isSocketClosed) {
+            IsolatedSession removedSession = conversationRegistry.removeIsolatedSession(conversationId);
+            removedSession.log("👈 Removed client session (session id = " + removedSession.id() + ", socket closed)");
+            logSessionsCount();
+            bridgeEvent.complete(true);
+            return;
+        }
+        IsolatedSession previousWebfxSession = conversationRegistry.getIsolatedSession(conversationId);
+        IsolatedSession webfxSession;
+        if (previousWebfxSession != null)
+            webfxSession = previousWebfxSession;
+        else {
+            dev.webfx.stack.session.Session session = SessionService.getSessionStore().createSession(vertxWebSession.timeout());
+            webfxSession = conversationRegistry.getOrCreateIsolatedSession(conversationId, session);
+            webfxSession.log("👉 Created new client session (session id = " + session.id() + ", ping = " + isPing + ")");
+            logSessionsCount();
         }
         // Also informing Vert.x that the session is now accessed to postpone its expiration
-        if (vertxWebSession != null)
-            vertxWebSession.setAccessed();
+        vertxWebSession.setAccessed();
 
         if (isPing) { // Receiving or sending a ping (note: there is no way to distinguish receiving or sending).
             // We tell the state manager that the client is live
@@ -163,10 +171,8 @@ final class VertxBus implements Bus {
                 boolean isEverythingElse = !isIncomingEndpoint && !isOutgoingUnicast;
 
                 if (!isEverythingElse) { // Statement management is required except for the last case
-                    Future<?> sessionFuture = ServerJsonBusStateManager.manageStateOnIncomingOrOutgoingRawJsonMessage(
-                            astMessage, webfxSession, isIncomingMessage);
-                    if (vertxWebSession != null)
-                        sessionFuture.onSuccess(finalSession -> vertxWebSession.put(socketUri, finalSession));
+                    Future<IsolatedSession> sessionFuture =
+                        ServerJsonBusStateManager.manageStateOnIncomingOrOutgoingRawJsonMessage(astMessage, webfxSession, isIncomingMessage);
                     // If the session is not ready right now (this may happen because of a session switch), then
                     // we need to wait this operation to complete before continuing the message delivery
                     if (isIncomingMessage && !sessionFuture.isComplete()) {
@@ -181,6 +187,12 @@ final class VertxBus implements Bus {
             bridgeEvent.complete(true);
     }
 
+    private void logSessionsCount() {
+        SessionService.getSessionStore().size().onSuccess(size -> {
+            Console.log("👉 " + size + " active session(s) - " + conversationRegistry.getIsolatedSessionsCount() + " active conversations");
+        });
+    }
+
     private static Object getMessageState(io.vertx.core.eventbus.Message<?> message) {
         return StateAccessor.decodeState(message.headers().get(JsonBusConstants.HEADERS_STATE));
     }
@@ -192,13 +204,13 @@ final class VertxBus implements Bus {
             deliveryOptions.addHeader(JsonBusConstants.HEADERS_STATE, StateAccessor.encodeState(state));
         if (unicast)
             deliveryOptions.addHeader(JsonBusConstants.HEADERS_UNICAST, "true");
-        deliveryOptions.setSendTimeout(3*60 * 1000); // Temporarily set to 3 mins instead of 30 s
+        deliveryOptions.setSendTimeout(3 * 60 * 1000); // Temporarily set to 3 mins instead of 30 s
         return deliveryOptions;
     }
 
     @Override
     public void close() {
-         open = false;
+        open = false;
     }
 
     @Override
@@ -244,7 +256,8 @@ final class VertxBus implements Bus {
             body = AST.createObject();
         else try {
             body = SerialCodecManager.encodeToJson(body);
-        } catch (IllegalArgumentException ignored) { }
+        } catch (IllegalArgumentException ignored) {
+        }
         // TODO: check if we can generify this with AST
         if (AST.NATIVE_FACTORY != null && AST.isObject(body) && body instanceof ReadOnlyAstObject astBody) {
             body = AST.NATIVE_FACTORY.astToNativeObject(astBody);

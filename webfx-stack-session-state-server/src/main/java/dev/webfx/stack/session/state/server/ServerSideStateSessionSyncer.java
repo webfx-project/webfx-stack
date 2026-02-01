@@ -5,8 +5,8 @@ import dev.webfx.platform.async.Future;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.tuples.Pair;
 import dev.webfx.stack.authn.logout.server.LogoutPush;
-import dev.webfx.stack.session.Session;
 import dev.webfx.stack.session.SessionService;
+import dev.webfx.stack.session.isolation.IsolatedSession;
 import dev.webfx.stack.session.state.LogoutUserId;
 import dev.webfx.stack.session.state.SessionAccessor;
 import dev.webfx.stack.session.state.StateAccessor;
@@ -36,10 +36,10 @@ public final class ServerSideStateSessionSyncer {
     // ======================================== INCOMING STATE ON SERVER ========================================
     // Sync method to be used on the server side, when the server receives an incoming state from a client
 
-    public static Future<Pair<Session /* final server session */, Object/* final incoming state*/>> syncIncomingState(Session serverSession, Object incomingState) {
+    public static Future<Pair<IsolatedSession /* final server session */, Object/* final incoming state*/>> syncIncomingState(IsolatedSession serverSession, Object incomingState) {
         String incomingStateCapture = LOG_STATES ? "" + incomingState : null; // capturing state before changes for logs
 
-        Future<Session> sessionFuture;
+        Future<IsolatedSession> sessionFuture;
 
         // serverSession.id <= incomingState.serverSessionId ? ONLY ON NEW SERVER SESSION
         String requestedServerSessionId = StateAccessor.getServerSessionId(incomingState);
@@ -47,10 +47,18 @@ public final class ServerSideStateSessionSyncer {
         boolean isNewServerSession = serverSessionRunId == null;
         if (requestedServerSessionId != null /*&& isNewServerSession*/ && !Objects.equals(requestedServerSessionId, serverSession.id())) {
             sessionFuture = SessionService.getSessionStore().get(requestedServerSessionId)
-                .compose(loadedSession ->
-                    syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(loadedSession != null ? loadedSession : serverSession, incomingState, false));
-        } else
+                .compose(loadedSession -> {
+                    if (loadedSession != null) {
+                        serverSession.log("Swapped underlying session (session id = " + serverSession.id() + " -> " + loadedSession.id() + ")");
+                        serverSession.setUnderlyingSession(loadedSession);
+                    } else {
+                        serverSession.log("Unable to load requested session id " + requestedServerSessionId + " -> keeping session id = " + serverSession.id());
+                    }
+                    return syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(serverSession, incomingState, false);
+                });
+        } else {
             sessionFuture = syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(serverSession, incomingState, isNewServerSession);
+        }
 
         return sessionFuture.map(finalServerSession -> {
             // Finally, we enrich the incoming state with possible further info coming from the serverSession
@@ -63,23 +71,24 @@ public final class ServerSideStateSessionSyncer {
         });
     }
 
-    private static Future<Session> syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(Session serverSession, Object clientState, boolean forceStore) {
+    private static Future<IsolatedSession> syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(IsolatedSession serverSession, Object clientState, boolean forceStore) {
         Object userId = StateAccessor.getUserId(clientState);
         // Case when the user hasn't changed (userId == null => not yet logged in or is the same user as last time in this server session)
         if (userId == null || userIdChecker == null)
             return syncFixedServerSessionFromIncomingClientState(serverSession, clientState, forceStore);
         // Case when the user is set => login or user switch, or logout (LOGOUT_USER_ID)
         return ThreadLocalStateHolder.runWithState(clientState, () -> userIdChecker.apply(userId))
+            // If the user identity check failed (ex: no such user exception), we log out the user
+            .recover(e -> Future.succeededFuture(LogoutUserId.LOGOUT_USER_ID))
             .compose(finalUserId -> {
                 // Setting the new user id (should be the same as the passed on if valid, or something like "INVALID" if not)
                 Console.log("️🛡 UserIdCheck: userId=" + userId + " => finalUserId = " + finalUserId);
-                // If the user identity check failed, we log out the user
-                if (finalUserId == null)
+                if (finalUserId == null) // Shouldn't arrive but just in case (the user identity check should raise an exception instead)
                     finalUserId = LogoutUserId.LOGOUT_USER_ID;
                 // Memorizing the final user id in the client state
                 StateAccessor.setUserId(clientState, finalUserId);
                 // We continue with the normal session <-> state sync process
-                Future<Session> future = syncFixedServerSessionFromIncomingClientState(serverSession, clientState, forceStore);
+                Future<IsolatedSession> future = syncFixedServerSessionFromIncomingClientState(serverSession, clientState, forceStore);
                 // At the same time, we do a push to the client of either the logout userId (if it's a logout), or the
                 // new authorizations (if it's a login or user switch). To prepare this push, we need to ensure that the
                 // userId is set in the client state (the runId is what identifies which client to push to).
@@ -101,7 +110,7 @@ public final class ServerSideStateSessionSyncer {
             });
     }
 
-    private static Future<Session> syncFixedServerSessionFromIncomingClientState(Session serverSession, Object clientState, boolean forceStore) {
+    private static Future<IsolatedSession> syncFixedServerSessionFromIncomingClientState(IsolatedSession serverSession, Object clientState, boolean forceStore) {
         // serverSession.userId <= clientState.userId ? YES IF SET, as this means the client switched user, so we memorise that info in the session
         boolean userIdChanged = SessionAccessor.changeUserId(serverSession, StateAccessor.getUserId(clientState), true);
         // serverSession.runId <= clientState.runId ? YES IF SET, as this means the client is communicating the run id, so we memorise that in the session
@@ -117,7 +126,7 @@ public final class ServerSideStateSessionSyncer {
         return Future.succeededFuture(serverSession);
     }
 
-    private static Object syncIncomingClientStateFromServerSession(Object clientState, Session serverSession) {
+    private static Object syncIncomingClientStateFromServerSession(Object clientState, IsolatedSession serverSession) {
         // clientState.serverSessionId <= serverSession.id ? ALWAYS, because this is the server session that is responsible for the session id
         clientState = StateAccessor.setServerSessionId(clientState, serverSession.id(), true);
         // clientState.userId <= serverSession.userId ? YES IF NOT SET, otherwise this means the client switched user, so we keep that info
@@ -129,16 +138,16 @@ public final class ServerSideStateSessionSyncer {
         return clientState;
     }
 
-    private static Future<Session> storeServerSession(Session serverSession) {
+    private static Future<IsolatedSession> storeServerSession(IsolatedSession serverSession) {
         return serverSession.store()
-            .onFailure(Console::log)
+            .onFailure(Console::error)
             .map(x -> serverSession);
     }
 
     // ======================================== OUTGOING STATE ON SERVER ========================================
     // Sync methods to be used on the server side, when the server is about to send a state generated by the server back to the client
 
-    public static Object syncOutgoingState(Object outgoingState, Session serverSession) {
+    public static Object syncOutgoingState(Object outgoingState, IsolatedSession serverSession) {
         String outgoingStateCapture = LOG_STATES ? "" + outgoingState : null; // capturing state before changes for logs
 
         // serverSession.id <= outgoingState.serverSessionId ? NEVER (serverSession.id can't be changed at this point)

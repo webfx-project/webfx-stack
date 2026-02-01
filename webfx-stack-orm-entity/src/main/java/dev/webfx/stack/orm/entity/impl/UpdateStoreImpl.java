@@ -166,8 +166,10 @@ public final class UpdateStoreImpl extends EntityStoreImpl implements UpdateStor
     }
 
     private void logWarningIfChangesDuringSubmit() {
-        if (submitting)
-            Console.log("[UpdateStore][WARNING] ⚠️ Making changes during submitChanges() is not yet supported, and leads to inconsistent UpdateStore state.", new Exception("Please use this exception stacktrace to identify the faulty call"));
+        if (submitting) {
+            Console.warn("[UpdateStore] Making changes during submitChanges() is not yet supported, and leads to inconsistent UpdateStore state.");
+            Console.error(new Exception("Please use this exception stacktrace to identify the faulty call"));
+        }
     }
 
 

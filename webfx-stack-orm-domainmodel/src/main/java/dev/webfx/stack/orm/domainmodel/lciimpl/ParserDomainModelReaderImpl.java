@@ -23,9 +23,12 @@ public final class ParserDomainModelReaderImpl implements ParserDomainModelReade
     }
 
     private DomainClass toDomainClass(Object domainClass) {
-        if (domainClass instanceof DomainClass)
-            return (DomainClass) domainClass;
-        return domainModel.getClass(domainClass);
+        if (domainClass instanceof DomainClass dc)
+            return dc;
+        DomainClass domainModelClass = domainModel.getClass(domainClass);
+        if (domainModelClass == null)
+            throw new IllegalArgumentException("Domain class '" + domainClass + "' not found in domain model");
+        return domainModelClass;
     }
 
     @Override
@@ -40,8 +43,8 @@ public final class ParserDomainModelReaderImpl implements ParserDomainModelReade
 
     @Override
     public Object getSymbolForeignDomainClass(Object symbolDomainClass, Symbol symbol) {
-        if (symbol instanceof DomainField)
-            return ((DomainField) symbol).getForeignClass();
+        if (symbol instanceof DomainField domainField)
+            return domainField.getForeignClass();
         return null;
     }
 }

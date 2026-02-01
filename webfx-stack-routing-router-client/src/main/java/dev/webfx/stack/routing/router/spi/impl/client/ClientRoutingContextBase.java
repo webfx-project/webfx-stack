@@ -69,7 +69,7 @@ public abstract class ClientRoutingContextBase implements RoutingContext {
                     else
                         route.handleContext(this);
                 } catch (Throwable t) {
-                    Console.log("Throwable thrown from handler", t);
+                    Console.error("Throwable thrown from handler", t);
                     if (!failed) {
                         Console.log("Failing the routing");
                         fail(t);
@@ -93,7 +93,7 @@ public abstract class ClientRoutingContextBase implements RoutingContext {
             if (router.exceptionHandler() != null)
                 router.exceptionHandler().handle(failure);
             else
-                Console.log("Unexpected exception in route", failure);
+                Console.error("Unexpected exception in route", failure);
         }
         /*if (!response().ended()) {
             try {

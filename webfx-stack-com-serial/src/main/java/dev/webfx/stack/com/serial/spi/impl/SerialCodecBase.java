@@ -314,4 +314,20 @@ public abstract class SerialCodecBase<T> implements SerialCodec<T> {
         return decodeArray(serial, key, String.class, nullEncoding);
     }
 
+    protected void encodeLocalDateArray(AstObject serial, String key, LocalDate[] value) {
+        encodeArray(serial, key, value, NullEncoding.NULL_VALUE_IGNORED);
+    }
+
+    protected void encodeLocalDateArray(AstObject serial, String key, LocalDate[] value, NullEncoding nullEncoding) {
+        encodeArray(serial, key, value, nullEncoding);
+    }
+
+    protected LocalDate[] decodeLocalDateArray(ReadOnlyAstObject serial, String key) {
+        return decodeLocalDateArray(serial, key, NullEncoding.NULL_VALUE_IGNORED);
+    }
+
+    protected LocalDate[] decodeLocalDateArray(ReadOnlyAstObject serial, String key, NullEncoding nullEncoding) {
+        return decodeArray(serial, key, LocalDate.class, nullEncoding);
+    }
+
 }

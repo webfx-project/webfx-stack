@@ -1,5 +1,6 @@
 dev.webfx.stack.authn.serial.AuthenticateWithMagicLinkCredentialsSerialCodec
 dev.webfx.stack.authn.serial.AuthenticateWithUsernamePasswordCredentialsSerialCodec
+dev.webfx.stack.authn.serial.AuthenticateWithVerificationCodeCredentialsSerialCodec
 dev.webfx.stack.authn.serial.ContinueAccountCreationCredentialsSerialCodec
 dev.webfx.stack.authn.serial.FinaliseAccountCreationCredentialsSerialCodec
 dev.webfx.stack.authn.serial.FinaliseEmailUpdateCredentialsSerialCodec

@@ -17,11 +17,12 @@ public final class SendMagicLinkCredentialsSerialCodec extends AlternativeLoginA
     @Override
     public SendMagicLinkCredentials decode(ReadOnlyAstObject serial) {
         return new SendMagicLinkCredentials(
-            decodeString(serial, EMAIL_KEY),
-            decodeString(serial, CLIENT_ORIGIN_KEY),
-            decodeString(serial, REQUESTED_PATH_KEY),
-            decodeObject(serial, LANGUAGE_KEY),
-            decodeObject(serial, CONTEXT_KEY)
+            decodeString(serial,  EMAIL_KEY),
+            decodeString(serial,  CLIENT_ORIGIN_KEY),
+            decodeString(serial,  REQUESTED_PATH_KEY),
+            decodeObject(serial,  LANGUAGE_KEY),
+            decodeBoolean(serial, VERIFICATION_CODE_ONLY_KEY),
+            decodeObject(serial,  CONTEXT_KEY)
         );
     }
 }

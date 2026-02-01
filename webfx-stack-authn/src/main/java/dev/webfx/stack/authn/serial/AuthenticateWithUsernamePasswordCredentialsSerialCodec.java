@@ -20,8 +20,8 @@ public final class AuthenticateWithUsernamePasswordCredentialsSerialCodec extend
 
     @Override
     public void encode(AuthenticateWithUsernamePasswordCredentials arg, AstObject serial) {
-        encodeString(serial, USERNAME_KEY, arg.getUsername());
-        encodeString(serial, PASSWORD_KEY, arg.getPassword());
+        encodeString(serial, USERNAME_KEY, arg.username());
+        encodeString(serial, PASSWORD_KEY, arg.password());
     }
 
     @Override

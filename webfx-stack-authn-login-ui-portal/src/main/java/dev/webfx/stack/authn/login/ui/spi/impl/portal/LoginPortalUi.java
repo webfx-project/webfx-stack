@@ -201,7 +201,7 @@ final class LoginPortalUi implements UiLoginPortalCallback {
     @Override
     public void notifyUserLoginFailed(Throwable cause) {
         Animations.shake(flipPane.getFront());
-        Console.log("Authentication failed", cause);
+        Console.error("Authentication failed", cause);
     }
 
 }
