@@ -9,7 +9,9 @@
         <used-by-source-modules/>
     </dependencies>
 
-    <i18n javaKeysClass="dev.webfx.stack.authn.logout.client.operation.LogoutI18nKeys"/>
+    <java-ui-api package="dev.webfx.stack.authn.logout.client.operation" prefix="Logout">
+        <i18n/>
+    </java-ui-api>
 
 
 </project>
