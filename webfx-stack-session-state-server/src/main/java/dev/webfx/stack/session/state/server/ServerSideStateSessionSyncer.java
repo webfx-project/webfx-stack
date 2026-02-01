@@ -140,7 +140,7 @@ public final class ServerSideStateSessionSyncer {
 
     private static Future<IsolatedSession> storeServerSession(IsolatedSession serverSession) {
         return serverSession.store()
-            .onFailure(Console::log)
+            .onFailure(Console::error)
             .map(x -> serverSession);
     }
 

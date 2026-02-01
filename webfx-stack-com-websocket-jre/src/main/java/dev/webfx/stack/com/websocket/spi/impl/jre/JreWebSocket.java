@@ -79,7 +79,7 @@ public final class JreWebSocket implements WebSocket {
                     if (listener != null)
                         listener.onMessage(JreWebSocket.toString(buffer));
                 } catch (CharacterCodingException e) {
-                    Console.log("Websocket Failed when Charset Decoding", e);
+                    Console.error("Websocket Failed when Charset Decoding", e);
                 }
             }
 

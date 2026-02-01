@@ -45,7 +45,7 @@ final class VertxHttpVerticle extends AbstractVerticle {
                 .requestHandler(VertxInstance.getHttpRouter())
                 // And finally starting the http server by listening to the web port
                 .listen()
-                .onFailure(e -> Console.log("❌ Error while starting " + protocol + " server on port " + port, e))
+                .onFailure(e -> Console.error("Error while starting " + protocol + " server on port " + port, e))
                 .onSuccess(x -> Console.log("✅ Successfully started " + protocol + " server on port " + port))
         ;
     }

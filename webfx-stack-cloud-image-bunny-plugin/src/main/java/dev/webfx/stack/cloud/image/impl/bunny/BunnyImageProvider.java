@@ -52,14 +52,14 @@ public final class BunnyImageProvider extends FetchApiCloudImageProvider {
                 boolean exists = response.ok();
                 int status = response.status();
                 if (status == 401) {
-                    Console.log("[BUNNY] - ⚠️ AUTHENTICATION FAILED (401)");
-                    Console.log("[BUNNY] - Check: 1) Storage zone name is correct: '" + storageZoneName + "'");
-                    Console.log("[BUNNY] - Check: 2) Storage password/AccessKey is correct in config");
-                    Console.log("[BUNNY] - Check: 3) Storage region is correct: '" + storageRegion + "'");
+                    Console.warn("[BUNNY] - AUTHENTICATION FAILED (401)");
+                    Console.warn("[BUNNY] - Check: 1) Storage zone name is correct: '" + storageZoneName + "'");
+                    Console.warn("[BUNNY] - Check: 2) Storage password/AccessKey is correct in config");
+                    Console.warn("[BUNNY] - Check: 3) Storage region is correct: '" + storageRegion + "'");
                 }
                 return exists;
             }).recover(error -> {
-                Console.log("[BUNNY] - HEAD request error: " + error.getMessage());
+                Console.error("[BUNNY] - HEAD request error: ", error);
                 return Future.succeededFuture(false);
             });
     }

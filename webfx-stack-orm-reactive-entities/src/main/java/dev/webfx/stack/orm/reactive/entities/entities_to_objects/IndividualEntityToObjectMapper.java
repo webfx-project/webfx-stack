@@ -59,7 +59,7 @@ public interface IndividualEntityToObjectMapper<E extends Entity, O> {
             @Override
             public void onEntityChangedOrReplaced(E entity) {
                 // Is this allowed for this simple factory meant to be immutable?
-                Console.log("⚠️ Entity changed or replaced on a simple mapper - this will probably not be notified");
+                Console.warn("Entity changed or replaced on a simple mapper - this will probably not be notified");
                 object = entityToObjectMapper.apply(e);
             }
 

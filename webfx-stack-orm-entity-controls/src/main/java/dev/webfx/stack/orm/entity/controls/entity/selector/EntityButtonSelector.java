@@ -130,7 +130,7 @@ public class EntityButtonSelector<E extends Entity> extends ButtonSelector<E> im
         }
         entityRenderer = renderingExpression == null ? null : ValueRendererFactory.getDefault().createValueRenderer(renderingExpression.getType());
         if (entityRenderer == null) {
-            Console.log("⚠️ WARNING: EntityButtonSelector couldn't find any domain renderer! Please fix this issue by specifying fields or columns in : " + jsonOrClass);
+            Console.warn("EntityButtonSelector couldn't find any domain renderer! Please fix this issue by specifying fields or columns in : " + jsonOrClass);
         }
         forceDialogRebuiltOnNextShow();
         return this;

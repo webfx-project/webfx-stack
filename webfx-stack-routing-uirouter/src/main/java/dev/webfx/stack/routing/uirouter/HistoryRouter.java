@@ -23,7 +23,7 @@ public class HistoryRouter {
         router.exceptionHandler(new Handler<>() {
             @Override
             public void handle(Throwable throwable) {
-                Console.log("Path not found", throwable);
+                Console.error("Path not found", throwable);
                 router.exceptionHandler(null); // removing the handler to avoid an infinite recursion if the default path can't be found
                 replaceCurrentHistoryWithInitialDefaultPath();
                 router.exceptionHandler(this); // restoring the handler

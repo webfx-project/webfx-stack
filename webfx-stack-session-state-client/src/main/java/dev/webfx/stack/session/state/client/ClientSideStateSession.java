@@ -63,7 +63,7 @@ public final class ClientSideStateSession {
                     else {
                         Console.log("WARNING: Couldn't reload previous client session from session store (session with localId " + clientSessionId + " not found)");
                         if (ar.failed())
-                            Console.log(ar.cause());
+                            Console.error(ar.cause());
                     }
                 });
     }

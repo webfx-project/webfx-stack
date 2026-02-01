@@ -63,7 +63,7 @@ public class DqlQueryInterceptorInitializer implements ApplicationJob {
                     }
                 } catch (Exception e) {
                     Exception ex = new IllegalArgumentException("Error while translating DQL query to SQL: " + e.getMessage() + "\nDQL query:\n" + statement + "\nParameters: " + Arrays.toString(argument.getParameters())+ "\nParameter names: " + Arrays.toString(argument.getParameterNames()));
-                    Console.log(ex);
+                    Console.error(ex);
                     return Future.failedFuture(ex);
                 }
             }

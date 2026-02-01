@@ -44,7 +44,7 @@ public final class StateAccessor {
                 Object javaObject = SerialCodecManager.decodeFromJson(rawJson.get(key));
                 json.set(key, javaObject);
             } catch (Exception e) {
-                Console.log("⛔️ Couldn't decode session state '" + key + "':", e);
+                Console.error("Couldn't decode session state '" + key + "':", e);
             }
         }
         return json;
