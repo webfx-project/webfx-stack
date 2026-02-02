@@ -14,6 +14,8 @@
         </used-by-source-modules>
     </dependencies>
 
-    <i18n javaKeysClass="dev.webfx.stack.routing.uirouter.operations.RouteI18nKeys"/>
+    <java-ui-api package="dev.webfx.stack.routing.uirouter.operations" prefix="Route">
+        <i18n/>
+    </java-ui-api>
 
 </project>

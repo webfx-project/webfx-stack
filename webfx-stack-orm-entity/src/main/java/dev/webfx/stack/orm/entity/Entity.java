@@ -195,7 +195,7 @@ public interface Entity {
         String dqlQuery = "select " + unloadedPersistentTerms.stream()
             .map(e -> e instanceof Dot ? ((Dot) e).expandLeft() : e)
             .map(Object::toString)
-            .collect(Collectors.joining(",")) + " from " + getDomainClass().getName() + " where id=?";
+            .collect(Collectors.joining(",")) + " from " + getDomainClass().getName() + " where id=$1";
         CachePromise<E> promise = new CachePromise<>();
         getStore().executeQueryWithCache(cacheEntry, dqlQuery, getPrimaryKey())
             .onFailure(promise::fail)

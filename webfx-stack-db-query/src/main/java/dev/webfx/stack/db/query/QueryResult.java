@@ -82,7 +82,7 @@ public final class QueryResult {
         if (index < values.length)
             return (T) values[index];
         // Temporarily friendly with no exception
-        Console.log("[QueryResult] ⚠️ WARNING: returning null as the index is out of bounds! (rowIndex = " + rowIndex + ", columnIndex = " + columnIndex + ", rowCount = " + rowCount + ", columnCount = " + columnCount + ")");
+        Console.warn("[QueryResult] Returning null as the index is out of bounds! (rowIndex = " + rowIndex + ", columnIndex = " + columnIndex + ", rowCount = " + rowCount + ", columnCount = " + columnCount + ")");
         return null;
     }
 

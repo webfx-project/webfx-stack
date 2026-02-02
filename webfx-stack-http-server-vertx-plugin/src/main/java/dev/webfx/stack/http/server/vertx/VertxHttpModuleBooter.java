@@ -103,7 +103,7 @@ public class VertxHttpModuleBooter implements ApplicationModuleBooter {
                     VertxHttpRouterConfigurator.addStaticRoute(routePattern, hostnamePatterns, pathToStaticFolder);
                     Console.log("✓ Routed '" + routePattern + "' to serve static files at " + pathToStaticFolder + (hostnamePatterns == null ? "" : " for the following hostnames: " + list(hostnamePatterns)));
                 } catch (IOException e) {
-                    Console.log("❌ Failed to route '" + routePattern + "' to serve static files at " + pathToStaticFolder + (hostnamePatterns == null ? "" : " for the following hostnames: " + list(hostnamePatterns)), e);
+                    Console.error("Failed to route '" + routePattern + "' to serve static files at " + pathToStaticFolder + (hostnamePatterns == null ? "" : " for the following hostnames: " + list(hostnamePatterns)), e);
                 }
             });
 

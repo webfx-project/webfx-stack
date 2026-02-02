@@ -172,7 +172,7 @@ public final class UILoginView implements MaterialFactoryMixin {
             actionButton
         );
         mainVBox.setMinWidth(container.getMinWidth());
-        //mainVBox.getStyleClass().add("login");
+        //mainVBox.getStyleClass().add(PasswordCssSelectors.login);
         mainVBox.setAlignment(Pos.TOP_CENTER);
     }
 

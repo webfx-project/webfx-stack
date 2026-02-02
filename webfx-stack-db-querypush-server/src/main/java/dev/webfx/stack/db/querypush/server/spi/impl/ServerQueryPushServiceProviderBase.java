@@ -103,7 +103,7 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
                 executedQueries++;
                 queryInfo.touchExecuted();
                 resultFuture = QueryService.executeQuery(queryInfo.queryArgument)
-                    .onFailure(Console::log);
+                    .onFailure(Console::error);
             }
             // Calling the pushResultToRelevantClients() method when the result is ready
             return resultFuture.map(queryResult -> {

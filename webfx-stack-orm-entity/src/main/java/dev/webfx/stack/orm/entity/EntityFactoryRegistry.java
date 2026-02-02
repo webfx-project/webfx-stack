@@ -34,7 +34,7 @@ public final class EntityFactoryRegistry {
         EntityDomainClassIdRegistry.registerEntityDomainClassId(entityClass, domainClassId);
         EntityFactory<Entity> existingEntityFactory = getEntityFactory(domainClassId);
         if (existingEntityFactory != null) { // Happens with KBSX which overrides the Event entity class
-            Console.log("⚠️ Skipping '" + domainClassId + "' entity factory second registration (skipping " + entityFactory.getClass() + " and keeping " + existingEntityFactory.getClass() + ")");
+            Console.warn("Skipping '" + domainClassId + "' entity factory second registration (skipping " + entityFactory.getClass() + " and keeping " + existingEntityFactory.getClass() + ")");
         } else
             entityFactories.put(domainClassId, entityFactory);
     }

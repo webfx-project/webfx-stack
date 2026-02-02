@@ -43,17 +43,17 @@ public final class DomainModelLoader {
     public Batch<QueryArgument> generateDomainModelQueryBatch() {
         return toQueryBatch(
                 // 1) Labels loading
-                "select id,code,text,icon from label where data_model_version_id=? or data_model_version_id is null",
+                "select id,code,text,icon from label where data_model_version_id=$1 or data_model_version_id is null",
                 // 2) Types loading
-                "select id,name,super_type_id,cell_factory_name,ui_format,sql_format from type where data_model_version_id=?",
+                "select id,name,super_type_id,cell_factory_name,ui_format,sql_format from type where data_model_version_id=$1",
                 // 3) Classes loading
-                "select id,name,sql_table_name,foreign_fields,fxml_form,search_condition,label_id from class where data_model_version_id=?",
+                "select id,name,sql_table_name,foreign_fields,fxml_form,search_condition,label_id from class where data_model_version_id=$1",
                 // 4) Style classes loading
-                "select c.id,f.name,s.name,s.condition from data_view s join data_view f on f.id=s.parent_id join class c on c.id=f.scope_class_id where c.data_model_version_id=? and active and is_style and not is_folder and s.scope_activity_id is null order by c.id,f.ord,s.ord desc",
+                "select c.id,f.name,s.name,s.condition from data_view s join data_view f on f.id=s.parent_id join class c on c.id=f.scope_class_id where c.data_model_version_id=$1 and active and is_style and not is_folder and s.scope_activity_id is null order by c.id,f.ord,s.ord desc",
                 // 5) Fields loading
-                "select id,name,class_id,type_id,label_id,pref_width,expression,applicable_condition,persistent,sql_column_name,foreign_class_id,foreign_alias,foreign_condition,foreign_order_by,foreign_combo_fields,foreign_table_fields from field f join class c on f.class_id=c.id where c.data_model_version_id=?",
+                "select id,name,class_id,type_id,label_id,pref_width,expression,applicable_condition,persistent,sql_column_name,foreign_class_id,foreign_alias,foreign_condition,foreign_order_by,foreign_combo_fields,foreign_table_fields from field f join class c on f.class_id=c.id where c.data_model_version_id=$1",
                 // 6) Fields group loading
-                "select name,class_id,fields from fields_group fg join class c on fg.class_id=c.id where c.data_model_version_id=?"
+                "select name,class_id,fields from fields_group fg join class c on fg.class_id=c.id where c.data_model_version_id=$1"
         );
     }
 

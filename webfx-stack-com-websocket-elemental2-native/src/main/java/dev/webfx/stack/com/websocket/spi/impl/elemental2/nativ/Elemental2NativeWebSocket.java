@@ -67,7 +67,7 @@ final class Elemental2NativeWebSocket implements WebSocket {
                 String text = new String(bytes);
                 listener.onMessage(text);
             } else {
-                Console.log("[GwtJ2clNativeWebSocket] ⚠️ Received message with unknown data type: " + dataType);
+                Console.warn("[GwtJ2clNativeWebSocket] Received message with unknown data type: " + dataType);
             }
         };
         nativeWebSocket.onclose = e -> listener.onClose(AST.createObject().set("code", e.code).set("reason", e.reason));

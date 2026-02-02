@@ -291,7 +291,7 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
             master.ifNotNull(((HasSelectedGroupConditionDqlStatementProperty) pm).selectedGroupConditionDqlStatementProperty(), selectedGroupConditionDqlStatement -> selectedGroupConditionDqlStatement);
         // Limit clause
         if (pm instanceof HasLimitProperty)
-            master.ifPositive(((HasLimitProperty) pm).limitProperty(), limit -> limit("?", limit));
+            master.ifPositive(((HasLimitProperty) pm).limitProperty(), limit -> limit("$1", limit));
         return master;
     }
 

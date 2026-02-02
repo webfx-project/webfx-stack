@@ -72,7 +72,7 @@ terminal          EXPR_START;
 terminal          SELECT, DISTINCT, FROM, WHERE, GROUP_BY, HAVING, ORDER_BY, DESC, ASC, NULLS, FIRST, LAST, LIMIT, INSERT, UPDATE, DELETE, SET, EXISTS, IS, LIKE, IN, AS, ANY, ALL, THIS;
 terminal          OBJ_STATE, IMAGE;
 terminal          LPAREN, RPAREN, LBRACK, RBRACK, COLON, COMMA, DOT, LCURLY, RCURLY;
-terminal          PLUS, MINUS, MULT, DIV, EQ, GT, LT, NOT, QUESTION, EQEQ, LTEQ, GTEQ, NOTEQ, AND, OR;
+terminal          PLUS, MINUS, MULT, DIV, EQ, GT, LT, NOT, QUESTION, QUESTION_DOT, EQEQ, LTEQ, GTEQ, NOTEQ, AND, OR;
 terminal          DOLLAR;
 terminal          NULL;
 terminal Object   NUMBER;
@@ -157,7 +157,7 @@ fields_group ::= LT IDENTIFIER:id GT
 
 dot_op    ::= DOT
               {: RESULT = false; :}
-            | DOT DOT
+            | QUESTION_DOT
               {: RESULT = true; :}
             ;
 

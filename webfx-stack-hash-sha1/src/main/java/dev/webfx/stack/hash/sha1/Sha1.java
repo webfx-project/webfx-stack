@@ -22,7 +22,7 @@ public final class Sha1 {
             byte[] bytes = msg.getBytes(StandardCharsets.UTF_8); // convert string to UTF-8, as SHA only deals with byte-streams
             return hash(bytes); // alternative algorithm implementation that works with GWT
         } catch (Exception e) { // UnsupportedEncodingException or NoSuchAlgorithmException
-            Console.log("Error while computing SHA-1", e);
+            Console.error("Error while computing SHA-1", e);
             return msg;
         }
     }

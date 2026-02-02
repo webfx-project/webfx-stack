@@ -112,7 +112,7 @@ public final class VertxLocalQuerySubmitServiceProvider implements QueryServiceP
         Promise<T> promise = Promise.promise();
         pool.getConnection()
             .onFailure(cause -> {
-                Console.log("DB connectAndExecute() failed", cause);
+                Console.error("DB connectAndExecute() failed", cause);
                 promise.fail(cause);
             })
             .onSuccess(connection -> { // Note: this is the responsibility of the executor to close the connection
@@ -145,7 +145,7 @@ public final class VertxLocalQuerySubmitServiceProvider implements QueryServiceP
         return connectAndExecute((connection, promise) ->
             connection.begin()
                 .onFailure(cause -> {
-                    Console.log("DB connectAndExecuteInTransaction() failed", cause);
+                    Console.error("DB connectAndExecuteInTransaction() failed", cause);
                     promise.fail(cause);
                 })
                 .onSuccess(transaction -> executor.accept(connection, transaction, promise))
@@ -173,7 +173,7 @@ public final class VertxLocalQuerySubmitServiceProvider implements QueryServiceP
         // long t0 = System.currentTimeMillis();
         executeQueryOnConnection(queryArgument.getStatement(), queryArgument.getParameters(), connection, ar -> {
             if (ar.failed()) { // Sql error
-                Console.log("DB executeSingleQueryOnConnection() failed when executing: " + queryArgument.getStatement(), ar.cause());
+                Console.error("DB executeSingleQueryOnConnection() failed when executing: " + queryArgument.getStatement(), ar.cause());
                 promise.fail(ar.cause());
             } else { // Sql succeeded
                 // Transforming the result set into columnNames and values arrays
@@ -209,7 +209,7 @@ public final class VertxLocalQuerySubmitServiceProvider implements QueryServiceP
                 // Unless from batch, closing the connection now, so it can go back to the pool
                 if (!batch)
                     closeConnection(connection);
-                Console.log("DB executeSubmitOnConnection() failed", res.cause());
+                Console.error("DB executeSubmitOnConnection() failed", res.cause());
                 promise.fail(res.cause());
             } else { // Sql succeeded
                 SubmitResult submitResult = VertxSqlUtil.toWebFxSubmitResult(res.result(), submitArgument);
@@ -219,7 +219,7 @@ public final class VertxLocalQuerySubmitServiceProvider implements QueryServiceP
                     transaction.commit()
                         .onComplete(ar -> {
                             if (ar.failed()) {
-                                Console.log(ar.cause());
+                                Console.error(ar.cause());
                                 promise.fail(ar.cause());
                             } else
                                 promise.complete(submitResult);
@@ -248,7 +248,7 @@ public final class VertxLocalQuerySubmitServiceProvider implements QueryServiceP
             long t0 = System.currentTimeMillis();
             executeSubmitOnConnection(updateArgument, connection, transaction, true, Promise.promise())
                 .onFailure(cause -> {
-                    Console.log("DB executeUpdateBatchOnConnection()", cause);
+                    Console.error("DB executeUpdateBatchOnConnection()", cause);
                     statementPromise.fail(cause);
                     transaction.rollback().onComplete(ar -> closeConnection(connection));
                 })
@@ -265,7 +265,7 @@ public final class VertxLocalQuerySubmitServiceProvider implements QueryServiceP
                         transaction.commit()
                             .onComplete(ar -> {
                                 if (ar.failed()) {
-                                    Console.log(ar.cause());
+                                    Console.error(ar.cause());
                                     statementPromise.fail(ar.cause());
                                 } else
                                     statementPromise.complete(submitResult);

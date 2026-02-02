@@ -14,7 +14,10 @@
         <provider interface="dev.webfx.stack.authn.login.ui.spi.impl.gateway.UiLoginGateway">dev.webfx.stack.authn.login.ui.spi.impl.gateway.password.PasswordUiLoginGateway</provider>
     </providers>
 
-    <i18n javaKeysClass="dev.webfx.stack.authn.login.ui.spi.impl.gateway.password.PasswordI18nKeys"/>
+    <java-ui-api package="dev.webfx.stack.authn.login.ui.spi.impl.gateway.password" prefix="Password">
+        <i18n/>
+        <css/>
+    </java-ui-api>
 
 
 </project>

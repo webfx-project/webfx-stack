@@ -53,7 +53,7 @@ abstract class EntityUpdateDialog<E extends Entity> implements MaterialFactoryMi
             .inUiThread()
             .onComplete(ar -> {
                 if (ar.failed())
-                    Console.log(ar.cause());
+                    Console.error(ar.cause());
                 else {
                     if (entity.getStore() instanceof UpdateStore) {
                         updateStore = (UpdateStore) entity.getStore();

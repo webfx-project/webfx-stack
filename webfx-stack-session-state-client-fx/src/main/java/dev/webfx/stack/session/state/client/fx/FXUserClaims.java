@@ -37,7 +37,7 @@ public final class FXUserClaims {
             // Asking the new user claims if the user is logged in (ignored if the user just logged out)
             if (FXUserId.getUserId() != null) {
                 AuthenticationService.getUserClaims()
-                    .onFailure(Console::log)
+                    .onFailure(Console::error)
                     .inUiThread()
                     .onSuccess(FXUserClaims::setUserClaims);
             }
