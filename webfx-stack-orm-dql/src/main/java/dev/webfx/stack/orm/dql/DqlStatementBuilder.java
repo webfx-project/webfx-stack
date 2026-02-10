@@ -312,7 +312,7 @@ public final class DqlStatementBuilder {
                     // Replace '?' with the next sequential index starting at shift
                     sb.append('$').append(nextQIndex);
                     nextQIndex++;
-                    // If it's a named parameter such as ?search, we skip the next letters because it is now completely
+                    // If it's a named parameter such as :search, we skip the next letters because it is now completely
                     // replaced by a positional parameter such as $1.
                     while (i + 1 < length) {
                         if (!Character.isLetterOrDigit(dql.charAt(i + 1)))

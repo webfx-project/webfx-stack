@@ -167,9 +167,9 @@ public final class ReactiveDqlStatement<E> implements ReactiveDqlStatementAPI<E,
             // Calling the converter to get the dql statement
             DqlStatement dqlStatement = toDqlStatementConverter.convert(t);
             // If different from last value, this will trigger a global change check
-            // However it's possible that the DqlStatement hasn't changed but contains parameters that have changed (ex: name like ?search)
+            // However it's possible that the DqlStatement hasn't changed but contains parameters that have changed (ex: name like :search)
             // In that case (DqlStatement with parameter), we always schedule a global change check (which will consider parameters)
-            //if (dqlStatementString != null && dqlStatementString.contains("?")) // Simple parameter test with ?
+            //if (dqlStatementString != null && dqlStatementString.contains(":")) // Simple parameter test with `:`
             markDqlStatementsAsChanged();
             return dqlStatement;
         }));
