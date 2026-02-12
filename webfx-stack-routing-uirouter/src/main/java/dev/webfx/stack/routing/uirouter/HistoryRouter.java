@@ -71,12 +71,18 @@ public class HistoryRouter {
         String path;
         Object state;
         // On the first call, browsingHistoryLocation might be null when not running in the browser
-        if (browsingHistoryLocation == null) { // in-memory history not yet initialized
+        if (browsingHistoryLocation == null) { // in-memory history, not yet initialized
             path = defaultInitialHistoryPath;
             state = null;
-            history.push(path); // initialising in-memory history to the default initial path
+            history.push(path); // initializing in-memory history to the default initial path
         } else { // general case (browser history or in-memory history but initialized)
             path = history.getPath(browsingHistoryLocation);
+            // Considering a possible modified path (by campaign email tools - ex: `?utm_source=xxx#/book-event/1844`)
+            // => we ignore the query string and keep only the fragment
+            int hashIndex = path.indexOf('#');
+            if (hashIndex >= 0) {
+                path = path.substring(hashIndex + 1);
+            }
             state = browsingHistoryLocation.getState();
         }
         // Also on first call, the path might be empty in the browser if the location is just the domain name
@@ -85,8 +91,8 @@ public class HistoryRouter {
         }
         // Submitting the new path & state to the router, and this even if the path & state didn't change, as the router
         // may behave differently in dependence on other factors (ex: it may show a login window on first attempt, then
-        // the actual requested page on second attend (if logged in and authorized) or the unauthorized page (if logged
-        // in but not authorized).
+        // the actual requested page on the second attempt (if logged in and authorized) or the unauthorized page (if
+        // logged in but not authorized).
         router.accept(path, state);
     }
 
