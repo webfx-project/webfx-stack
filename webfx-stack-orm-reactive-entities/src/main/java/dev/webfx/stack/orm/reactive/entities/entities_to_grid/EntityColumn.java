@@ -42,7 +42,7 @@ public interface EntityColumn<E extends Entity> {
     /**
      * @return the foreign search condition to be used when selecting a new foreign object, or null if the original expression is just a value.
      * This search condition is generally the one defined in the domain class, but it's possible to override it when the column
-     * is parsed from json using the "foreignFields" key. Ex: {expression: 'myEntity', foreignSearchCondition: 'name like ?searchLike'}
+     * is parsed from json using the "foreignFields" key. Ex: {expression: 'myEntity', foreignSearchCondition: 'name like :searchLike'}
      */
     String getForeignSearchCondition();
 
