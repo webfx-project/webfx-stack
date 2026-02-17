@@ -136,6 +136,8 @@ public final class ExpressionSqlCompiler {
             compileExpression(dqlStatement.getOrderBy(), new Options(sqlBuild, SqlClause.ORDER_BY, ", ", grouped, false, false, modelReader));
         if (dqlStatement.getLimit() != null && dbmsSyntax != HsqlSyntax.get()) // temporary fix
             compileExpression(dqlStatement.getLimit(), new Options(sqlBuild, SqlClause.LIMIT, null, grouped, false, false, modelReader));
+        if (dqlStatement instanceof Select<?> select && select.getOffset() != null)
+            compileExpression(select.getOffset(), new Options(sqlBuild, SqlClause.OFFSET, null, grouped, false, false, modelReader));
         if (parent != null)
             parent.prepareAppend(parentClause, null).append(sqlBuild.toSql()); // is it the right way?
         dqlStatement.setCacheable(sqlBuild.isCacheable());

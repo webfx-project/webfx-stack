@@ -16,6 +16,7 @@ public final class SelectBuilder extends DqlStatementBuilder<Select> {
     public ExpressionArrayBuilder groupBy;
     public ExpressionBuilder having;
     public ExpressionArrayBuilder orderBy;
+    public ExpressionBuilder offset;
 
     public SelectBuilder() {
     }
@@ -31,6 +32,7 @@ public final class SelectBuilder extends DqlStatementBuilder<Select> {
                 having == null ? null : having.build(),
                 orderBy == null ? null : orderBy.build(),
                 limit == null ? null : limit.build(),
+                offset == null ? null : offset.build(),
                 includeIdColumn);
     }
 
@@ -45,6 +47,8 @@ public final class SelectBuilder extends DqlStatementBuilder<Select> {
             having.buildingClass = buildingClass;
         if (orderBy != null)
             orderBy.buildingClass = buildingClass;
+        if (offset != null)
+            offset.buildingClass = buildingClass;
     }
 
     @Override
