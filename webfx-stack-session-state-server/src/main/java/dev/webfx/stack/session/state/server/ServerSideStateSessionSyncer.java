@@ -160,6 +160,8 @@ public final class ServerSideStateSessionSyncer {
             outgoingState = StateAccessor.setServerSessionId(outgoingState, serverSession.id(), true);
             sessionIdSyncedChanged = SessionAccessor.changeServerSessionIdSynced(serverSession, true);
         }
+        // outgoingState.serverRunId <= StateAccessor.getServerRunId() ? ALWAYS (non-override), so client can detect server restarts
+        outgoingState = StateAccessor.setServerRunId(outgoingState, StateAccessor.getServerRunId(), false);
         // outgoingState.userId <= serverSession.userId ? NO, we communicate this info only once to the client (when the server code explicitly sets outgoingState.userId)
         // outgoingState.runId <= serverSession.runId ? NEVER (ERASED), because it's always communicated in the opposite way (client => server)
         // outgoingState.backoffice <= serverSession.backoffice ? NEVER (ERASED), because it's always communicated in the opposite way (client => server)

@@ -40,6 +40,14 @@ public final class QueryResult {
      */
     private int versionNumber;
 
+    /**
+     * Entity mapping (optional). When set, describes how to map query result columns to entity fields,
+     * including foreign keys and join chains. Typed as Object to avoid a dependency on the ORM module —
+     * the actual type is QueryRowToEntityMapping (from webfx-stack-orm-dql), serialized/deserialized by
+     * its own serial codec.
+     */
+    private Object entityMapping;
+
     public QueryResult(int rowCount, int columnCount, Object[] values, String[] columnNames) {
         if ((values == null ? 0 : values.length) != columnCount * rowCount || columnNames != null && columnNames.length != columnCount)
             throw new IllegalArgumentException("Incoherent sizes in QueryResult initialization");
@@ -92,6 +100,14 @@ public final class QueryResult {
 
     public void setVersionNumber(int versionNumber) {
         this.versionNumber = versionNumber;
+    }
+
+    public Object getEntityMapping() {
+        return entityMapping;
+    }
+
+    public void setEntityMapping(Object entityMapping) {
+        this.entityMapping = entityMapping;
     }
 
     /*******************************************************************************************

@@ -14,6 +14,7 @@ public final class QueryArgumentBuilder {
     private String statement;
     private Object[] parameters;
     private String[] parameterNames;
+    private boolean sendMetadata;
 
     public QueryArgumentBuilder setOriginalArgument(QueryArgument originalArgument) {
         this.originalArgument = originalArgument;
@@ -54,6 +55,11 @@ public final class QueryArgumentBuilder {
         return this;
     }
 
+    public QueryArgumentBuilder setSendMetadata(boolean sendMetadata) {
+        this.sendMetadata = sendMetadata;
+        return this;
+    }
+
     public QueryArgumentBuilder copy(QueryArgument argument) {
         return setOriginalArgument(argument)
             .setDataSourceId(argument.getDataSourceId())
@@ -62,10 +68,11 @@ public final class QueryArgumentBuilder {
             .setStatement(argument.getStatement())
             .setParameters(argument.getParameters())
             .setParameterNames(argument.getParameterNames())
+            .setSendMetadata(argument.isSendMetadata())
             ;
     }
 
     public QueryArgument build() {
-        return new QueryArgument(originalArgument, dataSourceId, dataScope, language, statement, parameters, parameterNames);
+        return new QueryArgument(originalArgument, dataSourceId, dataScope, language, statement, parameters, parameterNames, sendMetadata);
     }
 }

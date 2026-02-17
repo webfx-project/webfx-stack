@@ -18,6 +18,10 @@ public final class StateAccessor {
     private final static String USER_ID_ATTRIBUE_NAME = "userId";
     private final static String RUN_ID_ATTRIBUE_NAME = "runId";
     private final static String BACKOFFICE_ATTRIBUTE_NAME = "backoffice";
+    private final static String SERVER_RUN_ID_ATTRIBUTE_NAME = "serverRunId";
+
+    /** Unique ID generated once at server startup — changes on every restart. */
+    private static final String SERVER_RUN_ID = "srv-" + System.currentTimeMillis();
 
     public static Object createEmptyState() {
         return AST.createObject();
@@ -119,6 +123,23 @@ public final class StateAccessor {
 
     public static Object setBackoffice(Object state, Boolean backoffice, boolean override) {
         return setStateAttribute(state, BACKOFFICE_ATTRIBUTE_NAME, backoffice, override);
+    }
+
+    /** Get the server-generated run ID (unique per server process lifetime). */
+    public static String getServerRunId() {
+        return SERVER_RUN_ID;
+    }
+
+    public static String getServerRunId(Object state) {
+        return (String) getStateAttribute(state, SERVER_RUN_ID_ATTRIBUTE_NAME);
+    }
+
+    public static Object setServerRunId(Object state, String serverRunId) {
+        return setServerRunId(state, serverRunId, true);
+    }
+
+    public static Object setServerRunId(Object state, String serverRunId, boolean override) {
+        return setStateAttribute(state, SERVER_RUN_ID_ATTRIBUTE_NAME, serverRunId, override);
     }
 
     private static Object getStateAttribute(Object state, String name) {

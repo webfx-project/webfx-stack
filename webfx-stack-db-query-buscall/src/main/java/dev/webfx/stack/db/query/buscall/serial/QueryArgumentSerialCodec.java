@@ -15,6 +15,7 @@ public final class QueryArgumentSerialCodec extends SerialCodecBase<QueryArgumen
     private static final String STATEMENT_KEY = "statement";
     private static final String PARAMETERS_KEY = "parameters";
     private static final String PARAMETER_NAMES_KEY = "names";
+    private static final String SEND_METADATA_KEY = "sendMetadata";
 
     public QueryArgumentSerialCodec() {
         super(QueryArgument.class, CODEC_ID);
@@ -30,17 +31,21 @@ public final class QueryArgumentSerialCodec extends SerialCodecBase<QueryArgumen
             encodeObjectArray(serial, PARAMETERS_KEY,      arg.getParameters());
         if (!Arrays.isEmpty(arg.getParameterNames()))
             encodeObjectArray(serial, PARAMETER_NAMES_KEY, arg.getParameterNames());
+        if (!arg.isSendMetadata())
+            encodeBoolean(serial, SEND_METADATA_KEY, false);
     }
 
     @Override
     public QueryArgument decode(ReadOnlyAstObject serial) {
+        Boolean sendMetadata = decodeBoolean(serial, SEND_METADATA_KEY);
         return new QueryArgument(null,
             decodeObject(serial,      DATA_SOURCE_ID_KEY),
             decodeObject(serial,      DATA_SCOPE_KEY),
             decodeString(serial,      LANGUAGE_KEY),
             decodeString(serial,      STATEMENT_KEY),
             decodeObjectArray(serial, PARAMETERS_KEY),
-            decodeStringArray(serial, PARAMETER_NAMES_KEY)
+            decodeStringArray(serial, PARAMETER_NAMES_KEY),
+            sendMetadata == null || sendMetadata // default to true when absent
         );
     }
 }

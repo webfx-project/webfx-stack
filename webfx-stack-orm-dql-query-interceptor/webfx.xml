@@ -12,6 +12,8 @@
 
     <providers>
         <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.orm.dql.query.interceptor.DqlQueryInterceptorInitializer</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.orm.dql.query.interceptor.serial.QueryColumnToEntityFieldMappingSerialCodec</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.orm.dql.query.interceptor.serial.QueryRowToEntityMappingSerialCodec</provider>
     </providers>
 
     <dependencies>

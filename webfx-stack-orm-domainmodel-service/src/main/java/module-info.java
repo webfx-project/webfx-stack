@@ -5,6 +5,7 @@ module webfx.stack.orm.domainmodel.service {
     // Direct dependencies modules
     requires webfx.extras.label;
     requires webfx.extras.type;
+    requires webfx.platform.ast;
     requires webfx.platform.async;
     requires webfx.platform.console;
     requires webfx.platform.service;
