@@ -218,25 +218,45 @@ final class VertxHttpRouterConfigurator {
             absolute = true;
         }
         String finalPathToStaticFolder = pathToStaticFolder;
-        route.handler(StaticHandler.create(absolute ? FileSystemAccess.ROOT : FileSystemAccess.RELATIVE, pathToStaticFolder));
+        boolean finalAbsolute = absolute;
 
-        // SPA fallback: if the static file is not found and request accepts HTML, we serve index.html
-        // This allows React Router (or other SPA routers) to handle client-side routing
+        // Custom handler that checks file existence first, with SPA fallback
         route.handler(routingContext -> {
-            // Only apply fallback if the response hasn't been handled yet
-            if (!routingContext.response().ended() && routingContext.response().getStatusCode() == 404) {
-                String acceptHeader = routingContext.request().getHeader("Accept");
-                // Check if this is a browser navigation request (accepts text/html)
-                if (acceptHeader != null && acceptHeader.contains("text/html")) {
-                    // Serve index.html for SPA client-side routing
-                    Path indexPath = Paths.get(finalPathToStaticFolder, "index.html");
-                    routingContext.response().sendFile(indexPath.toString());
-                } else {
-                    // For API/asset requests, return 404
-                    routingContext.next();
+            String requestPath = routingContext.request().path();
+            // Remove the route pattern prefix to get the file path
+            String filePath = requestPath;
+            if (routePattern.endsWith("/*")) {
+                String prefix = routePattern.substring(0, routePattern.length() - 2);
+                if (requestPath.startsWith(prefix)) {
+                    filePath = requestPath.substring(prefix.length());
                 }
+            }
+
+            // Try to resolve the actual file
+            Path resolvedPath = Paths.get(finalPathToStaticFolder, filePath);
+
+            if (Files.exists(resolvedPath) && Files.isRegularFile(resolvedPath)) {
+                // File exists, serve it via StaticHandler
+                StaticHandler.create(finalAbsolute ? FileSystemAccess.ROOT : FileSystemAccess.RELATIVE, finalPathToStaticFolder)
+                    .handle(routingContext);
             } else {
-                routingContext.next();
+                // File doesn't exist - check if this is an HTML navigation request
+                String acceptHeader = routingContext.request().getHeader("Accept");
+                if (acceptHeader != null && acceptHeader.contains("text/html")) {
+                    // SPA fallback: serve index.html for client-side routing
+                    Path indexPath = Paths.get(finalPathToStaticFolder, "index.html");
+                    if (Files.exists(indexPath)) {
+                        routingContext.response()
+                            .putHeader("Content-Type", "text/html; charset=UTF-8")
+                            .sendFile(indexPath.toString());
+                    } else {
+                        routingContext.next();
+                    }
+                } else {
+                    // Not an HTML request (API/asset), use StaticHandler which will return 404
+                    StaticHandler.create(finalAbsolute ? FileSystemAccess.ROOT : FileSystemAccess.RELATIVE, finalPathToStaticFolder)
+                        .handle(routingContext);
+                }
             }
         });
     }
