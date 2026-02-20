@@ -217,7 +217,28 @@ final class VertxHttpRouterConfigurator {
             pathToStaticFolder = path.toAbsolutePath().toString();
             absolute = true;
         }
+        String finalPathToStaticFolder = pathToStaticFolder;
         route.handler(StaticHandler.create(absolute ? FileSystemAccess.ROOT : FileSystemAccess.RELATIVE, pathToStaticFolder));
+
+        // SPA fallback: if the static file is not found and request accepts HTML, we serve index.html
+        // This allows React Router (or other SPA routers) to handle client-side routing
+        route.handler(routingContext -> {
+            // Only apply fallback if the response hasn't been handled yet
+            if (!routingContext.response().ended() && routingContext.response().getStatusCode() == 404) {
+                String acceptHeader = routingContext.request().getHeader("Accept");
+                // Check if this is a browser navigation request (accepts text/html)
+                if (acceptHeader != null && acceptHeader.contains("text/html")) {
+                    // Serve index.html for SPA client-side routing
+                    Path indexPath = Paths.get(finalPathToStaticFolder, "index.html");
+                    routingContext.response().sendFile(indexPath.toString());
+                } else {
+                    // For API/asset requests, return 404
+                    routingContext.next();
+                }
+            } else {
+                routingContext.next();
+            }
+        });
     }
 
     private static final Map<String, Path> EXTRACTED_ARCHIVED_FOLDERS = new HashMap<>();
