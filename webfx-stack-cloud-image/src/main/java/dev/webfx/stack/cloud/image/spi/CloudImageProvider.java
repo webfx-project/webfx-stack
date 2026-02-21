@@ -61,7 +61,7 @@ public abstract class CloudImageProvider {
      */
     protected String sourceWithImageExtension(String source) {
         // No change if an image extension is present
-        if (source.matches(".*\\.(jpg|jpeg|gif|webp|svg|bmp|tiff)$")) {
+        if (source.matches(".*\\.(png|jpg|jpeg|gif|webp|svg|bmp|tiff)$")) {
             return source;
         }
         // Adding .png if no extension is present (OpenJFX doesn't support .webp)
