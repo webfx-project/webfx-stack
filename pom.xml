@@ -129,6 +129,7 @@
         <module>webfx-stack-orm-domainmodel</module>
         <module>webfx-stack-orm-domainmodel-activity</module>
         <module>webfx-stack-orm-domainmodel-service</module>
+        <module>webfx-stack-orm-domainmodel-service-loader</module>
         <module>webfx-stack-orm-dql</module>
         <module>webfx-stack-orm-dql-query-interceptor</module>
         <module>webfx-stack-orm-dql-querypush-interceptor</module>

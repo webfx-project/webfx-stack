@@ -1,4 +1,4 @@
-package dev.webfx.stack.orm.domainmodel.service.spi;
+package dev.webfx.stack.orm.domainmodel.service.loader;
 
 import dev.webfx.platform.ast.AST;
 import dev.webfx.platform.ast.AstObject;
@@ -265,6 +265,7 @@ public final class DomainModelLoader {
             .sorted(Comparator.comparing(cb -> cb.name))
             .forEach(classBuilder -> {
                 AstObject fields = AST.createObject();
+                //fields.set("id", classBuilder.id);
                 classBuilder.fieldMap.values().stream()
                     .sorted(Comparator.comparing(fb -> fb.name))
                     .forEach(fieldBuilder -> {

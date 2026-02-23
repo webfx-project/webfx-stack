@@ -6,5 +6,6 @@ package dev.webfx.stack.db.query.buscall;
 public final class QueryServiceBusAddress {
     public static final String EXECUTE_QUERY_METHOD_ADDRESS = "service/query/executeQuery";
     public static final String EXECUTE_QUERY_BATCH_METHOD_ADDRESS = "service/query/executeQueryBatch";
+    public static final String LOAD_CLASS_MAPPINGS_METHOD_ADDRESS = "service/query/loadClassMappings";
 
 }
