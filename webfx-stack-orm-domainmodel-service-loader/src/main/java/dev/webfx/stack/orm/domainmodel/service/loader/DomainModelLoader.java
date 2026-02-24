@@ -265,7 +265,7 @@ public final class DomainModelLoader {
             .sorted(Comparator.comparing(cb -> cb.name))
             .forEach(classBuilder -> {
                 AstObject fields = AST.createObject();
-                //fields.set("id", classBuilder.id);
+                fields.set("id", classBuilder.id);
                 classBuilder.fieldMap.values().stream()
                     .sorted(Comparator.comparing(fb -> fb.name))
                     .forEach(fieldBuilder -> {
