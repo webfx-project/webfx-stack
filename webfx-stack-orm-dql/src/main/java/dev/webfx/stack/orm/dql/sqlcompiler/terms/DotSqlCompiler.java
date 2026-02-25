@@ -79,6 +79,12 @@ public final class DotSqlCompiler extends AbstractTermSqlCompiler<Dot<?>> {
                 else
                     super.compileExpressionPersistentTermsToSql(child, o);
             }
+        } else if (o.compileExpressions && e instanceof Dot) {
+            // For nested Dot paths (e.g., accountPerson.fullName inside accountPerson.accountPerson.fullName),
+            // compile directly so the inner DotSqlCompiler can recurse and eventually reach
+            // SymbolSqlCompiler's branch (3) for expression fields like fullName.
+            // Using super would decompose fullName into its persistent terms via collectPersistentTerms.
+            compileChildExpressionToSql(e, o);
         } else {
             super.compileExpressionPersistentTermsToSql(e, o);
         }
