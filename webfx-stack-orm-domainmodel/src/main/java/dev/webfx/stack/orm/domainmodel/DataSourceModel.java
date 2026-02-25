@@ -21,6 +21,7 @@ public final class DataSourceModel implements HasDomainModel {
     private final DomainModel domainModel;
     private CompilerDomainModelReader compilerDomainModelReader;
     private final Map<String, SqlCompiled> sqlCompiledCache = new /*Weak*/HashMap<>();
+    private final Map<String, SqlCompiled> sqlCompiledWithExpressionsCache = new HashMap<>();
 
     public DataSourceModel(Object dataSourceId, DbmsSqlSyntax dbmsSqlSyntax, DomainModel domainModel) {
         this.dataSourceId = dataSourceId;
@@ -55,13 +56,25 @@ public final class DataSourceModel implements HasDomainModel {
         return sqlCompiled;
     }
 
+    public SqlCompiled parseAndCompileSelect(String stringSelect, boolean compileExpressions) {
+        Map<String, SqlCompiled> cache = compileExpressions ? sqlCompiledWithExpressionsCache : sqlCompiledCache;
+        SqlCompiled sqlCompiled = cache.get(stringSelect);
+        if (sqlCompiled == null)
+            cache.put(stringSelect, sqlCompiled = compileSelect(parseSelect(stringSelect), compileExpressions));
+        return sqlCompiled;
+    }
+
     public <T> Select<T> parseSelect(String definition) {
         return getDomainModel().parseSelect(definition);
     }
 
 
     public SqlCompiled compileSelect(Select<?> select) {
-        return ExpressionSqlCompiler.compileSelect(select, getDbmsSqlSyntax(), true, true, getCompilerDomainModelReader());
+        return compileSelect(select, false);
+    }
+
+    public SqlCompiled compileSelect(Select<?> select, boolean compileExpressions) {
+        return ExpressionSqlCompiler.compileSelect(select, getDbmsSqlSyntax(), true, true, compileExpressions, getCompilerDomainModelReader());
     }
 
     public String translateQuery(String queryLanguage, String query) {

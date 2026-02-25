@@ -74,7 +74,14 @@ public final class ServerSideStateSessionSyncer {
     private static Future<IsolatedSession> syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(IsolatedSession serverSession, Object clientState, boolean forceStore) {
         Object userId = StateAccessor.getUserId(clientState);
         // Case when the user hasn't changed (userId == null => not yet logged in or is the same user as last time in this server session)
-        if (userId == null || userIdChecker == null)
+        // Also skip when the incoming userId matches the session's current userId AND the client
+        // runId matches the session's stored runId (same connection, not a new page load). This
+        // handles clients (e.g. React) that resend all state properties on every request rather
+        // than only sending userId on change (as the Java ClientSideStateSessionSyncer does).
+        // On a new connection (runId mismatch or new session), we always run the full check to
+        // ensure authorizations are refreshed even if the userId hasn't changed.
+        boolean sameConnection = Objects.equals(StateAccessor.getRunId(clientState), SessionAccessor.getRunId(serverSession));
+        if (userId == null || userIdChecker == null || (sameConnection && Objects.equals(userId, SessionAccessor.getUserId(serverSession))))
             return syncFixedServerSessionFromIncomingClientState(serverSession, clientState, forceStore);
         // Case when the user is set => login or user switch, or logout (LOGOUT_USER_ID)
         return ThreadLocalStateHolder.runWithState(clientState, () -> userIdChecker.apply(userId))
