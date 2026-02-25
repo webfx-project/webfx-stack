@@ -29,11 +29,16 @@ public final class SymbolSqlCompiler extends AbstractTermSqlCompiler<Symbol<?>> 
             // event.onExpressionLoaded("kbs3,bookingFormUrl") it doesn't need to load bookingFormUrl again
             // We want (3) when the client has no DQL runtime (e.g. React) and can't evaluate expressions locally
             if (o.generateQueryMapping) { // We are in select with query mapping
-                if (o.compileExpressions && isComputedExpression(expression) && isSelfContainedExpression(e, expression)) {
+                if (o.compileExpressions && isComputedExpression(expression) && isSelfContainedExpression(e, expression, o)) {
                     // (3) => compile expression to SQL and map result column to the field name
                     // (same pattern as UnaryExpressionSqlCompiler for As expressions)
                     compileChildExpressionToSql(expression, o.changeGenerateQueryMapping(false));
-                    o.build.addColumnInClause(null, e.getName(), e, null, o.clause, " as ", false, false, o.generateQueryMapping);
+                    // Use table-qualified alias if the simple name collides (e.g., both fullName
+                    // and accountPerson.fullName in the same select)
+                    String aliasName = e.getName();
+                    if (o.build.hasColumnMapping(aliasName))
+                        aliasName = o.build.getCompilingTableAlias() + "_" + aliasName;
+                    o.build.addColumnInClause(null, aliasName, e, null, o.clause, " as ", false, false, o.generateQueryMapping);
                 } else {
                     compileExpressionPersistentTermsToSql(expression, o); // (2) => we load persistent fields
                 }
@@ -67,11 +72,12 @@ public final class SymbolSqlCompiler extends AbstractTermSqlCompiler<Symbol<?>> 
     }
 
     /**
-     * Check if an expression only references persistent fields from the same domain class as the symbol.
-     * Expressions that reference foreign fields (e.g. type.icon) can't be safely compiled to SQL inline
-     * because they may involve joins, non-SQL constants, or complex evaluation logic.
+     * Check if an expression only references persistent fields from the same domain class as the symbol,
+     * and none of them are foreign keys. Expressions that reference foreign fields (e.g. type.icon)
+     * can't be safely compiled to SQL inline because they may involve joins, non-SQL constants, or
+     * complex evaluation logic.
      */
-    private static boolean isSelfContainedExpression(Symbol<?> symbol, Expression<?> expression) {
+    private static boolean isSelfContainedExpression(Symbol<?> symbol, Expression<?> expression, Options o) {
         if (!(symbol instanceof HasDomainClass hasDomainClass))
             return true;
         Object domainClass = hasDomainClass.getDomainClass();
@@ -79,8 +85,16 @@ public final class SymbolSqlCompiler extends AbstractTermSqlCompiler<Symbol<?>> 
         List<Expression> persistentTerms = new ArrayList<>();
         ((Expression) expression).collectPersistentTerms(persistentTerms);
         for (Expression term : persistentTerms) {
-            if (term instanceof HasDomainClass termHasDc && !domainClass.equals(termHasDc.getDomainClass()))
-                return false;
+            if (term instanceof HasDomainClass termHasDc) {
+                Object termDomainClass = termHasDc.getDomainClass();
+                if (!domainClass.equals(termDomainClass))
+                    return false;
+                // Also reject if the term is a foreign key (e.g., type in type.icon) —
+                // even though the FK field itself is from this domain class, the expression
+                // traverses a relationship and involves joins
+                if (o.modelReader.getSymbolForeignDomainClass(termDomainClass, term, false) != null)
+                    return false;
+            }
         }
         return true;
     }

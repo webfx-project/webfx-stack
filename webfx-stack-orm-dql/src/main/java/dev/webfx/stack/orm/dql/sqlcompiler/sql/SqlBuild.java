@@ -321,6 +321,10 @@ public final class SqlBuild {
         logicalAliases.put(logicalAlias, sqlAlias);
     }
 
+    public boolean hasColumnMapping(String columnName) {
+        return fullColumnNameToColumnMappings.containsKey(dbmsSyntax.quoteColumnIfReserved(columnName));
+    }
+
     public QueryColumnToEntityFieldMapping addColumnInClause(String tableAlias, String columnName, Object fieldId, Object foreignFieldClassId, SqlClause clause, String separator, boolean grouped, boolean isBoolean, boolean generateQueryMapping) {
         if (clause == SqlClause.INSERT || clause == SqlClause.VALUES || clause == SqlClause.UPDATE /* Postgres doesn't like alias in set clause */)
             tableAlias = null;
