@@ -4,6 +4,7 @@ import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.SqlClause;
 import dev.webfx.stack.orm.expression.terms.Dot;
 import dev.webfx.stack.orm.expression.terms.HasDomainClass;
+import dev.webfx.stack.orm.expression.terms.ParameterReference;
 import dev.webfx.stack.orm.expression.terms.Symbol;
 import dev.webfx.extras.type.Types;
 
@@ -74,8 +75,8 @@ public final class SymbolSqlCompiler extends AbstractTermSqlCompiler<Symbol<?>> 
     /**
      * Check if an expression only references persistent fields from the same domain class as the symbol,
      * and none of them are foreign keys. Expressions that reference foreign fields (e.g. type.icon)
-     * can't be safely compiled to SQL inline because they may involve joins, non-SQL constants, or
-     * complex evaluation logic.
+     * or client-only parameters (e.g. ?lang) can't be safely compiled to SQL inline — they should fall
+     * back to loading all persistent fields so the client can evaluate the expression locally.
      */
     private static boolean isSelfContainedExpression(Symbol<?> symbol, Expression<?> expression, Options o) {
         if (!(symbol instanceof HasDomainClass hasDomainClass))
@@ -85,6 +86,10 @@ public final class SymbolSqlCompiler extends AbstractTermSqlCompiler<Symbol<?>> 
         List<Expression> persistentTerms = new ArrayList<>();
         ((Expression) expression).collectPersistentTerms(persistentTerms);
         for (Expression term : persistentTerms) {
+            // Client-only parameters (e.g. ?lang) can't be inlined in SQL — the expression must be
+            // evaluated locally by the client after all persistent fields have been loaded.
+            if (term instanceof ParameterReference<?> param && param.isClientOnlyParameter(false))
+                return false;
             if (term instanceof HasDomainClass termHasDc) {
                 Object termDomainClass = termHasDc.getDomainClass();
                 if (!domainClass.equals(termDomainClass))
