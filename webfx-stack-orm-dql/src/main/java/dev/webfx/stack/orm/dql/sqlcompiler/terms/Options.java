@@ -66,4 +66,10 @@ public final class Options {
             return this;
         return new Options(build, clause, separator, grouped, generateQueryMapping, readForeignFields, compileExpressions, modelReader);
     }
+
+    public Options changeCompileExpressions(boolean compileExpressions) {
+        if (this.compileExpressions == compileExpressions)
+            return this;
+        return new Options(build, clause, separator, grouped, generateQueryMapping, readForeignFields, compileExpressions, modelReader);
+    }
 }

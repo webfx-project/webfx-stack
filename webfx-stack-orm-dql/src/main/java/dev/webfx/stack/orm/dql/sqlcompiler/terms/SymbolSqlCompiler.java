@@ -56,7 +56,11 @@ public final class SymbolSqlCompiler extends AbstractTermSqlCompiler<Symbol<?>> 
             if (foreignField == null)
                 o.build.addColumnInClause(o.build.getClassAlias(termDomainClass, o.modelReader), o.modelReader.getSymbolSqlColumnName(termDomainClass, e), e, o.modelReader.getSymbolForeignDomainClass(termDomainClass, e, false), o.clause, o.separator, o.grouped, Types.isBooleanType(e.getType()), o.generateQueryMapping);
             else
-                compileChildExpressionToSql(Dot.dot(e, foreignField, true), o);
+                // Implicit foreignFields must use compileExpressions=false so that expression
+                // fields (e.g. Event's "icon") load their terminal persistent fields instead of
+                // being compiled to SQL with a single alias — otherwise the mapping column count
+                // doesn't match the SQL column count, causing index shifts.
+                compileChildExpressionToSql(Dot.dot(e, foreignField, true), o.changeCompileExpressions(false));
         }
     }
 
