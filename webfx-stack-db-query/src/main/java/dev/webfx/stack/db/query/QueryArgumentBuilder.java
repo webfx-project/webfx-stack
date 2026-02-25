@@ -15,6 +15,7 @@ public final class QueryArgumentBuilder {
     private Object[] parameters;
     private String[] parameterNames;
     private boolean sendMetadata;
+    private boolean hasDqlRuntime = true;
 
     public QueryArgumentBuilder setOriginalArgument(QueryArgument originalArgument) {
         this.originalArgument = originalArgument;
@@ -60,6 +61,11 @@ public final class QueryArgumentBuilder {
         return this;
     }
 
+    public QueryArgumentBuilder setHasDqlRuntime(boolean hasDqlRuntime) {
+        this.hasDqlRuntime = hasDqlRuntime;
+        return this;
+    }
+
     public QueryArgumentBuilder copy(QueryArgument argument) {
         return setOriginalArgument(argument)
             .setDataSourceId(argument.getDataSourceId())
@@ -69,10 +75,11 @@ public final class QueryArgumentBuilder {
             .setParameters(argument.getParameters())
             .setParameterNames(argument.getParameterNames())
             .setSendMetadata(argument.isSendMetadata())
+            .setHasDqlRuntime(argument.isHasDqlRuntime())
             ;
     }
 
     public QueryArgument build() {
-        return new QueryArgument(originalArgument, dataSourceId, dataScope, language, statement, parameters, parameterNames, sendMetadata);
+        return new QueryArgument(originalArgument, dataSourceId, dataScope, language, statement, parameters, parameterNames, sendMetadata, hasDqlRuntime);
     }
 }
