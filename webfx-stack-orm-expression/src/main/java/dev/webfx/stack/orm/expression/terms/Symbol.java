@@ -46,6 +46,16 @@ public class Symbol<T> extends AbstractExpression<T> {
         return expression;
     }
 
+    /**
+     * Returns false if this symbol's expression should NOT be compiled to SQL inline when
+     * compileExpressions=true. Subclasses like FieldsGroup should override this to return false,
+     * so their contained fields are always loaded as individual persistent columns rather than
+     * being compiled into a single SQL expression.
+     */
+    public boolean isExpressionSqlCompilable() {
+        return true;
+    }
+
     @Override
     public Expression<T> getForwardingTypeExpression() {
         return type != null ? this : getExpression();
