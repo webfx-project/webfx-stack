@@ -6,6 +6,7 @@ import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.terms.Alias;
 import dev.webfx.stack.orm.expression.terms.As;
 import dev.webfx.stack.orm.expression.terms.Dot;
+import dev.webfx.stack.orm.expression.terms.ExpressionArray;
 import dev.webfx.stack.orm.expression.terms.Symbol;
 import dev.webfx.stack.orm.expression.terms.function.ArgumentAlias;
 
@@ -55,12 +56,37 @@ public final class DotSqlCompiler extends AbstractTermSqlCompiler<Dot<?>> {
         QueryColumnToEntityFieldMapping oldLeftJoinMapping = o.build.getLeftJoinMapping();
         o.build.setLeftJoinMapping(leftJoinMapping);
         Expression<?> right = dot.getRight();
-        if (o.isTopLevelSelect() && o.separator != null && (!(right instanceof Symbol) || ((Symbol<?>) right).getExpression() != null))
+        if (o.isTopLevelSelect() && o.separator != null && (!(right instanceof Symbol) || (((Symbol<?>) right).getExpression() != null && !o.compileExpressions)))
             compileExpressionPersistentTermsToSql(right, o);
         else
             compileChildExpressionToSql(right, o);
         o.build.setLeftJoinMapping(oldLeftJoinMapping);
         o.build.setCompilingClass(leftClass);
         o.build.setCompilingTableAlias(leftTableAlias);
+    }
+
+    @Override
+    protected void compileExpressionPersistentTermsToSql(Expression e, Options o) {
+        // When compileExpressions is true and we have a grouped notation like accountPerson.(id, fullName),
+        // we need to handle each child individually: expression fields (like fullName) go through
+        // compileChildExpressionToSql (which triggers SymbolSqlCompiler's compile-to-SQL-with-alias branch),
+        // while plain persistent fields (like id) use the original persistent terms path that correctly
+        // handles PK field mappings via readForeignFields.
+        if (o.compileExpressions && e instanceof ExpressionArray) {
+            for (Expression<?> child : ((ExpressionArray<?>) e).getExpressions()) {
+                if (child instanceof Symbol<?> symbol && symbol.getExpression() != null)
+                    compileChildExpressionToSql(child, o);
+                else
+                    super.compileExpressionPersistentTermsToSql(child, o);
+            }
+        } else if (o.compileExpressions && e instanceof Dot) {
+            // For nested Dot paths (e.g., accountPerson.fullName inside accountPerson.accountPerson.fullName),
+            // compile directly so the inner DotSqlCompiler can recurse and eventually reach
+            // SymbolSqlCompiler's branch (3) for expression fields like fullName.
+            // Using super would decompose fullName into its persistent terms via collectPersistentTerms.
+            compileChildExpressionToSql(e, o);
+        } else {
+            super.compileExpressionPersistentTermsToSql(e, o);
+        }
     }
 }

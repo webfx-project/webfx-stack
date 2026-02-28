@@ -18,8 +18,18 @@ public final class QueryArgument {
     private final String statement;
     private final Object[] parameters;
     private final String[] parameterNames; // null if parameters are not named, otherwise contains each parameter name in the same order as the `parameters` array
+    private final boolean sendMetadata; // when false, the server omits columnNames from the QueryResult (client has them cached)
+    private final boolean hasDqlRuntime; // when false, the server compiles DQL expression fields to SQL instead of sending terminals for client-side evaluation
 
     public QueryArgument(QueryArgument originalArgument, Object dataSourceId, DataScope dataScope, String language, String statement, Object[] parameters, String[] parameterNames) {
+        this(originalArgument, dataSourceId, dataScope, language, statement, parameters, parameterNames, false, true);
+    }
+
+    public QueryArgument(QueryArgument originalArgument, Object dataSourceId, DataScope dataScope, String language, String statement, Object[] parameters, String[] parameterNames, boolean sendMetadata) {
+        this(originalArgument, dataSourceId, dataScope, language, statement, parameters, parameterNames, sendMetadata, true);
+    }
+
+    public QueryArgument(QueryArgument originalArgument, Object dataSourceId, DataScope dataScope, String language, String statement, Object[] parameters, String[] parameterNames, boolean sendMetadata, boolean hasDqlRuntime) {
         this.originalArgument = originalArgument;
         this.dataSourceId = dataSourceId;
         this.dataScope = dataScope;
@@ -27,6 +37,8 @@ public final class QueryArgument {
         this.statement = statement;
         this.parameters = parameters;
         this.parameterNames = parameterNames;
+        this.sendMetadata = sendMetadata;
+        this.hasDqlRuntime = hasDqlRuntime;
     }
 
     public QueryArgument getOriginalArgument() {
@@ -55,6 +67,16 @@ public final class QueryArgument {
 
     public String[] getParameterNames() {
         return parameterNames;
+    }
+
+    /** When false, the server should omit columnNames from the QueryResult (the client has them cached). */
+    public boolean isSendMetadata() {
+        return sendMetadata;
+    }
+
+    /** When false, the server compiles DQL expression fields to SQL instead of sending terminals for client-side evaluation. */
+    public boolean isHasDqlRuntime() {
+        return hasDqlRuntime;
     }
 
     @Override

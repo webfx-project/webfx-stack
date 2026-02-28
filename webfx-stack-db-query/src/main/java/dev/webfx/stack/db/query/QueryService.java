@@ -26,4 +26,8 @@ public final class QueryService {
         return getProvider().executeQueryBatch(batch);
     }
 
+    public static Future<Object[][]> loadClassMappings(Object dataSourceId) {
+        return getProvider().loadClassMappings(dataSourceId);
+    }
+
 }

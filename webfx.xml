@@ -80,9 +80,9 @@
 
         </group>
 
-        <!-- Additional library included in io-vertx-sql-client-pg but that needs to be listed in module-info.java, i.e., requires com.ongres.scram.client -->
         <library name="com-ongres-scram-client">
-            <!-- No need to include in pom.xml, so no GAV provided -->
+            <groupId>com.ongres.scram</groupId>
+            <artifactId>scram-client</artifactId>
         </library>
 
     </required-libraries>

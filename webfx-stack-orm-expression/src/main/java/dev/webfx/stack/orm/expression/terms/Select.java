@@ -15,14 +15,16 @@ public final class Select<T> extends DqlStatement<T> {
     private final ExpressionArray<T> fields;
     private final ExpressionArray<T> groupBy;
     private final Expression<T> having;
+    private final Expression<T> offset;
 
-    public Select(Object id, Object domainClass, String domainClassAlias, String definition, String sqlDefinition, Object[] sqlParameters, boolean distinct, ExpressionArray<T> fields, Expression<T> where, ExpressionArray<T> groupBy, Expression<T> having, ExpressionArray<T> orderBy, Expression<T> limit, boolean includeIdColumn) {
+    public Select(Object id, Object domainClass, String domainClassAlias, String definition, String sqlDefinition, Object[] sqlParameters, boolean distinct, ExpressionArray<T> fields, Expression<T> where, ExpressionArray<T> groupBy, Expression<T> having, ExpressionArray<T> orderBy, Expression<T> limit, Expression<T> offset, boolean includeIdColumn) {
         super(id, domainClass, domainClassAlias, definition, sqlDefinition, sqlParameters, where, orderBy, limit);
         this.distinct = distinct;
         this.includeIdColumn = includeIdColumn;
         this.fields = fields;
         this.groupBy = groupBy;
         this.having = having;
+        this.offset = offset;
     }
 
     public boolean isDistinct() {
@@ -45,6 +47,10 @@ public final class Select<T> extends DqlStatement<T> {
         return having;
     }
 
+    public Expression<T> getOffset() {
+        return offset;
+    }
+
     @Override
     public void collect(CollectOptions options) {
         if (fields != null)
@@ -54,6 +60,8 @@ public final class Select<T> extends DqlStatement<T> {
             groupBy.collect(options);
         if (having != null)
             having.collect(options);
+        if (offset != null)
+            offset.collect(options);
     }
 
     @Override
@@ -66,6 +74,7 @@ public final class Select<T> extends DqlStatement<T> {
                 .append(_if(" group by ", groupBy, sb))
                 .append(_if(" having ", having, sb))
                 .append(_if(" order by ", orderBy, sb))
-                .append(_if(" limit ", limit, sb));
+                .append(_if(" limit ", limit, sb))
+                .append(_if(" offset ", offset, sb));
     }
 }

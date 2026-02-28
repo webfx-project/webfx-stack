@@ -75,7 +75,11 @@ public final class ExpressionSqlCompiler {
     // Select compilation
 
     public static SqlCompiled compileSelect(Select select, DbmsSqlSyntax dbmsSyntax, boolean generateQueryMapping, boolean readForeignFields, CompilerDomainModelReader modelReader) {
-        SqlBuild sqlBuild = buildSelect(select, dbmsSyntax, generateQueryMapping, readForeignFields, null, null, modelReader);
+        return compileSelect(select, dbmsSyntax, generateQueryMapping, readForeignFields, false, modelReader);
+    }
+
+    public static SqlCompiled compileSelect(Select select, DbmsSqlSyntax dbmsSyntax, boolean generateQueryMapping, boolean readForeignFields, boolean compileExpressions, CompilerDomainModelReader modelReader) {
+        SqlBuild sqlBuild = buildSelect(select, dbmsSyntax, generateQueryMapping, readForeignFields, compileExpressions, null, null, modelReader);
         return sqlBuild.toSqlCompiled();
     }
 
@@ -107,17 +111,17 @@ public final class ExpressionSqlCompiler {
 
     public static SqlBuild buildSelect(Select select, Options parentOptions) {
         Options o = parentOptions;
-        return buildSelect(select, o.build.getDbmsSyntax(), o.generateQueryMapping, o.readForeignFields, o.build, o.clause, o.modelReader);
+        return buildSelect(select, o.build.getDbmsSyntax(), o.generateQueryMapping, o.readForeignFields, o.compileExpressions, o.build, o.clause, o.modelReader);
     }
 
-    public static SqlBuild buildSelect(Select select, DbmsSqlSyntax dbmsSyntax, boolean generateQueryMapping, boolean readForeignFields, SqlBuild parent, SqlClause parentClause, CompilerDomainModelReader modelReader) {
+    public static SqlBuild buildSelect(Select select, DbmsSqlSyntax dbmsSyntax, boolean generateQueryMapping, boolean readForeignFields, boolean compileExpressions, SqlBuild parent, SqlClause parentClause, CompilerDomainModelReader modelReader) {
         SqlBuild sqlBuild = createSqlOrderBuild(select, SqlClause.SELECT, dbmsSyntax, parent, modelReader);
         sqlBuild.setDistinct(select.isDistinct());
         boolean grouped = select.getGroupBy() != null;
         if (select.isIncludeIdColumn() || select.getFields() == null /* <= because a SQL select must have at least 1 column to read */)
             sqlBuild.addColumnInClause(sqlBuild.getTableAlias(), modelReader.getDomainClassPrimaryKeySqlColumnName(select.getDomainClass()), null, null, SqlClause.SELECT, "", grouped, false, true);
         if (select.getFields() != null)
-            compileExpression(select.getFields(), new Options(sqlBuild, SqlClause.SELECT, ", ", grouped, generateQueryMapping, readForeignFields, modelReader));
+            compileExpression(select.getFields(), new Options(sqlBuild, SqlClause.SELECT, ", ", grouped, generateQueryMapping, readForeignFields, compileExpressions, modelReader));
         if (select.getGroupBy() != null)
             compileExpression(select.getGroupBy(), new Options(sqlBuild, SqlClause.GROUP_BY, ", ", grouped, false, false, modelReader));
         if (select.getHaving() != null)
@@ -136,6 +140,8 @@ public final class ExpressionSqlCompiler {
             compileExpression(dqlStatement.getOrderBy(), new Options(sqlBuild, SqlClause.ORDER_BY, ", ", grouped, false, false, modelReader));
         if (dqlStatement.getLimit() != null && dbmsSyntax != HsqlSyntax.get()) // temporary fix
             compileExpression(dqlStatement.getLimit(), new Options(sqlBuild, SqlClause.LIMIT, null, grouped, false, false, modelReader));
+        if (dqlStatement instanceof Select<?> select && select.getOffset() != null)
+            compileExpression(select.getOffset(), new Options(sqlBuild, SqlClause.OFFSET, null, grouped, false, false, modelReader));
         if (parent != null)
             parent.prepareAppend(parentClause, null).append(sqlBuild.toSql()); // is it the right way?
         dqlStatement.setCacheable(sqlBuild.isCacheable());

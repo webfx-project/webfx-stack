@@ -218,7 +218,48 @@ final class VertxHttpRouterConfigurator {
             pathToStaticFolder = path.toAbsolutePath().toString();
             absolute = true;
         }
-        route.handler(StaticHandler.create(absolute ? FileSystemAccess.ROOT : FileSystemAccess.RELATIVE, pathToStaticFolder));
+        String finalPathToStaticFolder = pathToStaticFolder;
+        boolean finalAbsolute = absolute;
+
+        // Custom handler that checks file existence first, with SPA fallback
+        route.handler(routingContext -> {
+            String requestPath = routingContext.request().path();
+            // Remove the route pattern prefix to get the file path
+            String filePath = requestPath;
+            if (routePattern.endsWith("/*")) {
+                String prefix = routePattern.substring(0, routePattern.length() - 2);
+                if (requestPath.startsWith(prefix)) {
+                    filePath = requestPath.substring(prefix.length());
+                }
+            }
+
+            // Try to resolve the actual file
+            Path resolvedPath = Paths.get(finalPathToStaticFolder, filePath);
+
+            if (Files.exists(resolvedPath) && Files.isRegularFile(resolvedPath)) {
+                // File exists, serve it via StaticHandler
+                StaticHandler.create(finalAbsolute ? FileSystemAccess.ROOT : FileSystemAccess.RELATIVE, finalPathToStaticFolder)
+                    .handle(routingContext);
+            } else {
+                // File doesn't exist - check if this is an HTML navigation request
+                String acceptHeader = routingContext.request().getHeader("Accept");
+                if (acceptHeader != null && acceptHeader.contains("text/html")) {
+                    // SPA fallback: serve index.html for client-side routing
+                    Path indexPath = Paths.get(finalPathToStaticFolder, "index.html");
+                    if (Files.exists(indexPath)) {
+                        routingContext.response()
+                            .putHeader("Content-Type", "text/html; charset=UTF-8")
+                            .sendFile(indexPath.toString());
+                    } else {
+                        routingContext.next();
+                    }
+                } else {
+                    // Not an HTML request (API/asset), use StaticHandler which will return 404
+                    StaticHandler.create(finalAbsolute ? FileSystemAccess.ROOT : FileSystemAccess.RELATIVE, finalPathToStaticFolder)
+                        .handle(routingContext);
+                }
+            }
+        });
     }
 
     private static final Map<String, Path> EXTRACTED_ARCHIVED_FOLDERS = new HashMap<>();

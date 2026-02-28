@@ -14,5 +14,6 @@ public enum SqlClause {
     HAVING,
     ORDER_BY,
     LIMIT,
+    OFFSET,
     RETURNING
 }

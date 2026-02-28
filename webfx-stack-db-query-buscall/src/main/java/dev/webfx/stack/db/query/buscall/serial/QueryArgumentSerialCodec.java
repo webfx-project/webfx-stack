@@ -15,6 +15,8 @@ public final class QueryArgumentSerialCodec extends SerialCodecBase<QueryArgumen
     private static final String STATEMENT_KEY = "statement";
     private static final String PARAMETERS_KEY = "parameters";
     private static final String PARAMETER_NAMES_KEY = "names";
+    private static final String SEND_METADATA_KEY = "sendMetadata";
+    private static final String HAS_DQL_RUNTIME_KEY = "hasDqlRuntime";
 
     public QueryArgumentSerialCodec() {
         super(QueryArgument.class, CODEC_ID);
@@ -30,17 +32,25 @@ public final class QueryArgumentSerialCodec extends SerialCodecBase<QueryArgumen
             encodeObjectArray(serial, PARAMETERS_KEY,      arg.getParameters());
         if (!Arrays.isEmpty(arg.getParameterNames()))
             encodeObjectArray(serial, PARAMETER_NAMES_KEY, arg.getParameterNames());
+        if (!arg.isSendMetadata())
+            encodeBoolean(serial, SEND_METADATA_KEY, false);
+        if (!arg.isHasDqlRuntime())
+            encodeBoolean(serial, HAS_DQL_RUNTIME_KEY, false);
     }
 
     @Override
     public QueryArgument decode(ReadOnlyAstObject serial) {
+        Boolean sendMetadata = decodeBoolean(serial, SEND_METADATA_KEY);
+        Boolean hasDqlRuntime = decodeBoolean(serial, HAS_DQL_RUNTIME_KEY);
         return new QueryArgument(null,
             decodeObject(serial,      DATA_SOURCE_ID_KEY),
             decodeObject(serial,      DATA_SCOPE_KEY),
             decodeString(serial,      LANGUAGE_KEY),
             decodeString(serial,      STATEMENT_KEY),
             decodeObjectArray(serial, PARAMETERS_KEY),
-            decodeStringArray(serial, PARAMETER_NAMES_KEY)
+            decodeStringArray(serial, PARAMETER_NAMES_KEY),
+            sendMetadata == null || sendMetadata, // default to true when absent
+            hasDqlRuntime == null || hasDqlRuntime // default to true when absent
         );
     }
 }

@@ -114,6 +114,7 @@ final class VertxBus implements Bus {
                     // its whole state again (this special pong case is coded in JsonBus on the client side).
                     AstObject specialPongMessage = AST.cloneObject(AST_PONG_MESSAGE);
                     Object serverSessionIdState = StateAccessor.setServerSessionId(null, webfxSession.id());
+                    StateAccessor.setServerRunId(serverSessionIdState, StateAccessor.getServerRunId());
                     ServerJsonBusStateManager.setJsonRawMessageState(specialPongMessage, null, serverSessionIdState);
                     socket.write(Json.formatObject(specialPongMessage));
                 }

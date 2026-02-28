@@ -169,6 +169,7 @@ public final class SqlBuild {
                     .append(_if(" having ", getClauseBuilder(SqlClause.HAVING), "", sb))
                     .append(_if(" order by ", getClauseBuilder(SqlClause.ORDER_BY), "", sb))
                     .append(_if(" limit ", getClauseBuilder(SqlClause.LIMIT), "", sb))
+                    .append(_if(" offset ", getClauseBuilder(SqlClause.OFFSET), "", sb))
                     .append(_if(" returning ", getClauseBuilder(SqlClause.RETURNING), "", sb));
             sql = sb.toString();
         }
@@ -318,6 +319,10 @@ public final class SqlBuild {
         if (logicalAliases == null)
             logicalAliases = new HashMap<>();
         logicalAliases.put(logicalAlias, sqlAlias);
+    }
+
+    public boolean hasColumnMapping(String columnName) {
+        return fullColumnNameToColumnMappings.containsKey(dbmsSyntax.quoteColumnIfReserved(columnName));
     }
 
     public QueryColumnToEntityFieldMapping addColumnInClause(String tableAlias, String columnName, Object fieldId, Object foreignFieldClassId, SqlClause clause, String separator, boolean grouped, boolean isBoolean, boolean generateQueryMapping) {

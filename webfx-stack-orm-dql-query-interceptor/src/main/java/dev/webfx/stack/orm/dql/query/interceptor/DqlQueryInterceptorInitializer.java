@@ -13,6 +13,7 @@ import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.spi.QueryServiceProvider;
 import dev.webfx.stack.orm.datasourcemodel.service.DataSourceModelService;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
+import dev.webfx.stack.orm.dql.sqlcompiler.mapping.QueryRowToEntityMapping;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.SqlCompiled;
 
 import java.util.List;
@@ -51,15 +52,23 @@ public class DqlQueryInterceptorInitializer implements ApplicationJob {
                 DataSourceModel dataSourceModel = DataSourceModelService.getDataSourceModel(dataSourceId);
                 // Translating DQL to SQL
                 try {
-                    String sqlStatement = dataSourceModel.translateQuery(language, statement); // May raise an exception on syntax error or unknown fields
+                    boolean compileExpressions = !argument.isHasDqlRuntime();
+                    SqlCompiled sqlCompiled = dataSourceModel.parseAndCompileSelect(statement, compileExpressions); // May raise an exception on syntax error or unknown fields
+                    String sqlStatement = sqlCompiled.getSql();
                     if (!statement.equals(sqlStatement)) { // happens when DQL has been translated to SQL
-                        //Console.log("Translated to: " + sqlStatement);
+                        QueryRowToEntityMapping queryMapping = sqlCompiled.getQueryMapping();
                         QueryArgument dqlArgument = QueryArgument.builder().copy(argument)
                             .setLanguage(null)
                             .setStatement(sqlStatement)
-                            .setParameters(reorderNamedParameters(argument, dataSourceModel))
+                            .setParameters(reorderNamedParameters(sqlCompiled, argument))
                             .build();
-                        return targetProvider.executeQuery(dqlArgument);
+                        return targetProvider.executeQuery(dqlArgument)
+                            .map(result -> {
+                                // Attach the entity mapping so it can be serialized to the client
+                                if (result != null && queryMapping != null && argument.isSendMetadata())
+                                    result.setEntityMapping(queryMapping);
+                                return result;
+                            });
                     }
                 } catch (Exception e) {
                     Exception ex = new IllegalArgumentException("Error while translating DQL query to SQL: " + e.getMessage() + "\nDQL query:\n" + statement + "\nParameters: " + Arrays.toString(argument.getParameters())+ "\nParameter names: " + Arrays.toString(argument.getParameterNames()));
@@ -71,8 +80,7 @@ public class DqlQueryInterceptorInitializer implements ApplicationJob {
         return targetProvider.executeQuery(argument);
     }
 
-    private Object[] reorderNamedParameters(QueryArgument argument, DataSourceModel dataSourceModel) {
-        SqlCompiled sqlCompiled = dataSourceModel.parseAndCompileSelect(argument.getStatement()); // should be immediate from the cache
+    private Object[] reorderNamedParameters(SqlCompiled sqlCompiled, QueryArgument argument) {
         List<String> expectedParameterNames = sqlCompiled.getParameterNames();
         int length = Collections.size(expectedParameterNames);
         Object[] parameters = argument.getParameters();
