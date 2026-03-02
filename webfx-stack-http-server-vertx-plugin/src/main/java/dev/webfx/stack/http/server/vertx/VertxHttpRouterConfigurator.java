@@ -51,7 +51,7 @@ final class VertxHttpRouterConfigurator {
             routingContext.next();
         });
 
-        /*// GWT perfect caching (xxx.cache.js files will never change again)
+        // GWT perfect caching (xxx.cache.js files will never change again)
         router.routeWithRegex(".*\\.cache\\.js").handler(routingContext -> {
             routingContext.response()
                 .putHeader("Cache-Control", "public, max-age=31556926")
@@ -61,7 +61,7 @@ final class VertxHttpRouterConfigurator {
             routingContext.next();
         });
 
-        // For xxx.nocache.js GWT files, "no-cache" would work also in theory, but in practice it seems that now
+        /*// For xxx.nocache.js GWT files, "no-cache" would work also in theory, but in practice it seems that now
         // browsers - or at least Chrome - are not checking those files if index.html hasn't changed! A shame because
         // most of the time, this is those files that change (on each new GWT compilation) and not index.html. So,
         // to force the browser to check those files, we use "no-store" (even if it is less optimized).
