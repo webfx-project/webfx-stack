@@ -164,6 +164,15 @@ public abstract class SerialCodecBase<T> implements SerialCodec<T> {
         return decodeBoolean(serial, key, NullEncoding.NULL_VALUE_IGNORED);
     }
 
+    protected Boolean decodeBoolean(ReadOnlyAstObject serial, String key, boolean defaultValue) {
+        Boolean value = decodeBoolean(serial, key);
+        return value == null ? defaultValue : value;
+    }
+
+    protected Boolean decodeBooleanSafe(ReadOnlyAstObject serial, String key) {
+        return decodeBoolean(serial, key, false);
+    }
+
     protected Boolean decodeBoolean(ReadOnlyAstObject serial, String key, NullEncoding nullEncoding) {
         Boolean value = serial.getBoolean(key);
         if (checkValue(key, value, nullEncoding))
