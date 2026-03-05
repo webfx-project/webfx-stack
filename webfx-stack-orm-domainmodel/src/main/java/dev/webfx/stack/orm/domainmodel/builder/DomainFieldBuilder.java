@@ -23,6 +23,7 @@ public final class DomainFieldBuilder {
     public String applicableConditionDefinition;
     public Type type;
     public boolean persistent = true;
+    public boolean deprecated;
     public String sqlColumnName;
     public Label label;
     public int prefWidth;
