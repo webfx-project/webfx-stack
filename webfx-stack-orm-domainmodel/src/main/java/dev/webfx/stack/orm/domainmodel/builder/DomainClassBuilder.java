@@ -24,6 +24,7 @@ public final class DomainClassBuilder {
     public String sqlTableName;
     public final String idColumnName = "id";
     public Label label;
+    public boolean deprecated;
     public String foreignFieldsDefinition;
     public String fxmlForm;
     public String searchCondition;
