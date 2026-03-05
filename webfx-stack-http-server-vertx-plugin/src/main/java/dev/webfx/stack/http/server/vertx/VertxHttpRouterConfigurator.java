@@ -221,7 +221,7 @@ final class VertxHttpRouterConfigurator {
         String finalPathToStaticFolder = pathToStaticFolder;
         boolean finalAbsolute = absolute;
 
-        // Custom handler that checks file existence first, with SPA fallback
+        // Custom handler that checks file existence first, with pass-through for missing files
         route.handler(routingContext -> {
             String requestPath = routingContext.request().path();
             // Remove the route pattern prefix to get the file path
@@ -241,25 +241,30 @@ final class VertxHttpRouterConfigurator {
                 StaticHandler.create(finalAbsolute ? FileSystemAccess.ROOT : FileSystemAccess.RELATIVE, finalPathToStaticFolder)
                     .handle(routingContext);
             } else {
-                // File doesn't exist - check if this is an HTML navigation request
-                String acceptHeader = routingContext.request().getHeader("Accept");
-                if (acceptHeader != null && acceptHeader.contains("text/html")) {
-                    // SPA fallback: serve index.html for client-side routing
-                    Path indexPath = Paths.get(finalPathToStaticFolder, "index.html");
-                    if (Files.exists(indexPath)) {
-                        routingContext.response()
-                            .putHeader("Content-Type", "text/html; charset=UTF-8")
-                            .sendFile(indexPath.toString());
-                    } else {
-                        routingContext.next();
-                    }
-                } else {
-                    // Not an HTML request (API/asset), use StaticHandler which will return 404
-                    StaticHandler.create(finalAbsolute ? FileSystemAccess.ROOT : FileSystemAccess.RELATIVE, finalPathToStaticFolder)
-                        .handle(routingContext);
-                }
+                // File doesn't exist - pass to the next handler (API routes registered later take priority)
+                routingContext.next();
             }
         });
+
+        // SPA fallback registered as a last-resort route: only serves index.html after all other routes
+        // (including API routes like /payment/*) have had a chance to handle the request.
+        Path indexPath = Paths.get(finalPathToStaticFolder, "index.html");
+        if (Files.exists(indexPath)) {
+            String finalIndexPath = indexPath.toAbsolutePath().toString();
+            Route fallbackRoute = router.route(routePattern).last();
+            if (hostnamePattern != null)
+                fallbackRoute = fallbackRoute.virtualHost(hostnamePattern);
+            fallbackRoute.handler(routingContext -> {
+                String acceptHeader = routingContext.request().getHeader("Accept");
+                if (acceptHeader != null && acceptHeader.contains("text/html")) {
+                    routingContext.response()
+                        .putHeader("Content-Type", "text/html; charset=UTF-8")
+                        .sendFile(finalIndexPath);
+                } else {
+                    routingContext.next();
+                }
+            });
+        }
     }
 
     private static final Map<String, Path> EXTRACTED_ARCHIVED_FOLDERS = new HashMap<>();
