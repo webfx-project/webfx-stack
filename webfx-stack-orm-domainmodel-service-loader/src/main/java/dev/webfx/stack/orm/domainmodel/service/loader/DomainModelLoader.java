@@ -53,11 +53,11 @@ public final class DomainModelLoader {
                 // 2) Types loading
                 "select id,name,super_type_id,cell_factory_name,ui_format,sql_format from type where data_model_version_id=?",
                 // 3) Classes loading
-                "select id,name,sql_table_name,foreign_fields,fxml_form,search_condition,label_id from class where data_model_version_id=?",
+                "select id,name,sql_table_name,foreign_fields,fxml_form,search_condition,label_id,deprecated from class where data_model_version_id=?",
                 // 4) Style classes loading
                 "select c.id,f.name,s.name,s.condition from data_view s join data_view f on f.id=s.parent_id join class c on c.id=f.scope_class_id where c.data_model_version_id=? and active and is_style and not is_folder and s.scope_activity_id is null order by c.id,f.ord,s.ord desc",
                 // 5) Fields loading
-                "select id,name,class_id,type_id,label_id,pref_width,expression,applicable_condition,persistent,sql_column_name,foreign_class_id,foreign_alias,foreign_condition,foreign_order_by,foreign_combo_fields,foreign_table_fields from field f join class c on f.class_id=c.id where c.data_model_version_id=?",
+                "select id,name,class_id,type_id,label_id,pref_width,expression,applicable_condition,persistent,sql_column_name,foreign_class_id,foreign_alias,foreign_condition,foreign_order_by,foreign_combo_fields,foreign_table_fields,deprecated from field f join class c on f.class_id=c.id where c.data_model_version_id=?",
                 // 6) Fields group loading
                 "select name,class_id,fields from fields_group fg join class c on fg.class_id=c.id where c.data_model_version_id=?"
         );
@@ -110,6 +110,7 @@ public final class DomainModelLoader {
             classBuilder.searchCondition = rs.getValue(row, 5 /*"search_condition"*/);
             //classBuilder.css = rs.getString("css");
             classBuilder.label = labelMap.get(rs.getValue(row, 6 /*"label_id"*/));
+            classBuilder.deprecated = rs.getBoolean(row, 7 /*deprecated*/, false);
             classes.put(classId, classBuilder);
         }
 
@@ -168,6 +169,7 @@ public final class DomainModelLoader {
             fieldBuilder.foreignOrderBy = rs.getValue(row, 13 /*"foreign_order_by"*/);
             fieldBuilder.foreignComboFields = rs.getValue(row, 14 /*"foreign_combo_fields"*/);
             fieldBuilder.foreignTableFields = rs.getValue(row, 15 /*"foreign_table_fields"*/);
+            fieldBuilder.deprecated = rs.getBoolean(row, 16, false);
             /* TODO : thinking about foreignKey management
             if (fieldBuilder.type != null && fieldBuilder.type.getBaseType() == BaseType.FOREIGN_KEY && rs.getObject("foreign_class_id") != null)
                 fieldBuilder.type = new Type(classes.get(rs.getValue("foreign_class_id")).getObjClass()); */
@@ -264,11 +266,15 @@ public final class DomainModelLoader {
             .distinct()
             .sorted(Comparator.comparing(cb -> cb.name))
             .forEach(classBuilder -> {
+                if (classBuilder.deprecated)
+                    return;
                 AstObject fields = AST.createObject();
                 fields.set("id", classBuilder.id);
                 classBuilder.fieldMap.values().stream()
                     .sorted(Comparator.comparing(fb -> fb.name))
                     .forEach(fieldBuilder -> {
+                        if (fieldBuilder.deprecated)
+                            return;
                         if (fieldBuilder.expressionDefinition != null) {
                             // Expression field (no DB column): emit { "expr": "price_net - price_deposit" }
                             // The server expands these to their constituent columns at query time;
