@@ -115,7 +115,7 @@
         <module>webfx-stack-db-querypush-remote</module>
         <module>webfx-stack-db-querypush-server</module>
         <module>webfx-stack-db-querypush-server-simple</module>
-        <module>webfx-stack-db-querysubmit-jre-jdbc</module>
+        <module>webfx-stack-db-querysubmit-jre-jdbc-plugin</module>
         <module>webfx-stack-db-querysubmit-vertx</module>
         <module>webfx-stack-db-submit</module>
         <module>webfx-stack-db-submit-buscall</module>

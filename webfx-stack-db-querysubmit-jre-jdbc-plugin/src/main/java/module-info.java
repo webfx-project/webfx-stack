@@ -1,6 +1,6 @@
 // File managed by WebFX (DO NOT EDIT MANUALLY)
 
-module webfx.stack.db.querysubmit.jre.jdbc {
+module webfx.stack.db.querysubmit.jre.jdbc.plugin {
 
     // Direct dependencies modules
     requires static com.zaxxer.hikari;
