@@ -1,6 +1,7 @@
 package dev.webfx.stack.orm.entity.query_result_to_entities;
 
 import dev.webfx.extras.type.PrimType;
+import dev.webfx.extras.type.Type;
 import dev.webfx.platform.util.time.Times;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.orm.domainmodel.DomainField;
@@ -13,6 +14,8 @@ import dev.webfx.stack.orm.entity.impl.ThreadLocalEntityLoadingContext;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.YearMonth;
 
 /**
  * @author Bruno Salmon
@@ -54,19 +57,28 @@ public final class QueryResultToEntitiesMapper {
                         // Now everything is ready to set the field on the target entity
                         Object fieldId = columnMapping.getDomainFieldId();
                         // Some conversion to do if it is a domain field
-                        if (fieldId instanceof DomainField) {
-                            DomainField domainField = (DomainField) fieldId;
+                        if (fieldId instanceof DomainField domainField) {
                             // First, getting the field id
                             fieldId = domainField.getId();
                             // And second, converting the dates possibly returned as String by the QueryService into LocalDate or LocalDateTime objects
-                            if (value != null && domainField.getType() == PrimType.DATE && value instanceof String) {
-                                LocalDateTime localDateTime = Times.toLocalDateTime((String) value);
-                                if (localDateTime != null)
-                                    value = localDateTime;
-                                else {
-                                    LocalDate localDate = Times.toLocalDate((String) value);
+                            if (value instanceof String stringValue) {
+                                Type type = domainField.getType();
+                                if (type == PrimType.DATE) {
+                                    LocalDate localDate = Times.toLocalDate(stringValue);
                                     if (localDate != null)
                                         value = localDate;
+                                } else if (type == PrimType.DATE_TIME) {
+                                    LocalDateTime localDateTime = Times.toLocalDateTime(stringValue);
+                                    if (localDateTime != null)
+                                        value = localDateTime;
+                                } else if (type == PrimType.TIME) {
+                                    try {
+                                        value = LocalTime.parse(stringValue);
+                                    } catch (Exception ignored) { }
+                                } else if (type == PrimType.YEAR_MONTH) {
+                                    try {
+                                        value = YearMonth.parse(stringValue);
+                                    } catch (Exception ignored) { }
                                 }
                             }
                         }
