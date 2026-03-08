@@ -1,4 +1,4 @@
-package dev.webfx.stack.db.query.buscall.serial;
+package dev.webfx.stack.db.query.serial;
 
 import dev.webfx.platform.ast.AstObject;
 import dev.webfx.platform.ast.ReadOnlyAstObject;

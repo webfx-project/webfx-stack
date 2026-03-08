@@ -1,9 +1,9 @@
-package dev.webfx.stack.db.query.buscall.serial;
+package dev.webfx.stack.db.query.serial;
 
 import dev.webfx.platform.ast.*;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 import dev.webfx.stack.db.query.QueryResult;
-import dev.webfx.stack.db.query.buscall.serial.compression.repeat.RepeatedValuesCompressor;
+import dev.webfx.stack.db.query.serial.compression.repeat.RepeatedValuesCompressor;
 
 public final class QueryResultSerialCodec extends SerialCodecBase<QueryResult> {
 

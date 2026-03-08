@@ -108,6 +108,7 @@
         <module>webfx-stack-db-query</module>
         <module>webfx-stack-db-query-buscall</module>
         <module>webfx-stack-db-query-remote</module>
+        <module>webfx-stack-db-query-serial</module>
         <module>webfx-stack-db-querypush</module>
         <module>webfx-stack-db-querypush-buscall</module>
         <module>webfx-stack-db-querypush-client</module>

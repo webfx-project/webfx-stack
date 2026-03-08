@@ -1,7 +1,7 @@
-package dev.webfx.stack.db.query.buscall.serial.compression.repeat;
+package dev.webfx.stack.db.query.serial.compression.repeat;
 
 import dev.webfx.platform.util.Numbers;
-import dev.webfx.stack.db.query.buscall.serial.compression.ValuesCompressor;
+import dev.webfx.stack.db.query.serial.compression.ValuesCompressor;
 
 import java.util.*;
 
