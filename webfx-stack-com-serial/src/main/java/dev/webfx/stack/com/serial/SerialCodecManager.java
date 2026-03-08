@@ -14,10 +14,7 @@ import dev.webfx.stack.com.serial.spi.impl.time.LocalDateSerialCodec;
 import dev.webfx.stack.com.serial.spi.impl.time.LocalDateTimeSerialCodec;
 import dev.webfx.stack.com.serial.spi.impl.time.LocalTimeSerialCodec;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -82,6 +79,8 @@ public final class SerialCodecManager {
             return object;
         if (object instanceof Instant)
             return encodePrefixedInstant((Instant) object);
+        if (object instanceof OffsetDateTime)
+            return encodePrefixedInstant(((OffsetDateTime) object).toInstant());
         if (object instanceof LocalDate)
             return encodePrefixedLocalDate((LocalDate) object);
         if (object instanceof LocalDateTime)

@@ -63,22 +63,30 @@ public final class QueryResultToEntitiesMapper {
                             // And second, converting the dates possibly returned as String by the QueryService into LocalDate or LocalDateTime objects
                             if (value instanceof String stringValue) {
                                 Type type = domainField.getType();
-                                if (type == PrimType.DATE) {
+                                if (type == PrimType.LOCAL_DATE) {
                                     LocalDate localDate = Times.toLocalDate(stringValue);
                                     if (localDate != null)
                                         value = localDate;
-                                } else if (type == PrimType.DATE_TIME) {
+                                } else if (type == PrimType.LOCAL_DATE_TIME) {
                                     LocalDateTime localDateTime = Times.toLocalDateTime(stringValue);
                                     if (localDateTime != null)
                                         value = localDateTime;
-                                } else if (type == PrimType.TIME) {
+                                } else if (type == PrimType.LOCAL_TIME) {
                                     try {
                                         value = LocalTime.parse(stringValue);
+                                    } catch (Exception ignored) { }
+                                } else if (type == PrimType.INSTANT) {
+                                    try {
+                                        value = Times.toInstant(stringValue);
                                     } catch (Exception ignored) { }
                                 } else if (type == PrimType.YEAR_MONTH) {
                                     try {
                                         value = YearMonth.parse(stringValue);
-                                    } catch (Exception ignored) { }
+                                    } catch (Exception ignored) {
+                                        LocalDate localDate = Times.toLocalDate(stringValue);
+                                        if (localDate != null)
+                                            value = YearMonth.of(localDate.getYear(), localDate.getMonth());
+                                    }
                                 }
                             }
                         }

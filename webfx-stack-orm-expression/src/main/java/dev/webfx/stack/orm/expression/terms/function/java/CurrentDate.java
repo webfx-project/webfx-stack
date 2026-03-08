@@ -3,7 +3,6 @@ package dev.webfx.stack.orm.expression.terms.function.java;
 import dev.webfx.stack.orm.expression.lci.DomainReader;
 import dev.webfx.stack.orm.expression.terms.function.Function;
 import dev.webfx.extras.type.PrimType;
-import dev.webfx.stack.orm.expression.lci.DomainReader;
 
 import java.time.LocalDate;
 
@@ -13,7 +12,7 @@ import java.time.LocalDate;
 public final class CurrentDate extends Function {
 
     public CurrentDate() {
-        super("current_date", PrimType.DATE, true, true);
+        super("current_date", PrimType.LOCAL_DATE, true, true);
     }
 
     @Override
