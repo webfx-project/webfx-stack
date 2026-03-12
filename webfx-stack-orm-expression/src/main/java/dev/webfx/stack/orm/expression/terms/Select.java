@@ -12,15 +12,17 @@ public final class Select<T> extends DqlStatement<T> {
 
     private final boolean distinct;
     private final boolean includeIdColumn;
+    private final boolean useRowNumberAsId;
     private final ExpressionArray<T> fields;
     private final ExpressionArray<T> groupBy;
     private final Expression<T> having;
     private final Expression<T> offset;
 
-    public Select(Object id, Object domainClass, String domainClassAlias, String definition, String sqlDefinition, Object[] sqlParameters, boolean distinct, ExpressionArray<T> fields, Expression<T> where, ExpressionArray<T> groupBy, Expression<T> having, ExpressionArray<T> orderBy, Expression<T> limit, Expression<T> offset, boolean includeIdColumn) {
+    public Select(Object id, Object domainClass, String domainClassAlias, String definition, String sqlDefinition, Object[] sqlParameters, boolean distinct, ExpressionArray<T> fields, Expression<T> where, ExpressionArray<T> groupBy, Expression<T> having, ExpressionArray<T> orderBy, Expression<T> limit, Expression<T> offset, boolean includeIdColumn, boolean useRowNumberAsId) {
         super(id, domainClass, domainClassAlias, definition, sqlDefinition, sqlParameters, where, orderBy, limit);
         this.distinct = distinct;
         this.includeIdColumn = includeIdColumn;
+        this.useRowNumberAsId = useRowNumberAsId;
         this.fields = fields;
         this.groupBy = groupBy;
         this.having = having;
@@ -33,6 +35,10 @@ public final class Select<T> extends DqlStatement<T> {
 
     public boolean isIncludeIdColumn() {
         return includeIdColumn;
+    }
+
+    public boolean isUseRowNumberAsId() {
+        return useRowNumberAsId;
     }
 
     public ExpressionArray<T> getFields() {
