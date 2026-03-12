@@ -44,7 +44,7 @@ public abstract class PrimitiveBinaryExpression<T> extends BinaryExpression<T> {
                         return evaluateDouble(Numbers.toDouble(leftValue), Numbers.toDouble(rightValue));
                     case STRING:
                         return evaluateString(Strings.toString(leftValue), Strings.toString(rightValue));
-                    case DATE:
+                    case LOCAL_DATE:
                         if (leftValue instanceof LocalDate)
                             return evaluateLocalDate(Times.toLocalDate(leftValue), Times.toLocalDate(rightValue));
                         return evaluateInstant(Times.toInstant(leftValue), Times.toInstant(rightValue));

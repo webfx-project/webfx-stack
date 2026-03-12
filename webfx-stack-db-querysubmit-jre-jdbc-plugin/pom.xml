@@ -11,9 +11,15 @@
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>webfx-stack-db-query-buscall</artifactId>
+    <artifactId>webfx-stack-db-querysubmit-jre-jdbc-plugin</artifactId>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <optional>true</optional>
+        </dependency>
 
         <dependency>
             <groupId>dev.webfx</groupId>
@@ -23,15 +29,13 @@
 
         <dependency>
             <groupId>dev.webfx</groupId>
-            <artifactId>webfx-platform-javatime-emul-j2cl</artifactId>
+            <artifactId>webfx-platform-util</artifactId>
             <version>0.1.0-SNAPSHOT</version>
-            <scope>runtime</scope>
-            <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>dev.webfx</groupId>
-            <artifactId>webfx-stack-com-bus-call</artifactId>
+            <artifactId>webfx-stack-db-datasource</artifactId>
             <version>0.1.0-SNAPSHOT</version>
         </dependency>
 
@@ -43,9 +47,8 @@
 
         <dependency>
             <groupId>dev.webfx</groupId>
-            <artifactId>webfx-stack-db-query-serial</artifactId>
+            <artifactId>webfx-stack-db-submit</artifactId>
             <version>0.1.0-SNAPSHOT</version>
-            <scope>runtime</scope>
         </dependency>
 
     </dependencies>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <exported-packages>
+        <source-packages/>
+        <resource-packages/>
+    </exported-packages>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+    <providers>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.query.serial.QueryArgumentSerialCodec</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.query.serial.QueryResultSerialCodec</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.db.query.serial.PairSerialCodec</provider>
+    </providers>
+
+</project>

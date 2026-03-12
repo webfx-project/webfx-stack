@@ -209,8 +209,12 @@ public final class DomainModelLoader {
             case 3 -> PrimType.DOUBLE;
             case 4 -> PrimType.BOOLEAN;
             case 5 -> PrimType.STRING;
-            case 6 -> PrimType.DATE;
+            case 6 -> PrimType.LOCAL_DATE;
             case 7 -> PrimType.LONG; // FOREIGN_KEY
+            case 105 -> PrimType.LOCAL_DATE_TIME;
+            case 106 -> PrimType.LOCAL_TIME;
+            case 107 -> PrimType.INSTANT;
+            case 108 -> PrimType.YEAR_MONTH;
             default -> throw new IllegalArgumentException(); // is there anything else?
         };
     }
@@ -315,7 +319,11 @@ public final class DomainModelLoader {
                 case LONG -> "long";
                 case FLOAT -> "float";
                 case DOUBLE -> "double";
-                case DATE -> "date";
+                case LOCAL_DATE -> "Temporal.PlainDate";
+                case LOCAL_DATE_TIME -> "Temporal.PlainDateTime";
+                case LOCAL_TIME -> "Temporal.PlainTime";
+                case INSTANT -> "Temporal.Instant";
+                case YEAR_MONTH -> "Temporal.PlainYearMonth";
             };
         }
         // Derived types (e.g., "html", "image"): emit the derived type name

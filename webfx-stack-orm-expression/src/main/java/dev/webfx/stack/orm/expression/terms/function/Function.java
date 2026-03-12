@@ -28,9 +28,9 @@ public class Function<T> {
     static {
         new Function("array").register();
         new Function("abs").register();
-        new Function("CURRENT_DATE", PrimType.DATE, null, true).register();
-        new Function("now", PrimType.DATE).register();
-        new Function("date_trunc", PrimType.DATE).register();
+        new Function("CURRENT_DATE", PrimType.LOCAL_DATE, null, true).register();
+        new Function("now", PrimType.LOCAL_DATE).register();
+        new Function("date_trunc", PrimType.LOCAL_DATE).register();
         new Function("date_part", PrimType.INTEGER).register();
         new Function("to_char", PrimType.STRING).register();
         new Function("lower", PrimType.STRING).register();

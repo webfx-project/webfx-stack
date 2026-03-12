@@ -43,7 +43,7 @@ public abstract class PrimitiveBinaryBooleanExpression<T> extends BinaryBooleanE
                         return evaluateDouble(Numbers.toDouble(leftValue), Numbers.toDouble(rightValue));
                     case STRING:
                         return evaluateString(Strings.toString(leftValue), Strings.toString(rightValue));
-                    case DATE:
+                    case LOCAL_DATE:
                         return evaluateDate(Times.toInstant(leftValue), Times.toInstant(rightValue));
                 }
             }
