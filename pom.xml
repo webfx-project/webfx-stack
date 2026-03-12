@@ -108,6 +108,7 @@
         <module>webfx-stack-db-query</module>
         <module>webfx-stack-db-query-buscall</module>
         <module>webfx-stack-db-query-remote</module>
+        <module>webfx-stack-db-query-serial</module>
         <module>webfx-stack-db-querypush</module>
         <module>webfx-stack-db-querypush-buscall</module>
         <module>webfx-stack-db-querypush-client</module>
@@ -115,7 +116,7 @@
         <module>webfx-stack-db-querypush-remote</module>
         <module>webfx-stack-db-querypush-server</module>
         <module>webfx-stack-db-querypush-server-simple</module>
-        <module>webfx-stack-db-querysubmit-jre-jdbc</module>
+        <module>webfx-stack-db-querysubmit-jre-jdbc-plugin</module>
         <module>webfx-stack-db-querysubmit-vertx</module>
         <module>webfx-stack-db-submit</module>
         <module>webfx-stack-db-submit-buscall</module>

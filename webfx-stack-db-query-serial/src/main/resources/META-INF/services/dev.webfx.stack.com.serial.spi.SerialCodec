@@ -1,0 +1,3 @@
+dev.webfx.stack.db.query.serial.QueryArgumentSerialCodec
+dev.webfx.stack.db.query.serial.QueryResultSerialCodec
+dev.webfx.stack.db.query.serial.PairSerialCodec
