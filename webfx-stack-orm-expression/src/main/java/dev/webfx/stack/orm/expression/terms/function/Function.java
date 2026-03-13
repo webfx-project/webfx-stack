@@ -22,6 +22,7 @@ public class Function<T> {
     private final Type returnType;
     private final boolean evaluable;
     private final boolean keyword; // indicates if we should omit () when calling this function with no args (ex: current_date)
+    private final boolean aggregate;
 
     private static final Map<String, Function> functions = new HashMap<>();
 
@@ -97,6 +98,7 @@ public class Function<T> {
         this.returnType = returnType;
         this.evaluable = evaluable != null ? evaluable : this instanceof AggregateFunction;
         this.keyword = keyword;
+        aggregate = "count".equalsIgnoreCase(name);
     }
 
     public String getName() {
@@ -117,6 +119,10 @@ public class Function<T> {
 
     public boolean isKeyword() {
         return keyword;
+    }
+
+    public boolean isAggregate() {
+        return aggregate;
     }
 
     public boolean isSqlExpressible() {
