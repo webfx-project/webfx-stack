@@ -119,7 +119,7 @@ public final class ExpressionSqlCompiler {
         sqlBuild.setDistinct(select.isDistinct());
         boolean grouped = select.getGroupBy() != null;
         if (select.isIncludeIdColumn() || select.getFields() == null /* <= because a SQL select must have at least 1 column to read */)
-            sqlBuild.addColumnInClause(sqlBuild.getTableAlias(), modelReader.getDomainClassPrimaryKeySqlColumnName(select.getDomainClass()), null, null, SqlClause.SELECT, "", grouped, false, true);
+            sqlBuild.addColumnInClause(select.isUseRowNumberAsId() ? null : sqlBuild.getTableAlias(), select.isUseRowNumberAsId() ? "row_number() over ()" : modelReader.getDomainClassPrimaryKeySqlColumnName(select.getDomainClass()), null, null, SqlClause.SELECT, "", grouped, false, true);
         if (select.getFields() != null)
             compileExpression(select.getFields(), new Options(sqlBuild, SqlClause.SELECT, ", ", grouped, generateQueryMapping, readForeignFields, compileExpressions, modelReader));
         if (select.getGroupBy() != null)
