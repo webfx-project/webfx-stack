@@ -35,6 +35,7 @@ public final class ExpressionSqlCompiler {
                 new OrderedSqlCompiler(),            // Ordered
                 new ConstantSqlCompiler(),           // Constant
                 new ParameterReferenceSqlCompiler(), // ParameterReference
+                new CastSqlCompiler(),               // Cast
                 new IdSqlCompiler(),                 // IdExpression
                 new SymbolSqlCompiler()              // Symbol (then extendable using)
         );
