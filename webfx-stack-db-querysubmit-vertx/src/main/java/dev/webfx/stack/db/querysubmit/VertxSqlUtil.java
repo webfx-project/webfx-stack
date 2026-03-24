@@ -10,6 +10,9 @@ import io.vertx.core.Future;
 import io.vertx.sqlclient.*;
 
 import java.net.SocketException;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -22,6 +25,24 @@ final class VertxSqlUtil {
 
     private static final int MAX_RETRY_COUNT = 20;
 
+    static Tuple tupleFromArguments(Object[] parameters) {
+        if (parameters == null)
+            return Tuple.tuple();
+        // Converting all Instant (not supported by Vert.x PostgreSQL client) parameters to OffsetDateTime
+        Object[] postgresParameters = parameters;
+        for (int i = 0; i < parameters.length; i++) {
+            Object parameter = parameters[i];
+            if (parameter instanceof Instant instant) {
+                parameter = instant.atOffset(ZoneOffset.UTC);
+                if (postgresParameters == parameters)
+                    postgresParameters = parameters.clone();
+            }
+            if (postgresParameters != parameters)
+                postgresParameters[i] = parameter;
+        }
+        return Tuple.from(postgresParameters);
+    }
+
     static QueryResult toWebFxQueryResult(RowSet<Row> rs) {
         int columnCount = rs.columnsNames().size();
         int rowCount = rs.size();
@@ -31,6 +52,10 @@ final class VertxSqlUtil {
         for (Row row : rs) {
             for (int columnIndex = 0; columnIndex < columnCount; columnIndex++) {
                 Object value = row.getValue(columnIndex);
+                // Converting all OffsetDateTime UTC to Instant
+                if (value instanceof OffsetDateTime offsetDateTime && ZoneOffset.UTC.equals(offsetDateTime.getOffset())) {
+                    value = offsetDateTime.toInstant();
+                }
                 rsb.setValue(rowIndex, columnIndex, value);
             }
             rowIndex++;
@@ -52,10 +77,6 @@ final class VertxSqlUtil {
             }
         }
         return new SubmitResult(rowCount, generatedKeys == null ? null : generatedKeys.toArray());
-    }
-
-    static Tuple tupleFromArguments(Object[] parameters) {
-        return parameters == null ? Tuple.tuple() : Tuple.from(parameters);
     }
 
     static <T> Future<T> withConnection(Pool pool, Function<SqlConnection, Future<T>> function) {
