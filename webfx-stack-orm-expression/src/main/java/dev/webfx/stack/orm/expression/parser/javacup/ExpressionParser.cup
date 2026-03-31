@@ -81,7 +81,7 @@ terminal String   STRING, IDENTIFIER;
 
 /* Non terminals used in the grammar section.*/
 non terminal Object                       parser_start;
-non terminal SelectBuilder                select_query, select_start, select_distinct, select_class, select_where, select_group, select_order, select_limit, select_offset;
+non terminal SelectBuilder                select_query, select_start, select_distinct, select_class, select_additional_from, select_where, select_group, select_order, select_limit, select_offset;
 non terminal InsertBuilder                insert_statement, insert_start, insert_class, insert_set;
 non terminal UpdateBuilder                update_statement, update_start, update_class, update_set, update_where;
 non terminal DeleteBuilder                delete_statement, delete_start, delete_class, delete_where;
@@ -390,7 +390,19 @@ select_class    ::= select_distinct:select IDENTIFIER:className
                     {: RESULT = select; RESULT.fields = fields; RESULT.buildingClassName = className; RESULT.buildingClassAlias = alias; :}
                   ;
 
-select_where	::= select_class:select WHERE expr:where
+/* select_additional_from only applies after the explicit "FROM className alias" form of select_class,
+   which is unambiguous since COMMA cannot appear in that position otherwise */
+select_additional_from ::= select_additional_from:select COMMA IDENTIFIER:className IDENTIFIER:alias
+                    {: RESULT = select; RESULT.addAdditionalFromEntity(className, alias); :}
+                  | select_distinct:select expr_list:fields FROM IDENTIFIER:className IDENTIFIER:alias COMMA IDENTIFIER:className2 IDENTIFIER:alias2
+                    {: RESULT = select; RESULT.fields = fields; RESULT.buildingClassName = className; RESULT.buildingClassAlias = alias; RESULT.addAdditionalFromEntity(className2, alias2); :}
+                  ;
+
+select_where	::= select_additional_from:select WHERE expr:where
+                    {: RESULT = select; RESULT.where = where; :}
+				  |	select_additional_from:select
+                    {: RESULT = select; :}
+				  | select_class:select WHERE expr:where
                     {: RESULT = select; RESULT.where = where; :}
 				  |	select_class:select
                     {: RESULT = select; :}

@@ -157,8 +157,8 @@ public final class SqlBuild {
                     if (insert == null) // no alias allowed in insert sql statement
                         sb.append(" as ").append(tableAlias); // may need ` as ` instead of ` ` for some dbms
                     first = false;
+                    appendJoinsRecursively(tableAlias, sb); // depth-first: all sub-joins before the next base table
                 }
-                Join.appendJoins(joins.get(tableAlias), sb);
             }
             sb//.append(_if(fromTablesCount > 1, ") "))
                     .append(_if(" set ", getClauseBuilder(SqlClause.UPDATE), "", sb))
@@ -189,8 +189,8 @@ public final class SqlBuild {
                     sb.append(dbmsSyntax.quoteTableIfReserved(tableName)); // tableName
                     sb.append(" as ").append(tableAlias); // may need ` as ` instead of ` ` for some dbms
                     first = false;
+                    appendJoinsRecursively(tableAlias, sb); // depth-first: all sub-joins before the next base table
                 }
-                Join.appendJoins(joins.get(tableAlias), sb);
             }
             sb//.append(_if(fromTablesCount > 1, ") "))
                     .append(_if(" where ", getClauseBuilder(SqlClause.WHERE), "", sb))
@@ -349,6 +349,19 @@ public final class SqlBuild {
             prepareAppend(clause, separator).append(fullColumnName);
         }
         return queryColumnToEntityFieldMapping;
+    }
+
+    private void appendJoinsRecursively(String tableAlias, StringBuilder sb) {
+        Map<Join, Join> tableJoins = joins.get(tableAlias);
+        if (tableJoins == null) return;
+        Join.appendJoins(tableJoins, sb);
+        for (Join join : tableJoins.keySet())
+            appendJoinsRecursively(join.table2Alias, sb);
+    }
+
+    public void registerFromTable(String tableName, String tableAlias) {
+        tableAliases.put(tableAlias, tableName);
+        orderedAliases.add(tableAlias);
     }
 
     public String addJoinCondition(String table1Alias, String column1Name, String table2Alias, String table2Name, String column2Name, boolean leftOuter) {

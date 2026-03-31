@@ -117,6 +117,12 @@ public final class ExpressionSqlCompiler {
 
     public static SqlBuild buildSelect(Select select, DbmsSqlSyntax dbmsSyntax, boolean generateQueryMapping, boolean readForeignFields, boolean compileExpressions, SqlBuild parent, SqlClause parentClause, CompilerDomainModelReader modelReader) {
         SqlBuild sqlBuild = createSqlOrderBuild(select, SqlClause.SELECT, dbmsSyntax, parent, modelReader);
+        // Register any additional FROM entities (multiple FROM support)
+        if (select.getAdditionalFromEntities() != null)
+            for (Object entity : select.getAdditionalFromEntities()) {
+                Object[] entityArr = (Object[]) entity;
+                sqlBuild.registerFromTable(modelReader.getDomainClassSqlTableName(entityArr[0]), (String) entityArr[1]);
+            }
         sqlBuild.setDistinct(select.isDistinct());
         boolean grouped = select.getGroupBy() != null;
         if (select.isIncludeIdColumn() || select.getFields() == null /* <= because a SQL select must have at least 1 column to read */)

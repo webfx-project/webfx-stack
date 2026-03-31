@@ -7,6 +7,9 @@ import dev.webfx.stack.orm.expression.terms.*;
 import dev.webfx.stack.orm.expression.terms.function.Call;
 import dev.webfx.stack.orm.expression.terms.function.Function;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Bruno Salmon
  */
@@ -15,6 +18,7 @@ public final class SelectBuilder extends DqlStatementBuilder<Select> {
     public boolean distinct = false;
     public boolean includeIdColumn = true;
     public boolean useRowNumberAsId;
+    public List<String[]> additionalFromEntities; // each entry: [className, alias]
     public ExpressionArrayBuilder fields;
     public ExpressionArrayBuilder groupBy;
     public ExpressionBuilder having;
@@ -24,12 +28,25 @@ public final class SelectBuilder extends DqlStatementBuilder<Select> {
     public SelectBuilder() {
     }
 
+    public void addAdditionalFromEntity(String className, String alias) {
+        if (additionalFromEntities == null)
+            additionalFromEntities = new ArrayList<>();
+        additionalFromEntities.add(new String[]{className, alias});
+    }
+
     @Override
     protected Select buildDqlOrder() {
         propagateDomainClasses();
         ExpressionArray fieldsArray = fields == null ? null : fields.build();
         if (groupBy == null && containsAggregateFunction(fieldsArray)) {
             useRowNumberAsId = true;
+        }
+        // Resolve additional FROM entity class names to domain class objects
+        List<Object[]> resolvedAdditionalEntities = null;
+        if (additionalFromEntities != null) {
+            resolvedAdditionalEntities = new ArrayList<>(additionalFromEntities.size());
+            for (String[] entry : additionalFromEntities)
+                resolvedAdditionalEntities.add(new Object[]{getModelReader().getDomainClassByName(entry[0]), entry[1]});
         }
         return new Select(filterId, buildingClass, buildingClassAlias, definition, sqlDefinition, sqlParameters,
             distinct,
@@ -41,7 +58,8 @@ public final class SelectBuilder extends DqlStatementBuilder<Select> {
             limit == null ? null : limit.build(),
             offset == null ? null : offset.build(),
             includeIdColumn,
-            useRowNumberAsId
+            useRowNumberAsId,
+            resolvedAdditionalEntities
             );
     }
 
@@ -84,6 +102,15 @@ public final class SelectBuilder extends DqlStatementBuilder<Select> {
     public Expression resolveReference(String name) {
         // Might be a reference to the building class
         Expression reference = super.resolveReference(name);
+        // Or to one of the additional FROM entities by alias
+        if (reference == null && additionalFromEntities != null) {
+            for (String[] entry : additionalFromEntities) {
+                if (name.equals(entry[1])) {
+                    Object domainClass = getModelReader().getDomainClassByName(entry[0]);
+                    return new Alias(name, null, domainClass);
+                }
+            }
+        }
         // Or to a loaded field (or subquery) assigned to an alias
         if (reference == null && fields != null) {
             for (ExpressionBuilder fieldBuilder : fields.expressions) {
