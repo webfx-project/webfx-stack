@@ -5,6 +5,7 @@ import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.builder.BuilderThreadContext;
 import dev.webfx.stack.orm.expression.builder.terms.DqlStatementBuilder;
 import dev.webfx.stack.orm.expression.builder.terms.ExpressionBuilder;
+import dev.webfx.stack.orm.expression.builder.terms.WithSelectBuilder;
 import dev.webfx.stack.orm.expression.parser.javacup.JavaCupExpressionParser;
 import dev.webfx.stack.orm.expression.parser.jflex.ExpressionLexer;
 import dev.webfx.stack.orm.expression.parser.lci.ParserDomainModelReader;
@@ -55,7 +56,12 @@ public final class ExpressionParser {
     public static <E> DqlStatement<E> parseStatement(String definition, ParserDomainModelReader modelReader) {
         try (BuilderThreadContext context = BuilderThreadContext.open(modelReader)) {
             java_cup.runtime.Symbol symbol = parseWithJavaCup(definition);
-            DqlStatementBuilder builder = (DqlStatementBuilder) symbol.value;
+            Object value = symbol.value;
+            if (value instanceof WithSelectBuilder) {
+                WithSelectBuilder withBuilder = (WithSelectBuilder) value;
+                return (DqlStatement<E>) withBuilder.build();
+            }
+            DqlStatementBuilder builder = (DqlStatementBuilder) value;
             builder.definition = definition;
             return builder.build();
         } catch (Exception e) {

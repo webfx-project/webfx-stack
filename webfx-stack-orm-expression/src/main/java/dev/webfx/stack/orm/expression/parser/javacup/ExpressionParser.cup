@@ -69,7 +69,7 @@ parser code {:
    
 /* Terminals (tokens returned by the scanner).*/
 terminal          EXPR_START;
-terminal          SELECT, DISTINCT, FROM, WHERE, GROUP_BY, HAVING, ORDER_BY, DESC, ASC, NULLS, FIRST, LAST, LIMIT, OFFSET, INSERT, UPDATE, DELETE, SET, EXISTS, IS, LIKE, IN, AS, ANY, ALL, THIS;
+terminal          SELECT, DISTINCT, FROM, WHERE, GROUP_BY, HAVING, ORDER_BY, DESC, ASC, NULLS, FIRST, LAST, LIMIT, OFFSET, INSERT, UPDATE, DELETE, SET, EXISTS, IS, LIKE, IN, AS, ANY, ALL, THIS, WITH;
 terminal          OBJ_STATE, IMAGE;
 terminal          LPAREN, RPAREN, LBRACK, RBRACK, COLON, DOUBLE_COLON, COMMA, DOT, LCURLY, RCURLY;
 terminal          PLUS, MINUS, MULT, DIV, EQ, GT, LT, NOT, QUESTION, QUESTION_DOT, EQEQ, LTEQ, GTEQ, NOTEQ, AND, OR;
@@ -82,6 +82,7 @@ terminal String   STRING, IDENTIFIER;
 /* Non terminals used in the grammar section.*/
 non terminal Object                       parser_start;
 non terminal SelectBuilder                select_query, select_start, select_distinct, select_class, select_additional_from, select_where, select_group, select_order, select_limit, select_offset;
+non terminal WithSelectBuilder            with_query, with_cte_list;
 non terminal InsertBuilder                insert_statement, insert_start, insert_class, insert_set;
 non terminal UpdateBuilder                update_statement, update_start, update_class, update_set, update_where;
 non terminal DeleteBuilder                delete_statement, delete_start, delete_class, delete_where;
@@ -93,7 +94,7 @@ non terminal Boolean                      dot_op;
 /* -------------Precedence and Associatively of Terminals Section----------- */
    
 // precedence nonassoc QUESTION;
-precedence nonassoc SELECT, DISTINCT, FROM, WHERE, GROUP_BY, HAVING, ORDER_BY, DESC, ASC, LIMIT, OFFSET, INSERT, UPDATE; //0
+precedence nonassoc WITH, SELECT, DISTINCT, FROM, WHERE, GROUP_BY, HAVING, ORDER_BY, DESC, ASC, LIMIT, OFFSET, INSERT, UPDATE; //0
 precedence right QUESTION, COLON;                                                        //1
 precedence left DOUBLE_COLON;                                                            //1.5
 precedence right OR;                                                                     //2
@@ -112,6 +113,8 @@ start with parser_start;
 
 parser_start ::= select_query:select
               {: RESULT = select; :}
+            | with_query:with
+              {: RESULT = with; :}
             | insert_statement:insert
               {: RESULT = insert; :}
             | update_statement:update
@@ -509,4 +512,16 @@ delete_where	::= delete_class:delete WHERE expr:where
 delete_statement ::= delete_where:delete
                     {: RESULT = delete; :}
                   ;
+
+/* with expression (CTEs) */
+
+with_cte_list ::= with_cte_list:with COMMA IDENTIFIER:alias AS LPAREN select_query:cte RPAREN
+                    {: RESULT = with; RESULT.addCte(alias, cte); :}
+                | WITH IDENTIFIER:alias AS LPAREN select_query:cte RPAREN
+                    {: RESULT = new WithSelectBuilder(); RESULT.addCte(alias, cte); :}
+                ;
+
+with_query ::= with_cte_list:with select_query:main
+                    {: RESULT = with; RESULT.setMainSelect(main); :}
+             ;
 

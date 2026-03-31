@@ -10,7 +10,9 @@ import dev.webfx.stack.orm.dql.sqlcompiler.sql.dbms.HsqlSyntax;
 import dev.webfx.stack.orm.dql.sqlcompiler.terms.*;
 import dev.webfx.stack.orm.expression.terms.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -62,6 +64,8 @@ public final class ExpressionSqlCompiler {
     /*** Public entry points ***/
 
     public static SqlCompiled compileStatement(DqlStatement statement, DbmsSqlSyntax dbmsSyntax, CompilerDomainModelReader modelReader) {
+        if (statement instanceof WithSelect)
+            return compileWithSelect((WithSelect) statement, dbmsSyntax, modelReader);
         if (statement instanceof Insert)
             return compileInsert((Insert) statement, dbmsSyntax, modelReader);
         if (statement instanceof Update)
@@ -71,6 +75,41 @@ public final class ExpressionSqlCompiler {
         if (statement instanceof Select)
             return compileSelect((Select) statement, dbmsSyntax, false, false, modelReader);
         return null;
+    }
+
+    public static SqlCompiled compileWithSelect(WithSelect withSelect, DbmsSqlSyntax dbmsSyntax, CompilerDomainModelReader modelReader) {
+        return compileWithSelect(withSelect, dbmsSyntax, false, false, false, modelReader);
+    }
+
+    public static SqlCompiled compileWithSelect(WithSelect withSelect, DbmsSqlSyntax dbmsSyntax, boolean generateQueryMapping, boolean readForeignFields, boolean compileExpressions, CompilerDomainModelReader modelReader) {
+        // Compile each CTE and build the WITH prefix
+        StringBuilder withPrefix = new StringBuilder("with ");
+        List<String> allParamNames = new ArrayList<>();
+        boolean first = true;
+        for (Object cteEntry : withSelect.getCtes()) {
+            Object[] cte = (Object[]) cteEntry;
+            if (!first) withPrefix.append(", ");
+            String cteAlias = (String) cte[0];
+            Select<?> cteSelect = (Select<?>) cte[1];
+            SqlCompiled cteCompiled = compileSelect(cteSelect, dbmsSyntax, false, false, false, modelReader);
+            withPrefix.append(cteAlias).append(" as (").append(cteCompiled.getSql()).append(")");
+            // Merge parameter names (preserving order, deduplicating)
+            for (String param : cteCompiled.getParameterNames())
+                if (!allParamNames.contains(param))
+                    allParamNames.add(param);
+            first = false;
+        }
+        withPrefix.append(' ');
+        // Compile the main select with the same flags as a regular select
+        SqlCompiled mainCompiled = compileSelect(withSelect.getMainSelect(), dbmsSyntax, generateQueryMapping, readForeignFields, compileExpressions, modelReader);
+        // Merge main select parameter names
+        for (String param : mainCompiled.getParameterNames())
+            if (!allParamNames.contains(param))
+                allParamNames.add(param);
+        // Combine WITH prefix + main SQL
+        String combinedSql = withPrefix.toString() + mainCompiled.getSql();
+        return new SqlCompiled(combinedSql, mainCompiled.getCountSql(), allParamNames, true,
+                null, mainCompiled.getQueryMapping(), mainCompiled.getSqlUncompilableCondition(), mainCompiled.isCacheable());
     }
 
     // Select compilation
@@ -117,11 +156,19 @@ public final class ExpressionSqlCompiler {
 
     public static SqlBuild buildSelect(Select select, DbmsSqlSyntax dbmsSyntax, boolean generateQueryMapping, boolean readForeignFields, boolean compileExpressions, SqlBuild parent, SqlClause parentClause, CompilerDomainModelReader modelReader) {
         SqlBuild sqlBuild = createSqlOrderBuild(select, SqlClause.SELECT, dbmsSyntax, parent, modelReader);
-        // Register any additional FROM entities (multiple FROM support)
+        // Register any additional FROM entities (multiple FROM and CTE support)
         if (select.getAdditionalFromEntities() != null)
             for (Object entity : select.getAdditionalFromEntities()) {
                 Object[] entityArr = (Object[]) entity;
-                sqlBuild.registerFromTable(modelReader.getDomainClassSqlTableName(entityArr[0]), (String) entityArr[1]);
+                String alias = (String) entityArr[1];
+                if (entityArr.length > 2) {
+                    // CTE reference: {domainClass, alias, cteName}
+                    String cteName = (String) entityArr[2];
+                    String realTableName = modelReader.getDomainClassSqlTableName(entityArr[0]);
+                    sqlBuild.registerCteFromTable(cteName, realTableName, alias);
+                } else {
+                    sqlBuild.registerFromTable(modelReader.getDomainClassSqlTableName(entityArr[0]), alias);
+                }
             }
         sqlBuild.setDistinct(select.isDistinct());
         boolean grouped = select.getGroupBy() != null;
