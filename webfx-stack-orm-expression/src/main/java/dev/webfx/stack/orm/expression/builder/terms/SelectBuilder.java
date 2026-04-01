@@ -3,9 +3,15 @@ package dev.webfx.stack.orm.expression.builder.terms;
 
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.builder.ReferenceResolver;
+import dev.webfx.stack.orm.expression.builder.ThreadLocalReferenceResolver;
 import dev.webfx.stack.orm.expression.terms.*;
 import dev.webfx.stack.orm.expression.terms.function.Call;
 import dev.webfx.stack.orm.expression.terms.function.Function;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Bruno Salmon
@@ -15,6 +21,8 @@ public final class SelectBuilder extends DqlStatementBuilder<Select> {
     public boolean distinct = false;
     public boolean includeIdColumn = true;
     public boolean useRowNumberAsId;
+    public List<String[]> additionalFromEntities; // each entry: [className, alias]
+    private Map<String, Object> cteAliasesToDomainClass; // CTE alias → resolved domain class
     public ExpressionArrayBuilder fields;
     public ExpressionArrayBuilder groupBy;
     public ExpressionBuilder having;
@@ -24,6 +32,18 @@ public final class SelectBuilder extends DqlStatementBuilder<Select> {
     public SelectBuilder() {
     }
 
+    public void addAdditionalFromEntity(String className, String alias) {
+        if (additionalFromEntities == null)
+            additionalFromEntities = new ArrayList<>();
+        additionalFromEntities.add(new String[]{className, alias});
+    }
+
+    public void addCteAlias(String cteAlias, Object domainClass) {
+        if (cteAliasesToDomainClass == null)
+            cteAliasesToDomainClass = new HashMap<>();
+        cteAliasesToDomainClass.put(cteAlias, domainClass);
+    }
+
     @Override
     protected Select buildDqlOrder() {
         propagateDomainClasses();
@@ -31,7 +51,32 @@ public final class SelectBuilder extends DqlStatementBuilder<Select> {
         if (groupBy == null && containsAggregateFunction(fieldsArray)) {
             useRowNumberAsId = true;
         }
-        return new Select(filterId, buildingClass, buildingClassAlias, definition, sqlDefinition, sqlParameters,
+        // Resolve additional FROM entity class names to domain class objects
+        List<Object[]> resolvedAdditionalEntities = null;
+        if (additionalFromEntities != null) {
+            resolvedAdditionalEntities = new ArrayList<>(additionalFromEntities.size());
+            for (String[] entry : additionalFromEntities) {
+                String className = entry[0];
+                String alias = entry[1] != null ? entry[1] : className; // default alias = class/CTE name
+                Object domainClass = getModelReader().getDomainClassByName(className);
+                if (domainClass == null) {
+                    // Try explicit CTE alias map first, then fall back to thread-local resolver (for chained CTEs)
+                    Object cteDomainClass = (cteAliasesToDomainClass != null) ? cteAliasesToDomainClass.get(className) : null;
+                    if (cteDomainClass == null) {
+                        Expression ref = ThreadLocalReferenceResolver.resolveReference(className);
+                        if (ref instanceof Alias)
+                            cteDomainClass = ((Alias<?>) ref).getDomainClass();
+                    }
+                    if (cteDomainClass != null) {
+                        // {domainClass, sqlAlias, cteName} — cteName used as SQL "table name"
+                        resolvedAdditionalEntities.add(new Object[]{cteDomainClass, alias, className});
+                        continue;
+                    }
+                }
+                resolvedAdditionalEntities.add(new Object[]{domainClass, alias});
+            }
+        }
+        Select<?> select = new Select<>(filterId, buildingClass, buildingClassAlias, definition, sqlDefinition, sqlParameters,
             distinct,
             fieldsArray,
             where == null ? null : where.build(),
@@ -41,8 +86,12 @@ public final class SelectBuilder extends DqlStatementBuilder<Select> {
             limit == null ? null : limit.build(),
             offset == null ? null : offset.build(),
             includeIdColumn,
-            useRowNumberAsId
+            useRowNumberAsId,
+            resolvedAdditionalEntities
             );
+        if (buildingClassCteAlias != null)
+            select.setDomainClassCteAlias(buildingClassCteAlias);
+        return select;
     }
 
     private static boolean containsAggregateFunction(ExpressionArray fieldsArray) {
@@ -84,6 +133,18 @@ public final class SelectBuilder extends DqlStatementBuilder<Select> {
     public Expression resolveReference(String name) {
         // Might be a reference to the building class
         Expression reference = super.resolveReference(name);
+        // Or to one of the additional FROM entities by alias
+        if (reference == null && additionalFromEntities != null) {
+            for (String[] entry : additionalFromEntities) {
+                String effectiveAlias = entry[1] != null ? entry[1] : entry[0]; // default alias = class/CTE name
+                if (name.equals(effectiveAlias)) {
+                    Object domainClass = getModelReader().getDomainClassByName(entry[0]);
+                    if (domainClass == null && cteAliasesToDomainClass != null)
+                        domainClass = cteAliasesToDomainClass.get(entry[0]);
+                    return new Alias(name, null, domainClass);
+                }
+            }
+        }
         // Or to a loaded field (or subquery) assigned to an alias
         if (reference == null && fields != null) {
             for (ExpressionBuilder fieldBuilder : fields.expressions) {

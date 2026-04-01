@@ -2,8 +2,8 @@ package dev.webfx.stack.orm.expression.terms;
 
 import dev.webfx.stack.orm.expression.CollectOptions;
 import dev.webfx.stack.orm.expression.Expression;
-import dev.webfx.stack.orm.expression.CollectOptions;
-import dev.webfx.stack.orm.expression.Expression;
+
+import java.util.List;
 
 /**
  * @author Bruno Salmon
@@ -17,8 +17,14 @@ public final class Select<T> extends DqlStatement<T> {
     private final ExpressionArray<T> groupBy;
     private final Expression<T> having;
     private final Expression<T> offset;
+    private final List<Object[]> additionalFromEntities; // each entry: [domainClass, alias]
+    private String domainClassCteAlias; // non-null when domain class was resolved via a CTE alias
 
     public Select(Object id, Object domainClass, String domainClassAlias, String definition, String sqlDefinition, Object[] sqlParameters, boolean distinct, ExpressionArray<T> fields, Expression<T> where, ExpressionArray<T> groupBy, Expression<T> having, ExpressionArray<T> orderBy, Expression<T> limit, Expression<T> offset, boolean includeIdColumn, boolean useRowNumberAsId) {
+        this(id, domainClass, domainClassAlias, definition, sqlDefinition, sqlParameters, distinct, fields, where, groupBy, having, orderBy, limit, offset, includeIdColumn, useRowNumberAsId, null);
+    }
+
+    public Select(Object id, Object domainClass, String domainClassAlias, String definition, String sqlDefinition, Object[] sqlParameters, boolean distinct, ExpressionArray<T> fields, Expression<T> where, ExpressionArray<T> groupBy, Expression<T> having, ExpressionArray<T> orderBy, Expression<T> limit, Expression<T> offset, boolean includeIdColumn, boolean useRowNumberAsId, List<Object[]> additionalFromEntities) {
         super(id, domainClass, domainClassAlias, definition, sqlDefinition, sqlParameters, where, orderBy, limit);
         this.distinct = distinct;
         this.includeIdColumn = includeIdColumn;
@@ -27,6 +33,7 @@ public final class Select<T> extends DqlStatement<T> {
         this.groupBy = groupBy;
         this.having = having;
         this.offset = offset;
+        this.additionalFromEntities = additionalFromEntities;
     }
 
     public boolean isDistinct() {
@@ -55,6 +62,18 @@ public final class Select<T> extends DqlStatement<T> {
 
     public Expression<T> getOffset() {
         return offset;
+    }
+
+    public List<Object[]> getAdditionalFromEntities() {
+        return additionalFromEntities;
+    }
+
+    public String getDomainClassCteAlias() {
+        return domainClassCteAlias;
+    }
+
+    public void setDomainClassCteAlias(String domainClassCteAlias) {
+        this.domainClassCteAlias = domainClassCteAlias;
     }
 
     @Override

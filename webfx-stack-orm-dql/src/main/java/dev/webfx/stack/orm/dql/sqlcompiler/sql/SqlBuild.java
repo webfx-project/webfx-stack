@@ -49,7 +49,8 @@ public final class SqlBuild {
     private final HashMap<SqlClause, StringBuilder> sqlClauseBuilders = new HashMap<>();
     private final HashMap<String /* table alias */, Map<Join, Join> /* joins */ > joins = new HashMap<>();
 
-    private final HashMap<String, String> tableAliases = new HashMap<>();   // tableAlias => tableName
+    private final HashMap<String, String> tableAliases = new HashMap<>();   // tableAlias => tableName (real SQL table or CTE alias for field resolution)
+    private HashMap<String, String> cteAliasTableNames = null; // tableAlias => CTE name (overrides tableAliases for SQL generation)
     private HashMap<String, String> logicalAliases = null; // logicalAlias => sqlAlias
     private final List<String> orderedAliases = new ArrayList<>();
     private final HashMap<String, QueryColumnToEntityFieldMapping> fullColumnNameToColumnMappings = new HashMap<>(); // tableAlias.columnName => columnMapping
@@ -150,15 +151,18 @@ public final class SqlBuild {
             boolean first = true;
             for (String tableAlias : orderedAliases) {
                 if (!isJoinTableAlias(tableAlias)) {
-                    String tableName = tableAliases.get(tableAlias);
+                    // Use CTE name if available (for SQL generation), otherwise use real table name
+                    String tableName = (cteAliasTableNames != null && cteAliasTableNames.containsKey(tableAlias))
+                            ? cteAliasTableNames.get(tableAlias)
+                            : tableAliases.get(tableAlias);
                     if (!first)
                         sb.append(", ");
                     sb.append(dbmsSyntax.quoteTableIfReserved(tableName)); // tableName
                     if (insert == null) // no alias allowed in insert sql statement
                         sb.append(" as ").append(tableAlias); // may need ` as ` instead of ` ` for some dbms
                     first = false;
+                    appendJoinsRecursively(tableAlias, sb); // depth-first: all sub-joins before the next base table
                 }
-                Join.appendJoins(joins.get(tableAlias), sb);
             }
             sb//.append(_if(fromTablesCount > 1, ") "))
                     .append(_if(" set ", getClauseBuilder(SqlClause.UPDATE), "", sb))
@@ -183,14 +187,16 @@ public final class SqlBuild {
             boolean first = true;
             for (String tableAlias : orderedAliases) {
                 if (!isJoinTableAlias(tableAlias)) {
-                    String tableName = tableAliases.get(tableAlias);
+                    String tableName = (cteAliasTableNames != null && cteAliasTableNames.containsKey(tableAlias))
+                            ? cteAliasTableNames.get(tableAlias)
+                            : tableAliases.get(tableAlias);
                     if (!first)
                         sb.append(", ");
                     sb.append(dbmsSyntax.quoteTableIfReserved(tableName)); // tableName
                     sb.append(" as ").append(tableAlias); // may need ` as ` instead of ` ` for some dbms
                     first = false;
+                    appendJoinsRecursively(tableAlias, sb); // depth-first: all sub-joins before the next base table
                 }
-                Join.appendJoins(joins.get(tableAlias), sb);
             }
             sb//.append(_if(fromTablesCount > 1, ") "))
                     .append(_if(" where ", getClauseBuilder(SqlClause.WHERE), "", sb))
@@ -349,6 +355,36 @@ public final class SqlBuild {
             prepareAppend(clause, separator).append(fullColumnName);
         }
         return queryColumnToEntityFieldMapping;
+    }
+
+    private void appendJoinsRecursively(String tableAlias, StringBuilder sb) {
+        Map<Join, Join> tableJoins = joins.get(tableAlias);
+        if (tableJoins == null) return;
+        Join.appendJoins(tableJoins, sb);
+        for (Join join : tableJoins.keySet())
+            appendJoinsRecursively(join.table2Alias, sb);
+    }
+
+    public void registerFromTable(String tableName, String tableAlias) {
+        tableAliases.put(tableAlias, tableName);
+        orderedAliases.add(tableAlias);
+    }
+
+    public void setCteTableName(String cteName) {
+        if (cteAliasTableNames == null)
+            cteAliasTableNames = new HashMap<>();
+        cteAliasTableNames.put(tableAlias, cteName);
+        // Register a logical alias so that Alias references using the CTE name (e.g. "ep") resolve to
+        // the generated SQL table alias (e.g. "tt1"), ensuring JOINs are stored and emitted correctly.
+        recordLogicalAlias(cteName, tableAlias);
+    }
+
+    public void registerCteFromTable(String cteName, String realTableName, String tableAlias) {
+        tableAliases.put(tableAlias, realTableName); // real table name for field resolution
+        orderedAliases.add(tableAlias);
+        if (cteAliasTableNames == null)
+            cteAliasTableNames = new HashMap<>();
+        cteAliasTableNames.put(tableAlias, cteName); // CTE name for SQL generation
     }
 
     public String addJoinCondition(String table1Alias, String column1Name, String table2Alias, String table2Name, String column2Name, boolean leftOuter) {

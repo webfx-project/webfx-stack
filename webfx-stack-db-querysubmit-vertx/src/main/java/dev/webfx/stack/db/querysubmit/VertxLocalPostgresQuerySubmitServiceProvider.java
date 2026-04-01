@@ -36,7 +36,8 @@ import static dev.webfx.stack.db.querysubmit.VertxSqlUtil.*;
  */
 public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServiceProvider, SubmitServiceProvider {
 
-    private static final int POOL_SIZE = 10; // Note: it's for each instance (1 pool for queries = reading, another one for submissions = writing)
+    private static final int QUERY_POOL_SIZE = 20;
+    private static final int SUBMIT_POOL_SIZE = 10;
     private static final boolean LOG_TIMINGS = true;
     private static final long SQL_OPERATION_WARNING_MILLIS = 5_000;
     private static final long SQL_OPERATION_TIMEOUT_MILLIS = 5 * 60 * 1000; // 5-minute timeout for SQL operations
@@ -45,7 +46,8 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
     private final Pool pool;
 
     public VertxLocalPostgresQuerySubmitServiceProvider(LocalDataSource localDataSource, boolean submit) {
-        asyncQueue = new AsyncQueue(POOL_SIZE, "POSTGRES-" + (submit ? "SUBMIT" : "QUERY"))
+        int poolSize = submit ? SUBMIT_POOL_SIZE : QUERY_POOL_SIZE;
+        asyncQueue = new AsyncQueue(poolSize, "POSTGRES-" + (submit ? "SUBMIT" : "QUERY"))
             .setExecutionTimeout(SQL_OPERATION_TIMEOUT_MILLIS);
 
         ConnectionDetails cd = localDataSource.getLocalConnectionDetails();
@@ -58,7 +60,7 @@ public class VertxLocalPostgresQuerySubmitServiceProvider implements QueryServic
 
         // Pool Options
         PoolOptions poolOptions = new PoolOptions()
-            .setMaxSize(POOL_SIZE)
+            .setMaxSize(poolSize)
             .setIdleTimeout(30) // We release the connection after 30 min of inactivity (especially for remote databases)
             .setIdleTimeoutUnit(TimeUnit.MINUTES);
 

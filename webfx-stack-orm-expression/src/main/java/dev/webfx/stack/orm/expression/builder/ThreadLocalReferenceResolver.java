@@ -36,6 +36,16 @@ public final class ThreadLocalReferenceResolver {
         return null;
     }
 
+    public static Expression resolveDotReference(String aliasName, String fieldName) {
+        Stack<ReferenceResolver> resolvers = getThreadLocalResolvers();
+        for (int i = resolvers.size() - 1; i >= 0; i--) {
+            Expression e = resolvers.get(i).resolveDotReference(aliasName, fieldName);
+            if (e != null)
+                return e;
+        }
+        return null;
+    }
+
     public static void executeCodeInvolvingReferenceResolver(Runnable code, ReferenceResolver referenceResolver) {
         try {
             // Before calling the code, we push the reference resolver in the thread context

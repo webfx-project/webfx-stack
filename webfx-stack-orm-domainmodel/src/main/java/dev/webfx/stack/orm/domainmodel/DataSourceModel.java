@@ -7,6 +7,7 @@ import dev.webfx.stack.orm.dql.sqlcompiler.sql.SqlCompiled;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.dbms.DbmsSqlSyntax;
 import dev.webfx.stack.orm.expression.terms.DqlStatement;
 import dev.webfx.stack.orm.expression.terms.Select;
+import dev.webfx.stack.orm.expression.terms.WithSelect;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +53,7 @@ public final class DataSourceModel implements HasDomainModel {
         SqlCompiled sqlCompiled = sqlCompiledCache.get(stringSelect);
         //if (sqlCompiled != null) Logger.log("Reusing cached sql compiled! :-)");
         if (sqlCompiled == null)
-            sqlCompiledCache.put(stringSelect, sqlCompiled = compileSelect(parseSelect(stringSelect)));
+            sqlCompiledCache.put(stringSelect, sqlCompiled = compileSelectOrWithSelect(parseStatement(stringSelect), false));
         return sqlCompiled;
     }
 
@@ -60,8 +61,14 @@ public final class DataSourceModel implements HasDomainModel {
         Map<String, SqlCompiled> cache = compileExpressions ? sqlCompiledWithExpressionsCache : sqlCompiledCache;
         SqlCompiled sqlCompiled = cache.get(stringSelect);
         if (sqlCompiled == null)
-            cache.put(stringSelect, sqlCompiled = compileSelect(parseSelect(stringSelect), compileExpressions));
+            cache.put(stringSelect, sqlCompiled = compileSelectOrWithSelect(parseStatement(stringSelect), compileExpressions));
         return sqlCompiled;
+    }
+
+    private SqlCompiled compileSelectOrWithSelect(DqlStatement<?> statement, boolean compileExpressions) {
+        if (statement instanceof WithSelect)
+            return ExpressionSqlCompiler.compileWithSelect((WithSelect<?>) statement, getDbmsSqlSyntax(), true, true, compileExpressions, getCompilerDomainModelReader());
+        return compileSelect((Select<?>) statement, compileExpressions);
     }
 
     public <T> Select<T> parseSelect(String definition) {
