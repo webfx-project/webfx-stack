@@ -33,7 +33,7 @@ public class JavaCupExpressionParser extends java_cup.runtime.lr_parser {
   /** Production table. */
   protected static final short _production_table[][] = 
     unpackFromStrings(new String[] {
-    "\000\230\000\002\002\004\000\002\002\003\000\002\002" +
+    "\000\232\000\002\002\004\000\002\002\003\000\002\002" +
     "\003\000\002\002\003\000\002\002\003\000\002\002\003" +
     "\000\002\002\004\000\002\002\004\000\002\055\005\000" +
     "\002\055\003\000\002\056\005\000\002\056\005\000\002" +
@@ -68,18 +68,19 @@ public class JavaCupExpressionParser extends java_cup.runtime.lr_parser {
     "\054\005\000\002\054\005\000\002\054\003\000\002\004" +
     "\003\000\002\005\004\000\002\005\003\000\002\006\004" +
     "\000\002\006\005\000\002\006\006\000\002\006\007\000" +
-    "\002\007\006\000\002\007\012\000\002\010\005\000\002" +
-    "\010\003\000\002\010\005\000\002\010\003\000\002\011" +
-    "\005\000\002\011\007\000\002\011\003\000\002\012\005" +
-    "\000\002\012\003\000\002\013\005\000\002\013\003\000" +
-    "\002\014\005\000\002\014\003\000\002\003\003\000\002" +
-    "\020\003\000\002\021\004\000\002\021\005\000\002\022" +
-    "\005\000\002\017\003\000\002\024\003\000\002\025\004" +
-    "\000\002\025\005\000\002\026\005\000\002\027\005\000" +
-    "\002\027\003\000\002\023\003\000\002\031\003\000\002" +
-    "\032\004\000\002\032\005\000\002\032\005\000\002\032" +
-    "\006\000\002\033\005\000\002\033\003\000\002\030\003" +
-    "\000\002\016\011\000\002\016\010\000\002\015\004" });
+    "\002\007\006\000\002\007\005\000\002\007\012\000\002" +
+    "\007\011\000\002\010\005\000\002\010\003\000\002\010" +
+    "\005\000\002\010\003\000\002\011\005\000\002\011\007" +
+    "\000\002\011\003\000\002\012\005\000\002\012\003\000" +
+    "\002\013\005\000\002\013\003\000\002\014\005\000\002" +
+    "\014\003\000\002\003\003\000\002\020\003\000\002\021" +
+    "\004\000\002\021\005\000\002\022\005\000\002\017\003" +
+    "\000\002\024\003\000\002\025\004\000\002\025\005\000" +
+    "\002\026\005\000\002\027\005\000\002\027\003\000\002" +
+    "\023\003\000\002\031\003\000\002\032\004\000\002\032" +
+    "\005\000\002\032\005\000\002\032\006\000\002\033\005" +
+    "\000\002\033\003\000\002\030\003\000\002\016\011\000" +
+    "\002\016\010\000\002\015\004" });
 
   /** Access to production table. */
   public short[][] production_table() {return _production_table;}
@@ -88,42 +89,42 @@ public class JavaCupExpressionParser extends java_cup.runtime.lr_parser {
   protected static final short[][] _action_table = 
     unpackFromStrings(new String[] {
     "\000\u0125\000\020\004\030\005\007\013\012\023\026\024" +
-    "\040\025\041\037\020\001\002\000\004\002\uff7c\001\002" +
-    "\000\006\002\uff81\043\uff81\001\002\000\004\002\ufffd\001" +
+    "\041\025\040\037\020\001\002\000\004\002\uff7a\001\002" +
+    "\000\006\002\uff7f\043\uff7f\001\002\000\004\002\ufffd\001" +
     "\002\000\054\006\uff97\027\uff97\032\uff97\036\uff97\040\uff97" +
     "\041\uff97\042\uff97\044\uff97\046\uff97\052\uff97\055\uff97\056" +
     "\uff97\062\uff97\063\uff97\064\uff97\074\uff97\075\uff97\076\uff97" +
     "\077\uff97\100\uff97\101\uff97\001\002\000\006\007\u0123\101" +
-    "\u0124\001\002\000\012\002\uff84\021\u0121\022\uff84\043\uff84" +
+    "\u0124\001\002\000\012\002\uff82\021\u0121\022\uff82\043\uff82" +
     "\001\002\000\046\027\074\032\055\036\064\040\071\041" +
     "\053\042\063\044\057\046\062\052\066\055\073\063\060" +
     "\064\050\074\054\075\076\076\070\077\065\100\067\101" +
-    "\061\001\002\000\004\002\u011f\001\002\000\010\002\uff82" +
-    "\022\u011d\043\uff82\001\002\000\052\027\074\032\055\036" +
+    "\061\001\002\000\004\002\u011f\001\002\000\010\002\uff80" +
+    "\022\u011d\043\uff80\001\002\000\052\027\074\032\055\036" +
     "\064\040\071\041\053\042\063\044\057\046\062\052\066" +
     "\055\073\056\253\062\247\063\060\064\050\074\054\075" +
     "\076\076\070\077\065\100\067\101\u0114\001\002\000\004" +
-    "\101\u0112\001\002\000\004\002\uff6d\001\002\000\004\101" +
-    "\u010d\001\002\000\004\002\ufffc\001\002\000\022\002\uff8d" +
-    "\010\u0109\011\uff8d\013\uff8d\021\uff8d\022\uff8d\043\uff8d\050" +
-    "\u0108\001\002\000\006\002\uff6e\010\u0106\001\002\000\004" +
-    "\002\uff75\001\002\000\004\101\u0104\001\002\000\004\101" +
-    "\uff80\001\002\000\004\026\u0102\001\002\000\052\027\074" +
+    "\101\u0112\001\002\000\004\002\uff6b\001\002\000\004\101" +
+    "\u010d\001\002\000\004\002\ufffc\001\002\000\022\002\uff8b" +
+    "\010\u0109\011\uff8b\013\uff8b\021\uff8b\022\uff8b\043\uff8b\050" +
+    "\u0108\001\002\000\006\002\uff6c\010\u0106\001\002\000\004" +
+    "\101\u0104\001\002\000\004\002\uff73\001\002\000\004\101" +
+    "\uff7e\001\002\000\004\026\u0102\001\002\000\052\027\074" +
     "\032\055\036\064\040\071\041\053\042\063\044\057\046" +
     "\062\052\066\055\073\056\253\062\247\063\060\064\050" +
     "\074\054\075\076\076\070\077\065\100\067\101\061\001" +
     "\002\000\054\006\u0100\027\uff95\032\uff95\036\uff95\040\uff95" +
     "\041\uff95\042\uff95\044\uff95\046\uff95\052\uff95\055\uff95\056" +
     "\uff95\062\uff95\063\uff95\064\uff95\074\uff95\075\uff95\076\uff95" +
-    "\077\uff95\100\uff95\101\uff95\001\002\000\006\002\uff76\010" +
+    "\077\uff95\100\uff95\101\uff95\001\002\000\006\002\uff74\010" +
     "\376\001\002\000\004\002\000\001\002\000\004\002\uffff" +
-    "\001\002\000\004\026\374\001\002\000\014\002\uff86\013" +
-    "\372\021\uff86\022\uff86\043\uff86\001\002\000\006\005\007" +
-    "\050\364\001\002\000\004\101\uff7b\001\002\000\006\007" +
-    "\uff74\101\uff74\001\002\000\016\002\uff88\011\354\013\uff88" +
-    "\021\uff88\022\uff88\043\uff88\001\002\000\004\002\ufffe\001" +
-    "\002\000\020\002\uff8b\010\045\011\uff8b\013\uff8b\021\uff8b" +
-    "\022\uff8b\043\uff8b\001\002\000\046\027\074\032\055\036" +
+    "\001\002\000\004\026\374\001\002\000\014\002\uff84\013" +
+    "\372\021\uff84\022\uff84\043\uff84\001\002\000\006\005\007" +
+    "\050\364\001\002\000\006\007\uff72\101\uff72\001\002\000" +
+    "\004\101\uff79\001\002\000\016\002\uff86\011\354\013\uff86" +
+    "\021\uff86\022\uff86\043\uff86\001\002\000\004\002\ufffe\001" +
+    "\002\000\020\002\uff89\010\045\011\uff89\013\uff89\021\uff89" +
+    "\022\uff89\043\uff89\001\002\000\046\027\074\032\055\036" +
     "\064\040\071\041\053\042\063\044\057\046\062\052\066" +
     "\055\073\063\060\064\050\074\054\075\076\076\070\077" +
     "\065\100\067\101\061\001\002\000\112\002\uffb6\007\uffb6" +
@@ -144,9 +145,9 @@ public class JavaCupExpressionParser extends java_cup.runtime.lr_parser {
     "\043\uffab\045\uffab\046\uffab\047\uffab\050\uffab\053\uffab\054" +
     "\uffab\055\uffab\056\uffab\057\uffab\060\uffab\061\uffab\062\uffab" +
     "\063\uffab\064\uffab\066\uffab\067\uffab\070\uffab\071\uffab\072" +
-    "\uffab\073\uffab\101\335\001\002\000\066\002\uff8c\011\uff8c" +
-    "\013\uff8c\021\uff8c\022\uff8c\030\116\031\136\032\125\033" +
-    "\127\043\uff8c\047\137\054\121\055\134\056\132\057\133" +
+    "\uffab\073\uffab\101\335\001\002\000\066\002\uff8a\011\uff8a" +
+    "\013\uff8a\021\uff8a\022\uff8a\030\116\031\136\032\125\033" +
+    "\127\043\uff8a\047\137\054\121\055\134\056\132\057\133" +
     "\060\135\061\130\062\117\063\126\064\120\066\141\067" +
     "\131\070\140\071\122\072\115\073\123\001\002\000\112" +
     "\002\uffae\007\uffae\010\uffae\011\uffae\012\uffae\013\uffae\014" +
@@ -765,8 +766,8 @@ public class JavaCupExpressionParser extends java_cup.runtime.lr_parser {
     "\055\036\064\040\071\041\053\042\063\044\057\046\062" +
     "\052\066\055\073\056\253\062\247\063\060\064\050\074" +
     "\054\075\076\076\070\077\065\100\067\101\061\001\002" +
-    "\000\020\002\uff8a\012\360\013\uff8a\021\uff8a\022\uff8a\043" +
-    "\uff8a\050\357\001\002\000\024\002\ufff8\007\ufff8\010\ufff8" +
+    "\000\020\002\uff88\012\360\013\uff88\021\uff88\022\uff88\043" +
+    "\uff88\050\357\001\002\000\024\002\ufff8\007\ufff8\010\ufff8" +
     "\012\ufff8\013\ufff8\021\ufff8\022\ufff8\043\ufff8\050\ufff8\001" +
     "\002\000\052\027\074\032\055\036\064\040\071\041\053" +
     "\042\063\044\057\046\062\052\066\055\073\056\253\062" +
@@ -774,28 +775,28 @@ public class JavaCupExpressionParser extends java_cup.runtime.lr_parser {
     "\100\067\101\061\001\002\000\046\027\074\032\055\036" +
     "\064\040\071\041\053\042\063\044\057\046\062\052\066" +
     "\055\073\063\060\064\050\074\054\075\076\076\070\077" +
-    "\065\100\067\101\061\001\002\000\064\002\uff89\013\uff89" +
-    "\021\uff89\022\uff89\030\116\031\136\032\125\033\127\043" +
-    "\uff89\047\137\054\121\055\134\056\132\057\133\060\135" +
+    "\065\100\067\101\061\001\002\000\064\002\uff87\013\uff87" +
+    "\021\uff87\022\uff87\030\116\031\136\032\125\033\127\043" +
+    "\uff87\047\137\054\121\055\134\056\132\057\133\060\135" +
     "\061\130\062\117\063\126\064\120\066\141\067\131\070" +
     "\140\071\122\072\115\073\123\001\002\000\024\002\ufff9" +
     "\007\ufff9\010\ufff9\012\ufff9\013\ufff9\021\ufff9\022\ufff9\043" +
-    "\ufff9\050\ufff9\001\002\000\004\002\uff6a\001\002\000\004" +
+    "\ufff9\050\ufff9\001\002\000\004\002\uff68\001\002\000\004" +
     "\101\365\001\002\000\004\033\366\001\002\000\004\042" +
     "\367\001\002\000\004\005\007\001\002\000\004\043\371" +
-    "\001\002\000\006\005\uff6c\050\uff6c\001\002\000\046\027" +
+    "\001\002\000\006\005\uff6a\050\uff6a\001\002\000\046\027" +
     "\074\032\055\036\064\040\071\041\053\042\063\044\057" +
     "\046\062\052\066\055\073\063\060\064\050\074\054\075" +
     "\076\076\070\077\065\100\067\101\061\001\002\000\014" +
-    "\002\uff87\021\uff87\022\uff87\043\uff87\050\316\001\002\000" +
+    "\002\uff85\021\uff85\022\uff85\043\uff85\050\316\001\002\000" +
     "\052\027\074\032\055\036\064\040\071\041\053\042\063" +
     "\044\057\046\062\052\066\055\073\056\253\062\247\063" +
     "\060\064\050\074\054\075\076\076\070\077\065\100\067" +
-    "\101\061\001\002\000\006\002\uff7d\050\357\001\002\000" +
+    "\101\061\001\002\000\006\002\uff7b\050\357\001\002\000" +
     "\046\027\074\032\055\036\064\040\071\041\053\042\063" +
     "\044\057\046\062\052\066\055\073\063\060\064\050\074" +
     "\054\075\076\076\070\077\065\100\067\101\061\001\002" +
-    "\000\054\002\uff77\030\116\031\136\032\125\033\127\047" +
+    "\000\054\002\uff75\030\116\031\136\032\125\033\127\047" +
     "\137\054\121\055\134\056\132\057\133\060\135\061\130" +
     "\062\117\063\126\064\120\066\141\067\131\070\140\071" +
     "\122\072\115\073\123\001\002\000\052\027\uff96\032\uff96" +
@@ -806,60 +807,62 @@ public class JavaCupExpressionParser extends java_cup.runtime.lr_parser {
     "\036\064\040\071\041\053\042\063\044\057\046\062\052" +
     "\066\055\073\056\253\062\247\063\060\064\050\074\054" +
     "\075\076\076\070\077\065\100\067\101\061\001\002\000" +
-    "\010\002\uff78\010\uff78\050\357\001\002\000\006\026\uff7f" +
-    "\101\u0105\001\002\000\004\026\uff7e\001\002\000\046\027" +
+    "\010\002\uff76\010\uff76\050\357\001\002\000\006\026\uff7d" +
+    "\101\u0105\001\002\000\004\026\uff7c\001\002\000\046\027" +
     "\074\032\055\036\064\040\071\041\053\042\063\044\057" +
     "\046\062\052\066\055\073\063\060\064\050\074\054\075" +
     "\076\076\070\077\065\100\067\101\061\001\002\000\054" +
-    "\002\uff6f\030\116\031\136\032\125\033\127\047\137\054" +
+    "\002\uff6d\030\116\031\136\032\125\033\127\047\137\054" +
     "\121\055\134\056\132\057\133\060\135\061\130\062\117" +
     "\063\126\064\120\066\141\067\131\070\140\071\122\072" +
     "\115\073\123\001\002\000\004\101\u010b\001\002\000\046" +
     "\027\074\032\055\036\064\040\071\041\053\042\063\044" +
     "\057\046\062\052\066\055\073\063\060\064\050\074\054" +
     "\075\076\076\070\077\065\100\067\101\061\001\002\000" +
-    "\066\002\uff8e\011\uff8e\013\uff8e\021\uff8e\022\uff8e\030\116" +
-    "\031\136\032\125\033\127\043\uff8e\047\137\054\121\055" +
+    "\066\002\uff8c\011\uff8c\013\uff8c\021\uff8c\022\uff8c\030\116" +
+    "\031\136\032\125\033\127\043\uff8c\047\137\054\121\055" +
     "\134\056\132\057\133\060\135\061\130\062\117\063\126" +
     "\064\120\066\141\067\131\070\140\071\122\072\115\073" +
-    "\123\001\002\000\004\101\u010c\001\002\000\022\002\uff90" +
-    "\010\uff90\011\uff90\013\uff90\021\uff90\022\uff90\043\uff90\050" +
-    "\uff90\001\002\000\004\033\u010e\001\002\000\004\042\u010f" +
-    "\001\002\000\004\005\007\001\002\000\004\043\u0111\001" +
-    "\002\000\006\005\uff6b\050\uff6b\001\002\000\006\026\uff7a" +
-    "\101\u0113\001\002\000\004\026\uff79\001\002\000\104\002" +
-    "\uff94\007\uffb4\010\uff94\011\uff94\013\uff94\021\uff94\022\uff94" +
-    "\030\uffb4\031\uffb4\032\uffb4\033\uffb4\042\246\043\uff94\047" +
-    "\uffb4\050\uffb4\051\uffb4\054\uffb4\055\uffb4\056\uffb4\057\uffb4" +
-    "\060\uffb4\061\uffb4\062\uffb4\063\uffb4\064\uffb4\065\uffb4\066" +
-    "\uffb4\067\uffb4\070\uffb4\071\uffb4\072\uffb4\073\uffb4\101\u011c" +
-    "\001\002\000\006\007\u0116\050\357\001\002\000\004\101" +
-    "\u0117\001\002\000\022\002\uff92\010\uff92\011\uff92\013\uff92" +
-    "\021\uff92\022\uff92\043\uff92\101\u0118\001\002\000\022\002" +
-    "\uff91\010\uff91\011\uff91\013\uff91\021\uff91\022\uff91\043\uff91" +
-    "\050\u0119\001\002\000\004\101\u011a\001\002\000\004\101" +
-    "\u011b\001\002\000\022\002\uff8f\010\uff8f\011\uff8f\013\uff8f" +
-    "\021\uff8f\022\uff8f\043\uff8f\050\uff8f\001\002\000\020\002" +
-    "\uff93\010\uff93\011\uff93\013\uff93\021\uff93\022\uff93\043\uff93" +
-    "\001\002\000\046\027\074\032\055\036\064\040\071\041" +
-    "\053\042\063\044\057\046\062\052\066\055\073\063\060" +
-    "\064\050\074\054\075\076\076\070\077\065\100\067\101" +
-    "\061\001\002\000\056\002\uff83\030\116\031\136\032\125" +
-    "\033\127\043\uff83\047\137\054\121\055\134\056\132\057" +
-    "\133\060\135\061\130\062\117\063\126\064\120\066\141" +
-    "\067\131\070\140\071\122\072\115\073\123\001\002\000" +
-    "\004\002\001\001\002\000\006\002\ufffa\050\316\001\002" +
-    "\000\046\027\074\032\055\036\064\040\071\041\053\042" +
-    "\063\044\057\046\062\052\066\055\073\063\060\064\050" +
-    "\074\054\075\076\076\070\077\065\100\067\101\061\001" +
-    "\002\000\060\002\uff85\022\uff85\030\116\031\136\032\125" +
-    "\033\127\043\uff85\047\137\054\121\055\134\056\132\057" +
-    "\133\060\135\061\130\062\117\063\126\064\120\066\141" +
-    "\067\131\070\140\071\122\072\115\073\123\001\002\000" +
-    "\004\101\u0126\001\002\000\010\002\uff73\010\uff73\101\u0125" +
-    "\001\002\000\006\002\uff72\010\uff72\001\002\000\010\002" +
-    "\uff71\010\uff71\101\u0127\001\002\000\006\002\uff70\010\uff70" +
-    "\001\002" });
+    "\123\001\002\000\024\002\uff8f\010\uff8f\011\uff8f\013\uff8f" +
+    "\021\uff8f\022\uff8f\043\uff8f\050\uff8f\101\u010c\001\002\000" +
+    "\022\002\uff90\010\uff90\011\uff90\013\uff90\021\uff90\022\uff90" +
+    "\043\uff90\050\uff90\001\002\000\004\033\u010e\001\002\000" +
+    "\004\042\u010f\001\002\000\004\005\007\001\002\000\004" +
+    "\043\u0111\001\002\000\006\005\uff69\050\uff69\001\002\000" +
+    "\006\026\uff78\101\u0113\001\002\000\004\026\uff77\001\002" +
+    "\000\104\002\uff94\007\uffb4\010\uff94\011\uff94\013\uff94\021" +
+    "\uff94\022\uff94\030\uffb4\031\uffb4\032\uffb4\033\uffb4\042\246" +
+    "\043\uff94\047\uffb4\050\uffb4\051\uffb4\054\uffb4\055\uffb4\056" +
+    "\uffb4\057\uffb4\060\uffb4\061\uffb4\062\uffb4\063\uffb4\064\uffb4" +
+    "\065\uffb4\066\uffb4\067\uffb4\070\uffb4\071\uffb4\072\uffb4\073" +
+    "\uffb4\101\u011c\001\002\000\006\007\u0116\050\357\001\002" +
+    "\000\004\101\u0117\001\002\000\022\002\uff92\010\uff92\011" +
+    "\uff92\013\uff92\021\uff92\022\uff92\043\uff92\101\u0118\001\002" +
+    "\000\022\002\uff91\010\uff91\011\uff91\013\uff91\021\uff91\022" +
+    "\uff91\043\uff91\050\u0119\001\002\000\004\101\u011a\001\002" +
+    "\000\024\002\uff8d\010\uff8d\011\uff8d\013\uff8d\021\uff8d\022" +
+    "\uff8d\043\uff8d\050\uff8d\101\u011b\001\002\000\022\002\uff8e" +
+    "\010\uff8e\011\uff8e\013\uff8e\021\uff8e\022\uff8e\043\uff8e\050" +
+    "\uff8e\001\002\000\020\002\uff93\010\uff93\011\uff93\013\uff93" +
+    "\021\uff93\022\uff93\043\uff93\001\002\000\046\027\074\032" +
+    "\055\036\064\040\071\041\053\042\063\044\057\046\062" +
+    "\052\066\055\073\063\060\064\050\074\054\075\076\076" +
+    "\070\077\065\100\067\101\061\001\002\000\056\002\uff81" +
+    "\030\116\031\136\032\125\033\127\043\uff81\047\137\054" +
+    "\121\055\134\056\132\057\133\060\135\061\130\062\117" +
+    "\063\126\064\120\066\141\067\131\070\140\071\122\072" +
+    "\115\073\123\001\002\000\004\002\001\001\002\000\006" +
+    "\002\ufffa\050\316\001\002\000\046\027\074\032\055\036" +
+    "\064\040\071\041\053\042\063\044\057\046\062\052\066" +
+    "\055\073\063\060\064\050\074\054\075\076\076\070\077" +
+    "\065\100\067\101\061\001\002\000\060\002\uff83\022\uff83" +
+    "\030\116\031\136\032\125\033\127\043\uff83\047\137\054" +
+    "\121\055\134\056\132\057\133\060\135\061\130\062\117" +
+    "\063\126\064\120\066\141\067\131\070\140\071\122\072" +
+    "\115\073\123\001\002\000\004\101\u0126\001\002\000\010" +
+    "\002\uff71\010\uff71\101\u0125\001\002\000\006\002\uff70\010" +
+    "\uff70\001\002\000\010\002\uff6f\010\uff6f\101\u0127\001\002" +
+    "\000\006\002\uff6e\010\uff6e\001\002" });
 
   /** Access to parse-action table. */
   public short[][] action_table() {return _action_table;}
@@ -869,8 +872,8 @@ public class JavaCupExpressionParser extends java_cup.runtime.lr_parser {
     unpackFromStrings(new String[] {
     "\000\u0125\000\066\002\012\003\032\004\030\005\014\006" +
     "\043\007\021\010\041\011\035\012\010\013\013\014\004" +
-    "\015\033\016\036\017\042\020\024\021\034\022\003\023" +
-    "\005\024\015\025\026\026\031\027\023\030\020\031\007" +
+    "\015\033\016\036\017\042\020\023\021\034\022\003\023" +
+    "\005\024\015\025\026\026\031\027\024\030\020\031\007" +
     "\032\022\033\016\001\001\000\002\001\001\000\002\001" +
     "\001\000\002\001\001\000\002\001\001\000\002\001\001" +
     "\000\002\001\001\000\030\034\306\037\074\042\071\044" +
@@ -2695,7 +2698,22 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 114: // select_additional_from ::= select_distinct expr_list FROM IDENTIFIER IDENTIFIER COMMA IDENTIFIER IDENTIFIER 
+          case 114: // select_additional_from ::= select_additional_from COMMA IDENTIFIER 
+            {
+              SelectBuilder RESULT =null;
+		int selectleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)).left;
+		int selectright = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)).right;
+		SelectBuilder select = (SelectBuilder)((java_cup.runtime.Symbol) CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)).value;
+		int classNameleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.peek()).left;
+		int classNameright = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.peek()).right;
+		String className = (String)((java_cup.runtime.Symbol) CUP$JavaCupExpressionParser$stack.peek()).value;
+		 RESULT = select; RESULT.addAdditionalFromEntity(className, null); 
+              CUP$JavaCupExpressionParser$result = parser.getSymbolFactory().newSymbol("select_additional_from",5, ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)), ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.peek()), RESULT);
+            }
+          return CUP$JavaCupExpressionParser$result;
+
+          /*. . . . . . . . . . . . . . . . . . . .*/
+          case 115: // select_additional_from ::= select_distinct expr_list FROM IDENTIFIER IDENTIFIER COMMA IDENTIFIER IDENTIFIER 
             {
               SelectBuilder RESULT =null;
 		int selectleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-7)).left;
@@ -2722,7 +2740,31 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 115: // select_where ::= select_additional_from WHERE expr 
+          case 116: // select_additional_from ::= select_distinct expr_list FROM IDENTIFIER IDENTIFIER COMMA IDENTIFIER 
+            {
+              SelectBuilder RESULT =null;
+		int selectleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-6)).left;
+		int selectright = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-6)).right;
+		SelectBuilder select = (SelectBuilder)((java_cup.runtime.Symbol) CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-6)).value;
+		int fieldsleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-5)).left;
+		int fieldsright = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-5)).right;
+		ExpressionArrayBuilder fields = (ExpressionArrayBuilder)((java_cup.runtime.Symbol) CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-5)).value;
+		int classNameleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-3)).left;
+		int classNameright = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-3)).right;
+		String className = (String)((java_cup.runtime.Symbol) CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-3)).value;
+		int aliasleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)).left;
+		int aliasright = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)).right;
+		String alias = (String)((java_cup.runtime.Symbol) CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)).value;
+		int className2left = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.peek()).left;
+		int className2right = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.peek()).right;
+		String className2 = (String)((java_cup.runtime.Symbol) CUP$JavaCupExpressionParser$stack.peek()).value;
+		 RESULT = select; RESULT.fields = fields; RESULT.buildingClassName = className; RESULT.buildingClassAlias = alias; RESULT.addAdditionalFromEntity(className2, null); 
+              CUP$JavaCupExpressionParser$result = parser.getSymbolFactory().newSymbol("select_additional_from",5, ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-6)), ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.peek()), RESULT);
+            }
+          return CUP$JavaCupExpressionParser$result;
+
+          /*. . . . . . . . . . . . . . . . . . . .*/
+          case 117: // select_where ::= select_additional_from WHERE expr 
             {
               SelectBuilder RESULT =null;
 		int selectleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)).left;
@@ -2737,7 +2779,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 116: // select_where ::= select_additional_from 
+          case 118: // select_where ::= select_additional_from 
             {
               SelectBuilder RESULT =null;
 		int selectleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.peek()).left;
@@ -2749,7 +2791,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 117: // select_where ::= select_class WHERE expr 
+          case 119: // select_where ::= select_class WHERE expr 
             {
               SelectBuilder RESULT =null;
 		int selectleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)).left;
@@ -2764,7 +2806,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 118: // select_where ::= select_class 
+          case 120: // select_where ::= select_class 
             {
               SelectBuilder RESULT =null;
 		int selectleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.peek()).left;
@@ -2776,7 +2818,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 119: // select_group ::= select_where GROUP_BY expr_list 
+          case 121: // select_group ::= select_where GROUP_BY expr_list 
             {
               SelectBuilder RESULT =null;
 		int selectleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)).left;
@@ -2791,7 +2833,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 120: // select_group ::= select_where GROUP_BY expr_list HAVING expr 
+          case 122: // select_group ::= select_where GROUP_BY expr_list HAVING expr 
             {
               SelectBuilder RESULT =null;
 		int selectleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-4)).left;
@@ -2809,7 +2851,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 121: // select_group ::= select_where 
+          case 123: // select_group ::= select_where 
             {
               SelectBuilder RESULT =null;
 		int selectleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.peek()).left;
@@ -2821,7 +2863,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 122: // select_order ::= select_group ORDER_BY order_list 
+          case 124: // select_order ::= select_group ORDER_BY order_list 
             {
               SelectBuilder RESULT =null;
 		int selectleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)).left;
@@ -2836,7 +2878,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 123: // select_order ::= select_group 
+          case 125: // select_order ::= select_group 
             {
               SelectBuilder RESULT =null;
 		int selectleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.peek()).left;
@@ -2848,7 +2890,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 124: // select_limit ::= select_order LIMIT expr 
+          case 126: // select_limit ::= select_order LIMIT expr 
             {
               SelectBuilder RESULT =null;
 		int selectleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)).left;
@@ -2863,7 +2905,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 125: // select_limit ::= select_order 
+          case 127: // select_limit ::= select_order 
             {
               SelectBuilder RESULT =null;
 		int selectleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.peek()).left;
@@ -2875,7 +2917,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 126: // select_offset ::= select_limit OFFSET expr 
+          case 128: // select_offset ::= select_limit OFFSET expr 
             {
               SelectBuilder RESULT =null;
 		int selectleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)).left;
@@ -2890,7 +2932,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 127: // select_offset ::= select_limit 
+          case 129: // select_offset ::= select_limit 
             {
               SelectBuilder RESULT =null;
 		int selectleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.peek()).left;
@@ -2902,7 +2944,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 128: // select_query ::= select_offset 
+          case 130: // select_query ::= select_offset 
             {
               SelectBuilder RESULT =null;
 		int selectleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.peek()).left;
@@ -2914,7 +2956,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 129: // insert_start ::= INSERT 
+          case 131: // insert_start ::= INSERT 
             {
               InsertBuilder RESULT =null;
 		 RESULT = new InsertBuilder(); 
@@ -2923,7 +2965,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 130: // insert_class ::= insert_start IDENTIFIER 
+          case 132: // insert_class ::= insert_start IDENTIFIER 
             {
               InsertBuilder RESULT =null;
 		int insertleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-1)).left;
@@ -2938,7 +2980,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 131: // insert_class ::= insert_start IDENTIFIER IDENTIFIER 
+          case 133: // insert_class ::= insert_start IDENTIFIER IDENTIFIER 
             {
               InsertBuilder RESULT =null;
 		int insertleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)).left;
@@ -2956,7 +2998,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 132: // insert_set ::= insert_class SET expr_list 
+          case 134: // insert_set ::= insert_class SET expr_list 
             {
               InsertBuilder RESULT =null;
 		int insertleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)).left;
@@ -2971,7 +3013,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 133: // insert_statement ::= insert_set 
+          case 135: // insert_statement ::= insert_set 
             {
               InsertBuilder RESULT =null;
 		int insertleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.peek()).left;
@@ -2983,7 +3025,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 134: // update_start ::= UPDATE 
+          case 136: // update_start ::= UPDATE 
             {
               UpdateBuilder RESULT =null;
 		 RESULT = new UpdateBuilder(); 
@@ -2992,7 +3034,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 135: // update_class ::= update_start IDENTIFIER 
+          case 137: // update_class ::= update_start IDENTIFIER 
             {
               UpdateBuilder RESULT =null;
 		int updateleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-1)).left;
@@ -3007,7 +3049,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 136: // update_class ::= update_start IDENTIFIER IDENTIFIER 
+          case 138: // update_class ::= update_start IDENTIFIER IDENTIFIER 
             {
               UpdateBuilder RESULT =null;
 		int updateleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)).left;
@@ -3025,7 +3067,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 137: // update_set ::= update_class SET expr_list 
+          case 139: // update_set ::= update_class SET expr_list 
             {
               UpdateBuilder RESULT =null;
 		int updateleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)).left;
@@ -3040,7 +3082,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 138: // update_where ::= update_set WHERE expr 
+          case 140: // update_where ::= update_set WHERE expr 
             {
               UpdateBuilder RESULT =null;
 		int updateleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)).left;
@@ -3055,7 +3097,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 139: // update_where ::= update_set 
+          case 141: // update_where ::= update_set 
             {
               UpdateBuilder RESULT =null;
 		int updateleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.peek()).left;
@@ -3067,7 +3109,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 140: // update_statement ::= update_where 
+          case 142: // update_statement ::= update_where 
             {
               UpdateBuilder RESULT =null;
 		int updateleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.peek()).left;
@@ -3079,7 +3121,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 141: // delete_start ::= DELETE 
+          case 143: // delete_start ::= DELETE 
             {
               DeleteBuilder RESULT =null;
 		 RESULT = new DeleteBuilder(); 
@@ -3088,7 +3130,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 142: // delete_class ::= delete_start IDENTIFIER 
+          case 144: // delete_class ::= delete_start IDENTIFIER 
             {
               DeleteBuilder RESULT =null;
 		int deleteleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-1)).left;
@@ -3103,7 +3145,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 143: // delete_class ::= delete_start IDENTIFIER IDENTIFIER 
+          case 145: // delete_class ::= delete_start IDENTIFIER IDENTIFIER 
             {
               DeleteBuilder RESULT =null;
 		int deleteleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)).left;
@@ -3121,7 +3163,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 144: // delete_class ::= delete_start FROM IDENTIFIER 
+          case 146: // delete_class ::= delete_start FROM IDENTIFIER 
             {
               DeleteBuilder RESULT =null;
 		int deleteleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)).left;
@@ -3136,7 +3178,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 145: // delete_class ::= delete_start FROM IDENTIFIER IDENTIFIER 
+          case 147: // delete_class ::= delete_start FROM IDENTIFIER IDENTIFIER 
             {
               DeleteBuilder RESULT =null;
 		int deleteleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-3)).left;
@@ -3154,7 +3196,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 146: // delete_where ::= delete_class WHERE expr 
+          case 148: // delete_where ::= delete_class WHERE expr 
             {
               DeleteBuilder RESULT =null;
 		int deleteleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-2)).left;
@@ -3169,7 +3211,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 147: // delete_where ::= delete_class 
+          case 149: // delete_where ::= delete_class 
             {
               DeleteBuilder RESULT =null;
 		int deleteleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.peek()).left;
@@ -3181,7 +3223,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 148: // delete_statement ::= delete_where 
+          case 150: // delete_statement ::= delete_where 
             {
               DeleteBuilder RESULT =null;
 		int deleteleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.peek()).left;
@@ -3193,7 +3235,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 149: // with_cte_list ::= with_cte_list COMMA IDENTIFIER AS LPAREN select_query RPAREN 
+          case 151: // with_cte_list ::= with_cte_list COMMA IDENTIFIER AS LPAREN select_query RPAREN 
             {
               WithSelectBuilder RESULT =null;
 		int withleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-6)).left;
@@ -3211,7 +3253,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 150: // with_cte_list ::= WITH IDENTIFIER AS LPAREN select_query RPAREN 
+          case 152: // with_cte_list ::= WITH IDENTIFIER AS LPAREN select_query RPAREN 
             {
               WithSelectBuilder RESULT =null;
 		int aliasleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-4)).left;
@@ -3226,7 +3268,7 @@ class CUP$JavaCupExpressionParser$actions {
           return CUP$JavaCupExpressionParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 151: // with_query ::= with_cte_list select_query 
+          case 153: // with_query ::= with_cte_list select_query 
             {
               WithSelectBuilder RESULT =null;
 		int withleft = ((java_cup.runtime.Symbol)CUP$JavaCupExpressionParser$stack.elementAt(CUP$JavaCupExpressionParser$top-1)).left;

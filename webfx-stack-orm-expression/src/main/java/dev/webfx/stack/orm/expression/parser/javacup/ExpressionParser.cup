@@ -397,8 +397,12 @@ select_class    ::= select_distinct:select IDENTIFIER:className
    which is unambiguous since COMMA cannot appear in that position otherwise */
 select_additional_from ::= select_additional_from:select COMMA IDENTIFIER:className IDENTIFIER:alias
                     {: RESULT = select; RESULT.addAdditionalFromEntity(className, alias); :}
+                  | select_additional_from:select COMMA IDENTIFIER:className
+                    {: RESULT = select; RESULT.addAdditionalFromEntity(className, null); :}
                   | select_distinct:select expr_list:fields FROM IDENTIFIER:className IDENTIFIER:alias COMMA IDENTIFIER:className2 IDENTIFIER:alias2
                     {: RESULT = select; RESULT.fields = fields; RESULT.buildingClassName = className; RESULT.buildingClassAlias = alias; RESULT.addAdditionalFromEntity(className2, alias2); :}
+                  | select_distinct:select expr_list:fields FROM IDENTIFIER:className IDENTIFIER:alias COMMA IDENTIFIER:className2
+                    {: RESULT = select; RESULT.fields = fields; RESULT.buildingClassName = className; RESULT.buildingClassAlias = alias; RESULT.addAdditionalFromEntity(className2, null); :}
                   ;
 
 select_where	::= select_additional_from:select WHERE expr:where

@@ -18,6 +18,7 @@ public final class Select<T> extends DqlStatement<T> {
     private final Expression<T> having;
     private final Expression<T> offset;
     private final List<Object[]> additionalFromEntities; // each entry: [domainClass, alias]
+    private String domainClassCteAlias; // non-null when domain class was resolved via a CTE alias
 
     public Select(Object id, Object domainClass, String domainClassAlias, String definition, String sqlDefinition, Object[] sqlParameters, boolean distinct, ExpressionArray<T> fields, Expression<T> where, ExpressionArray<T> groupBy, Expression<T> having, ExpressionArray<T> orderBy, Expression<T> limit, Expression<T> offset, boolean includeIdColumn, boolean useRowNumberAsId) {
         this(id, domainClass, domainClassAlias, definition, sqlDefinition, sqlParameters, distinct, fields, where, groupBy, having, orderBy, limit, offset, includeIdColumn, useRowNumberAsId, null);
@@ -65,6 +66,14 @@ public final class Select<T> extends DqlStatement<T> {
 
     public List<Object[]> getAdditionalFromEntities() {
         return additionalFromEntities;
+    }
+
+    public String getDomainClassCteAlias() {
+        return domainClassCteAlias;
+    }
+
+    public void setDomainClassCteAlias(String domainClassCteAlias) {
+        this.domainClassCteAlias = domainClassCteAlias;
     }
 
     @Override

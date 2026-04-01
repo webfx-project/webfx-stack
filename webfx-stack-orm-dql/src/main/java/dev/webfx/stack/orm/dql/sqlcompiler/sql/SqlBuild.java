@@ -370,6 +370,15 @@ public final class SqlBuild {
         orderedAliases.add(tableAlias);
     }
 
+    public void setCteTableName(String cteName) {
+        if (cteAliasTableNames == null)
+            cteAliasTableNames = new HashMap<>();
+        cteAliasTableNames.put(tableAlias, cteName);
+        // Register a logical alias so that Alias references using the CTE name (e.g. "ep") resolve to
+        // the generated SQL table alias (e.g. "tt1"), ensuring JOINs are stored and emitted correctly.
+        recordLogicalAlias(cteName, tableAlias);
+    }
+
     public void registerCteFromTable(String cteName, String realTableName, String tableAlias) {
         tableAliases.put(tableAlias, realTableName); // real table name for field resolution
         orderedAliases.add(tableAlias);

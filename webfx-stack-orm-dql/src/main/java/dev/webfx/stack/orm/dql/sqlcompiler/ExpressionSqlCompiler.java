@@ -156,6 +156,9 @@ public final class ExpressionSqlCompiler {
 
     public static SqlBuild buildSelect(Select select, DbmsSqlSyntax dbmsSyntax, boolean generateQueryMapping, boolean readForeignFields, boolean compileExpressions, SqlBuild parent, SqlClause parentClause, CompilerDomainModelReader modelReader) {
         SqlBuild sqlBuild = createSqlOrderBuild(select, SqlClause.SELECT, dbmsSyntax, parent, modelReader);
+        // If this select's primary domain class came from a CTE alias, override the SQL table name
+        if (select.getDomainClassCteAlias() != null)
+            sqlBuild.setCteTableName(select.getDomainClassCteAlias());
         // Register any additional FROM entities (multiple FROM and CTE support)
         if (select.getAdditionalFromEntities() != null)
             for (Object entity : select.getAdditionalFromEntities()) {
