@@ -39,6 +39,7 @@ public final class ExpressionSqlCompiler {
                 new ParameterReferenceSqlCompiler(), // ParameterReference
                 new CastSqlCompiler(),               // Cast
                 new IdSqlCompiler(),                 // IdExpression
+                new CteColumnRefSqlCompiler(),       // CteColumnRef
                 new SymbolSqlCompiler()              // Symbol (then extendable using)
         );
     }
