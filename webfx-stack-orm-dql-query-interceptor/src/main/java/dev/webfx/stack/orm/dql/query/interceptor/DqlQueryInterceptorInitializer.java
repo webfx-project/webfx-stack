@@ -56,6 +56,7 @@ public class DqlQueryInterceptorInitializer implements ApplicationJob {
                     SqlCompiled sqlCompiled = dataSourceModel.parseAndCompileSelect(statement, compileExpressions); // May raise an exception on syntax error or unknown fields
                     String sqlStatement = sqlCompiled.getSql();
                     if (!statement.equals(sqlStatement)) { // happens when DQL has been translated to SQL
+                        //Console.log("[DQL] DQL: " + statement + "\nSQL: " + sqlStatement + "\n[DQL] Mapping: " + sqlCompiled.getQueryMapping());
                         QueryRowToEntityMapping queryMapping = sqlCompiled.getQueryMapping();
                         QueryArgument dqlArgument = QueryArgument.builder().copy(argument)
                             .setLanguage(null)
