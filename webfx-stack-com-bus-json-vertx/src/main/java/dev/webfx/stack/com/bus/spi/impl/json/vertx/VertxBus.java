@@ -253,15 +253,19 @@ final class VertxBus implements Bus {
     }
 
     private static Object webfxToVertxBody(Object body) {
-        if (body == null)
-            body = AST.createObject();
-        else try {
-            body = SerialCodecManager.encodeToJson(body);
-        } catch (IllegalArgumentException ignored) {
+        // Vert.x expects a JSON object (or eventually a simple String or Number)
+        // If it's a java object, we need to serialize it as an AST object first.
+        if (!AST.isObject(body)) { // If the passed object is already a AST object, we keep it untouched
+            if (body == null)
+                body = AST.createObject();
+            else try { // probably a Java object that we need to serialize
+                body = SerialCodecManager.encodeToJson(body); // String or Number untouched
+            } catch (IllegalArgumentException ignored) {
+            }
         }
-        // TODO: check if we can generify this with AST
-        if (AST.NATIVE_FACTORY != null && AST.isObject(body) && body instanceof ReadOnlyAstObject astBody) {
-            body = AST.NATIVE_FACTORY.astToNativeObject(astBody);
+        // Converting this AST object into Vertx JSON object
+        if (AST.isObject(body) && body instanceof ReadOnlyAstObject astBody) {
+            body = AST.nativeObject(astBody);
         }
         return body;
     }

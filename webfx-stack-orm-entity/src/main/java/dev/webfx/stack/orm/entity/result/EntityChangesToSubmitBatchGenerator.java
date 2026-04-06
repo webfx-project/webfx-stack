@@ -56,9 +56,11 @@ public final class EntityChangesToSubmitBatchGenerator {
         private final List<SubmitArgument> submitArguments;
         private final Map<EntityId, Integer> newEntityIdIndexInBatch = new IdentityHashMap<>();
         private final Map<EntityId, Integer> newEntityIdIndexInGeneratedKeys = new IdentityHashMap<>();
+        private final int initialUpdatesCount;
 
         BatchGenerator(EntityChanges changes, Object dataSourceId, DataScope dataScope, DbmsSqlSyntax dbmsSyntax, CompilerDomainModelReader compilerModelReader, SubmitArgument... initialUpdates) {
             submitArguments = initialUpdates == null ? new ArrayList<>() : new ArrayList<>(Arrays.asList(initialUpdates));
+            initialUpdatesCount = submitArguments.size();
             this.changes = changes;
             this.dataSourceId = dataSourceId;
             this.dataScope = dataScope;
@@ -102,8 +104,42 @@ public final class EntityChangesToSubmitBatchGenerator {
             return newEntityIdIndexInGeneratedKeys;
         }
 
+        private void preSortByStatement() {
+            int size = submitArguments.size();
+            // Only sort the generated statements, keeping initialUpdates first
+            int start = initialUpdatesCount;
+            if (size - start <= 1) return;
+
+            // Snapshot the sortable portion
+            List<SubmitArgument> original = new ArrayList<>(submitArguments.subList(start, size));
+
+            // Create index list and stable-sort by statement string
+            int sortableSize = size - start;
+            List<Integer> indices = new ArrayList<>(sortableSize);
+            for (int i = 0; i < sortableSize; i++) indices.add(i);
+            indices.sort(Comparator.comparing(i -> original.get(i).getStatement()));
+
+            // Build old-to-new index mapping and apply the reordering
+            int[] oldToNewIndex = new int[size];
+            for (int i = 0; i < start; i++) oldToNewIndex[i] = i; // initialUpdates stay in place
+            for (int newIdx = 0; newIdx < sortableSize; newIdx++) {
+                int oldIdx = indices.get(newIdx);
+                submitArguments.set(start + newIdx, original.get(oldIdx));
+                oldToNewIndex[start + oldIdx] = start + newIdx;
+            }
+
+            // Update newEntityIdIndexInBatch with the new indices
+            for (Map.Entry<EntityId, Integer> entry : newEntityIdIndexInBatch.entrySet()) {
+                entry.setValue(oldToNewIndex[entry.getValue()]);
+            }
+        }
+
         void sortStatementsByDependencyOrder() {
-            // TODO: make an initial sort by statement here to optimize the chance of grouping after the dependency sort
+            // Pre-sort by statement string to maximize the chance of consecutive grouping
+            // after the dependency sort (see groupIdenticalStatements()). For example, this
+            // ensures all document_line inserts are adjacent and all attendance inserts are
+            // adjacent, so they can be grouped into single batched statements.
+            preSortByStatement();
             int size = submitArguments.size();
             // sortedList will be temporarily used to sort the SubmitArguments, and once finished, will be copied back to submitArguments
             List<SubmitArgument> sortedList = new ArrayList<>(Collections.nCopies(size, null)); // correct size already, but initially filled with null
