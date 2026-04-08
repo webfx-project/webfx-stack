@@ -82,6 +82,7 @@ OrderBy = [Oo][Rr][Dd][Ee][Rr]{WhiteSpace}+[Bb][Yy]
     "set"                          { return symbol(SET); }
     "with"                         { return symbol(WITH); }
     "exists"                       { return symbol(EXISTS); }
+    "lateral"                      { return symbol(LATERAL); }
     "is"                           { return symbol(IS); }
     "like"                         { return symbol(LIKE); }
     "in"                           { return symbol(IN); }

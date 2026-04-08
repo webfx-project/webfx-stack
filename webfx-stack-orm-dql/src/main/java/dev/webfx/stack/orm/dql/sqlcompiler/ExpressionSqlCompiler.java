@@ -174,6 +174,14 @@ public final class ExpressionSqlCompiler {
                     sqlBuild.registerFromTable(modelReader.getDomainClassSqlTableName(entityArr[0]), alias);
                 }
             }
+        // Register lateral subqueries
+        if (select.getLateralSubqueries() != null)
+            for (Object lateral : select.getLateralSubqueries()) {
+                Object[] lateralArr = (Object[]) lateral;
+                String alias = (String) lateralArr[0];
+                Select<?> subquery = (Select<?>) lateralArr[1];
+                sqlBuild.registerLateralSubquery(alias, subquery, dbmsSyntax, modelReader);
+            }
         sqlBuild.setDistinct(select.isDistinct());
         boolean grouped = select.getGroupBy() != null;
         if (select.isIncludeIdColumn() || select.getFields() == null /* <= because a SQL select must have at least 1 column to read */)

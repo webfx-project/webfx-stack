@@ -59,6 +59,8 @@ public abstract class DqlStatementBuilder<S extends DqlStatement> implements Ref
 
     @Override
     public Expression resolveReference(String name) {
+        if (buildingClass == null)
+            return null;
         Expression reference = getModelReader().getDomainFieldSymbol(buildingClass, name);
         if (reference == null && name.equals(buildingClassAlias))
             return new Alias(name, null, buildingClass);
