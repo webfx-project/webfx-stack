@@ -17,14 +17,19 @@ public final class Select<T> extends DqlStatement<T> {
     private final ExpressionArray<T> groupBy;
     private final Expression<T> having;
     private final Expression<T> offset;
-    private final List<Object[]> additionalFromEntities; // each entry: [domainClass, alias]
+    private final List<Object[]> additionalFromEntities; // each entry: [domainClass, alias] or [domainClass, alias, cteName]
+    private final List<Object[]> lateralSubqueries; // each entry: [alias, Select]
     private String domainClassCteAlias; // non-null when domain class was resolved via a CTE alias
 
     public Select(Object id, Object domainClass, String domainClassAlias, String definition, String sqlDefinition, Object[] sqlParameters, boolean distinct, ExpressionArray<T> fields, Expression<T> where, ExpressionArray<T> groupBy, Expression<T> having, ExpressionArray<T> orderBy, Expression<T> limit, Expression<T> offset, boolean includeIdColumn, boolean useRowNumberAsId) {
-        this(id, domainClass, domainClassAlias, definition, sqlDefinition, sqlParameters, distinct, fields, where, groupBy, having, orderBy, limit, offset, includeIdColumn, useRowNumberAsId, null);
+        this(id, domainClass, domainClassAlias, definition, sqlDefinition, sqlParameters, distinct, fields, where, groupBy, having, orderBy, limit, offset, includeIdColumn, useRowNumberAsId, null, null);
     }
 
     public Select(Object id, Object domainClass, String domainClassAlias, String definition, String sqlDefinition, Object[] sqlParameters, boolean distinct, ExpressionArray<T> fields, Expression<T> where, ExpressionArray<T> groupBy, Expression<T> having, ExpressionArray<T> orderBy, Expression<T> limit, Expression<T> offset, boolean includeIdColumn, boolean useRowNumberAsId, List<Object[]> additionalFromEntities) {
+        this(id, domainClass, domainClassAlias, definition, sqlDefinition, sqlParameters, distinct, fields, where, groupBy, having, orderBy, limit, offset, includeIdColumn, useRowNumberAsId, additionalFromEntities, null);
+    }
+
+    public Select(Object id, Object domainClass, String domainClassAlias, String definition, String sqlDefinition, Object[] sqlParameters, boolean distinct, ExpressionArray<T> fields, Expression<T> where, ExpressionArray<T> groupBy, Expression<T> having, ExpressionArray<T> orderBy, Expression<T> limit, Expression<T> offset, boolean includeIdColumn, boolean useRowNumberAsId, List<Object[]> additionalFromEntities, List<Object[]> lateralSubqueries) {
         super(id, domainClass, domainClassAlias, definition, sqlDefinition, sqlParameters, where, orderBy, limit);
         this.distinct = distinct;
         this.includeIdColumn = includeIdColumn;
@@ -34,6 +39,7 @@ public final class Select<T> extends DqlStatement<T> {
         this.having = having;
         this.offset = offset;
         this.additionalFromEntities = additionalFromEntities;
+        this.lateralSubqueries = lateralSubqueries;
     }
 
     public boolean isDistinct() {
@@ -68,6 +74,10 @@ public final class Select<T> extends DqlStatement<T> {
         return additionalFromEntities;
     }
 
+    public List<Object[]> getLateralSubqueries() {
+        return lateralSubqueries;
+    }
+
     public String getDomainClassCteAlias() {
         return domainClassCteAlias;
     }
@@ -91,15 +101,33 @@ public final class Select<T> extends DqlStatement<T> {
 
     @Override
     public StringBuilder toString(StringBuilder sb) {
-        return sb.append("select ")
-                .append(_if(distinct, "distinct "))
-                .append(_if(fields, " from ", sb))
-                .append(_ifNotEmpty(getDomainClass(), sb)).append(_if(" ", domainClassAlias, "", sb))
-                .append(_if(" where ", where, sb))
-                .append(_if(" group by ", groupBy, sb))
-                .append(_if(" having ", having, sb))
-                .append(_if(" order by ", orderBy, sb))
-                .append(_if(" limit ", limit, sb))
-                .append(_if(" offset ", offset, sb));
+        sb.append("select ")
+                .append(_if(distinct, "distinct "));
+        _if(fields, " from ", sb);
+        _ifNotEmpty(getDomainClass(), sb);
+        _if(" ", domainClassAlias, "", sb);
+        if (additionalFromEntities != null) {
+            for (Object[] entry : additionalFromEntities) {
+                sb.append(", ").append(entry[0]);
+                if (entry[1] != null)
+                    sb.append(' ').append(entry[1]);
+            }
+        }
+        if (lateralSubqueries != null) {
+            for (Object[] entry : lateralSubqueries) {
+                String alias = (String) entry[0];
+                Select<?> subquery = (Select<?>) entry[1];
+                sb.append(", lateral (");
+                subquery.toString(sb);
+                sb.append(") ").append(alias);
+            }
+        }
+        _if(" where ", where, sb);
+        _if(" group by ", groupBy, sb);
+        _if(" having ", having, sb);
+        _if(" order by ", orderBy, sb);
+        _if(" limit ", limit, sb);
+        _if(" offset ", offset, sb);
+        return sb;
     }
 }

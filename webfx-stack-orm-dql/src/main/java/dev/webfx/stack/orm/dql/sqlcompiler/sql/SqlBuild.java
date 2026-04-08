@@ -1,6 +1,7 @@
 package dev.webfx.stack.orm.dql.sqlcompiler.sql;
 
 import dev.webfx.stack.orm.expression.Expression;
+import dev.webfx.stack.orm.expression.terms.As;
 import dev.webfx.stack.orm.dql.sqlcompiler.lci.CompilerDomainModelReader;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.dbms.DbmsSqlSyntax;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.dbms.HsqlSyntax;
@@ -52,6 +53,7 @@ public final class SqlBuild {
     private final HashMap<String, String> tableAliases = new HashMap<>();   // tableAlias => tableName (real SQL table or CTE alias for field resolution)
     private HashMap<String, String> cteAliasTableNames = null; // tableAlias => CTE name (overrides tableAliases for SQL generation)
     private HashMap<String, String> logicalAliases = null; // logicalAlias => sqlAlias
+    private HashMap<String, String> lateralSqlMap = null; // alias => compiled SQL of the lateral subquery
     private final List<String> orderedAliases = new ArrayList<>();
     private final HashMap<String, QueryColumnToEntityFieldMapping> fullColumnNameToColumnMappings = new HashMap<>(); // tableAlias.columnName => columnMapping
     //private int fromTablesCount;
@@ -151,6 +153,11 @@ public final class SqlBuild {
             boolean first = true;
             for (String tableAlias : orderedAliases) {
                 if (!isJoinTableAlias(tableAlias)) {
+                    // Check if this is a lateral subquery
+                    if (lateralSqlMap != null && lateralSqlMap.containsKey(tableAlias)) {
+                        sb.append(" cross join lateral (").append(lateralSqlMap.get(tableAlias)).append(") as ").append(tableAlias);
+                        continue;
+                    }
                     // Use CTE name if available (for SQL generation), otherwise use real table name
                     String tableName = (cteAliasTableNames != null && cteAliasTableNames.containsKey(tableAlias))
                             ? cteAliasTableNames.get(tableAlias)
@@ -385,6 +392,47 @@ public final class SqlBuild {
         if (cteAliasTableNames == null)
             cteAliasTableNames = new HashMap<>();
         cteAliasTableNames.put(tableAlias, cteName); // CTE name for SQL generation
+    }
+
+    public void registerLateralSubquery(String alias, dev.webfx.stack.orm.expression.terms.Select<?> subquery, DbmsSqlSyntax dbmsSyntax, CompilerDomainModelReader modelReader) {
+        if (lateralSqlMap == null)
+            lateralSqlMap = new HashMap<>();
+        if (subquery.getDomainClass() != null) {
+            // Full select with FROM clause
+            SqlCompiled compiled = dev.webfx.stack.orm.dql.sqlcompiler.ExpressionSqlCompiler.compileSelect(subquery, dbmsSyntax, false, false, modelReader);
+            lateralSqlMap.put(alias, compiled.getSql());
+        } else if (subquery.getFields() != null) {
+            // Scalar select (no FROM) — compile just the field expressions using the parent's context.
+            StringBuilder lateralSb = new StringBuilder("select ");
+            Expression<?>[] fieldExprs = subquery.getFields().getExpressions();
+            for (int i = 0; i < fieldExprs.length; i++) {
+                if (i > 0) lateralSb.append(", ");
+                Expression<?> field = fieldExprs[i];
+                // Unwrap As to get the alias (since isTopLevelSelect() won't emit it)
+                String fieldAlias = null;
+                if (field instanceof As<?> asExpr) {
+                    fieldAlias = asExpr.getAlias();
+                    field = asExpr.getOperand();
+                }
+                // Compile the expression into an ephemeral clause
+                SqlClause ephemeral = SqlClause.VALUES;
+                StringBuilder origClause = sqlClauseBuilders.get(ephemeral);
+                sqlClauseBuilders.put(ephemeral, new StringBuilder());
+                dev.webfx.stack.orm.dql.sqlcompiler.ExpressionSqlCompiler.compileExpression(
+                    field, new Options(this, ephemeral, ", ", false, false, false, modelReader)
+                );
+                lateralSb.append(sqlClauseBuilders.get(ephemeral));
+                if (origClause != null)
+                    sqlClauseBuilders.put(ephemeral, origClause);
+                else
+                    sqlClauseBuilders.remove(ephemeral);
+                // Manually append the AS alias
+                if (fieldAlias != null)
+                    lateralSb.append(" as ").append(fieldAlias);
+            }
+            lateralSqlMap.put(alias, lateralSb.toString());
+        }
+        orderedAliases.add(alias);
     }
 
     public String addJoinCondition(String table1Alias, String column1Name, String table2Alias, String table2Name, String column2Name, boolean leftOuter) {

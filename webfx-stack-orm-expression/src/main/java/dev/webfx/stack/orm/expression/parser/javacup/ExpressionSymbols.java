@@ -8,69 +8,70 @@ package dev.webfx.stack.orm.expression.parser.javacup;
 /** CUP generated interface containing symbol constants. */
 public interface ExpressionSymbols {
   /* terminals */
-  public static final int GTEQ = 54;
-  public static final int QUESTION_DOT = 51;
+  public static final int GTEQ = 55;
+  public static final int QUESTION_DOT = 52;
   public static final int NULLS = 12;
-  public static final int MULT = 44;
+  public static final int MULT = 45;
   public static final int ANY = 26;
   public static final int WITH = 29;
-  public static final int LTEQ = 53;
-  public static final int OBJ_STATE = 30;
+  public static final int LTEQ = 54;
+  public static final int OBJ_STATE = 31;
   public static final int DESC = 10;
-  public static final int LPAREN = 32;
-  public static final int IMAGE = 31;
+  public static final int LPAREN = 33;
+  public static final int IMAGE = 32;
   public static final int UPDATE = 18;
-  public static final int MINUS = 43;
+  public static final int MINUS = 44;
   public static final int DELETE = 19;
   public static final int WHERE = 6;
-  public static final int RPAREN = 33;
-  public static final int AND = 56;
-  public static final int NOT = 49;
+  public static final int RPAREN = 34;
+  public static final int AND = 57;
+  public static final int NOT = 50;
   public static final int IS = 22;
-  public static final int LT = 48;
+  public static final int LT = 49;
   public static final int FIRST = 13;
   public static final int OFFSET = 16;
-  public static final int OR = 57;
+  public static final int OR = 58;
   public static final int IN = 24;
-  public static final int COMMA = 38;
-  public static final int DIV = 45;
+  public static final int COMMA = 39;
+  public static final int DIV = 46;
   public static final int SELECT = 3;
-  public static final int PLUS = 42;
+  public static final int PLUS = 43;
   public static final int THIS = 28;
-  public static final int DOT = 39;
-  public static final int BOOLEAN = 61;
+  public static final int DOT = 40;
+  public static final int BOOLEAN = 62;
   public static final int EOF = 0;
   public static final int error = 1;
   public static final int DISTINCT = 4;
   public static final int LIKE = 23;
   public static final int LIMIT = 15;
-  public static final int LCURLY = 40;
-  public static final int NULL = 59;
-  public static final int EQEQ = 52;
+  public static final int LCURLY = 41;
+  public static final int LATERAL = 30;
+  public static final int NULL = 60;
+  public static final int EQEQ = 53;
   public static final int EXISTS = 21;
-  public static final int NUMBER = 60;
-  public static final int EQ = 46;
+  public static final int NUMBER = 61;
+  public static final int EQ = 47;
   public static final int GROUP_BY = 7;
-  public static final int RCURLY = 41;
-  public static final int LBRACK = 34;
+  public static final int RCURLY = 42;
+  public static final int LBRACK = 35;
   public static final int FROM = 5;
   public static final int ASC = 11;
-  public static final int COLON = 36;
+  public static final int COLON = 37;
   public static final int LAST = 14;
-  public static final int RBRACK = 35;
-  public static final int DOUBLE_COLON = 37;
+  public static final int RBRACK = 36;
+  public static final int DOUBLE_COLON = 38;
   public static final int ORDER_BY = 9;
-  public static final int DOLLAR = 58;
+  public static final int DOLLAR = 59;
   public static final int INSERT = 17;
-  public static final int STRING = 62;
-  public static final int QUESTION = 50;
+  public static final int STRING = 63;
+  public static final int QUESTION = 51;
   public static final int ALL = 27;
   public static final int EXPR_START = 2;
   public static final int AS = 25;
-  public static final int GT = 47;
-  public static final int NOTEQ = 55;
+  public static final int GT = 48;
+  public static final int NOTEQ = 56;
   public static final int SET = 20;
-  public static final int IDENTIFIER = 63;
+  public static final int IDENTIFIER = 64;
   public static final int HAVING = 8;
   public static final String[] terminalNames = new String[] {
   "EOF",
@@ -103,6 +104,7 @@ public interface ExpressionSymbols {
   "ALL",
   "THIS",
   "WITH",
+  "LATERAL",
   "OBJ_STATE",
   "IMAGE",
   "LPAREN",
