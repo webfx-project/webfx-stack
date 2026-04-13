@@ -36,6 +36,18 @@ final class VertxHttpRouterConfigurator {
         // The session store to use
         router.route().handler(SessionHandler.create(VertxInstance.getSessionStore()));
 
+        // Redirect /frontend/* routes to the legacy system KBS2
+        // TODO: remove this once KBS2 is decommissioned
+        router.route("/frontend/*").handler(routingContext -> {
+            String path = routingContext.request().path();
+            String query = routingContext.request().query();
+            String redirectUrl = "https://legacy.kadampabookings.org" + path + (query != null ? "?" + query : "");
+            routingContext.response()
+                .setStatusCode(302)
+                .putHeader("Location", redirectUrl)
+                .end();
+        });
+
         // Transparent proxy for /dev/backend/* routes to the legacy system (used for initial KBS2 update just after
         // installation; this requires a true proxy rather than a redirect to follow the request chain correctly)
         // TODO: remove this once KBS2 is decommissioned
