@@ -1,6 +1,7 @@
 package dev.webfx.stack.http.server.vertx;
 
 import dev.webfx.platform.ast.ReadOnlyAstArray;
+import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.vertx.VertxInstance;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
@@ -34,6 +35,58 @@ final class VertxHttpRouterConfigurator {
 
         // The session store to use
         router.route().handler(SessionHandler.create(VertxInstance.getSessionStore()));
+
+        // Transparent proxy for /dev/backend/* routes to the legacy system (used for initial KBS2 update just after
+        // installation; this requires a true proxy rather than a redirect to follow the request chain correctly)
+        // TODO: remove this once KBS2 is decommissioned
+        HttpClient legacyProxyClient = vertx.createHttpClient(new HttpClientOptions()
+            .setSsl(true)
+            .setDefaultHost("legacy.kadampabookings.org")
+            .setDefaultPort(443)
+            .setConnectTimeout(10000)
+            .setIdleTimeout(120));
+
+        router.route("/dev/backend/*").handler(routingContext -> {
+            var incomingRequest = routingContext.request();
+            String path = incomingRequest.path();
+            String query = incomingRequest.query();
+            String targetUri = query != null ? path + "?" + query : path;
+            Console.log("⇒ Proxying " + incomingRequest.method() + " " + path + " → https://legacy.kadampabookings.org" + path);
+            RequestOptions requestOptions = new RequestOptions()
+                .setHost("legacy.kadampabookings.org")
+                .setPort(443)
+                .setURI(targetUri)
+                .setMethod(incomingRequest.method());
+            // Forward all incoming request headers except Host (replaced by the target host)
+            incomingRequest.headers().forEach(entry -> {
+                if (!entry.getKey().equalsIgnoreCase("Host"))
+                    requestOptions.putHeader(entry.getKey(), entry.getValue());
+            });
+            legacyProxyClient.request(requestOptions)
+                .onFailure(cause -> routingContext.response()
+                    .setStatusCode(502)
+                    .end("Legacy proxy connection error: " + cause.getMessage()))
+                .onSuccess(proxyRequest -> {
+                    boolean hasBody = incomingRequest.method() != HttpMethod.GET && incomingRequest.method() != HttpMethod.HEAD;
+                    (hasBody ? proxyRequest.send(incomingRequest) : proxyRequest.send())
+                        .onFailure(cause -> routingContext.response()
+                            .setStatusCode(502)
+                            .end("Legacy proxy error: " + cause.getMessage()))
+                        .onSuccess(proxyResponse -> {
+                            routingContext.response().setStatusCode(proxyResponse.statusCode());
+                            // Forward all response headers as-is
+                            proxyResponse.headers().forEach(entry ->
+                                routingContext.response().putHeader(entry.getKey(), entry.getValue()));
+                            // Stream the response body directly
+                            proxyResponse.pipeTo(routingContext.response())
+                                .onFailure(cause -> {
+                                    if (!routingContext.response().ended())
+                                        routingContext.response().end();
+                                });
+                        });
+                });
+        });
+
 
         // SPA root page shouldn't be cached (to always return the latest version with the latest GWT compilation).
         // We assume the SPA is hosted under the root / or under any path ending with / or /index.html or any path
