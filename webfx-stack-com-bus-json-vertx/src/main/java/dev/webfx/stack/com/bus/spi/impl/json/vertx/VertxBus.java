@@ -180,8 +180,18 @@ final class VertxBus implements Bus {
                         callBridgeEventComplete = false;
                         sessionFuture.onComplete(x -> bridgeEvent.complete(true));
                     }
-                }
+                } else if (isIncomingMessage && astHeaders != null) {
+                    // Case 3 + incoming: a client published (or sent) to a non-server-endpoint address, i.e.
+                    // a peer-to-peer broadcast routed through the server. The publisher's EventBus client
+                    // attaches its own state (userId, sessionId, runId) in headers.state on every outgoing
+                    // frame. If we forwarded that header to the other subscribers, their state managers
+                    // would interpret it as a server-pushed login switch and silently reauthenticate them
+                    // as the publisher. Strip the state so peer-to-peer messages carry data only — never
+                    // the publisher's identity.
+                    astHeaders.remove(JsonBusConstants.HEADERS_STATE);
             }
+
+        }
         }
         // If the session is ready right now, we continue the message delivery right now
         if (callBridgeEventComplete)
