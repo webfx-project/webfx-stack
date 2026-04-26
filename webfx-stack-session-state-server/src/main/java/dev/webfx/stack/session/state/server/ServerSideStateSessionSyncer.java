@@ -182,7 +182,9 @@ public final class ServerSideStateSessionSyncer {
             // the client receives the push (and retries getUserDetails), the session store has committed the new
             // userId. Without this ordering, the push can arrive at the client before the store completes,
             // causing a getUserDetails race where the server still sees LOGOUT_USER_ID.
+            Console.log("🔄 syncOutgoingState: storing session (userId=" + SessionAccessor.getUserId(serverSession) + ")");
             storeServerSession(serverSession).onComplete(ar -> {
+                Console.log("✅ syncOutgoingState: session stored (success=" + ar.succeeded() + "), sending auth push: " + (userIdChanged && userIdAuthorizer != null));
                 if (userIdChanged && userIdAuthorizer != null) {
                     // It's important to set the userId and runId in ThreadLocalStateHolder before calling userIdAuthorizer
                     // because it will load the authorizations from userId and push them to the runId client.
