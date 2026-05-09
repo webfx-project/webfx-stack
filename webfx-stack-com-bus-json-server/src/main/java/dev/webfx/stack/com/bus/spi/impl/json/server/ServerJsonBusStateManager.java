@@ -61,7 +61,7 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
         // We enrich the state with possible further info coming from the serverSession (ex: serverSessionId change)
         Object finalOutgoingState = ServerSideStateSessionSyncer.syncOutgoingState(originalState, serverSession);
         // We pass that final state inside the raw message
-        setJsonRawMessageState(rawJsonMessage, headers, finalOutgoingState);
+        setOutgoingJsonRawMessageState(rawJsonMessage, headers, finalOutgoingState);
         if (LOG_RAW_MESSAGES)
             Console.log("<< Outgoing message : " + Json.formatNode(rawJsonMessage));
         // We tell the message delivery can now continue into the client and return the serverSession (not sure if the serverSession
@@ -75,6 +75,15 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
                 rawJsonMessage.set(JsonBusConstants.HEADERS, headers = AST.createObject());
             headers.set(JsonBusConstants.HEADERS_STATE, StateAccessor.encodeState(state));
         }
+    }
+
+    // Use this when writing a state that is leaving the server toward a client. It stamps the
+    // serverOrigin marker so the recipient distinguishes authoritative server pushes from
+    // peer-to-peer broadcast headers leaked by a publisher.
+    public static void setOutgoingJsonRawMessageState(AstObject rawJsonMessage, AstObject headers, Object state) {
+        if (state != null)
+            StateAccessor.setServerOrigin(state, true);
+        setJsonRawMessageState(rawJsonMessage, headers, state);
     }
 
     private static Consumer<Object> clientLiveListener;

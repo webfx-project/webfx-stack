@@ -115,7 +115,7 @@ final class VertxBus implements Bus {
                     AstObject specialPongMessage = AST.cloneObject(AST_PONG_MESSAGE);
                     Object serverSessionIdState = StateAccessor.setServerSessionId(null, webfxSession.id());
                     StateAccessor.setServerRunId(serverSessionIdState, StateAccessor.getServerRunId());
-                    ServerJsonBusStateManager.setJsonRawMessageState(specialPongMessage, null, serverSessionIdState);
+                    ServerJsonBusStateManager.setOutgoingJsonRawMessageState(specialPongMessage, null, serverSessionIdState);
                     socket.write(Json.formatObject(specialPongMessage));
                 }
             }
@@ -181,13 +181,10 @@ final class VertxBus implements Bus {
                         sessionFuture.onComplete(x -> bridgeEvent.complete(true));
                     }
                 } else if (isIncomingMessage && astHeaders != null) {
-                    // Case 3 + incoming: a client published (or sent) to a non-server-endpoint address, i.e.
-                    // a peer-to-peer broadcast routed through the server. The publisher's EventBus client
-                    // attaches its own state (userId, sessionId, runId) in headers.state on every outgoing
-                    // frame. If we forwarded that header to the other subscribers, their state managers
-                    // would interpret it as a server-pushed login switch and silently reauthenticate them
-                    // as the publisher. Strip the state so peer-to-peer messages carry data only — never
-                    // the publisher's identity.
+                    // Case 3 + incoming: peer-to-peer broadcast routed through the server. The state
+                    // belongs to the publisher and must not reach other subscribers — clients reject
+                    // unstamped envelopes anyway, but stripping here also blocks a hostile client
+                    // from forging serverOrigin in its own outgoing state.
                     astHeaders.remove(JsonBusConstants.HEADERS_STATE);
             }
 

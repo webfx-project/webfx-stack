@@ -12,6 +12,10 @@ public final class ClientSideStateSessionSyncer {
 
     private static final boolean LOG_STATES = false; // Set to true to log incoming and outgoing states on the client side
 
+    // Logged at most once per client run if a server path forgets to stamp serverOrigin, to avoid
+    // turning every incoming message into a warning when a regression slips through.
+    private static boolean missingServerOriginWarned;
+
     private static ClientSideStateSession getClientSideStateSession() {
         return ClientSideStateSession.getInstance();
     }
@@ -34,16 +38,28 @@ public final class ClientSideStateSessionSyncer {
         Object incomingStateCapture = LOG_STATES ? "" + incomingState : null;
 
         ClientSideStateSession clientSideStateSession = getClientSideStateSession();
-        clientSideStateSession.incrementServerIncomingMessageSequence();
+
+        // Apply server-side updates only when the envelope is stamped serverOrigin=true. Anything
+        // else is typically a peer-to-peer broadcast leaking a publisher's headers — the bus also
+        // strips those before forwarding (defense in depth). We still enrich the state with the
+        // local client session below so downstream handlers see this client's identity.
+        boolean serverOriginated = StateAccessor.isServerOrigin(incomingState);
+        if (!serverOriginated && incomingState != null && !missingServerOriginWarned) {
+            missingServerOriginWarned = true;
+            Console.warn("Ignoring incoming state without serverOrigin marker (warned once per run): " + incomingState);
+        }
 
         // ================== 1) We update the client session from the incoming state if necessary =====================
 
-        // clientSession.sessionId <= incomingState.sessionId ? YES IF SET, because this means the server communicated the session id
-        clientSideStateSession.changeServerSessionId(StateAccessor.getServerSessionId(incomingState), true, true);
-        // clientSession.userId <= incomingState.userId ? YES IF SET, as this means the server communicates the user id
-        clientSideStateSession.changeUserId(StateAccessor.getUserId(incomingState), true, true);
-        // clientSession.runId <= incomingState.runId ? NEVER, as the server never communicates it (and is not supposed to)
-        // The runId is not stored in the client session anyway (as it's a different id on each run)
+        if (serverOriginated) {
+            clientSideStateSession.incrementServerIncomingMessageSequence();
+            // clientSession.sessionId <= incomingState.sessionId ? YES IF SET, because this means the server communicated the session id
+            clientSideStateSession.changeServerSessionId(StateAccessor.getServerSessionId(incomingState), true, true);
+            // clientSession.userId <= incomingState.userId ? YES IF SET, as this means the server communicates the user id
+            clientSideStateSession.changeUserId(StateAccessor.getUserId(incomingState), true, true);
+            // clientSession.runId <= incomingState.runId ? NEVER, as the server never communicates it (and is not supposed to)
+            // The runId is not stored in the client session anyway (as it's a different id on each run)
+        }
 
         // ============ 2) We eventually enrich the incoming state with information from the client session ============
 
