@@ -157,9 +157,14 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
 
         void pushResultToClient(StreamInfo streamInfo, QueryResult queryResult, QueryResultDiff queryResultDiff) {
             streamInfo.lastQueryResult = queryResult;
+            // Strip column names if the client indicated it already has them cached (sendMetadata=false)
+            QueryArgument qa = streamInfo.queryInfo.getQueryArgument();
+            QueryResult wireResult = (qa != null && !qa.isSendMetadata() && queryResult != null)
+                ? new QueryResult(queryResult.getRowCount(), queryResult.getColumnCount(), queryResult.getValues(), null)
+                : queryResult;
             Object queryStreamId = streamInfo.queryStreamId;
             Console.log("pushResultToClient() to queryStreamId=" + queryStreamId + " with " + (queryResult != null ? queryResult.getRowCount() + " rows" : "diff"));
-            QueryPushServerService.pushQueryResultToClient(new QueryPushResult(queryStreamId, queryResult, queryResultDiff), streamInfo.clientRunId)
+            QueryPushServerService.pushQueryResultToClient(new QueryPushResult(queryStreamId, wireResult, queryResultDiff), streamInfo.clientRunId)
                 .onFailure(cause -> { // Handling push call failure
                     long timeSinceCreation = now() - streamInfo.creationTime;
                     if (timeSinceCreation < 1_000)

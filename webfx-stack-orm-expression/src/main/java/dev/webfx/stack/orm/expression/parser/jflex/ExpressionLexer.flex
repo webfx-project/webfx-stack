@@ -75,11 +75,14 @@ OrderBy = [Oo][Rr][Dd][Ee][Rr]{WhiteSpace}+[Bb][Yy]
     "first"                        { return symbol(FIRST); }
     "last"                         { return symbol(LAST); }
     "limit"                        { return symbol(LIMIT); }
+    "offset"                       { return symbol(OFFSET); }
     "insert"                       { return symbol(INSERT); }
     "update"                       { return symbol(UPDATE); }
     "delete"                       { return symbol(DELETE); }
     "set"                          { return symbol(SET); }
+    "with"                         { return symbol(WITH); }
     "exists"                       { return symbol(EXISTS); }
+    "lateral"                      { return symbol(LATERAL); }
     "is"                           { return symbol(IS); }
     "like"                         { return symbol(LIKE); }
     "in"                           { return symbol(IN); }
@@ -133,6 +136,7 @@ OrderBy = [Oo][Rr][Dd][Ee][Rr]{WhiteSpace}+[Bb][Yy]
     "not"                          { return symbol(NOT); }
     "?"                            { return symbol(QUESTION); }
     "?."                           { return symbol(QUESTION_DOT); }
+    "::"                           { return symbol(DOUBLE_COLON); }
     ":"                            { return symbol(COLON); }
     "=="                           { return symbol(EQEQ); }
     "<="                           { return symbol(LTEQ); }

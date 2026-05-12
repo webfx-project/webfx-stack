@@ -11,6 +11,19 @@ import dev.webfx.stack.db.query.QueryService;
 public final class ExecuteQueryMethodEndpoint extends AsyncFunctionBusCallEndpoint<QueryArgument, QueryResult> {
 
     public ExecuteQueryMethodEndpoint() {
-        super(QueryServiceBusAddress.EXECUTE_QUERY_METHOD_ADDRESS, QueryService::executeQuery);
+        super(QueryServiceBusAddress.EXECUTE_QUERY_METHOD_ADDRESS, arg ->
+            QueryService.executeQuery(arg).map(result -> stripMetadataIfRequested(arg, result))
+        );
+    }
+
+    /** Strip columnNames and entityMapping from the result when the client has them cached. */
+    static QueryResult stripMetadataIfRequested(QueryArgument arg, QueryResult result) {
+        if (!arg.isSendMetadata() && result != null) {
+            QueryResult stripped = new QueryResult(result.getRowCount(), result.getColumnCount(), result.getValues(), null);
+            stripped.setVersionNumber(result.getVersionNumber());
+            // entityMapping intentionally NOT copied — client has it cached
+            return stripped;
+        }
+        return result;
     }
 }

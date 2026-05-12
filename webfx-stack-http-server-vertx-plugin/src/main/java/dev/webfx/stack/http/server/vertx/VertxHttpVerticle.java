@@ -34,8 +34,10 @@ final class VertxHttpVerticle extends AbstractVerticle {
 
     private void createAndStartHttpServer(String protocol, int port, PemKeyCertOptions pemKeyCertOptions) {
         // Creating the http server with the following options:
+        int maxWebSocketFrameAndMessageSize = 512 * 1024; // Increasing the frame size to allow big client requests (ex: big letter or terms label in all languages)
         vertx.createHttpServer(new HttpServerOptions()
-                .setMaxWebSocketFrameSize(65536 * 100) // Increasing the frame size to allow big client requests
+                .setMaxWebSocketFrameSize(maxWebSocketFrameAndMessageSize)
+                .setMaxWebSocketMessageSize(maxWebSocketFrameAndMessageSize)
                 .setCompressionSupported(true) // enabling gzip and deflate compression
                 .setPort(port) // web port
                 .setSsl(pemKeyCertOptions != null)

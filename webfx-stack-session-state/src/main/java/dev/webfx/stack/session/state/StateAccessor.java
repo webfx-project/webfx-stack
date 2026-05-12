@@ -14,10 +14,16 @@ import dev.webfx.stack.session.Session;
  */
 public final class StateAccessor {
 
-    private final static String SERVER_SESSION_ID_ATTRIBUE_NAME = "sessionId";
-    private final static String USER_ID_ATTRIBUE_NAME = "userId";
-    private final static String RUN_ID_ATTRIBUE_NAME = "runId";
+    private final static String SERVER_SESSION_ID_ATTRIBUTE_NAME = "sessionId";
+    private final static String USER_ID_ATTRIBUTE_NAME = "userId";
+    private final static String RUN_ID_ATTRIBUTE_NAME = "runId";
     private final static String BACKOFFICE_ATTRIBUTE_NAME = "backoffice";
+    private final static String SERVER_RUN_ID_ATTRIBUTE_NAME = "serverRunId";
+    // Stamped on every server-emitted state envelope; clients drop any envelope without it.
+    private final static String SERVER_ORIGIN_ATTRIBUTE_NAME = "serverOrigin";
+
+    /** Unique ID generated once at server startup — changes on every restart. */
+    private static final String SERVER_RUN_ID = "srv-" + System.currentTimeMillis();
 
     public static Object createEmptyState() {
         return AST.createObject();
@@ -66,7 +72,7 @@ public final class StateAccessor {
     }
 
     public static String getServerSessionId(Object state) {
-        return (String) getStateAttribute(state, SERVER_SESSION_ID_ATTRIBUE_NAME);
+        return (String) getStateAttribute(state, SERVER_SESSION_ID_ATTRIBUTE_NAME);
     }
 
     public static Object setServerSessionId(Object state, String serverSessionId) {
@@ -74,7 +80,7 @@ public final class StateAccessor {
     }
 
     public static Object setServerSessionId(Object state, String serverSessionId, boolean override) {
-        return setStateAttribute(state, SERVER_SESSION_ID_ATTRIBUE_NAME, serverSessionId, override);
+        return setStateAttribute(state, SERVER_SESSION_ID_ATTRIBUTE_NAME, serverSessionId, override);
     }
 
     public static Object createServerSessionIdState(String serverSessionId) {
@@ -82,7 +88,7 @@ public final class StateAccessor {
     }
 
     public static Object getUserId(Object state) {
-        return getStateAttribute(state, USER_ID_ATTRIBUE_NAME);
+        return getStateAttribute(state, USER_ID_ATTRIBUTE_NAME);
     }
 
     public static Object setUserId(Object state, Object userId) {
@@ -90,7 +96,7 @@ public final class StateAccessor {
     }
 
     public static Object setUserId(Object state, Object userId, boolean override) {
-        return setStateAttribute(state, USER_ID_ATTRIBUE_NAME, userId, override);
+        return setStateAttribute(state, USER_ID_ATTRIBUTE_NAME, userId, override);
     }
 
     public static Object createUserIdState(Object userId) {
@@ -98,7 +104,7 @@ public final class StateAccessor {
     }
 
     public static String getRunId(Object state) {
-        return (String) getStateAttribute(state, RUN_ID_ATTRIBUE_NAME);
+        return (String) getStateAttribute(state, RUN_ID_ATTRIBUTE_NAME);
     }
 
     public static Object setRunId(Object state, String runId) {
@@ -106,7 +112,7 @@ public final class StateAccessor {
     }
 
     public static Object setRunId(Object state, String runId, boolean override) {
-        return setStateAttribute(state, RUN_ID_ATTRIBUE_NAME, runId, override);
+        return setStateAttribute(state, RUN_ID_ATTRIBUTE_NAME, runId, override);
     }
 
     public static Boolean getBackoffice(Object state) {
@@ -119,6 +125,39 @@ public final class StateAccessor {
 
     public static Object setBackoffice(Object state, Boolean backoffice, boolean override) {
         return setStateAttribute(state, BACKOFFICE_ATTRIBUTE_NAME, backoffice, override);
+    }
+
+    /** Get the server-generated run ID (unique per server process lifetime). */
+    public static String getServerRunId() {
+        return SERVER_RUN_ID;
+    }
+
+    public static String getServerRunId(Object state) {
+        return (String) getStateAttribute(state, SERVER_RUN_ID_ATTRIBUTE_NAME);
+    }
+
+    public static Object setServerRunId(Object state, String serverRunId) {
+        return setServerRunId(state, serverRunId, true);
+    }
+
+    public static Object setServerRunId(Object state, String serverRunId, boolean override) {
+        return setStateAttribute(state, SERVER_RUN_ID_ATTRIBUTE_NAME, serverRunId, override);
+    }
+
+    public static Boolean getServerOrigin(Object state) {
+        return (Boolean) getStateAttribute(state, SERVER_ORIGIN_ATTRIBUTE_NAME);
+    }
+
+    public static boolean isServerOrigin(Object state) {
+        return Boolean.TRUE.equals(getServerOrigin(state));
+    }
+
+    public static Object setServerOrigin(Object state, Boolean serverOrigin) {
+        return setServerOrigin(state, serverOrigin, true);
+    }
+
+    public static Object setServerOrigin(Object state, Boolean serverOrigin, boolean override) {
+        return setStateAttribute(state, SERVER_ORIGIN_ATTRIBUTE_NAME, serverOrigin, override);
     }
 
     private static Object getStateAttribute(Object state, String name) {

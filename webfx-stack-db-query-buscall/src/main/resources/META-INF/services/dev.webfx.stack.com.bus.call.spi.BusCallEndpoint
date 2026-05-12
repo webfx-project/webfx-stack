@@ -1,2 +1,3 @@
 dev.webfx.stack.db.query.buscall.ExecuteQueryMethodEndpoint
 dev.webfx.stack.db.query.buscall.ExecuteQueryBatchMethodEndpoint
+dev.webfx.stack.db.query.buscall.LoadClassMappingsBusCallEndpoint

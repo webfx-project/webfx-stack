@@ -1,6 +1,7 @@
 package dev.webfx.stack.http.server.vertx;
 
 import dev.webfx.platform.ast.ReadOnlyAstArray;
+import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.vertx.VertxInstance;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
@@ -35,6 +36,70 @@ final class VertxHttpRouterConfigurator {
         // The session store to use
         router.route().handler(SessionHandler.create(VertxInstance.getSessionStore()));
 
+        // Redirect /frontend/* routes to the legacy system KBS2
+        // TODO: remove this once KBS2 is decommissioned
+        router.route("/frontend/*").handler(routingContext -> {
+            String path = routingContext.request().path();
+            String query = routingContext.request().query();
+            String redirectUrl = "https://legacy.kadampabookings.org" + path + (query != null ? "?" + query : "");
+            routingContext.response()
+                .setStatusCode(302)
+                .putHeader("Location", redirectUrl)
+                .end();
+        });
+
+        // Transparent proxy for /dev/backend/* routes to the legacy system (used for initial KBS2 update just after
+        // installation; this requires a true proxy rather than a redirect to follow the request chain correctly)
+        // TODO: remove this once KBS2 is decommissioned
+        HttpClient legacyProxyClient = vertx.createHttpClient(new HttpClientOptions()
+            .setSsl(true)
+            .setDefaultHost("legacy.kadampabookings.org")
+            .setDefaultPort(443)
+            .setConnectTimeout(10000)
+            .setIdleTimeout(120));
+
+        router.route("/dev/backend/*").handler(routingContext -> {
+            var incomingRequest = routingContext.request();
+            String path = incomingRequest.path();
+            String query = incomingRequest.query();
+            String targetUri = query != null ? path + "?" + query : path;
+            Console.log("⇒ Proxying " + incomingRequest.method() + " " + path + " → https://legacy.kadampabookings.org" + path);
+            RequestOptions requestOptions = new RequestOptions()
+                .setHost("legacy.kadampabookings.org")
+                .setPort(443)
+                .setURI(targetUri)
+                .setMethod(incomingRequest.method());
+            // Forward all incoming request headers except Host (replaced by the target host)
+            incomingRequest.headers().forEach(entry -> {
+                if (!entry.getKey().equalsIgnoreCase("Host"))
+                    requestOptions.putHeader(entry.getKey(), entry.getValue());
+            });
+            legacyProxyClient.request(requestOptions)
+                .onFailure(cause -> routingContext.response()
+                    .setStatusCode(502)
+                    .end("Legacy proxy connection error: " + cause.getMessage()))
+                .onSuccess(proxyRequest -> {
+                    boolean hasBody = incomingRequest.method() != HttpMethod.GET && incomingRequest.method() != HttpMethod.HEAD;
+                    (hasBody ? proxyRequest.send(incomingRequest) : proxyRequest.send())
+                        .onFailure(cause -> routingContext.response()
+                            .setStatusCode(502)
+                            .end("Legacy proxy error: " + cause.getMessage()))
+                        .onSuccess(proxyResponse -> {
+                            routingContext.response().setStatusCode(proxyResponse.statusCode());
+                            // Forward all response headers as-is
+                            proxyResponse.headers().forEach(entry ->
+                                routingContext.response().putHeader(entry.getKey(), entry.getValue()));
+                            // Stream the response body directly
+                            proxyResponse.pipeTo(routingContext.response())
+                                .onFailure(cause -> {
+                                    if (!routingContext.response().ended())
+                                        routingContext.response().end();
+                                });
+                        });
+                });
+        });
+
+
         // SPA root page shouldn't be cached (to always return the latest version with the latest GWT compilation).
         // We assume the SPA is hosted under the root / or under any path ending with / or /index.html or any path
         // including /#/ (which is used for UI routing).
@@ -51,7 +116,7 @@ final class VertxHttpRouterConfigurator {
             routingContext.next();
         });
 
-        /*// GWT perfect caching (xxx.cache.js files will never change again)
+        // GWT perfect caching (xxx.cache.js files will never change again)
         router.routeWithRegex(".*\\.cache\\.js").handler(routingContext -> {
             routingContext.response()
                 .putHeader("Cache-Control", "public, max-age=31556926")
@@ -61,6 +126,7 @@ final class VertxHttpRouterConfigurator {
             routingContext.next();
         });
 
+        /*
         // For xxx.nocache.js GWT files, "no-cache" would work also in theory, but in practice it seems that now
         // browsers - or at least Chrome - are not checking those files if index.html hasn't changed! A shame because
         // most of the time, this is those files that change (on each new GWT compilation) and not index.html. So,
@@ -217,7 +283,53 @@ final class VertxHttpRouterConfigurator {
             pathToStaticFolder = path.toAbsolutePath().toString();
             absolute = true;
         }
-        route.handler(StaticHandler.create(absolute ? FileSystemAccess.ROOT : FileSystemAccess.RELATIVE, pathToStaticFolder));
+        String finalPathToStaticFolder = pathToStaticFolder;
+        boolean finalAbsolute = absolute;
+
+        // Custom handler that checks file existence first, with pass-through for missing files
+        route.handler(routingContext -> {
+            String requestPath = routingContext.request().path();
+            // Remove the route pattern prefix to get the file path
+            String filePath = requestPath;
+            if (routePattern.endsWith("/*")) {
+                String prefix = routePattern.substring(0, routePattern.length() - 2);
+                if (requestPath.startsWith(prefix)) {
+                    filePath = requestPath.substring(prefix.length());
+                }
+            }
+
+            // Try to resolve the actual file
+            Path resolvedPath = Paths.get(finalPathToStaticFolder, filePath);
+
+            if (Files.exists(resolvedPath) && Files.isRegularFile(resolvedPath)) {
+                // File exists, serve it via StaticHandler
+                StaticHandler.create(finalAbsolute ? FileSystemAccess.ROOT : FileSystemAccess.RELATIVE, finalPathToStaticFolder)
+                    .handle(routingContext);
+            } else {
+                // File doesn't exist - pass to the next handler (API routes registered later take priority)
+                routingContext.next();
+            }
+        });
+
+        // SPA fallback registered as a last-resort route: only serves index.html after all other routes
+        // (including API routes like /payment/*) have had a chance to handle the request.
+        Path indexPath = Paths.get(finalPathToStaticFolder, "index.html");
+        if (Files.exists(indexPath)) {
+            String finalIndexPath = indexPath.toAbsolutePath().toString();
+            Route fallbackRoute = router.route(routePattern).last();
+            if (hostnamePattern != null)
+                fallbackRoute = fallbackRoute.virtualHost(hostnamePattern);
+            fallbackRoute.handler(routingContext -> {
+                String acceptHeader = routingContext.request().getHeader("Accept");
+                if (acceptHeader != null && acceptHeader.contains("text/html")) {
+                    routingContext.response()
+                        .putHeader("Content-Type", "text/html; charset=UTF-8")
+                        .sendFile(finalIndexPath);
+                } else {
+                    routingContext.next();
+                }
+            });
+        }
     }
 
     private static final Map<String, Path> EXTRACTED_ARCHIVED_FOLDERS = new HashMap<>();

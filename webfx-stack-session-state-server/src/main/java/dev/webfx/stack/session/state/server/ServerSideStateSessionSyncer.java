@@ -74,7 +74,14 @@ public final class ServerSideStateSessionSyncer {
     private static Future<IsolatedSession> syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(IsolatedSession serverSession, Object clientState, boolean forceStore) {
         Object userId = StateAccessor.getUserId(clientState);
         // Case when the user hasn't changed (userId == null => not yet logged in or is the same user as last time in this server session)
-        if (userId == null || userIdChecker == null)
+        // Also skip when the incoming userId matches the session's current userId AND the client
+        // runId matches the session's stored runId (same connection, not a new page load). This
+        // handles clients (e.g. React) that resend all state properties on every request rather
+        // than only sending userId on change (as the Java ClientSideStateSessionSyncer does).
+        // On a new connection (runId mismatch or new session), we always run the full check to
+        // ensure authorizations are refreshed even if the userId hasn't changed.
+        boolean sameConnection = Objects.equals(StateAccessor.getRunId(clientState), SessionAccessor.getRunId(serverSession));
+        if (userId == null || userIdChecker == null || (sameConnection && Objects.equals(userId, SessionAccessor.getUserId(serverSession))))
             return syncFixedServerSessionFromIncomingClientState(serverSession, clientState, forceStore);
         // Case when the user is set => login or user switch, or logout (LOGOUT_USER_ID)
         return ThreadLocalStateHolder.runWithState(clientState, () -> userIdChecker.apply(userId))
@@ -160,28 +167,38 @@ public final class ServerSideStateSessionSyncer {
             outgoingState = StateAccessor.setServerSessionId(outgoingState, serverSession.id(), true);
             sessionIdSyncedChanged = SessionAccessor.changeServerSessionIdSynced(serverSession, true);
         }
+        // outgoingState.serverRunId <= StateAccessor.getServerRunId() ? ALWAYS (non-override), so client can detect server restarts
+        outgoingState = StateAccessor.setServerRunId(outgoingState, StateAccessor.getServerRunId(), false);
         // outgoingState.userId <= serverSession.userId ? NO, we communicate this info only once to the client (when the server code explicitly sets outgoingState.userId)
         // outgoingState.runId <= serverSession.runId ? NEVER (ERASED), because it's always communicated in the opposite way (client => server)
         // outgoingState.backoffice <= serverSession.backoffice ? NEVER (ERASED), because it's always communicated in the opposite way (client => server)
         outgoingState = StateAccessor.setRunId(outgoingState, null, true);
-        if (userIdChanged || sessionIdSyncedChanged)
-            storeServerSession(serverSession);
-
         // Authorization push management:
         // If a user id is set in that direction, this means the server switched, logged-in or logged-out the user,
         // so we need in all cases to call the authorizer to push the new authorizations to the client.
         // Note: that authorizations push shouldn't contain the user id to avoid a loop here.
-        if (userIdChanged && userIdAuthorizer != null) {
-            // It's important to set the userId and runId in ThreadLocalStateHolder before calling userIdAuthorizer
-            // because it will load the authorizations from userId and push them to the runId client.
+        if (userIdChanged || sessionIdSyncedChanged) {
+            // Delay the authorization push until AFTER the session is fully stored. This ensures that by the time
+            // the client receives the push (and retries getUserDetails), the session store has committed the new
+            // userId. Without this ordering, the push can arrive at the client before the store completes,
+            // causing a getUserDetails race where the server still sees LOGOUT_USER_ID.
+            storeServerSession(serverSession).onComplete(ar -> {
+                if (userIdChanged && userIdAuthorizer != null) {
+                    // It's important to set the userId and runId in ThreadLocalStateHolder before calling userIdAuthorizer
+                    // because it will load the authorizations from userId and push them to the runId client.
 
-            // Most of the time the runId is in the server session, which matches the associated client. An exception to
-            // that rule is the magic link, where the magic link client and the login client are different. If the magic
-            // link is valid, the authorizations must be pushed to the login client and not to the magic link client
-            // associated with this session. The magic link AuthenticationGatewayProvider indicated this by setting the
-            // login client runId in the server state.
+                    // Most of the time the runId is in the server session, which matches the associated client. An exception to
+                    // that rule is the magic link, where the magic link client and the login client are different. If the magic
+                    // link is valid, the authorizations must be pushed to the login client and not to the magic link client
+                    // associated with this session. The magic link AuthenticationGatewayProvider indicated this by setting the
+                    // login client runId in the server state.
 
-            // Creating a new state from the session => should contain the userId, runId, and eventually other info (ex: backoffice)
+                    // Creating a new state from the session => should contain the userId, runId, and eventually other info (ex: backoffice)
+                    Object state = StateAccessor.createStateFromSession(serverSession);
+                    ThreadLocalStateHolder.runWithState(state, () -> userIdAuthorizer.apply(null));
+                }
+            });
+        } else if (userIdChanged && userIdAuthorizer != null) {
             Object state = StateAccessor.createStateFromSession(serverSession);
             ThreadLocalStateHolder.runWithState(state, () -> userIdAuthorizer.apply(null));
         }

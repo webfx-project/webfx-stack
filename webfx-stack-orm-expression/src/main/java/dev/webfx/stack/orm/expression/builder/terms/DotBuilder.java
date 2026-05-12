@@ -13,6 +13,7 @@ import dev.webfx.stack.orm.expression.terms.Symbol;
  */
 public final class DotBuilder extends BinaryExpressionBuilder {
     private final boolean outerJoin;
+    private Expression substitutedExpression; // non-null when resolved via CTE field alias (bypasses Dot)
 
     public DotBuilder(ExpressionBuilder left, ExpressionBuilder right, boolean outerJoin) {
         super(left, right);
@@ -20,13 +21,22 @@ public final class DotBuilder extends BinaryExpressionBuilder {
     }
 
     @Override
-    public Dot build() {
+    public Expression build() {
+        if (substitutedExpression != null)
+            return substitutedExpression;
         if (operation == null) {
             propagateDomainClasses();
             Expression leftExpression = left.build(); // left should be a term when using dot
-            if (leftExpression instanceof Alias)
+            if (leftExpression instanceof Alias) {
+                // Try to resolve "alias.fieldName" as a CTE field alias before falling back to domain model
+                if (right instanceof FieldBuilder) {
+                    Expression resolved = ThreadLocalReferenceResolver.resolveDotReference(
+                            ((Alias<?>) leftExpression).getName(), ((FieldBuilder) right).name);
+                    if (resolved != null)
+                        return substitutedExpression = resolved;
+                }
                 right.buildingClass = ((Alias) leftExpression).getDomainClass();
-            else {
+            } else {
                 Expression leftForeignSymbol = leftExpression.getFinalForwardingTypeExpression();
                 right.buildingClass = getModelReader().getSymbolForeignDomainClass(left.buildingClass, (Symbol) leftForeignSymbol);
             }

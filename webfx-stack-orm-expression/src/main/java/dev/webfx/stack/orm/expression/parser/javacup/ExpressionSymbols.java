@@ -8,66 +8,70 @@ package dev.webfx.stack.orm.expression.parser.javacup;
 /** CUP generated interface containing symbol constants. */
 public interface ExpressionSymbols {
   /* terminals */
-  public static final int GTEQ = 51;
-  public static final int QUESTION_DOT = 48;
+  public static final int GTEQ = 55;
+  public static final int QUESTION_DOT = 52;
   public static final int NULLS = 12;
-  public static final int MULT = 41;
-  public static final int ANY = 25;
-  public static final int LTEQ = 50;
-  public static final int OBJ_STATE = 28;
+  public static final int MULT = 45;
+  public static final int ANY = 26;
+  public static final int WITH = 29;
+  public static final int LTEQ = 54;
+  public static final int OBJ_STATE = 31;
   public static final int DESC = 10;
-  public static final int LPAREN = 30;
-  public static final int IMAGE = 29;
-  public static final int UPDATE = 17;
-  public static final int MINUS = 40;
-  public static final int DELETE = 18;
+  public static final int LPAREN = 33;
+  public static final int IMAGE = 32;
+  public static final int UPDATE = 18;
+  public static final int MINUS = 44;
+  public static final int DELETE = 19;
   public static final int WHERE = 6;
-  public static final int RPAREN = 31;
-  public static final int AND = 53;
-  public static final int NOT = 46;
-  public static final int IS = 21;
-  public static final int LT = 45;
+  public static final int RPAREN = 34;
+  public static final int AND = 57;
+  public static final int NOT = 50;
+  public static final int IS = 22;
+  public static final int LT = 49;
   public static final int FIRST = 13;
-  public static final int OR = 54;
-  public static final int IN = 23;
-  public static final int COMMA = 35;
-  public static final int DIV = 42;
+  public static final int OFFSET = 16;
+  public static final int OR = 58;
+  public static final int IN = 24;
+  public static final int COMMA = 39;
+  public static final int DIV = 46;
   public static final int SELECT = 3;
-  public static final int PLUS = 39;
-  public static final int THIS = 27;
-  public static final int DOT = 36;
-  public static final int BOOLEAN = 58;
+  public static final int PLUS = 43;
+  public static final int THIS = 28;
+  public static final int DOT = 40;
+  public static final int BOOLEAN = 62;
   public static final int EOF = 0;
   public static final int error = 1;
   public static final int DISTINCT = 4;
-  public static final int LIKE = 22;
+  public static final int LIKE = 23;
   public static final int LIMIT = 15;
-  public static final int LCURLY = 37;
-  public static final int NULL = 56;
-  public static final int EQEQ = 49;
-  public static final int EXISTS = 20;
-  public static final int NUMBER = 57;
-  public static final int EQ = 43;
+  public static final int LCURLY = 41;
+  public static final int LATERAL = 30;
+  public static final int NULL = 60;
+  public static final int EQEQ = 53;
+  public static final int EXISTS = 21;
+  public static final int NUMBER = 61;
+  public static final int EQ = 47;
   public static final int GROUP_BY = 7;
-  public static final int RCURLY = 38;
-  public static final int LBRACK = 32;
+  public static final int RCURLY = 42;
+  public static final int LBRACK = 35;
   public static final int FROM = 5;
   public static final int ASC = 11;
-  public static final int COLON = 34;
+  public static final int COLON = 37;
   public static final int LAST = 14;
-  public static final int RBRACK = 33;
+  public static final int RBRACK = 36;
+  public static final int DOUBLE_COLON = 38;
   public static final int ORDER_BY = 9;
-  public static final int DOLLAR = 55;
-  public static final int INSERT = 16;
-  public static final int STRING = 59;
-  public static final int QUESTION = 47;
-  public static final int ALL = 26;
+  public static final int DOLLAR = 59;
+  public static final int INSERT = 17;
+  public static final int STRING = 63;
+  public static final int QUESTION = 51;
+  public static final int ALL = 27;
   public static final int EXPR_START = 2;
-  public static final int AS = 24;
-  public static final int GT = 44;
-  public static final int NOTEQ = 52;
-  public static final int SET = 19;
-  public static final int IDENTIFIER = 60;
+  public static final int AS = 25;
+  public static final int GT = 48;
+  public static final int NOTEQ = 56;
+  public static final int SET = 20;
+  public static final int IDENTIFIER = 64;
   public static final int HAVING = 8;
   public static final String[] terminalNames = new String[] {
   "EOF",
@@ -86,6 +90,7 @@ public interface ExpressionSymbols {
   "FIRST",
   "LAST",
   "LIMIT",
+  "OFFSET",
   "INSERT",
   "UPDATE",
   "DELETE",
@@ -98,6 +103,8 @@ public interface ExpressionSymbols {
   "ANY",
   "ALL",
   "THIS",
+  "WITH",
+  "LATERAL",
   "OBJ_STATE",
   "IMAGE",
   "LPAREN",
@@ -105,6 +112,7 @@ public interface ExpressionSymbols {
   "LBRACK",
   "RBRACK",
   "COLON",
+  "DOUBLE_COLON",
   "COMMA",
   "DOT",
   "LCURLY",

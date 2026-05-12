@@ -20,6 +20,10 @@ public final class DqlQueries {
         return newQueryArgument(DataSourceModelService.getDefaultDataSourceId(), dqlQuery, parameters);
     }
 
+    public static QueryArgument newQueryArgumentForDefaultDataSourceWithMetadata(String dqlQuery, Object... parameters) {
+        return newQueryArgument(DataSourceModelService.getDefaultDataSourceId(), null, dqlQuery, true, parameters);
+    }
+
     public static QueryArgument newQueryArgument(Object dataSourceId, String dqlQuery, Object... parameters) {
         return newQueryArgument(dataSourceId, null, dqlQuery, parameters);
     }
@@ -30,7 +34,17 @@ public final class DqlQueries {
         return newQueryArgument(dataSourceId, aggregateScope, dqlQuery, parameters, parameterNamesHolder[0]);
     }
 
+    public static QueryArgument newQueryArgument(Object dataSourceId, AggregateScope aggregateScope, String dqlQuery, boolean sendMetadata, Object... parameters) {
+        String[][] parameterNamesHolder = { null };
+        parameters = resolveParameters(parameters, parameterNames -> parameterNamesHolder[0] = parameterNames);
+        return newQueryArgument(dataSourceId, aggregateScope, dqlQuery, parameters, parameterNamesHolder[0], sendMetadata);
+    }
+
     public static QueryArgument newQueryArgument(Object dataSourceId, AggregateScope aggregateScope, String dqlQuery, Object[] parameters, String[] parameterNames) {
+        return newQueryArgument(dataSourceId, aggregateScope, dqlQuery, parameters, parameterNames, false);
+    }
+
+    public static QueryArgument newQueryArgument(Object dataSourceId, AggregateScope aggregateScope, String dqlQuery, Object[] parameters, String[] parameterNames, boolean sendMetadata) {
         return QueryArgument.builder()
             .setDataSourceId(dataSourceId)
             .addDataScope(aggregateScope)
@@ -38,6 +52,7 @@ public final class DqlQueries {
             .setStatement(translateQuery(dqlQuery, dataSourceId))
             .setParameters(parameters)
             .setParameterNames(parameterNames)
+            .setSendMetadata(sendMetadata)
             .build();
     }
 

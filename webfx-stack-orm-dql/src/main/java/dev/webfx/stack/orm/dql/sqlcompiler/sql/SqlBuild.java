@@ -1,6 +1,7 @@
 package dev.webfx.stack.orm.dql.sqlcompiler.sql;
 
 import dev.webfx.stack.orm.expression.Expression;
+import dev.webfx.stack.orm.expression.terms.As;
 import dev.webfx.stack.orm.dql.sqlcompiler.lci.CompilerDomainModelReader;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.dbms.DbmsSqlSyntax;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.dbms.HsqlSyntax;
@@ -49,8 +50,10 @@ public final class SqlBuild {
     private final HashMap<SqlClause, StringBuilder> sqlClauseBuilders = new HashMap<>();
     private final HashMap<String /* table alias */, Map<Join, Join> /* joins */ > joins = new HashMap<>();
 
-    private final HashMap<String, String> tableAliases = new HashMap<>();   // tableAlias => tableName
+    private final HashMap<String, String> tableAliases = new HashMap<>();   // tableAlias => tableName (real SQL table or CTE alias for field resolution)
+    private HashMap<String, String> cteAliasTableNames = null; // tableAlias => CTE name (overrides tableAliases for SQL generation)
     private HashMap<String, String> logicalAliases = null; // logicalAlias => sqlAlias
+    private HashMap<String, String> lateralSqlMap = null; // alias => compiled SQL of the lateral subquery
     private final List<String> orderedAliases = new ArrayList<>();
     private final HashMap<String, QueryColumnToEntityFieldMapping> fullColumnNameToColumnMappings = new HashMap<>(); // tableAlias.columnName => columnMapping
     //private int fromTablesCount;
@@ -150,15 +153,23 @@ public final class SqlBuild {
             boolean first = true;
             for (String tableAlias : orderedAliases) {
                 if (!isJoinTableAlias(tableAlias)) {
-                    String tableName = tableAliases.get(tableAlias);
+                    // Check if this is a lateral subquery
+                    if (lateralSqlMap != null && lateralSqlMap.containsKey(tableAlias)) {
+                        sb.append(" cross join lateral (").append(lateralSqlMap.get(tableAlias)).append(") as ").append(tableAlias);
+                        continue;
+                    }
+                    // Use CTE name if available (for SQL generation), otherwise use real table name
+                    String tableName = (cteAliasTableNames != null && cteAliasTableNames.containsKey(tableAlias))
+                            ? cteAliasTableNames.get(tableAlias)
+                            : tableAliases.get(tableAlias);
                     if (!first)
                         sb.append(", ");
                     sb.append(dbmsSyntax.quoteTableIfReserved(tableName)); // tableName
                     if (insert == null) // no alias allowed in insert sql statement
                         sb.append(" as ").append(tableAlias); // may need ` as ` instead of ` ` for some dbms
                     first = false;
+                    appendJoinsRecursively(tableAlias, sb); // depth-first: all sub-joins before the next base table
                 }
-                Join.appendJoins(joins.get(tableAlias), sb);
             }
             sb//.append(_if(fromTablesCount > 1, ") "))
                     .append(_if(" set ", getClauseBuilder(SqlClause.UPDATE), "", sb))
@@ -169,6 +180,7 @@ public final class SqlBuild {
                     .append(_if(" having ", getClauseBuilder(SqlClause.HAVING), "", sb))
                     .append(_if(" order by ", getClauseBuilder(SqlClause.ORDER_BY), "", sb))
                     .append(_if(" limit ", getClauseBuilder(SqlClause.LIMIT), "", sb))
+                    .append(_if(" offset ", getClauseBuilder(SqlClause.OFFSET), "", sb))
                     .append(_if(" returning ", getClauseBuilder(SqlClause.RETURNING), "", sb));
             sql = sb.toString();
         }
@@ -182,14 +194,16 @@ public final class SqlBuild {
             boolean first = true;
             for (String tableAlias : orderedAliases) {
                 if (!isJoinTableAlias(tableAlias)) {
-                    String tableName = tableAliases.get(tableAlias);
+                    String tableName = (cteAliasTableNames != null && cteAliasTableNames.containsKey(tableAlias))
+                            ? cteAliasTableNames.get(tableAlias)
+                            : tableAliases.get(tableAlias);
                     if (!first)
                         sb.append(", ");
                     sb.append(dbmsSyntax.quoteTableIfReserved(tableName)); // tableName
                     sb.append(" as ").append(tableAlias); // may need ` as ` instead of ` ` for some dbms
                     first = false;
+                    appendJoinsRecursively(tableAlias, sb); // depth-first: all sub-joins before the next base table
                 }
-                Join.appendJoins(joins.get(tableAlias), sb);
             }
             sb//.append(_if(fromTablesCount > 1, ") "))
                     .append(_if(" where ", getClauseBuilder(SqlClause.WHERE), "", sb))
@@ -320,6 +334,10 @@ public final class SqlBuild {
         logicalAliases.put(logicalAlias, sqlAlias);
     }
 
+    public boolean hasColumnMapping(String columnName) {
+        return fullColumnNameToColumnMappings.containsKey(dbmsSyntax.quoteColumnIfReserved(columnName));
+    }
+
     public QueryColumnToEntityFieldMapping addColumnInClause(String tableAlias, String columnName, Object fieldId, Object foreignFieldClassId, SqlClause clause, String separator, boolean grouped, boolean isBoolean, boolean generateQueryMapping) {
         if (clause == SqlClause.INSERT || clause == SqlClause.VALUES || clause == SqlClause.UPDATE /* Postgres doesn't like alias in set clause */)
             tableAlias = null;
@@ -344,6 +362,77 @@ public final class SqlBuild {
             prepareAppend(clause, separator).append(fullColumnName);
         }
         return queryColumnToEntityFieldMapping;
+    }
+
+    private void appendJoinsRecursively(String tableAlias, StringBuilder sb) {
+        Map<Join, Join> tableJoins = joins.get(tableAlias);
+        if (tableJoins == null) return;
+        Join.appendJoins(tableJoins, sb);
+        for (Join join : tableJoins.keySet())
+            appendJoinsRecursively(join.table2Alias, sb);
+    }
+
+    public void registerFromTable(String tableName, String tableAlias) {
+        tableAliases.put(tableAlias, tableName);
+        orderedAliases.add(tableAlias);
+    }
+
+    public void setCteTableName(String cteName) {
+        if (cteAliasTableNames == null)
+            cteAliasTableNames = new HashMap<>();
+        cteAliasTableNames.put(tableAlias, cteName);
+        // Register a logical alias so that Alias references using the CTE name (e.g. "ep") resolve to
+        // the generated SQL table alias (e.g. "tt1"), ensuring JOINs are stored and emitted correctly.
+        recordLogicalAlias(cteName, tableAlias);
+    }
+
+    public void registerCteFromTable(String cteName, String realTableName, String tableAlias) {
+        tableAliases.put(tableAlias, realTableName); // real table name for field resolution
+        orderedAliases.add(tableAlias);
+        if (cteAliasTableNames == null)
+            cteAliasTableNames = new HashMap<>();
+        cteAliasTableNames.put(tableAlias, cteName); // CTE name for SQL generation
+    }
+
+    public void registerLateralSubquery(String alias, dev.webfx.stack.orm.expression.terms.Select<?> subquery, DbmsSqlSyntax dbmsSyntax, CompilerDomainModelReader modelReader) {
+        if (lateralSqlMap == null)
+            lateralSqlMap = new HashMap<>();
+        if (subquery.getDomainClass() != null) {
+            // Full select with FROM clause
+            SqlCompiled compiled = dev.webfx.stack.orm.dql.sqlcompiler.ExpressionSqlCompiler.compileSelect(subquery, dbmsSyntax, false, false, modelReader);
+            lateralSqlMap.put(alias, compiled.getSql());
+        } else if (subquery.getFields() != null) {
+            // Scalar select (no FROM) — compile just the field expressions using the parent's context.
+            StringBuilder lateralSb = new StringBuilder("select ");
+            Expression<?>[] fieldExprs = subquery.getFields().getExpressions();
+            for (int i = 0; i < fieldExprs.length; i++) {
+                if (i > 0) lateralSb.append(", ");
+                Expression<?> field = fieldExprs[i];
+                // Unwrap As to get the alias (since isTopLevelSelect() won't emit it)
+                String fieldAlias = null;
+                if (field instanceof As<?> asExpr) {
+                    fieldAlias = asExpr.getAlias();
+                    field = asExpr.getOperand();
+                }
+                // Compile the expression into an ephemeral clause
+                SqlClause ephemeral = SqlClause.VALUES;
+                StringBuilder origClause = sqlClauseBuilders.get(ephemeral);
+                sqlClauseBuilders.put(ephemeral, new StringBuilder());
+                dev.webfx.stack.orm.dql.sqlcompiler.ExpressionSqlCompiler.compileExpression(
+                    field, new Options(this, ephemeral, ", ", false, false, false, modelReader)
+                );
+                lateralSb.append(sqlClauseBuilders.get(ephemeral));
+                if (origClause != null)
+                    sqlClauseBuilders.put(ephemeral, origClause);
+                else
+                    sqlClauseBuilders.remove(ephemeral);
+                // Manually append the AS alias
+                if (fieldAlias != null)
+                    lateralSb.append(" as ").append(fieldAlias);
+            }
+            lateralSqlMap.put(alias, lateralSb.toString());
+        }
+        orderedAliases.add(alias);
     }
 
     public String addJoinCondition(String table1Alias, String column1Name, String table2Alias, String table2Name, String column2Name, boolean leftOuter) {

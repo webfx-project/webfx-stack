@@ -36,6 +36,15 @@ public final class FieldsGroup<T> extends Symbol<T> {
         return expression;
     }
 
+    /**
+     * FieldsGroups must never be compiled to a single SQL expression. Their purpose is to load
+     * individual persistent fields, which is handled by the persistent-terms path (branch 2).
+     */
+    @Override
+    public boolean isExpressionSqlCompilable() {
+        return false;
+    }
+
     @Override
     public StringBuilder toString(StringBuilder sb) {
         return sb.append('<').append(name).append('>');

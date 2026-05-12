@@ -14,10 +14,7 @@ import dev.webfx.stack.com.serial.spi.impl.time.LocalDateSerialCodec;
 import dev.webfx.stack.com.serial.spi.impl.time.LocalDateTimeSerialCodec;
 import dev.webfx.stack.com.serial.spi.impl.time.LocalTimeSerialCodec;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -82,6 +79,8 @@ public final class SerialCodecManager {
             return object;
         if (object instanceof Instant)
             return encodePrefixedInstant((Instant) object);
+        if (object instanceof OffsetDateTime)
+            return encodePrefixedInstant(((OffsetDateTime) object).toInstant());
         if (object instanceof LocalDate)
             return encodePrefixedLocalDate((LocalDate) object);
         if (object instanceof LocalDateTime)
@@ -134,12 +133,12 @@ public final class SerialCodecManager {
         return encodeJavaObjectToAstObject(object, AST.createObject());
     }
 
-    private static <T> AstObject encodeJavaObjectToAstObject(T javaObject, AstObject json) {
+    private static <T> ReadOnlyAstObject encodeJavaObjectToAstObject(T javaObject, AstObject json) {
         // Used for serializing Vertx objects or arrays from JSON database results, for ex when using jsonb_build_array(...)
         if (AST.NATIVE_FACTORY != null && AST.NATIVE_FACTORY.acceptAsNativeObject(javaObject))
-            javaObject = (T) AST.NATIVE_FACTORY.nativeToAstObject(javaObject);
+            javaObject = (T) AST.NATIVE_FACTORY.nativeToReadOnlyAstObject(javaObject);
         if (AST.NATIVE_FACTORY != null && AST.NATIVE_FACTORY.acceptAsNativeArray(javaObject))
-            javaObject = (T) AST.NATIVE_FACTORY.nativeToAstArray(javaObject);
+            javaObject = (T) AST.NATIVE_FACTORY.nativeToReadOnlyAstArray(javaObject);
         SerialCodec<T> encoder;
         if (AST.isNode(javaObject)) // ReadOnlyAstNode is an interface and can't be found by getSerialEncoder(),
             encoder = (SerialCodec<T>) AST_NODE_SERIAL_CODEC; // which is why we retrieve its SerialCodec differently here

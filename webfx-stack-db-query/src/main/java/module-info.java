@@ -9,6 +9,8 @@ module webfx.stack.db.query {
     requires webfx.platform.util;
     requires transitive webfx.stack.db.datascope;
     requires webfx.stack.db.datasource;
+    requires webfx.stack.orm.domainmodel;
+    requires webfx.stack.orm.domainmodel.service;
 
     // Exported packages
     exports dev.webfx.stack.db.query;

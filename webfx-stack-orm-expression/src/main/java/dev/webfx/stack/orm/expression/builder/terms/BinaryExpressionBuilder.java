@@ -18,7 +18,7 @@ public abstract class BinaryExpressionBuilder extends ExpressionBuilder {
     }
 
     @Override
-    public BinaryExpression build() {
+    public Expression build() {
         if (operation == null) {
             propagateDomainClasses();
             operation = newBinaryOperation(left.build(), right.build());
