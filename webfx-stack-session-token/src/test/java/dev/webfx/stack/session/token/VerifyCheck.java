@@ -9,13 +9,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
- * The three cases ServerSideStateSessionSyncer.applyIdentityToken must distinguish.
+ * The four cases ServerSideStateSessionSyncer.applyIdentityToken must distinguish.
  *
  * <p>It mirrors that method rather than calling it, because the syncer needs a live session and bus to be
  * driven directly. Keep the two in step: if the syncer's logic changes, change this. The case worth
- * guarding hardest is the last kind — a token that does not verify must NOT fall back to the identity the
- * message claimed, or anyone could defeat the whole check by sending rubbish and being handed the old,
- * weaker path.
+ * guarding hardest is a token that is not OURS — forged, altered, or signed with a retired key — which must
+ * never fall back to the identity the message claimed, or anyone could defeat the whole check by sending
+ * rubbish and being handed the old, weaker path.
+ *
+ * <p>A token that IS ours and has merely expired is the one exception, and it is not a softening of that
+ * rule. While the flip is off the claim stands, because a client sending no token at all is already
+ * believed — refusing here bought nothing and cost every user a forced logout twelve hours after login.
+ * Once the flip is on it is refused like anything else unproven, which the last block checks.
  *
  * <p>The no-token case is the migration path and asserts that behaviour is UNCHANGED for clients that do
  * not send one. That assertion stops being desirable at the flip, when a missing token must start being
@@ -28,9 +33,22 @@ public class VerifyCheck {
     // Mirrors ServerSideStateSessionSyncer.applyIdentityToken.
     static void applyIdentityToken(Object clientState) {
         String token = StateAccessor.getUserToken(clientState);
-        if (token == null || token.isEmpty()) return;
-        Object principal = PrincipalToken.verify(token, System.currentTimeMillis());
-        StateAccessor.setUserId(clientState, principal != null ? principal : LogoutUserId.LOGOUT_USER_ID);
+        if (token == null || token.isEmpty()) {
+            // Mirrored too, or the flip's PRIMARY case is silently untested: inverting the condition in the
+            // syncer would leave every check below green while the thing the flip exists to do stopped
+            // happening.
+            boolean claimsRealIdentity = !LogoutUserId.isLogoutUserIdOrNull(StateAccessor.getUserId(clientState));
+            if (IdentityTokenPolicy.refusesUntokenedClaim(claimsRealIdentity))
+                StateAccessor.setUserId(clientState, LogoutUserId.LOGOUT_USER_ID);
+            return;
+        }
+        long nowMillis = System.currentTimeMillis();
+        Object principal = PrincipalToken.verify(token, nowMillis);
+        if (principal != null)
+            StateAccessor.setUserId(clientState, principal);
+        else if (IdentityTokenPolicy.isTokenRequired() || !SignedToken.isAuthenticButExpired(token, nowMillis))
+            StateAccessor.setUserId(clientState, LogoutUserId.LOGOUT_USER_ID);
+        // else: ours, expired, flip off — the claim stands and the state is left untouched
     }
 
     public static void main(String[] a) {
@@ -58,10 +76,35 @@ public class VerifyCheck {
         check("forged token yields logged out", LogoutUserId.isLogoutUserIdOrNull(StateAccessor.getUserId(s3)));
         check("the claim is NOT honoured as a fallback", !impostorClaim.equals(StateAccessor.getUserId(s3)));
 
+        System.out.println("token ours but expired — the claim stands while the flip is off:");
         Object s4 = StateAccessor.createUserIdState(real);
         StateAccessor.setUserToken(s4, PrincipalToken.mint(real, System.currentTimeMillis() - 1));
         applyIdentityToken(s4);
-        check("expired token yields logged out, not the claim", LogoutUserId.isLogoutUserIdOrNull(StateAccessor.getUserId(s4)));
+        check("expired token leaves the claimed identity in place", real.equals(StateAccessor.getUserId(s4)));
+        check("expired token does NOT end the session", !LogoutUserId.isLogoutUserIdOrNull(StateAccessor.getUserId(s4)));
+
+        System.out.println("...and is refused once a token is required:");
+        IdentityTokenPolicy.setTokenRequired(true);
+        try {
+            Object s4on = StateAccessor.createUserIdState(real);
+            StateAccessor.setUserToken(s4on, PrincipalToken.mint(real, System.currentTimeMillis() - 1));
+            applyIdentityToken(s4on);
+            check("expired token yields logged out", LogoutUserId.isLogoutUserIdOrNull(StateAccessor.getUserId(s4on)));
+            Object s4forged = StateAccessor.createUserIdState(impostorClaim);
+            StateAccessor.setUserToken(s4forged, "not-a-real-token");
+            applyIdentityToken(s4forged);
+            check("forged token still yields logged out", LogoutUserId.isLogoutUserIdOrNull(StateAccessor.getUserId(s4forged)));
+            // The flip's whole purpose, and the case the earlier blocks never reach because they all carry
+            // a token: a bare claim with nothing behind it.
+            Object s4bare = StateAccessor.createUserIdState(real);
+            applyIdentityToken(s4bare);
+            check("a claim with no token at all is refused", LogoutUserId.isLogoutUserIdOrNull(StateAccessor.getUserId(s4bare)));
+            Object s4anon = StateAccessor.createUserIdState(LogoutUserId.LOGOUT_USER_ID);
+            applyIdentityToken(s4anon);
+            check("a logged-out client is left alone, not 'refused'", LogoutUserId.isLogoutUserIdOrNull(StateAccessor.getUserId(s4anon)));
+        } finally {
+            IdentityTokenPolicy.setTokenRequired(false); // static and global: never leak it into the next block
+        }
 
         System.out.println("after a key rotation that dropped the old key:");
         Object s5 = StateAccessor.createUserIdState(real);

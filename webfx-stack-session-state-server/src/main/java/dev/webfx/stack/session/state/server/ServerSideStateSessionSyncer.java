@@ -12,11 +12,14 @@ import dev.webfx.stack.session.state.SessionAccessor;
 import dev.webfx.stack.session.state.StateAccessor;
 import dev.webfx.stack.session.token.IdentityTokenPolicy;
 import dev.webfx.stack.session.token.PrincipalToken;
+import dev.webfx.stack.session.token.SignedToken;
 import dev.webfx.stack.session.state.ThreadLocalStateHolder;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Bruno Salmon
@@ -84,7 +87,7 @@ public final class ServerSideStateSessionSyncer {
     }
 
     private static Future<IsolatedSession> syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(IsolatedSession serverSession, Object clientState, boolean forceStore) {
-        applyIdentityToken(clientState);
+        applyIdentityToken(clientState, serverSession.id());
         Object userId = StateAccessor.getUserId(clientState);
         Object sessionUserId = SessionAccessor.getUserId(serverSession);
         // A "public" principal is one that isn't a logged-in user: either no userId at all (never logged in),
@@ -186,7 +189,7 @@ public final class ServerSideStateSessionSyncer {
      * it simply overwrites the claim — the rest of the flow then proceeds unchanged, on an identity that
      * was established rather than asserted.
      *
-     * <p>Three cases, and which of them closes anything depends on configuration:
+     * <p>Four cases, and which of them closes anything depends on configuration:
      *
      * <ul>
      *   <li><b>No token</b> — decided by {@link IdentityTokenPolicy}, and this is THE flip. While it is off
@@ -198,17 +201,26 @@ public final class ServerSideStateSessionSyncer {
      *       value that defaults to the insecure answer.</li>
      *   <li><b>Valid token</b> — its principal wins over whatever the message claimed. A caller presenting
      *       a valid token for one user while claiming to be another is treated as the user the token names.</li>
-     *   <li><b>Token present but not valid</b> — forged, altered, expired, or signed with a key this server
-     *       no longer accepts. The claim is NOT honoured as a fallback: a caller holding a token that does
-     *       not verify has something wrong with it, and quietly dropping back to the weaker path would let
-     *       anyone defeat this check by sending rubbish. Treated as logged out, and logged, because it is
-     *       the one case here that should be visible to a human.</li>
+     *   <li><b>Ours, but expired</b> — the signature holds and the deadline has passed. Refusing this was
+     *       a bug with teeth. Tokens carry a fixed 12-hour life and nothing renews them, so every session
+     *       was being ended mid-use — mid-stream, mid-booking, mid-payment — twelve hours after login, on a
+     *       server whose whole premise was that it still accepts bare claims and therefore changes nothing.
+     *       The flip governs a MISSING token; it never governed a stale one, so merely installing a signing
+     *       key switched on a session cap nobody chose and nobody could see. While the flip is off the claim
+     *       now stands, exactly as it does for a client that sends no token at all — the same trust as
+     *       before, not more. Turned on, an expired token is refused like any other unproven claim, which is
+     *       precisely why a renewal path has to exist BEFORE the flip does rather than after it.</li>
+     *   <li><b>Not ours</b> — forged, altered, malformed, or signed with a key this server no longer
+     *       accepts. The claim is NOT honoured as a fallback, in either mode: a caller holding a token that
+     *       does not verify has something wrong with it, and quietly dropping back to the weaker path would
+     *       let anyone defeat this check by sending rubbish. Treated as logged out, and logged, because it
+     *       is the one case here that should be visible to a human.</li>
      * </ul>
      *
      * <p>Cheaper than the database check it will eventually replace, which is what allows it to run on every
      * message rather than only on a login transition — the reason the skip conditions below exist at all.
      */
-    private static void applyIdentityToken(Object clientState) {
+    private static void applyIdentityToken(Object clientState, String serverSessionId) {
         String token = StateAccessor.getUserToken(clientState);
         if (token == null || token.isEmpty()) {
             boolean claimsRealIdentity = !LogoutUserId.isLogoutUserIdOrNull(StateAccessor.getUserId(clientState));
@@ -216,14 +228,27 @@ public final class ServerSideStateSessionSyncer {
                 refuseUntokenedClaim(clientState);
             return;
         }
-        Object principal = PrincipalToken.verify(token, System.currentTimeMillis());
+        long nowMillis = System.currentTimeMillis();
+        Object principal = PrincipalToken.verify(token, nowMillis);
         if (principal != null) {
             StateAccessor.setUserId(clientState, principal);
-        } else {
-            // Not an error the caller can be told apart: forged and expired look identical on purpose, so a
-            // probe learns nothing from the response. The server log is where the distinction would be made.
+        } else if (IdentityTokenPolicy.isTokenRequired() || !SignedToken.isAuthenticButExpired(token, nowMillis)) {
+            // The client is told only that it is logged out, never why — but while the flip is off it can
+            // still infer the difference, because an expired token leaves its session alone and this branch
+            // does not. That is a MAC-validity oracle, and it is accepted here for two reasons: guessing a
+            // valid HMAC-SHA256 is the infeasibility the whole mechanism already rests on, and a caller in
+            // this mode can assert any identity it likes with no token at all, so the oracle reveals nothing
+            // it could not more easily just do. Do not carry the old "indistinguishable on purpose" claim
+            // forward: it stopped being true here. Ordered so the extra signature check is skipped entirely
+            // once the flip is on, where both kinds end the same way anyway.
             Console.log("🛡 Identity token presented but not valid — treating as logged out");
             StateAccessor.setUserId(clientState, LogoutUserId.LOGOUT_USER_ID);
+        } else {
+            // Ours, expired, flip off: leave the state exactly as the claim had it — the same treatment this
+            // message would have got carrying no token at all. Deliberately NOT re-minted here: a token
+            // minted from a claim is a signed lie (see AuthenticatedState), so renewal belongs where a
+            // credential was actually checked, never on the echo path.
+            noteExpiredIdentityToken(serverSessionId);
         }
     }
 
@@ -262,6 +287,41 @@ public final class ServerSideStateSessionSyncer {
             Console.log("🛡 Refused " + untokenedClaimsSinceLastLog + " identity claim(s) with no token"
                         + " (webfx.stack.session.token.required is on)");
             untokenedClaimsSinceLastLog = 0;
+        }
+    }
+
+    /**
+     * DISTINCT SESSIONS seen with an expired token since the last report — not messages, and the difference
+     * is the whole value of the number.
+     *
+     * <p>The client echoes its token on every single message, so counting messages would report one stale
+     * tab as hundreds a minute, would never visibly shrink, and would be wrong in the one direction that
+     * matters: this figure exists to tell an operator how many people the flip would sign out, and a number
+     * that overstates that by orders of magnitude is worse than no number at all.
+     *
+     * <p>Concurrency is handled properly here rather than waved off as it is for the counter above, because
+     * this one is a collection. A plain {@link HashMap}-backed set written from two event loops at once can
+     * corrupt its table and spin a CPU — an outcome far worse than a miscounted log line, and not one to
+     * accept for a diagnostic. Capped so a flood of new sessions cannot grow it without bound between
+     * reports; at the cap the figure is reported as a floor rather than silently becoming a lie.
+     */
+    private static final int EXPIRED_TOKEN_SESSIONS_CAP = 10_000;
+    private static final Set<String> expiredTokenSessionIds = ConcurrentHashMap.newKeySet();
+    private static long expiredTokenLastLogMillis;
+
+    private static void noteExpiredIdentityToken(String serverSessionId) {
+        // Bounded, and racy against the cap on purpose: a few entries either side of it change nothing.
+        if (expiredTokenSessionIds.size() < EXPIRED_TOKEN_SESSIONS_CAP)
+            expiredTokenSessionIds.add(serverSessionId == null ? "" : serverSessionId);
+        long now = System.currentTimeMillis();
+        if (now - expiredTokenLastLogMillis >= UNTOKENED_CLAIM_LOG_INTERVAL_MILLIS) {
+            expiredTokenLastLogMillis = now;
+            int sessions = expiredTokenSessionIds.size();
+            expiredTokenSessionIds.clear();
+            Console.log("🛡 " + sessions + (sessions >= EXPIRED_TOKEN_SESSIONS_CAP ? "+" : "") + " session(s)"
+                        + " presented an expired identity token; the claim stands while"
+                        + " webfx.stack.session.token.required is off. Each is a session that has outlived"
+                        + " its token, and a forced logout on the day that setting is turned on.");
         }
     }
 

@@ -89,23 +89,63 @@ public final class SignedToken {
      * @param nowMillis the current time, passed in so expiry is testable without waiting for it
      */
     public static String verify(String token, long nowMillis) {
+        Checked checked = check(token, nowMillis);
+        return checked.validity() == Validity.VALID ? checked.payload() : null;
+    }
+
+    /**
+     * True when this server really did sign the token and its expiry has simply passed.
+     *
+     * <p>Kept apart from {@link #verify} because the two answer different questions, and only one of them
+     * is about trust. {@code verify} asks "may I act on this?", to which an expired token is a flat no.
+     * This asks "did we write it?" — a fact about provenance, which stays true after the deadline.
+     *
+     * <p><b>It never yields the payload, and that is the point.</b> An expired token proves who someone
+     * WAS; nothing here lets a caller recover the assertion and carry on as though it still held. The one
+     * legitimate use is to tell a stale session apart from a forged one so that policy can treat them
+     * differently — and that policy belongs to the caller, not to this class.
+     *
+     * <p>What this class hands back stays on this side of the wire, but do not read that as "the client
+     * cannot tell". Whether the two become distinguishable depends entirely on what the caller DOES with
+     * the answer: a caller that ends the session for one and not the other has built a MAC-validity oracle,
+     * however quiet its responses are. That is a judgement for the caller to make and to write down — see
+     * {@code ServerSideStateSessionSyncer.applyIdentityToken}, which makes it deliberately.
+     */
+    public static boolean isAuthenticButExpired(String token, long nowMillis) {
+        return check(token, nowMillis).validity() == Validity.EXPIRED;
+    }
+
+    /** What a presented token turned out to be. Only {@link Validity#VALID} carries a payload. */
+    private enum Validity { VALID, EXPIRED, INVALID }
+
+    private record Checked(Validity validity, String payload) {
+        static final Checked INVALID = new Checked(Validity.INVALID, null);
+        static final Checked EXPIRED = new Checked(Validity.EXPIRED, null);
+    }
+
+    /**
+     * The one reader of a presented token, so that "is this ours?" and "is it still good?" cannot drift
+     * apart. Two parsers over the same attacker-supplied string is how one of them ends up accepting what
+     * the other rejects.
+     */
+    private static Checked check(String token, long nowMillis) {
         List<byte[]> currentKeys = keys;
         if (token == null || currentKeys.isEmpty())
-            return null;
+            return Checked.INVALID;
         int macSeparator = token.lastIndexOf(SEPARATOR);
         if (macSeparator < 0)
-            return null;
+            return Checked.INVALID;
         String signedPart = token.substring(0, macSeparator);
         String presentedMac = token.substring(macSeparator + 1);
         int expirySeparator = signedPart.lastIndexOf(SEPARATOR);
         if (expirySeparator < 0)
-            return null;
+            return Checked.INVALID;
 
         byte[] presented;
         try {
             presented = DECODER.decode(presentedMac);
         } catch (IllegalArgumentException e) {
-            return null;
+            return Checked.INVALID;
         }
 
         // Signature first, always: everything below this point reads bytes the client supplied.
@@ -116,21 +156,24 @@ public final class SignedToken {
             // forge one byte at a time.
             authentic |= MessageDigest.isEqual(presented, mac(key, signedPart));
         if (!authentic)
-            return null;
+            return Checked.INVALID;
 
         long expiryMillis;
         try {
             expiryMillis = Long.parseLong(signedPart.substring(expirySeparator + 1));
         } catch (NumberFormatException e) {
-            return null; // signed by us, but malformed: still refuse rather than guess
+            return Checked.INVALID; // signed by us, but malformed: still refuse rather than guess
         }
         if (nowMillis >= expiryMillis)
-            return null;
+            // Authentic, and past its deadline. Nothing is decoded here: the payload of an expired token is
+            // not returned to anyone, so the only thing that escapes this branch is the fact of staleness.
+            return Checked.EXPIRED;
 
         try {
-            return new String(DECODER.decode(signedPart.substring(0, expirySeparator)), StandardCharsets.UTF_8);
+            return new Checked(Validity.VALID,
+                new String(DECODER.decode(signedPart.substring(0, expirySeparator)), StandardCharsets.UTF_8));
         } catch (IllegalArgumentException e) {
-            return null;
+            return Checked.INVALID;
         }
     }
 

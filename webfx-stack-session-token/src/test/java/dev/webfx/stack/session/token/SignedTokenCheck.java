@@ -61,9 +61,30 @@ public class SignedTokenCheck {
         SignedToken.setKeys(List.of(KEY_A));
         check("rotation: once retired, the old key stops verifying", SignedToken.verify(newToken, NOW) == null);
 
+        System.out.println("expired versus forged — we can tell them apart, a client still cannot:");
+        // Keys are back to KEY_A here, which is what minted `token` (expiring at NOW + 10_000).
+        check("ours and still current is not called expired", !SignedToken.isAuthenticButExpired(token, NOW));
+        check("ours and past the deadline is called expired", SignedToken.isAuthenticButExpired(token, NOW + 10_000));
+        check("ours, long past the deadline, still called expired", SignedToken.isAuthenticButExpired(token, NOW + 999_999));
+        // Everything that is not ours must answer false, or "expired" becomes a way in: the caller uses this
+        // to decide NOT to log someone out, so a forgery that answered true would keep an invented identity.
+        check("garbage is not called expired", !SignedToken.isAuthenticButExpired("not-a-token", NOW + 10_000));
+        check("null is not called expired", !SignedToken.isAuthenticButExpired(null, NOW + 10_000));
+        check("empty is not called expired", !SignedToken.isAuthenticButExpired("", NOW + 10_000));
+        check("flipped MAC is not called expired", !SignedToken.isAuthenticButExpired(flipLast(token), NOW + 10_000));
+        check("payload swapped, old MAC kept, is not called expired",
+            !SignedToken.isAuthenticButExpired(forgedPayload + "." + parts[1] + "." + parts[2], NOW + 10_000));
+        check("expiry pushed out, old MAC kept, is not called expired",
+            !SignedToken.isAuthenticButExpired(parts[0] + "." + (NOW + 999_999) + "." + parts[2], NOW + 10_000));
+        check("MAC removed is not called expired", !SignedToken.isAuthenticButExpired(parts[0] + "." + parts[1], NOW + 10_000));
+        SignedToken.setKeys(List.of(KEY_B));
+        check("another server's expired token is not called ours", !SignedToken.isAuthenticButExpired(token, NOW + 10_000));
+        SignedToken.setKeys(List.of(KEY_A));
+
         System.out.println("unconfigured:");
         SignedToken.setKeys(List.of());
         check("verify refuses everything", SignedToken.verify(token, NOW) == null);
+        check("isAuthenticButExpired refuses everything", !SignedToken.isAuthenticButExpired(token, NOW + 10_000));
         check("isConfigured() is false", !SignedToken.isConfigured());
         boolean threw = false;
         try { SignedToken.mint("x", NOW + 1); } catch (IllegalStateException e) { threw = true; }
