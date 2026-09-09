@@ -2,6 +2,7 @@ package dev.webfx.stack.session.state.server;
 
 import dev.webfx.platform.async.AsyncFunction;
 import dev.webfx.platform.async.Future;
+import dev.webfx.platform.async.Promise;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.tuples.Pair;
 import dev.webfx.stack.authn.logout.server.LogoutPush;
@@ -10,12 +11,20 @@ import dev.webfx.stack.session.isolation.IsolatedSession;
 import dev.webfx.stack.session.state.LogoutUserId;
 import dev.webfx.stack.session.state.SessionAccessor;
 import dev.webfx.stack.session.state.StateAccessor;
+import dev.webfx.stack.push.server.PushServerService;
+import dev.webfx.stack.session.token.IdentityToken;
 import dev.webfx.stack.session.token.IdentityTokenPolicy;
 import dev.webfx.stack.session.token.PrincipalToken;
+import dev.webfx.stack.session.token.SessionLifetime;
+import dev.webfx.stack.session.token.SessionTier;
+import dev.webfx.stack.session.token.SessionTokenService;
 import dev.webfx.stack.session.token.SignedToken;
+import dev.webfx.stack.session.state.RestrictedPrincipalRegistry;
 import dev.webfx.stack.session.state.ThreadLocalStateHolder;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -31,7 +40,7 @@ public final class ServerSideStateSessionSyncer {
     // On (re)connection the client re-sends its full state on EVERY message queued until the first server
     // reply, and the session's userId/runId are only stored once the async userIdChecker completes — so all
     // messages arriving in that window would each re-fire the checker AND the authorizer (a burst of SQL per
-    // client on every deploy). This map memoizes the in-flight check per server session so messages 2..N
+    // client on every deploy). This map memorizes the in-flight check per server session so messages 2..N
     // await the single check + authorization push. Single-threaded access (Vert.x event loop) => plain HashMap.
     private record PendingUserIdCheck(Object userId, Future<IsolatedSession> future) {}
     private static final Map<String, PendingUserIdCheck> pendingUserIdChecks = new HashMap<>();
@@ -87,7 +96,13 @@ public final class ServerSideStateSessionSyncer {
     }
 
     private static Future<IsolatedSession> syncFixedServerSessionFromIncomingClientStateWithUserIdCheckFirst(IsolatedSession serverSession, Object clientState, boolean forceStore) {
-        applyIdentityToken(clientState, serverSession.id());
+        // The identity is settled BEFORE anything below reads the userId, and it is the one step here that can
+        // need a database round trip — see applyIdentityToken for when, which is rarely.
+        return applyIdentityToken(clientState, serverSession)
+            .compose(ignored -> syncFixedServerSessionFromCheckedIncomingClientState(serverSession, clientState, forceStore));
+    }
+
+    private static Future<IsolatedSession> syncFixedServerSessionFromCheckedIncomingClientState(IsolatedSession serverSession, Object clientState, boolean forceStore) {
         Object userId = StateAccessor.getUserId(clientState);
         Object sessionUserId = SessionAccessor.getUserId(serverSession);
         // A "public" principal is one that isn't a logged-in user: either no userId at all (never logged in),
@@ -181,7 +196,8 @@ public final class ServerSideStateSessionSyncer {
     }
 
     /**
-     * Replaces the caller's CLAIMED identity with the one this server can prove, when it presented a token.
+     * Replaces the caller's CLAIMED identity with the one this server can prove, when it presented a token —
+     * and keeps that proof alive by exchanging the token as it nears the end of its life.
      *
      * <p>Everything below this line reads the userId out of the client's own message. That is the whole of
      * security item 6: the server learns who is calling by reading a field the caller wrote. A token is the
@@ -201,15 +217,14 @@ public final class ServerSideStateSessionSyncer {
      *       value that defaults to the insecure answer.</li>
      *   <li><b>Valid token</b> — its principal wins over whatever the message claimed. A caller presenting
      *       a valid token for one user while claiming to be another is treated as the user the token names.</li>
-     *   <li><b>Ours, but expired</b> — the signature holds and the deadline has passed. Refusing this was
-     *       a bug with teeth. Tokens carry a fixed 12-hour life and nothing renews them, so every session
-     *       was being ended mid-use — mid-stream, mid-booking, mid-payment — twelve hours after login, on a
-     *       server whose whole premise was that it still accepts bare claims and therefore changes nothing.
-     *       The flip governs a MISSING token; it never governed a stale one, so merely installing a signing
-     *       key switched on a session cap nobody chose and nobody could see. While the flip is off the claim
-     *       now stands, exactly as it does for a client that sends no token at all — the same trust as
-     *       before, not more. Turned on, an expired token is refused like any other unproven claim, which is
-     *       precisely why a renewal path has to exist BEFORE the flip does rather than after it.</li>
+     *   <li><b>Ours, but past its signed deadline</b> — the signature holds and the session has run out of
+     *       idle time. Refusing this was a bug with teeth. Tokens carried a fixed 12-hour life and nothing
+     *       renewed them, so every session was being ended mid-use — mid-stream, mid-booking, mid-payment —
+     *       twelve hours after login, on a server whose whole premise was that it still accepts bare claims
+     *       and therefore changes nothing. The flip governs a MISSING token; it never governed a stale one,
+     *       so merely installing a signing key switched on a session cap nobody chose and nobody could see.
+     *       While the flip is off the claim now stands, exactly as it does for a client that sends no token
+     *       at all — the same trust as before, not more.</li>
      *   <li><b>Not ours</b> — forged, altered, malformed, or signed with a key this server no longer
      *       accepts. The claim is NOT honoured as a fallback, in either mode: a caller holding a token that
      *       does not verify has something wrong with it, and quietly dropping back to the weaker path would
@@ -217,38 +232,252 @@ public final class ServerSideStateSessionSyncer {
      *       is the one case here that should be visible to a human.</li>
      * </ul>
      *
+     * <h3>Renewal, and why it belongs exactly here</h3>
+     *
+     * <p>A session must be renewed on activity the SERVER observed, never on activity a client asserts. This
+     * method runs on every message a client SENDS OR PUBLISHES, so "server-observed activity" needs no new
+     * signal and no new trust: it is simply being called. That is what makes the front office's
+     * sixty-second media heartbeat count as presence for free, and it is the difference between a member
+     * listening to a recording at 2am staying signed in and being ejected mid-teaching.
+     *
+     * <p>Note the boundary precisely, because it is doing work: the Vert.x bridge routes only SEND, PUBLISH
+     * and RECEIVE through the state sync. A protocol PING — which a client emits every thirty seconds for
+     * as long as its socket is open — is handled in the bridge's own branch and never reaches here, so it
+     * renews nothing. The client's ping does carry a state header, and the server simply does not read it.
+     * That is the right way round: a keepalive proves a socket is open, not that anybody is there, and if
+     * it renewed the session then a tab left open on a locked laptop would keep itself signed in forever
+     * and the idle window would stop meaning anything at all. REGISTER frames are outside the sync for the
+     * same reason (and already were — see the note in the React client's connect handler).
+     *
+     * <p>Two speeds, because only one of the two cases can afford to wait:
+     *
+     * <ul>
+     *   <li><b>Due, but still usable</b> — the message proceeds immediately on the token it has, and the
+     *       exchange runs behind it. Nothing waits on the database.</li>
+     *   <li><b>Past its access window</b> — there is no usable proof until the exchange completes, so this
+     *       message waits for it. That is the only path here that adds a round trip, and it is reached
+     *       roughly once per session per twenty minutes, or once when a client comes back after a break.</li>
+     * </ul>
+     *
+     * <p>Note what a failed exchange does NOT do: a store that cannot answer leaves the session exactly as it
+     * was, on the token it already holds. Treating "the database did not answer" as "this session is over"
+     * would make any blip on that table a mass logout — the same error as recovering a failed identity check
+     * into a logged-out user, in the one place it would hurt most.
+     *
      * <p>Cheaper than the database check it will eventually replace, which is what allows it to run on every
      * message rather than only on a login transition — the reason the skip conditions below exist at all.
      */
-    private static void applyIdentityToken(Object clientState, String serverSessionId) {
+    private static Future<Void> applyIdentityToken(Object clientState, IsolatedSession serverSession) {
+        String serverSessionId = serverSession.id();
         String token = StateAccessor.getUserToken(clientState);
         if (token == null || token.isEmpty()) {
+            pendingRenewedTokens.remove(serverSessionId); // nothing to hand a client that is no longer holding one
             boolean claimsRealIdentity = !LogoutUserId.isLogoutUserIdOrNull(StateAccessor.getUserId(clientState));
             if (IdentityTokenPolicy.refusesUntokenedClaim(claimsRealIdentity))
                 refuseUntokenedClaim(clientState);
-            return;
+            return Future.succeededFuture();
         }
         long nowMillis = System.currentTimeMillis();
-        Object principal = PrincipalToken.verify(token, nowMillis);
-        if (principal != null) {
-            StateAccessor.setUserId(clientState, principal);
-        } else if (IdentityTokenPolicy.isTokenRequired() || !SignedToken.isAuthenticButExpired(token, nowMillis)) {
-            // The client is told only that it is logged out, never why — but while the flip is off it can
-            // still infer the difference, because an expired token leaves its session alone and this branch
-            // does not. That is a MAC-validity oracle, and it is accepted here for two reasons: guessing a
-            // valid HMAC-SHA256 is the infeasibility the whole mechanism already rests on, and a caller in
-            // this mode can assert any identity it likes with no token at all, so the oracle reveals nothing
-            // it could not more easily just do. Do not carry the old "indistinguishable on purpose" claim
-            // forward: it stopped being true here. Ordered so the extra signature check is skipped entirely
-            // once the flip is on, where both kinds end the same way anyway.
-            Console.log("🛡 Identity token presented but not valid — treating as logged out");
-            StateAccessor.setUserId(clientState, LogoutUserId.LOGOUT_USER_ID);
-        } else {
-            // Ours, expired, flip off: leave the state exactly as the claim had it — the same treatment this
-            // message would have got carrying no token at all. Deliberately NOT re-minted here: a token
-            // minted from a claim is a signed lie (see AuthenticatedState), so renewal belongs where a
-            // credential was actually checked, never on the echo path.
-            noteExpiredIdentityToken(serverSessionId);
+        IdentityToken identity = PrincipalToken.verify(token, nowMillis);
+        if (identity == null) {
+            if (IdentityTokenPolicy.isTokenRequired() || !SignedToken.isAuthenticButExpired(token, nowMillis)) {
+                // The client is told only that it is logged out, never why — but while the flip is off it can
+                // still infer the difference, because an expired token leaves its session alone and this branch
+                // does not. That is a MAC-validity oracle, and it is accepted here for two reasons: guessing a
+                // valid HMAC-SHA256 is the infeasibility the whole mechanism already rests on, and a caller in
+                // this mode can assert any identity it likes with no token at all, so the oracle reveals nothing
+                // it could not more easily just do. Do not carry the old "indistinguishable on purpose" claim
+                // forward: it stopped being true here. Ordered so the extra signature check is skipped entirely
+                // once the flip is on, where both kinds end the same way anyway.
+                Console.log("🛡 Identity token presented but not valid — treating as logged out");
+                StateAccessor.setUserId(clientState, LogoutUserId.LOGOUT_USER_ID);
+            } else {
+                noteExpiredIdentityToken(serverSessionId);
+            }
+            return Future.succeededFuture();
+        }
+        StateAccessor.setUserId(clientState, identity.principal());
+        // This session's successor token has already been minted and the client is still presenting the
+        // one it replaces — so it simply has not received it yet, and it will ride this message's reply.
+        // Asking the store again here would be asking it about a generation THIS SERVER retired, which it
+        // cannot tell from a copy in someone else's hands: the check would report a theft that never
+        // happened and end a member's session for it. See pendingRenewedTokens.
+        if (awaitingDelivery(serverSessionId, token, nowMillis))
+            return Future.succeededFuture();
+        if (identity.isWithinAccessWindow(nowMillis)) {
+            if (identity.isRenewalDue(nowMillis))
+                renewIdentityToken(identity, token, clientState, serverSession, nowMillis); // behind this message, not in front of it
+            return Future.succeededFuture();
+        }
+        // Authentic, inside the session's idle window, but past the window in which it may be USED. The
+        // message has no proven identity until the exchange happens, so this one waits.
+        return renewIdentityToken(identity, token, clientState, serverSession, nowMillis)
+            .map(renewal -> {
+                if (renewal.outcome() == SessionTokenService.TokenRenewal.Outcome.ENDED)
+                    StateAccessor.setUserId(clientState, LogoutUserId.LOGOUT_USER_ID);
+                // Otherwise RENEWED, or KEEP because the store could not answer. KEEP honours the identity on
+                // a token whose access window has lapsed, which is deliberate: the signature still holds, and
+                // the only thing that could not be established is whether the generation was retired.
+                // Refusing here would turn a database outage into a sign-out for everyone at once.
+                return null;
+            });
+    }
+
+    /**
+     * In-flight exchanges, keyed by session family.
+     *
+     * <p>A client sends several messages at once — a reconnection burst, a page that loads four things —
+     * and every one of them sees the same token in the same state. Without this each would start its own
+     * exchange, and all but one would then present a generation the winner had just retired, which is
+     * indistinguishable from the theft signal this exists to raise. Concurrent by type rather than the plain
+     * map used for user-id checks above, because a family is shared across connections: two browser tabs are
+     * two sockets, and nothing guarantees they land on the same event loop.
+     */
+    private static final Map<String, Future<SessionTokenService.TokenRenewal>> pendingRenewals = new ConcurrentHashMap<>();
+
+    private static Future<SessionTokenService.TokenRenewal> renewIdentityToken(IdentityToken identity, String presentedToken, Object clientState, IsolatedSession serverSession, long nowMillis) {
+        // A token with no family has nothing shared to key on, so the server session stands in for one. It is
+        // the right grain: such a token is about to be upgraded, and an upgrade is per client, not per family.
+        String key = identity.familyId() != null ? "family:" + identity.familyId() : "session:" + serverSession.id();
+        // Claimed with putIfAbsent rather than get-then-put, so two event loops racing on the same family
+        // cannot both start an exchange. The loser of that race would present a generation the winner had
+        // just retired — the theft signal, raised against the same client. The claim is a bare promise, so
+        // it is placed BEFORE any work begins; starting first and registering afterwards would leave the
+        // window open in exactly the case this exists to close.
+        Promise<SessionTokenService.TokenRenewal> promise = Promise.promise();
+        Future<SessionTokenService.TokenRenewal> claim = promise.future();
+        Future<SessionTokenService.TokenRenewal> inFlight = pendingRenewals.putIfAbsent(key, claim);
+        if (inFlight != null)
+            return inFlight;
+        String runId = StateAccessor.getRunId(clientState);
+        if (runId == null)
+            runId = SessionAccessor.getRunId(serverSession);
+        String pushRunId = runId;
+        String serverSessionId = serverSession.id();
+        SessionTokenService.renew(identity, legacyTierHint(identity, clientState, serverSession), nowMillis)
+            .onComplete(ar -> {
+                pendingRenewals.remove(key, claim);
+                if (ar.succeeded()) {
+                    deliverRenewal(ar.result(), presentedToken, serverSessionId, pushRunId);
+                    promise.complete(ar.result());
+                } else {
+                    promise.fail(ar.cause());
+                }
+            });
+        return claim;
+    }
+
+    /**
+     * Which lifetime tier to adopt for a token minted before tiers existed.
+     *
+     * <p>Only ever consulted for those: a tier that arrived inside the signature is a fact, and re-deriving
+     * it from live client state on every message would hand the choice back to the caller. This is the one
+     * moment there is nothing signed to read, and the alternative — refusing every token minted before this
+     * change — would sign out everyone holding one on the day it deploys.
+     */
+    private static SessionTier legacyTierHint(IdentityToken identity, Object clientState, IsolatedSession serverSession) {
+        if (RestrictedPrincipalRegistry.isUserRestricted(identity.principal()))
+            return SessionTier.SUPPORT_VIEW;
+        Boolean backoffice = StateAccessor.getBackoffice(clientState);
+        if (backoffice == null)
+            backoffice = SessionAccessor.isBackoffice(serverSession);
+        return Boolean.TRUE.equals(backoffice) ? SessionTier.BACK_OFFICE : SessionTier.FRONT_OFFICE;
+    }
+
+    /**
+     * A token a renewal minted, and the one it replaces, held until the client is seen using the new one.
+     *
+     * <p><b>This is what stops rotation eating its own users.</b> A renewal retires a generation the instant
+     * it mints its successor, so from that moment the client is holding something the store would call
+     * retired — and "retired token presented" is precisely the signal that ends a session family. Everything
+     * therefore turns on the successor actually reaching the client, and there is no moment at which that is
+     * guaranteed: a renewal that finishes after its message's reply has gone waits for the next one, and a
+     * connection can drop in between. Remembering the pair closes that gap without weakening the signal:
+     * while the client is still presenting the token we replaced, we know why, so we say the new one again
+     * instead of asking the store a question we already know it will answer wrongly.
+     *
+     * <p>Kept until the client is observed on a DIFFERENT token, not until it is sent once — being sent is
+     * not being received, and this whole entry exists because those two are not the same thing.
+     *
+     * <p>It is per server session, so it protects a client from its own missed delivery. It does not help a
+     * SECOND browser tab, which has its own socket and its own session while sharing one stored token: that
+     * one is covered by the client propagating a renewed token between tabs, and behind that by the store's
+     * short grace. Both are stated where they live.
+     *
+     * <p>Bounded, evicting the oldest, because an entry is removed when its client speaks again and a client
+     * may never do so. Losing one costs an extra exchange, not a session.
+     */
+    private record PendingToken(String replacedToken, String newToken, long mintedAtMillis) {}
+
+    /**
+     * How long a successor may go unclaimed before its predecessor stops being excused.
+     *
+     * <p>This entry suppresses the generation check, so without a bound it would also suppress the ACCESS
+     * WINDOW: a holder that simply never adopts the successor would be honoured until the session's signed
+     * deadline — ninety days for a member — which is the opposite of "a stolen token is good for thirty
+     * minutes". One access window is long enough to cover every honest reason a client has not caught up
+     * (a reply lost with the connection, a laptop closed between the renewal and the next message) and
+     * short enough that ignoring the successor buys an extra half hour rather than a season.
+     *
+     * <p>What it costs: a client that was disconnected for LONGER than this at the exact moment its
+     * renewal reply was lost comes back on the retired token, is judged by the store, and has its family
+     * ended. That is a re-login, it is logged, and it is the direction to be wrong in.
+     */
+    private static final long PENDING_DELIVERY_GRACE_MILLIS = SessionLifetime.ACCESS_WINDOW_MILLIS;
+
+    private static final int PENDING_TOKEN_CAP = 20_000;
+    private static final Map<String, PendingToken> pendingRenewedTokens = Collections.synchronizedMap(
+        new LinkedHashMap<>(256, 0.75f, false) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<String, PendingToken> eldest) {
+                return size() > PENDING_TOKEN_CAP;
+            }
+        });
+
+    /**
+     * True when this session has a successor token the client has not picked up yet.
+     *
+     * <p>Also the place the entry is retired: a client presenting anything OTHER than the token we replaced
+     * has moved on, so there is nothing left to deliver.
+     */
+    private static boolean awaitingDelivery(String serverSessionId, String presentedToken, long nowMillis) {
+        PendingToken pending = pendingRenewedTokens.get(serverSessionId);
+        if (pending == null)
+            return false;
+        if (!pending.replacedToken().equals(presentedToken)) {
+            pendingRenewedTokens.remove(serverSessionId, pending);
+            return false;
+        }
+        if (nowMillis - pending.mintedAtMillis() <= PENDING_DELIVERY_GRACE_MILLIS)
+            return true;
+        // Long enough. Stop excusing the old token and let the store say what it thinks of it — which,
+        // for a client that has had every message since offering it the successor, is unlikely to be kind.
+        Console.log("🛡 A renewed identity token went unclaimed for a whole access window; judging the"
+                    + " token still being presented on its own merits");
+        pendingRenewedTokens.remove(serverSessionId, pending);
+        return false;
+    }
+
+    private static void deliverRenewal(SessionTokenService.TokenRenewal renewal, String replacedToken, String serverSessionId, String runId) {
+        switch (renewal.outcome()) {
+            case RENEWED -> pendingRenewedTokens.put(serverSessionId,
+                new PendingToken(replacedToken, renewal.token(), System.currentTimeMillis()));
+            case ENDED -> {
+                pendingRenewedTokens.remove(serverSessionId);
+                // Pushed rather than left for the client's next message, because this is the one outcome where
+                // the delay matters. Be precise about what it achieves, though: a COOPERATING client acts on
+                // the push and stops immediately, and every holder is refused at its next renewal because the
+                // family is revoked in the store — but a token already issued cannot be recalled, so a holder
+                // that ignores the push keeps working until its access window runs out (at most thirty
+                // minutes). Bounding that further would mean consulting shared state on every message, which
+                // is the cost this whole design exists to avoid. Pushed rather than routed through LogoutPush
+                // because that reads the runId from the thread, and this runs after an async hop where the
+                // thread no longer holds the caller's state.
+                if (runId != null)
+                    PushServerService.pushState(StateAccessor.createUserIdState(LogoutUserId.LOGOUT_USER_ID), runId)
+                        .onFailure(e -> Console.log("⚠️ Could not push the end of a session to its client: " + e));
+            }
+            case KEEP -> {} // nothing was decided, so nothing is said; the client keeps working and retries
         }
     }
 
@@ -388,6 +617,23 @@ public final class ServerSideStateSessionSyncer {
         return clientState;
     }
 
+    /**
+     * Whether a token minted by a renewal may ride on this particular outgoing message.
+     *
+     * <p>Extracted so the rule can be exercised without a live session and bus — see RenewalDeliveryCheck.
+     * Both "no" answers are the load-bearing part of the delivery mechanism rather than edge cases; the
+     * reasoning is at the call site.
+     *
+     * @param outgoingUserId    the identity this message is telling the client it has, if any
+     * @param outgoingUserToken the token this message already carries, if any
+     * @param sessionUserId     the identity the SERVER SESSION holds right now
+     */
+    static boolean mayDeliverPendingToken(Object outgoingUserId, String outgoingUserToken, Object sessionUserId) {
+        if (outgoingUserId != null || outgoingUserToken != null)
+            return false; // this message is settling who the client is; nothing left over may override it
+        return !LogoutUserId.isLogoutUserIdOrNull(sessionUserId); // the session is over, or never began
+    }
+
     private static Future<IsolatedSession> storeServerSession(IsolatedSession serverSession) {
         return serverSession.store()
             .onFailure(Console::error)
@@ -416,6 +662,40 @@ public final class ServerSideStateSessionSyncer {
         // stop sending a user id this server would only overwrite. Sent every message rather than once because a
         // client that missed it would silently keep claiming, and the whole point is to remove the claim.
         outgoingState = StateAccessor.setTokenRequired(outgoingState, IdentityTokenPolicy.isTokenRequired(), false);
+        // outgoingState.userToken <= a token a renewal minted for this session ? ON EVERY MESSAGE UNTIL IT LANDS,
+        // EXCEPT ON A MESSAGE THAT IS ITSELF SETTLING WHO THE CLIENT IS.
+        //
+        // Every incoming message produces an outgoing one, so a token minted while handling a message rides its
+        // own reply home. Repeated rather than sent once because being sent is not being received: the entry is
+        // cleared when the client is next SEEN on the new token (see awaitingDelivery), which is the only
+        // evidence of delivery this side ever gets.
+        //
+        // The exception is not a refinement, it is the whole safety of the mechanism. Two messages must never
+        // carry a leftover token:
+        //
+        //   * A LOGOUT. It arrives as an outgoing state whose userId is LOGOUT_USER_ID, and stapling a live
+        //     token to it hands the client a working proof of the identity it was just told to forget — a
+        //     logout that does not log out. On a shared device the next person reloads the page and is signed
+        //     in as the member who thought they had signed out. The session's own userId is consulted rather
+        //     than only this message's, because the reply and the authorization push that FOLLOW a logout carry
+        //     no userId of their own and would otherwise deliver the same token a moment later.
+        //   * A LOGIN. It already carries the token the gateway minted after checking a credential, and
+        //     setUserToken overrides — so a renewal pending for the PREVIOUS occupant of this session would
+        //     replace it, and someone who had just typed their own password would be handed the account of
+        //     whoever used the device before them.
+        //
+        // In both cases the entry is dropped rather than merely skipped: whatever the client should be holding
+        // is being established right here, so nothing left over from before is worth delivering afterwards.
+        PendingToken pendingToken = pendingRenewedTokens.get(serverSession.id());
+        if (pendingToken != null) {
+            // The session's userId is read AFTER changeUserId above, so a logout push has already put
+            // LOGOUT_USER_ID there and every message that follows it sees the session as ended.
+            if (mayDeliverPendingToken(StateAccessor.getUserId(outgoingState),
+                    StateAccessor.getUserToken(outgoingState), SessionAccessor.getUserId(serverSession)))
+                outgoingState = StateAccessor.setUserToken(outgoingState, pendingToken.newToken());
+            else
+                pendingRenewedTokens.remove(serverSession.id(), pendingToken);
+        }
         // outgoingState.userId <= serverSession.userId ? NO, we communicate this info only once to the client (when the server code explicitly sets outgoingState.userId)
         // outgoingState.runId <= serverSession.runId ? NEVER (ERASED), because it's always communicated in the opposite way (client => server)
         // outgoingState.backoffice <= serverSession.backoffice ? NEVER (ERASED), because it's always communicated in the opposite way (client => server)

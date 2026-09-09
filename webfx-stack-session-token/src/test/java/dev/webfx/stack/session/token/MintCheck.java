@@ -29,27 +29,35 @@ public class MintCheck {
 
         System.out.println("no key configured — every server today, and David's machine tomorrow:");
         SignedToken.setKeys(List.of());
-        Object state = AuthenticatedState.createFor(user);
+        Object state = createFor(user);
         check("login still produces a state", state != null);
         check("the identity is still delivered", StateAccessor.getUserId(state) != null);
         check("no token, and no exception thrown", StateAccessor.getUserToken(state) == null);
 
-        System.out.println("key configured:");
+        System.out.println("key configured, and no family store — the degraded but working shape:");
         SignedToken.setKeys(List.of("0123456789abcdef0123456789abcdef".getBytes(StandardCharsets.UTF_8)));
-        Object signed = AuthenticatedState.createFor(user);
+        Object signed = createFor(user);
         String token = StateAccessor.getUserToken(signed);
         check("a token is attached", token != null);
         check("the identity is delivered alongside it", StateAccessor.getUserId(signed) != null);
-        check("the token verifies back to the same principal",
-              user.equals(PrincipalToken.verify(token, System.currentTimeMillis())));
+        long now = System.currentTimeMillis();
+        IdentityToken identity = PrincipalToken.verify(token, now);
+        check("the token verifies back to the same principal", user.equals(identity.principal()));
+        check("it carries no family, so nothing claims it can be rotated", identity.familyId() == null);
+        check("it is still capped", identity.absoluteExpiryMillis() > now);
         check("it does not verify against another server's key",
               verifyUnderOtherKey(token) == null);
 
         System.out.println("\n"+pass+" passed, "+fail+" failed");
         if (fail>0) System.exit(1);
     }
+    /** createFor is asynchronous now, but completes synchronously with no store to write to. */
+    static Object createFor(Object principal) {
+        return AuthenticatedState.createFor(principal, false).result();
+    }
     static Object verifyUnderOtherKey(String token) {
         SignedToken.setKeys(List.of("ffffffffffffffffffffffffffffffff".getBytes(StandardCharsets.UTF_8)));
-        return PrincipalToken.verify(token, System.currentTimeMillis());
+        IdentityToken identity = PrincipalToken.verify(token, System.currentTimeMillis());
+        return identity == null ? null : identity.principal();
     }
 }

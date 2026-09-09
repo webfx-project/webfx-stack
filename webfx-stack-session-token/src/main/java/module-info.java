@@ -10,6 +10,7 @@ module webfx.stack.session.token {
     // Direct dependencies modules
     requires webfx.platform.ast;
     requires webfx.platform.ast.json.plugin;
+    requires webfx.platform.async;
     requires webfx.platform.console;
     requires webfx.stack.com.serial;
     requires webfx.stack.session.state;

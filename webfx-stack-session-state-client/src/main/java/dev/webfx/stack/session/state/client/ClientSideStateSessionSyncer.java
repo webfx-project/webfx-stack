@@ -55,12 +55,16 @@ public final class ClientSideStateSessionSyncer {
             clientSideStateSession.incrementServerIncomingMessageSequence();
             // clientSession.sessionId <= incomingState.sessionId ? YES IF SET, because this means the server communicated the session id
             clientSideStateSession.changeServerSessionId(StateAccessor.getServerSessionId(incomingState), true, true);
+            // clientSession.userToken <= incomingState.userToken ? YES IF SET, as this means the server minted a new one.
+            // BEFORE the user id, and the order is the protection rather than a detail. A logout arrives as
+            // LOGOUT_USER_ID and changeUserId clears the token with it; applied in the other order, a token riding
+            // along in that same message would be written back AFTER the logout had cleared it, handing the client a
+            // working proof of the identity it had just been told to forget. The comment here used to claim that
+            // protection while the code did the reverse — and it went unnoticed because nothing ever sent a token
+            // and a logout together, until renewal started minting tokens outside the login path.
+            clientSideStateSession.changeUserToken(StateAccessor.getUserToken(incomingState), true);
             // clientSession.userId <= incomingState.userId ? YES IF SET, as this means the server communicates the user id
             clientSideStateSession.changeUserId(StateAccessor.getUserId(incomingState), true, true);
-            // clientSession.userToken <= incomingState.userToken ? YES IF SET, as this means the server minted a new one.
-            // AFTER the user id on purpose: a logout arrives as LOGOUT_USER_ID and clears the token above, and doing it
-            // in this order means a token riding along in that same message cannot resurrect what the logout cleared.
-            clientSideStateSession.changeUserToken(StateAccessor.getUserToken(incomingState), true);
             // Whether this server still accepts a bare claim. Server to client only — believing it makes us
             // send less, never more, so a wrong value cannot manufacture an identity.
             clientSideStateSession.setTokenRequired(StateAccessor.isTokenRequired(incomingState));

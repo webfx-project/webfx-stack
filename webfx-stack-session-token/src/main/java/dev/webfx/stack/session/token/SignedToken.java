@@ -89,8 +89,28 @@ public final class SignedToken {
      * @param nowMillis the current time, passed in so expiry is testable without waiting for it
      */
     public static String verify(String token, long nowMillis) {
+        Verified verified = verified(token, nowMillis);
+        return verified == null ? null : verified.payload();
+    }
+
+    /** A token that verified: what it says, and the deadline this server signed alongside it. */
+    record Verified(String payload, long expiryMillis) {}
+
+    /**
+     * The same answer as {@link #verify}, with the signed deadline attached.
+     *
+     * <p>Package-private, and that is the whole protection: the deadline is only of use to something
+     * deciding what to do as a token approaches it, which in this package is {@link PrincipalToken}
+     * renewing one. Exposing it publicly would invite a caller to reimplement the expiry rule from the
+     * outside and get it subtly different — the failure this class avoids by having exactly one reader
+     * of a presented token.
+     *
+     * <p>Still null for everything {@link #verify} is null for, expiry included: nothing here hands back
+     * the payload of a token whose deadline has passed.
+     */
+    static Verified verified(String token, long nowMillis) {
         Checked checked = check(token, nowMillis);
-        return checked.validity() == Validity.VALID ? checked.payload() : null;
+        return checked.validity() == Validity.VALID ? new Verified(checked.payload(), checked.expiryMillis()) : null;
     }
 
     /**
@@ -118,9 +138,9 @@ public final class SignedToken {
     /** What a presented token turned out to be. Only {@link Validity#VALID} carries a payload. */
     private enum Validity { VALID, EXPIRED, INVALID }
 
-    private record Checked(Validity validity, String payload) {
-        static final Checked INVALID = new Checked(Validity.INVALID, null);
-        static final Checked EXPIRED = new Checked(Validity.EXPIRED, null);
+    private record Checked(Validity validity, String payload, long expiryMillis) {
+        static final Checked INVALID = new Checked(Validity.INVALID, null, 0);
+        static final Checked EXPIRED = new Checked(Validity.EXPIRED, null, 0);
     }
 
     /**
@@ -171,7 +191,8 @@ public final class SignedToken {
 
         try {
             return new Checked(Validity.VALID,
-                new String(DECODER.decode(signedPart.substring(0, expirySeparator)), StandardCharsets.UTF_8));
+                new String(DECODER.decode(signedPart.substring(0, expirySeparator)), StandardCharsets.UTF_8),
+                expiryMillis);
         } catch (IllegalArgumentException e) {
             return Checked.INVALID;
         }

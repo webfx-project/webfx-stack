@@ -1,5 +1,6 @@
 package dev.webfx.stack.session.token;
 
+import dev.webfx.platform.async.Future;
 import dev.webfx.platform.console.Console;
 import dev.webfx.stack.session.state.StateAccessor;
 
@@ -18,32 +19,48 @@ import dev.webfx.stack.session.state.StateAccessor;
  * signed token for an identity they invented. A token is worth exactly what the check behind it was
  * worth.
  *
+ * <p>Asynchronous since session families arrived, because opening one writes a row. The alternative —
+ * generating the family id here and writing the row in the background — would let a login succeed while
+ * its family quietly failed to exist, and the first renewal would then find no row and could not tell
+ * that from a family deliberately revoked. Waiting is the honest version.
+ *
  * @author Bruno Salmon
  */
 public final class AuthenticatedState {
-
-    /**
-     * How long a minted token stays valid.
-     *
-     * <p>A single absolute lifetime for now, because nothing verifies tokens yet and the sliding renewal
-     * designed alongside it is not built. When verification lands this becomes the outer bound rather
-     * than the whole policy: renewed on server-observed activity, never extendable past this.
-     */
-    private static final long DEFAULT_TOKEN_LIFETIME_MILLIS = 12 * 60 * 60 * 1000L; // 12 hours
 
     private static boolean missingKeyAlreadyReported;
 
     private AuthenticatedState() {}
 
-    /** @param principal the identity a credential check just established — never one merely claimed */
-    public static Object createFor(Object principal) {
+    /**
+     * @param principal         the identity a credential check just established — never one merely claimed
+     * @param backofficeSession whether this login is establishing a BACK-OFFICE session, which decides how
+     *                          long it may live. <b>Capture it synchronously, at the top of the gateway
+     *                          method, exactly as {@code runId} is captured.</b> Every caller reaches this
+     *                          point from inside a {@code compose()}, and {@code ThreadLocalStateHolder} is
+     *                          restored when the synchronous part of the call returns — so a value read
+     *                          here would be "false" for every login ever made, and every staff session
+     *                          would quietly get the front office's year-long lifetime.
+     */
+    public static Future<Object> createFor(Object principal, boolean backofficeSession) {
         Object state = StateAccessor.createUserIdState(principal);
-        String token = mintQuietly(principal);
-        return token == null ? state : StateAccessor.setUserToken(state, token);
+        if (!SignedToken.isConfigured()) {
+            reportMissingKeyOnce();
+            return Future.succeededFuture(state);
+        }
+        return SessionTokenService.mintForLogin(principal, backofficeSession)
+            .map(token -> token == null ? state : StateAccessor.setUserToken(state, token))
+            // A login must not fail because the machinery behind the token did. Nothing verifies tokens
+            // strictly yet, so a missing one costs nothing today; that reverses at the flip, and the log
+            // line is what makes the reversal visible before it bites.
+            .otherwise(e -> {
+                Console.log("⚠️ Logging in without an identity token: " + e);
+                return state;
+            });
     }
 
     /**
-     * Mints if it can, and returns null if it cannot.
+     * Says once per server, not once per login, that no key is configured.
      *
      * <p>Fail-soft deliberately, and only for as long as the migration lasts. Minting throws when no
      * signing key is configured, and this sits on the login path — so a strict version would mean that
@@ -54,22 +71,11 @@ public final class AuthenticatedState {
      * authenticate anyone, and it should refuse to start rather than accept logins it cannot prove —
      * silently issuing identities with no proof is the failure this whole exercise exists to remove.
      */
-    private static String mintQuietly(Object principal) {
-        if (!SignedToken.isConfigured()) {
-            if (!missingKeyAlreadyReported) { // once per server, not once per login
-                missingKeyAlreadyReported = true;
-                Console.log("⚠️ Logging in without an identity token: no signing key configured."
-                            + " Harmless until clients require one, and a startup failure after that.");
-            }
-            return null;
-        }
-        try {
-            return PrincipalToken.mint(principal, System.currentTimeMillis() + DEFAULT_TOKEN_LIFETIME_MILLIS);
-        } catch (Exception e) {
-            // A principal that cannot be signed must not stop someone logging in while tokens are
-            // optional. Logged in full, because after the flip this becomes a login that cannot happen.
-            Console.log("⚠️ Could not mint an identity token for " + principal.getClass().getSimpleName() + ": " + e);
-            return null;
+    private static void reportMissingKeyOnce() {
+        if (!missingKeyAlreadyReported) {
+            missingKeyAlreadyReported = true;
+            Console.log("⚠️ Logging in without an identity token: no signing key configured."
+                        + " Harmless until clients require one, and a startup failure after that.");
         }
     }
 }

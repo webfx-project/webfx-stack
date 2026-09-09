@@ -43,12 +43,21 @@ public class VerifyCheck {
             return;
         }
         long nowMillis = System.currentTimeMillis();
-        Object principal = PrincipalToken.verify(token, nowMillis);
-        if (principal != null)
-            StateAccessor.setUserId(clientState, principal);
+        IdentityToken identity = PrincipalToken.verify(token, nowMillis);
+        if (identity != null)
+            // Inside its access window the syncer honours the principal as it stands; past it, it waits for
+            // a renewal and honours the same principal unless that renewal reports the session over. Both
+            // land here, so this mirror stays about WHICH IDENTITY IS BELIEVED — what the renewal itself
+            // decides is RenewalCheck's subject, and needs a store this mirror deliberately does not have.
+            StateAccessor.setUserId(clientState, identity.principal());
         else if (IdentityTokenPolicy.isTokenRequired() || !SignedToken.isAuthenticButExpired(token, nowMillis))
             StateAccessor.setUserId(clientState, LogoutUserId.LOGOUT_USER_ID);
-        // else: ours, expired, flip off — the claim stands and the state is left untouched
+        // else: ours, past its signed deadline, flip off — the claim stands and the state is left untouched
+    }
+
+    /** A token whose SESSION ends at the given moment, minted the way a login mints one. */
+    static String mint(Object principal, long sessionEndMillis) {
+        return PrincipalToken.mint(principal, null, 0, SessionTier.FRONT_OFFICE, sessionEndMillis, System.currentTimeMillis());
     }
 
     public static void main(String[] a) {
@@ -64,7 +73,7 @@ public class VerifyCheck {
 
         System.out.println("valid token — the proven identity wins over the claim:");
         Object s2 = StateAccessor.createUserIdState(impostorClaim);
-        StateAccessor.setUserToken(s2, PrincipalToken.mint(real, System.currentTimeMillis() + 60_000));
+        StateAccessor.setUserToken(s2, mint(real, System.currentTimeMillis() + 60_000));
         applyIdentityToken(s2);
         check("token's principal replaces the claim", real.equals(StateAccessor.getUserId(s2)));
         check("the claimed identity is discarded", !impostorClaim.equals(StateAccessor.getUserId(s2)));
@@ -78,7 +87,7 @@ public class VerifyCheck {
 
         System.out.println("token ours but expired — the claim stands while the flip is off:");
         Object s4 = StateAccessor.createUserIdState(real);
-        StateAccessor.setUserToken(s4, PrincipalToken.mint(real, System.currentTimeMillis() - 1));
+        StateAccessor.setUserToken(s4, mint(real, System.currentTimeMillis() - 1));
         applyIdentityToken(s4);
         check("expired token leaves the claimed identity in place", real.equals(StateAccessor.getUserId(s4)));
         check("expired token does NOT end the session", !LogoutUserId.isLogoutUserIdOrNull(StateAccessor.getUserId(s4)));
@@ -87,7 +96,7 @@ public class VerifyCheck {
         IdentityTokenPolicy.setTokenRequired(true);
         try {
             Object s4on = StateAccessor.createUserIdState(real);
-            StateAccessor.setUserToken(s4on, PrincipalToken.mint(real, System.currentTimeMillis() - 1));
+            StateAccessor.setUserToken(s4on, mint(real, System.currentTimeMillis() - 1));
             applyIdentityToken(s4on);
             check("expired token yields logged out", LogoutUserId.isLogoutUserIdOrNull(StateAccessor.getUserId(s4on)));
             Object s4forged = StateAccessor.createUserIdState(impostorClaim);
@@ -108,7 +117,7 @@ public class VerifyCheck {
 
         System.out.println("after a key rotation that dropped the old key:");
         Object s5 = StateAccessor.createUserIdState(real);
-        StateAccessor.setUserToken(s5, PrincipalToken.mint(real, System.currentTimeMillis() + 60_000));
+        StateAccessor.setUserToken(s5, mint(real, System.currentTimeMillis() + 60_000));
         SignedToken.setKeys(List.of("ffffffffffffffffffffffffffffffff".getBytes(StandardCharsets.UTF_8)));
         applyIdentityToken(s5);
         check("token from the retired key yields logged out", LogoutUserId.isLogoutUserIdOrNull(StateAccessor.getUserId(s5)));
