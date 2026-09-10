@@ -172,17 +172,43 @@ public final class ServerSideStateSessionSyncer {
                 // userId is set in the client state (the runId is what identifies which client to push to).
                 if (StateAccessor.getRunId(clientState) == null) // // if not, we set it from the server session
                     StateAccessor.setRunId(clientState, SessionAccessor.getRunId(serverSession));
-                // We are now ready for the push
+                // We are now ready for the push — unless there is nobody to push to. A push is addressed by
+                // runId, and with none the push service does computeIfAbsent(null, ..) on a ConcurrentHashMap
+                // and throws, which the job above swallows into a log line: a silent failure on the identity
+                // path, which is where they cost the most. The sibling anonymous branch further up already
+                // guards this way; both paths now agree.
+                if (StateAccessor.getRunId(clientState) == null) {
+                    Console.log("🛡 Cannot push a login or logout to a client with no runId (session id = "
+                                + serverSession.id() + ")");
+                    return future;
+                }
                 ThreadLocalStateHolder.runWithState(clientState, () -> { // we specify which state to use for the push
                     // Special case: invalid user => we force a logout
-                    if (LogoutUserId.isLogoutUserId(ThreadLocalStateHolder.getUserId())) {
-                        LogoutPush.pushLogoutMessageToClient(); // This will push a logout userId, and subsequently push the new authorizations (see OUTGOING STATE)
-                        // General case: valid user (probably a user switch from the client, or a reconnection)
-                    } else if (userIdAuthorizer != null) {
-                        // We ask the authorizer to push the new authorizations for that user
-                        // Note: that push shouldn't contain the userId, otherwise this will create a loop (see OUTGOING STATE).
+                    if (LogoutUserId.isLogoutUserId(ThreadLocalStateHolder.getUserId()))
+                        LogoutPush.pushLogoutMessageToClient();
+                    // The authorizations are pushed in BOTH cases, and the logout case is the one that used to
+                    // be missed. It relied on syncOutgoingState firing the authorizer when it saw the userId
+                    // change — but syncFixedServerSessionFromIncomingClientState, three lines above, has
+                    // ALREADY written LOGOUT_USER_ID into the session. So by the time the logout push goes out,
+                    // changeUserId reports no change, nothing fires, and the client is told it is logged out
+                    // without ever being told what a logged-out caller may do.
+                    //
+                    // The client then waits for rules that never come. In the front office that is an
+                    // indefinite spinner on a protected page, because the layout blocks on isLoaded before it
+                    // will render the login form; in the back office, where rules from the previous session are
+                    // still loaded, the route guard evaluates those instead and renders "access restricted".
+                    // Both clear on a reload, because a fresh connection takes the public-authorization path
+                    // further up — which is exactly what makes this look like a client bug and is not one.
+                    //
+                    // A user-initiated logout was never affected: there the incoming message still carries a
+                    // valid identity, so the session is updated by the OUTGOING state and the change is real.
+                    // That is why this survived until identity tokens became required, which turns "an invalid
+                    // token" from something only a forger produces into the routine path for any expired one.
+                    //
+                    // Note: that push must not contain the userId, otherwise this will create a loop (see
+                    // OUTGOING STATE) — userIdAuthorizer.apply(null) pushes the rules alone.
+                    if (userIdAuthorizer != null)
                         userIdAuthorizer.apply(null);
-                    }
                 });
                 return future;
             });
