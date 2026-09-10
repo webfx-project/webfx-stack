@@ -190,7 +190,17 @@ public final class SessionTokenService {
         // Nothing is wrong and nothing needs saying — this is most sessions on the day this ships.
         if (familyId == null || store == null)
             return Future.succeededFuture();
-        return store.revoke(familyId, "user")
+        // A store that THROWS rather than returning a failed future — a service not ready yet, an interceptor
+        // refusing synchronously — must fail soft too. Caught here because otherwise() only sees a failed
+        // future, and an exception escaping this call skips the rest of the logout: the device is never told,
+        // and its session goes on naming the user.
+        Future<Void> revocation;
+        try {
+            revocation = store.revoke(familyId, "user");
+        } catch (RuntimeException e) {
+            revocation = Future.failedFuture(e);
+        }
+        return revocation
             .otherwise(e -> {
                 Console.log("⚠️ Logged out, but could not revoke the session family — a copy of its token stays"
                             + " usable until its access window ends: " + e);
