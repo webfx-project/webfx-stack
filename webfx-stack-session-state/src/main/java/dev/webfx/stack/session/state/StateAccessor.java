@@ -31,6 +31,12 @@ public final class StateAccessor {
     private final static String SERVER_ORIGIN_ATTRIBUTE_NAME = "serverOrigin";
     private final static String CLIENT_ORIGIN_ATTRIBUTE_NAME = "clientOrigin"; // Stamped by the bridge on everything arriving from outside
     private final static String TOKEN_REQUIRED_ATTRIBUTE_NAME = "tokenRequired"; // Server->client: is a token required to claim an identity?
+    // The session family named by the token this message presented, recorded once the signature has held.
+    // SERVER-INTERNAL: written by the session syncer and read by whatever needs to act on the session as a
+    // whole — logout, so far. It is never put on an outgoing state, which is built from scratch rather than
+    // copied from this one; and it would not matter much if it were, since the client already carries the
+    // same value inside its own token. Not a capability: reaching the store with it still needs a valid MAC.
+    private final static String SESSION_FAMILY_ID_ATTRIBUTE_NAME = "sessionFamilyId";
 
     /** Unique ID generated once at server startup — changes on every restart. */
     private static final String SERVER_RUN_ID = "srv-" + System.currentTimeMillis();
@@ -143,6 +149,21 @@ public final class StateAccessor {
 
     public static Object setTokenRequired(Object state, Boolean tokenRequired, boolean override) {
         return setStateAttribute(state, TOKEN_REQUIRED_ATTRIBUTE_NAME, tokenRequired, override);
+    }
+
+    /**
+     * The session family the caller's token belongs to, or null when it presented none this server could read.
+     *
+     * <p>Only ever set from a token whose signature has already been verified, so unlike the userId beside it
+     * this is not something a caller can choose. That is what makes it safe to act on — revoking a family ends
+     * every session sharing it, which would be a gift to an attacker if the family could be named at will.
+     */
+    public static String getSessionFamilyId(Object state) {
+        return (String) getStateAttribute(state, SESSION_FAMILY_ID_ATTRIBUTE_NAME);
+    }
+
+    public static Object setSessionFamilyId(Object state, String sessionFamilyId) {
+        return setStateAttribute(state, SESSION_FAMILY_ID_ATTRIBUTE_NAME, sessionFamilyId, true);
     }
 
     public static String getRunId(Object state) {

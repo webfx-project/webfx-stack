@@ -3,6 +3,8 @@ package dev.webfx.stack.session.token;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.console.Console;
 import dev.webfx.stack.session.state.RestrictedPrincipalRegistry;
+import dev.webfx.stack.session.state.StateAccessor;
+import dev.webfx.stack.session.state.ThreadLocalStateHolder;
 
 /**
  * Issues session tokens, and exchanges one for its successor.
@@ -149,6 +151,50 @@ public final class SessionTokenService {
             .otherwise(e -> {
                 Console.log("⚠️ Could not read a session family, so its token stands unchanged: " + e);
                 return TokenRenewal.KEEP;
+            });
+    }
+
+    /**
+     * Ends the session family behind the call being handled — what a logout has to do beyond forgetting.
+     *
+     * <p>A logout drops the token on the device that asked for it, and until now did nothing else. The family
+     * stayed live, so a COPY of that token — the exact thing rotation exists to catch — kept working for the
+     * rest of its access window and stayed renewable for the whole idle window: three hours for the back
+     * office, ninety days for a member. Logging out is precisely the moment somebody says "end this", and
+     * ending it only on their own device is the weakest possible reading of that.
+     *
+     * <p>Two consequences worth knowing rather than discovering:
+     *
+     * <ul>
+     *   <li><b>It ends the session in the user's OTHER tabs too</b>, within their access window, because tabs
+     *       of one browser share one stored token and therefore one family. That is what people mean by
+     *       logging out, and it is not what happened before.</li>
+     *   <li><b>It does not reach their other devices</b>, which logged in separately and hold families of
+     *       their own. Signing out everywhere is a different act, and the {@code revoked} column is where it
+     *       will live.</li>
+     * </ul>
+     *
+     * <p>The family is read from the state of the call, where the syncer put it after verifying the token's
+     * signature — never from anything the caller supplied. A caller who could name a family could end anyone
+     * else's session by guessing an id, which would make this a denial-of-service primitive rather than a
+     * logout.
+     *
+     * <p>Fail-soft: a logout must complete even if the row cannot be written. The alternative is a user who
+     * asked to be signed out and got an error instead, still signed in, which is worse than a family that
+     * outlives its usefulness and is swept an hour after it expires.
+     */
+    public static Future<Void> revokeCurrentSessionFamily() {
+        String familyId = StateAccessor.getSessionFamilyId(ThreadLocalStateHolder.getThreadLocalState());
+        SessionFamilyStore store = SessionFamilyStoreRegistry.getStore();
+        // No family to end: a legacy token, a client that presented none, or a deployment with no store.
+        // Nothing is wrong and nothing needs saying — this is most sessions on the day this ships.
+        if (familyId == null || store == null)
+            return Future.succeededFuture();
+        return store.revoke(familyId, "user")
+            .otherwise(e -> {
+                Console.log("⚠️ Logged out, but could not revoke the session family — a copy of its token stays"
+                            + " usable until its access window ends: " + e);
+                return null;
             });
     }
 

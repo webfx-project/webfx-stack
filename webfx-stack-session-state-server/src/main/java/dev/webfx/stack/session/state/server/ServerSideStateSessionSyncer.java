@@ -323,6 +323,10 @@ public final class ServerSideStateSessionSyncer {
             return Future.succeededFuture();
         }
         StateAccessor.setUserId(clientState, identity.principal());
+        // Recorded for whatever needs to act on the SESSION rather than on this message — logout, which has to
+        // end the family and not merely the caller's copy of its token. Set from the verified token only, so
+        // no caller can name a family it does not hold.
+        StateAccessor.setSessionFamilyId(clientState, identity.familyId());
         // This session's successor token has already been minted and the client is still presenting the
         // one it replaces — so it simply has not received it yet, and it will ride this message's reply.
         // Asking the store again here would be asking it about a generation THIS SERVER retired, which it

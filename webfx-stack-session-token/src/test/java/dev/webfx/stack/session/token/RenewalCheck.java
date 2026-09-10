@@ -2,6 +2,8 @@ package dev.webfx.stack.session.token;
 
 import dev.webfx.platform.async.Future;
 import dev.webfx.stack.com.serial.SerialCodecManager;
+import dev.webfx.stack.session.state.StateAccessor;
+import dev.webfx.stack.session.state.ThreadLocalStateHolder;
 import one.modality.crm.shared.services.authn.ModalityUserPrincipal;
 import one.modality.crm.shared.services.authn.serial.ModalityUserPrincipalSerialCodec;
 
@@ -189,6 +191,26 @@ public class RenewalCheck {
         check("the same person is carried forward, not a new one", user.equals(now.principal()));
         check("it now has a family to rotate in", now.familyId() != null);
         check("and a tier", now.tier() == SessionTier.FRONT_OFFICE);
+
+        System.out.println("logging out ends the family, not just the caller's copy of the token:");
+        FakeStore out = new FakeStore();
+        SessionFamilyStoreRegistry.register(out);
+        IdentityToken loggingOut = PrincipalToken.verify(SessionTokenService.mintForLogin(user, false).result(), NOW);
+        // The family is read from the state the syncer wrote after verifying the signature — never from
+        // anything a caller sent. A caller who could name a family could end a stranger's session by
+        // guessing an id, which would make logout a denial-of-service primitive.
+        ThreadLocalStateHolder.runWithState(
+            StateAccessor.setSessionFamilyId(StateAccessor.createEmptyState(), loggingOut.familyId()),
+            () -> SessionTokenService.revokeCurrentSessionFamily().result());
+        check("the family is revoked", out.families.get(loggingOut.familyId()).revoked());
+        check("so the token stops renewing, even though its signature still holds",
+              renew(loggingOut, NOW + 1000).outcome() == SessionTokenService.TokenRenewal.Outcome.ENDED);
+
+        System.out.println("...and a logout with no family to end is not an error:");
+        // Most sessions on the day this ships: a legacy token, or a client presenting none at all.
+        check("no family in the state is a no-op, not a failure",
+              ThreadLocalStateHolder.runWithState(StateAccessor.createEmptyState(),
+                  () -> SessionTokenService.revokeCurrentSessionFamily().succeeded()));
 
         System.out.println("\n" + pass + " passed, " + fail + " failed");
         if (fail > 0) System.exit(1);

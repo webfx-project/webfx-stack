@@ -8,6 +8,7 @@ import dev.webfx.stack.authn.UserClaims;
 import dev.webfx.stack.authn.server.gateway.spi.ServerAuthenticationGateway;
 import dev.webfx.stack.authn.spi.AuthenticationServiceProvider;
 import dev.webfx.stack.session.state.ThreadLocalStateHolder;
+import dev.webfx.stack.session.token.SessionTokenService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -121,12 +122,23 @@ public class ServerAuthenticationPortalProvider implements AuthenticationService
 
     @Override
     public Future<Void> logout() {
-        for (ServerAuthenticationGateway gateway : getGateways()) {
-            boolean accepts = gateway.acceptsUserId();
-            if (accepts)
-                return gateway.logout();
-        }
-        return Future.failedFuture("logout() failed on server authentication portal because no server gateway accepted UserId " + ThreadLocalStateHolder.getUserId());
+        // Ending the session family comes FIRST, and it happens whatever the gateway then makes of the
+        // logout. It is the only part that ends the session for anyone holding a COPY of the token rather
+        // than only for the device that asked; the gateway's own logout is about that device. Reading it
+        // here rather than in each gateway also means a gateway added later cannot forget it.
+        //
+        // Deliberately not conditional on a gateway accepting the userId: a caller whose identity no gateway
+        // recognises any more is exactly the one whose family most wants ending, and the failure below must
+        // not be the thing that skips it.
+        return SessionTokenService.revokeCurrentSessionFamily()
+            .compose(ignored -> {
+                for (ServerAuthenticationGateway gateway : getGateways()) {
+                    boolean accepts = gateway.acceptsUserId();
+                    if (accepts)
+                        return gateway.logout();
+                }
+                return Future.failedFuture("logout() failed on server authentication portal because no server gateway accepted UserId " + ThreadLocalStateHolder.getUserId());
+            });
     }
 
 }
