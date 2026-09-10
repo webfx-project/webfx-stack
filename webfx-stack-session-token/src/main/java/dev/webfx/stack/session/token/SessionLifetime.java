@@ -11,7 +11,7 @@ package dev.webfx.stack.session.token;
  * usually dies. The escape is to make the <b>token</b> short-lived and the <b>session</b> long-lived:
  *
  * <ul>
- *   <li>The {@link #ACCESS_WINDOW_MILLIS access window} is how long a token may be USED. Short, and
+ *   <li>The {@link #accessWindowMillis() access window} is how long a token may be USED. Short, and
  *       enforced from the signed payload, so per-message verification stays exactly what it is now —
  *       stateless HMAC, no database.</li>
  *   <li>The {@link #idleWindowMillis idle window} is how long the SESSION survives without the server
@@ -49,7 +49,64 @@ public final class SessionLifetime {
      * thirty minutes a session costs roughly three database round trips an hour, against one HMAC per
      * message either way.
      */
-    public static final long ACCESS_WINDOW_MILLIS = 30 * 60 * 1000L; // 30 minutes
+    public static final long ACCESS_WINDOW_BASE_MILLIS = 30 * 60 * 1000L; // 30 minutes
+
+    /**
+     * The access window actually in effect — the base, times {@link #getScale()}. Anything bounding how
+     * long a SESSION or a TOKEN lives uses this. The unscaled base is for the rare bound that measures
+     * something a development scale does not shorten, such as how long a client may take to receive a
+     * message — see the syncer's pending-delivery grace.
+     */
+    public static long accessWindowMillis() {
+        return scaled(ACCESS_WINDOW_BASE_MILLIS);
+    }
+
+    // ── Test acceleration ────────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Every lifetime below is multiplied by this. 1 in any real deployment.
+     *
+     * <p>Exists so the policy can be exercised on a developer's machine without waiting a day for a
+     * back-office session to reach its bound — a uniform factor rather than one knob per duration, so the
+     * RATIOS between the windows stay exactly as they are in production, and those ratios are most of
+     * what is worth testing. Set only by {@code SessionTokenKeysInitializer}, and only in a development
+     * build — which a deployed server is not, because the deploy workflows build with the staging or
+     * production profile. See there for what that guard does and does not cover.
+     */
+    private static volatile double scale = 1.0;
+
+    /** The smallest factor accepted. It keeps the access window at nine seconds; any shorter renews faster than it is useful. */
+    public static final double MINIMUM_SCALE = 0.005;
+
+    public static double getScale() {
+        return scale;
+    }
+
+    /**
+     * Shortens every lifetime by {@code factor}. Returns the factor actually applied.
+     *
+     * <p><b>Only ever shortens</b>, and that is what bounds the harm of calling this by mistake. A factor
+     * above 1 would LENGTHEN sessions, weakening every bound this class exists to enforce, so it is
+     * refused rather than clamped — the one direction there is no legitimate reason to want. Below the
+     * minimum it is clamped up, because an access window of a second or two stops being a test of the
+     * policy and becomes a test of how fast the database answers.
+     *
+     * <p>Only {@code SessionTokenKeysInitializer} calls this, behind its development-build check, and nothing
+     * else should. That restriction cannot be enforced here — this module cannot see how the server was
+     * built — which is exactly why the rule this method DOES enforce is the one that bounds the harm.
+     *
+     * @throws IllegalArgumentException for a factor above 1, zero, negative or not a number
+     */
+    public static double setScale(double factor) {
+        if (!(factor > 0) || factor > 1)
+            throw new IllegalArgumentException("Session lifetime scale must be in (0, 1], got " + factor);
+        scale = Math.max(MINIMUM_SCALE, factor);
+        return scale;
+    }
+
+    private static long scaled(long baseMillis) {
+        return scale == 1.0 ? baseMillis : Math.round(baseMillis * scale);
+    }
 
     /**
      * How much of the access window may remain before a renewal is attempted, as a fraction.
@@ -89,14 +146,14 @@ public final class SessionLifetime {
      * matters, and why the back office — which emits no such signal — gets a brisk idle window instead.
      */
     public static long idleWindowMillis(SessionTier tier) {
-        return switch (tier) {
+        return scaled(switch (tier) {
             case FRONT_OFFICE -> 90 * DAY;
             case BACK_OFFICE -> 3 * HOUR;
             // Equal to the pass's own thirty-minute grant, so the session cannot outlive what authorised
             // it. Renewal within the window is still allowed, and still cannot push past the absolute
             // bound below, so a support view slides but never extends.
             case SUPPORT_VIEW -> 30 * MINUTE;
-        };
+        });
     }
 
     /**
@@ -110,11 +167,11 @@ public final class SessionLifetime {
      * always has.
      */
     public static long absoluteLifetimeMillis(SessionTier tier) {
-        return switch (tier) {
+        return scaled(switch (tier) {
             case FRONT_OFFICE -> 365 * DAY;
             case BACK_OFFICE -> DAY;
             case SUPPORT_VIEW -> 30 * MINUTE;
-        };
+        });
     }
 
     /**
@@ -130,11 +187,14 @@ public final class SessionLifetime {
      * That is the trade, and it is the right way round — a false kill is certain and frequent, a theft
      * landing inside the same sixty seconds is neither.
      */
-    public static final long REUSE_GRACE_MILLIS = 60 * 1000L; // 1 minute
+    public static final long REUSE_GRACE_MILLIS = 60 * 1000L; // 1 minute — deliberately NOT scaled
+    // It measures a race between two browser tabs and a network round trip, not the length of a session,
+    // so shrinking it with everything else would make an ordinary second tab look like a theft on a
+    // developer's machine and nowhere else — a test environment reporting a failure that does not exist.
 
     /** When a token minted now stops being usable without renewal. */
     public static long accessExpiryFrom(long nowMillis) {
-        return nowMillis + ACCESS_WINDOW_MILLIS;
+        return nowMillis + accessWindowMillis();
     }
 
     /**
@@ -148,6 +208,6 @@ public final class SessionLifetime {
 
     /** Whether a token whose access window ends at {@code accessExpiryMillis} is due to be renewed. */
     public static boolean isRenewalDue(long nowMillis, long accessExpiryMillis) {
-        return accessExpiryMillis - nowMillis <= (long) (ACCESS_WINDOW_MILLIS * RENEWAL_THRESHOLD_FRACTION);
+        return accessExpiryMillis - nowMillis <= (long) (accessWindowMillis() * RENEWAL_THRESHOLD_FRACTION);
     }
 }

@@ -4,8 +4,11 @@ import dev.webfx.platform.boot.spi.ApplicationJob;
 import dev.webfx.platform.conf.Config;
 import dev.webfx.platform.conf.ConfigLoader;
 import dev.webfx.platform.console.Console;
+import dev.webfx.platform.meta.Meta;
 import dev.webfx.platform.substitution.Substitutor;
 import dev.webfx.stack.session.token.IdentityTokenPolicy;
+import dev.webfx.stack.session.token.SessionLifetime;
+import dev.webfx.stack.session.token.SessionTier;
 import dev.webfx.stack.session.token.SignedToken;
 
 import java.nio.charset.StandardCharsets;
@@ -33,6 +36,7 @@ public final class SessionTokenKeysInitializer implements ApplicationJob {
     /** HMAC-SHA256 territory: a key shorter than its 256-bit block buys nothing and hides that it hasn't. */
     private static final int MINIMUM_KEY_BYTES = 32;
     private static final String REQUIRED_KEY = "required";
+    private static final String LIFETIME_SCALE_KEY = "lifetimeScale";
 
     @Override
     public void onInit() {
@@ -53,6 +57,79 @@ public final class SessionTokenKeysInitializer implements ApplicationJob {
             Console.log("🔑 Session token signing keys installed (" + keys.size()
                         + (keys.size() == 1 ? " key)" : " keys — a rotation is in progress)"));
         applyRequiredFlag(config, !keys.isEmpty());
+        applyLifetimeScale(config);
+    }
+
+    private void applyLifetimeScale(Config config) {
+        applyLifetimeScale(config == null ? null : config.getString(LIFETIME_SCALE_KEY), Meta.isDevelopment(), Meta.getEnvironment());
+    }
+
+    /**
+     * Shortens every session lifetime by a factor, for testing the policy without waiting a day for it.
+     *
+     * <p><b>Honoured only in a development build, and that guard is the point.</b> {@link Meta#isDevelopment()}
+     * reads the environment BAKED INTO THE BUILD by its Maven profile, not anything supplied at run time — so
+     * on a server built for staging or production, no environment variable, conf file or deployment setting
+     * can switch this on. Setting it there is refused out loud rather than obeyed quietly, because a test
+     * value is exactly the kind of thing that reaches a real deployment by being copied from somebody's run
+     * configuration.
+     *
+     * <p>Know where that guard stops: Maven's DEFAULT environment is development, so a jar built with no
+     * profile at all counts as a development build and would honour the setting. The deploy workflows always
+     * name one; a server built by hand for a real deployment must too.
+     *
+     * <p>And even where it is honoured, it can only SHORTEN — {@link SessionLifetime#setScale} refuses a
+     * factor above 1. So the worst any misuse can do is sign people out sooner; it cannot weaken a bound.
+     *
+     * <p>Package-private, with the build's environment passed in, so LifetimeScaleGuardCheck can run it as a
+     * production build would.
+     */
+    static void applyLifetimeScale(String configured, boolean developmentBuild, String environment) {
+        if (configured == null || configured.isBlank() || !Substitutor.areValuesNonNullAndResolved(configured))
+            return; // the overwhelmingly common case: nothing asked for, nothing said
+        double factor;
+        try {
+            factor = Double.parseDouble(configured.trim());
+        } catch (NumberFormatException e) {
+            Console.log("⚠️ Ignoring " + CONFIG_PATH + "." + LIFETIME_SCALE_KEY + ": not a number");
+            return;
+        }
+        if (factor == 1.0)
+            return;
+        if (!developmentBuild) {
+            Console.log("🛑 IGNORED " + CONFIG_PATH + "." + LIFETIME_SCALE_KEY + " = " + factor + " — lifetime"
+                        + " scaling is a test aid and is only honoured in a development build (this is '"
+                        + environment + "'). Sessions keep their real lifetimes.");
+            return;
+        }
+        double applied;
+        try {
+            applied = SessionLifetime.setScale(factor);
+        } catch (IllegalArgumentException e) {
+            Console.log("🛑 Refusing " + CONFIG_PATH + "." + LIFETIME_SCALE_KEY + ": " + e.getMessage()
+                        + " — it may only shorten sessions, never lengthen them");
+            return;
+        }
+        // Loud and specific: somebody testing needs the actual numbers, and anybody who finds this line in a
+        // log they did not expect it in needs to know at once that lifetimes are not what they think.
+        Console.log("⏱️ SESSION LIFETIMES SCALED by " + applied + (applied != factor ? " (clamped from " + factor + ")" : "")
+                    + " — TEST VALUES, development only. access window " + seconds(SessionLifetime.accessWindowMillis())
+                    + "; back office idle " + seconds(SessionLifetime.idleWindowMillis(SessionTier.BACK_OFFICE))
+                    + " / absolute " + seconds(SessionLifetime.absoluteLifetimeMillis(SessionTier.BACK_OFFICE))
+                    + "; front office idle " + seconds(SessionLifetime.idleWindowMillis(SessionTier.FRONT_OFFICE))
+                    + " / absolute " + seconds(SessionLifetime.absoluteLifetimeMillis(SessionTier.FRONT_OFFICE))
+                    + "; reuse grace " + seconds(SessionLifetime.REUSE_GRACE_MILLIS) + " (not scaled)."
+                    // A session opened before this boot keeps the absolute bound it was opened with — the store
+                    // hands it back on every renewal — so without this, the cap is tested on a session it
+                    // does not apply to and the banner that should come never does.
+                    + " Applies to sessions signed in from now on: one already open keeps the absolute bound it"
+                    + " began with, so sign in again to test the cap.");
+    }
+
+    private static String seconds(long millis) {
+        return millis >= 3_600_000 ? String.format("%.1fh", millis / 3_600_000.0)
+             : millis >= 60_000 ? String.format("%.1fmin", millis / 60_000.0)
+             : (millis / 1000) + "s";
     }
 
     /**

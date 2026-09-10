@@ -114,16 +114,16 @@ public class RenewalCheck {
         System.out.println("the access window is short, and the SESSION is not:");
         long minted = System.currentTimeMillis();
         check("renewal falls due inside the last quarter of the window",
-              first.isRenewalDue(minted + SessionLifetime.ACCESS_WINDOW_MILLIS - 60_000));
+              first.isRenewalDue(minted + SessionLifetime.accessWindowMillis() - 60_000));
         check("the token stops being usable at the end of it",
-              !first.isWithinAccessWindow(minted + SessionLifetime.ACCESS_WINDOW_MILLIS + 1));
+              !first.isWithinAccessWindow(minted + SessionLifetime.accessWindowMillis() + 1));
         check("but the session — the signed deadline — outlives it by a long way",
-              first.sessionEndMillis() > minted + SessionLifetime.ACCESS_WINDOW_MILLIS * 10);
+              first.sessionEndMillis() > minted + SessionLifetime.accessWindowMillis() * 10);
         check("with the absolute bound sitting at or beyond the session's own deadline",
               first.absoluteExpiryMillis() >= first.sessionEndMillis());
 
         System.out.println("a lapsed token is exchanged, not refused — the whole point:");
-        long later = minted + SessionLifetime.ACCESS_WINDOW_MILLIS + 1;
+        long later = minted + SessionLifetime.accessWindowMillis() + 1;
         SessionTokenService.TokenRenewal renewal = renew(first, later);
         check("renewed", renewal.outcome() == SessionTokenService.TokenRenewal.Outcome.RENEWED);
         IdentityToken second = PrincipalToken.verify(renewal.token(), later);

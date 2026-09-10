@@ -452,8 +452,16 @@ public final class ServerSideStateSessionSyncer {
      * <p>What it costs: a client that was disconnected for LONGER than this at the exact moment its
      * renewal reply was lost comes back on the retired token, is judged by the store, and has its family
      * ended. That is a re-login, it is logged, and it is the direction to be wrong in.
+     *
+     * <p>Deliberately NOT shortened by a development build's lifetime scale, for the reason the reuse grace
+     * is not: it measures how long a client may take to RECEIVE something, and a connection drop or a
+     * closed laptop does not get shorter because sessions do. Scaled, it fell below both the twenty-second
+     * push ping that delivers a pending token and the store's one-minute reuse grace, so an ordinary
+     * minute offline ended the family as a theft — on a developer's machine and nowhere else. The cost of
+     * leaving it whole is confined to that machine too: there, a client that ignores its own successor is
+     * excused for longer than the scaled access window.
      */
-    private static final long PENDING_DELIVERY_GRACE_MILLIS = SessionLifetime.ACCESS_WINDOW_MILLIS;
+    private static final long PENDING_DELIVERY_GRACE_MILLIS = SessionLifetime.ACCESS_WINDOW_BASE_MILLIS;
 
     private static final int PENDING_TOKEN_CAP = 20_000;
     private static final Map<String, PendingToken> pendingRenewedTokens = Collections.synchronizedMap(
