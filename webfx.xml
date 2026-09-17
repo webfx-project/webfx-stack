@@ -78,6 +78,13 @@
                 </exported-packages>
             </library>
 
+            <library name="io-vertx-mail-client">
+                <artifactId>vertx-mail-client</artifactId>
+                <exported-packages>
+                    <package>io.vertx.ext.mail</package>
+                </exported-packages>
+            </library>
+
         </group>
 
         <library name="com-ongres-scram-client">

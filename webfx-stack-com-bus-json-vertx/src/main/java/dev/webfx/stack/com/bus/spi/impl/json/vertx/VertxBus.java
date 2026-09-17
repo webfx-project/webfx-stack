@@ -79,24 +79,50 @@ final class VertxBus implements Bus {
         // We will use the socket writeHandlerID as the conversation identifier, as it's unique per client
         String conversationId = socket.writeHandlerID(); // Not null because VertxBusModuleBooter called SockJSHandlerOptions.setRegisterWriteHandler(true)
         if (isSocketClosed) {
+            // Closing the socket is what unregisters its writeHandler consumer from the event bus, and nothing
+            // else does it: we asked for setRegisterWriteHandler(true) (VertxBusModuleBooter) to get a unique
+            // conversation id, which makes RawWSSockJSSocket register that consumer in its constructor and
+            // install a ws.closeHandler to unregister it again - but Vert.x's own EventBusBridgeImpl then calls
+            // sock.closeHandler() to get THIS event, and on the raw websocket transport (/eventbus/websocket,
+            // the endpoint our clients use) that is a single field, so the bridge silently replaces the
+            // transport's cleanup with its own. Left alone, the consumer stays registered for the life of the
+            // server and holds everything behind it: the socket, the ServerWebSocket and its Netty buffers, the
+            // RoutingContext, and the web session. One per websocket connection ever made, so every reload,
+            // deploy and mobile reconnect adds one.
+            socket.close();
             IsolatedSession removedSession = conversationRegistry.removeIsolatedSession(conversationId);
-            removedSession.log("👈 Removed client session (session id = " + removedSession.id() + ", socket closed)");
-            logSessionsCount();
+            // Null if this socket never had a session (or this is a second SOCKET_CLOSED). Nothing to remove
+            // then - but it must not throw, because an exception here would escape before complete() below.
+            if (removedSession != null) {
+                removedSession.log("👈 Removed client session (session id = " + removedSession.id() + ", socket closed)");
+                logSessionsCount();
+            }
             bridgeEvent.complete(true);
             return;
         }
-        IsolatedSession previousWebfxSession = conversationRegistry.getIsolatedSession(conversationId);
-        IsolatedSession webfxSession;
-        if (previousWebfxSession != null)
-            webfxSession = previousWebfxSession;
-        else {
+        IsolatedSession webfxSession = conversationRegistry.getIsolatedSession(conversationId);
+        if (webfxSession == null) {
+            // Only an event that can BEGIN a conversation may create one, because the bridge keeps delivering
+            // events for a socket whose SOCKET_CLOSED has already been and gone: a busCall reply outlives its
+            // client (the bridge holds the reply handler for its whole replyTimeout - 3 mins - and closing the
+            // socket doesn't cancel it), so a client that disconnects mid-call gets its RECEIVE delivered
+            // AFTER we removed its conversation. Creating a session there would register it under a
+            // conversation id that will never be closed again, so nothing would ever remove it - the same leak
+            // this method now closes above, one entry per client that disconnects mid-call.
+            if (isOutgoingMessage || type.equals(BridgeEventType.SOCKET_ERROR)) {
+                bridgeEvent.complete(true);
+                return;
+            }
             dev.webfx.stack.session.Session session = SessionService.getSessionStore().createSession(vertxWebSession.timeout());
             webfxSession = conversationRegistry.getOrCreateIsolatedSession(conversationId, session);
             webfxSession.log("👉 Created new client session (session id = " + session.id() + ", ping = " + isPing + ")");
             logSessionsCount();
         }
-        // Also informing Vert.x that the session is now accessed to postpone its expiration
+        // Also informing Vert.x that both sessions are now accessed to postpone their expiration: the web
+        // session (cookie-based, shared by the browser tabs) and our own conversation session, which belongs to
+        // a websocket rather than to an HTTP request and so has no SessionHandler to do it on its behalf.
         vertxWebSession.setAccessed();
+        webfxSession.touch();
 
         if (isPing) { // Receiving or sending a ping (note: there is no way to distinguish receiving or sending).
             // We tell the state manager that the client is live

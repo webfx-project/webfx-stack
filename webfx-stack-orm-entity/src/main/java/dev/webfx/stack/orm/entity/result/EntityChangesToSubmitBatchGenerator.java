@@ -29,19 +29,35 @@ public final class EntityChangesToSubmitBatchGenerator {
     }
 
     public static BatchGenerator createSubmitBatchGenerator(EntityChanges changes, DataSourceModel dataSourceModel, DataScope dataScope, SubmitArgument... initialUpdates) {
-        return createSubmitBatchGenerator(changes, dataSourceModel.getDataSourceId(), dataScope, dataSourceModel.getDbmsSqlSyntax(), dataSourceModel.getDomainModel().getParserDomainModelReader(), dataSourceModel.getCompilerDomainModelReader(), initialUpdates);
+        return createSubmitBatchGenerator(changes, dataSourceModel, dataScope, SubmitArgument.STANDARD_PRIORITY, initialUpdates);
+    }
+
+    public static BatchGenerator createSubmitBatchGenerator(EntityChanges changes, DataSourceModel dataSourceModel, DataScope dataScope, int priority, SubmitArgument... initialUpdates) {
+        return createSubmitBatchGenerator(changes, dataSourceModel.getDataSourceId(), dataScope, dataSourceModel.getDbmsSqlSyntax(), dataSourceModel.getDomainModel().getParserDomainModelReader(), dataSourceModel.getCompilerDomainModelReader(), priority, initialUpdates);
     }
 
     public static BatchGenerator createSubmitBatchGenerator(EntityChanges changes, Object dataSourceId, DataScope dataScope, DbmsSqlSyntax dbmsSyntax, ParserDomainModelReader parserModelReader, CompilerDomainModelReader compilerModelReader, SubmitArgument... initialUpdates) {
-        return new BatchGenerator(changes, dataSourceId, dataScope, dbmsSyntax, compilerModelReader, initialUpdates);
+        return createSubmitBatchGenerator(changes, dataSourceId, dataScope, dbmsSyntax, parserModelReader, compilerModelReader, SubmitArgument.STANDARD_PRIORITY, initialUpdates);
+    }
+
+    public static BatchGenerator createSubmitBatchGenerator(EntityChanges changes, Object dataSourceId, DataScope dataScope, DbmsSqlSyntax dbmsSyntax, ParserDomainModelReader parserModelReader, CompilerDomainModelReader compilerModelReader, int priority, SubmitArgument... initialUpdates) {
+        return new BatchGenerator(changes, dataSourceId, dataScope, dbmsSyntax, compilerModelReader, priority, initialUpdates);
     }
 
     public static Batch<SubmitArgument> generateSubmitBatch(EntityChanges changes, DataSourceModel dataSourceModel, DataScope dataScope, SubmitArgument... initialUpdates) {
         return createSubmitBatchGenerator(changes, dataSourceModel, dataScope, initialUpdates).generate();
     }
 
+    public static Batch<SubmitArgument> generateSubmitBatch(EntityChanges changes, DataSourceModel dataSourceModel, DataScope dataScope, int priority, SubmitArgument... initialUpdates) {
+        return createSubmitBatchGenerator(changes, dataSourceModel, dataScope, priority, initialUpdates).generate();
+    }
+
     public static Batch<SubmitArgument> generateSubmitBatch(EntityChanges changes, Object dataSourceId, DataScope dataScope, DbmsSqlSyntax dbmsSyntax, ParserDomainModelReader parserModelReader, CompilerDomainModelReader compilerModelReader, SubmitArgument... initialUpdates) {
         return createSubmitBatchGenerator(changes, dataSourceId, dataScope, dbmsSyntax, parserModelReader, compilerModelReader, initialUpdates).generate();
+    }
+
+    public static Batch<SubmitArgument> generateSubmitBatch(EntityChanges changes, Object dataSourceId, DataScope dataScope, DbmsSqlSyntax dbmsSyntax, ParserDomainModelReader parserModelReader, CompilerDomainModelReader compilerModelReader, int priority, SubmitArgument... initialUpdates) {
+        return createSubmitBatchGenerator(changes, dataSourceId, dataScope, dbmsSyntax, parserModelReader, compilerModelReader, priority, initialUpdates).generate();
     }
 
     public static final class BatchGenerator {
@@ -57,8 +73,14 @@ public final class EntityChangesToSubmitBatchGenerator {
         private final Map<EntityId, Integer> newEntityIdIndexInBatch = new IdentityHashMap<>();
         private final Map<EntityId, Integer> newEntityIdIndexInGeneratedKeys = new IdentityHashMap<>();
         private final int initialUpdatesCount;
+        // Pre-supplied initialUpdates keep their own priority (they're already-built SubmitArguments).
+        private final int priority;
 
         BatchGenerator(EntityChanges changes, Object dataSourceId, DataScope dataScope, DbmsSqlSyntax dbmsSyntax, CompilerDomainModelReader compilerModelReader, SubmitArgument... initialUpdates) {
+            this(changes, dataSourceId, dataScope, dbmsSyntax, compilerModelReader, SubmitArgument.STANDARD_PRIORITY, initialUpdates);
+        }
+
+        BatchGenerator(EntityChanges changes, Object dataSourceId, DataScope dataScope, DbmsSqlSyntax dbmsSyntax, CompilerDomainModelReader compilerModelReader, int priority, SubmitArgument... initialUpdates) {
             submitArguments = initialUpdates == null ? new ArrayList<>() : new ArrayList<>(Arrays.asList(initialUpdates));
             initialUpdatesCount = submitArguments.size();
             this.changes = changes;
@@ -66,6 +88,7 @@ public final class EntityChangesToSubmitBatchGenerator {
             this.dataScope = dataScope;
             this.dbmsSyntax = dbmsSyntax;
             this.compilerModelReader = compilerModelReader;
+            this.priority = priority;
         }
 
         public Batch<SubmitArgument> generate() {
@@ -369,6 +392,7 @@ public final class EntityChangesToSubmitBatchGenerator {
                 .setLanguage(language)
                 .setStatement(statement)
                 .setParameters(parameters)
+                .setPriority(priority)
                 .build();
         }
     }

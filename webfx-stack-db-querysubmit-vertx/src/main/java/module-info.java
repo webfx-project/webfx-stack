@@ -18,6 +18,7 @@ module webfx.stack.db.querysubmit.vertx {
     requires webfx.stack.db.query;
     requires webfx.stack.db.submit;
     requires webfx.stack.db.submit.listener;
+    requires webfx.stack.session.state;
 
     // Exported packages
     exports dev.webfx.stack.db.query.spi.impl.vertx;

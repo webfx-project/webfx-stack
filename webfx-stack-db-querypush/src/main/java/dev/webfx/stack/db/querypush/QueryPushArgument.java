@@ -73,6 +73,20 @@ public final class QueryPushArgument {
         return queryStreamId != null && close != null;
     }
 
+    @Override
+    public String toString() {
+        return "QueryPushArgument{" +
+               "queryStreamId=" + queryStreamId +
+               ", parentQueryStreamId=" + parentQueryStreamId +
+               ", queryArgument=" + queryArgument +
+               ", dataSourceId=" + dataSourceId +
+               ", active=" + active +
+               ", resend=" + resend +
+               ", close=" + close +
+               ", queryPushResultConsumer=" + queryPushResultConsumer +
+               '}';
+    }
+
     public static QueryPushArgumentBuilder builder() {
         return new QueryPushArgumentBuilder();
     }

@@ -20,18 +20,26 @@ public final class Call<T> extends UnaryExpression<T> {
     private final String functionName;
     private final Function<T> function;
     private final ExpressionArray<T> orderBy; // used only for aggregate functions
+    // Whether the argument is preceded by the `distinct` keyword.
+    // Only meaningful for aggregate functions (mostly `count(distinct …)`).
+    private final boolean distinct;
 
     public Call(String functionName, Expression<T> argument) {
-        this(functionName, argument, null);
+        this(functionName, argument, null, false);
     }
 
     public Call(String functionName, Expression<T> argument, ExpressionArray<T> orderBy) {
+        this(functionName, argument, orderBy, false);
+    }
+
+    public Call(String functionName, Expression<T> argument, ExpressionArray<T> orderBy, boolean distinct) {
         super(argument);
         this.functionName = functionName;
         function = Function.getFunction(functionName);
         if (function == null)
             throw new IllegalArgumentException("Unknown function: " + functionName);
         this.orderBy = orderBy;
+        this.distinct = distinct;
         /*
         if ("readOnly".equals(functionName))
             label = PropertyNameExpression.getTopRightExpression(argument).getLabel();*/
@@ -47,6 +55,10 @@ public final class Call<T> extends UnaryExpression<T> {
 
     public ExpressionArray<T> getOrderBy() {
         return orderBy;
+    }
+
+    public boolean isDistinct() {
+        return distinct;
     }
 
     @Override
@@ -101,6 +113,8 @@ public final class Call<T> extends UnaryExpression<T> {
         sb.append(functionName);
         if (!function.isKeyword()) {
             sb.append('(');
+            if (distinct)
+                sb.append("distinct ");
             if (operand != null)
                 sb = operand.toString(sb);
             if (orderBy != null)

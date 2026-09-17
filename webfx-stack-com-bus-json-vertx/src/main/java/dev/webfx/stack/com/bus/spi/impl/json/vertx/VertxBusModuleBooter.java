@@ -21,6 +21,13 @@ public final class VertxBusModuleBooter implements ApplicationModuleBooter {
     private final static String CONFIG_PATH = "webfx.stack.com.bus.vertx";
     private final static String BUS_PREFIX_CONFIG_KEY = "busPrefix";
     private final static String PING_TIMEOUT_KEY = "pingTimeout";
+    private final static String REPLY_TIMEOUT_KEY = "replyTimeout";
+    // Default reply timeout aligned with the internal server dispatch timeout (see VertxBus request() method), so the
+    // bridge doesn't abandon replies of slow calls (ex: slow database queries) that the internal dispatch still allows.
+    // The Vert.x default (30s) used to silently drop such replies; with this longer value, the reply timeout policy is
+    // now owned by the clients (which can probe the server via the BusCallService "is call pending?" endpoint to
+    // decide whether to keep waiting).
+    private final static long DEFAULT_REPLY_TIMEOUT = 3 * 60 * 1000;
 
     @Override
     public String getModuleName() {
@@ -48,6 +55,8 @@ public final class VertxBusModuleBooter implements ApplicationModuleBooter {
                 log("❌ Invalid Vert.x bus configuration at " + CONFIG_PATH);
                 return;
             }
+            Long configReplyTimeout = config.getLong(REPLY_TIMEOUT_KEY); // optional key (older config files don't declare it)
+            long replyTimeout = configReplyTimeout != null ? configReplyTimeout : DEFAULT_REPLY_TIMEOUT;
 
             VertxInstance.setBridgeInstaller(() -> {
                 VertxInstance.getHttpRouter()
@@ -56,6 +65,7 @@ public final class VertxBusModuleBooter implements ApplicationModuleBooter {
                     .subRouter(SockJSHandler.create(VertxInstance.getVertx(), new SockJSHandlerOptions().setRegisterWriteHandler(true))
                         .bridge(new SockJSBridgeOptions()
                                 .setPingTimeout(pingTimeout) // Should be higher than client WebSocketBusOptions.pingInterval (which is set to 30_000 at the time of writing this code)
+                                .setReplyTimeout(replyTimeout) // How long the bridge waits for the server-side reply of a client call before giving up (sending an err frame to the client and dropping any later genuine reply)
                                 .addInboundPermitted(new PermittedOptions(new JsonObject()))
                                 .addOutboundPermitted(new PermittedOptions(new JsonObject()))
                             , bridgeEvent -> { // Calling the VertxInstance bridge event handler if set
@@ -82,7 +92,7 @@ public final class VertxBusModuleBooter implements ApplicationModuleBooter {
                             }
                         )
                     );
-                log("✓ Vert.x bus configured with prefix = '" + busPrefix + "' & timeout = " + pingTimeout + " ms");
+                log("✓ Vert.x bus configured with prefix = '" + busPrefix + "' & ping timeout = " + pingTimeout + " ms & reply timeout = " + replyTimeout + " ms");
             });
 
         });

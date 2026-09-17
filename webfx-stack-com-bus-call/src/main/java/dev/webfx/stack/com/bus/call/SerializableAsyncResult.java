@@ -65,8 +65,21 @@ public final class SerializableAsyncResult<T> implements AsyncResult<T> {
 
         @Override
         public void encode(SerializableAsyncResult result, AstObject serial) {
-            if (result.cause() != null)
-                encodeString(serial, ERROR_KEY, result.cause().getMessage());
+            if (result.cause() != null) {
+                // A failure must NEVER serialise to an empty AsyncResult. encodeString() ignores null
+                // values (NULL_VALUE_IGNORED), so a cause whose getMessage() is null used to write no
+                // key at all — and with no result either, the payload became byte-identical to a
+                // SUCCESS carrying a null result. The receiver cannot tell those apart: it sees
+                // neither error nor result and reports success, so a failed call is delivered to the
+                // caller as if it had worked. That is how bookings were confirmed to users that the
+                // server had in fact rejected, with no trace on either side.
+                //
+                // Falling back to toString() keeps the failure on the wire and carries the exception's
+                // class name across, which is far better than silence when the message is absent.
+                Throwable cause = result.cause();
+                String message = cause.getMessage();
+                encodeString(serial, ERROR_KEY, message != null ? message : String.valueOf(cause));
+            }
             if (result.result() != null)
                 encodeObject(serial, RESULT_KEY, result.result());
         }

@@ -12,6 +12,11 @@ public class ConnectionDetails {
     private final String databaseName;
     private final String username;
     private final String password;
+    // Max parallel connections for the read (query) and write (submit) pools; -1 = unset, letting the
+    // connected provider apply its own default. Carried here so pool sizing can come from the datasource
+    // configuration without the provider modules depending on the configuration API.
+    private final int queryPoolSize;
+    private final int submitPoolSize;
 
     public ConnectionDetails(String filePath, String databaseName, String username, String password) {
         this(null, -1, filePath, databaseName, null, username, password);
@@ -22,6 +27,10 @@ public class ConnectionDetails {
     }
 
     public ConnectionDetails(String host, int port, String filePath, String databaseName, String url, String username, String password) {
+        this(host, port, filePath, databaseName, url, username, password, -1, -1);
+    }
+
+    public ConnectionDetails(String host, int port, String filePath, String databaseName, String url, String username, String password, int queryPoolSize, int submitPoolSize) {
         this.host = host;
         this.port = port;
         this.filePath = filePath;
@@ -29,6 +38,8 @@ public class ConnectionDetails {
         this.url = url;
         this.username = username;
         this.password = password;
+        this.queryPoolSize = queryPoolSize;
+        this.submitPoolSize = submitPoolSize;
     }
 
     public String getUrl() {
@@ -57,6 +68,14 @@ public class ConnectionDetails {
 
     public String getPassword() {
         return password;
+    }
+
+    public int getQueryPoolSize() {
+        return queryPoolSize;
+    }
+
+    public int getSubmitPoolSize() {
+        return submitPoolSize;
     }
 
 }

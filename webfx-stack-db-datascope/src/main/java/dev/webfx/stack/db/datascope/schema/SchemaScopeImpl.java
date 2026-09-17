@@ -19,8 +19,12 @@ final class SchemaScopeImpl implements SchemaScope {
     }
 
     public boolean intersects(SchemaScope schemaScope) {
-        if (true) // Temporary hack while the implementation doesn't work in all situations (ex: submit booking from front-end doesn't update bookings table)
-            return true; // TODO fix the implementation to make it work in all situations
+        // Note: statement-derived schema scopes can't see side effects happening
+        // OUTSIDE the statement (KBS2-side writes, which never pulse this server
+        // anyway). PostgreSQL trigger cascades within a submit are covered by the
+        // partition dimension (AggregateScope) that the DQL interceptors now
+        // derive: a cascade stays inside the same partition (event/booking) as
+        // the statement that fired it.
         for (ClassScope classScope1 : classScopes.values()) {
             ClassScope classScope2 = schemaScope.getClassScope(classScope1.classId);
             if (classScope2 != null && classScope1.intersects(classScope2))

@@ -19,6 +19,9 @@ public final class BusCallServerJob implements ApplicationJob {
         // So now starting the BusCallService by listening entry calls
         Console.log("- Starting listening bus entry calls");
         registrations.add(BusCallService.listenBusEntryCalls());
+        // Also registering the "is call pending?" endpoint, which allows clients to check if one of their calls is
+        // still being processed (ex: a slow database query) before giving up on a reply exceeding their usual timeout
+        registrations.add(BusCallService.registerIsCallPendingEndpoint());
     }
 
     @Override

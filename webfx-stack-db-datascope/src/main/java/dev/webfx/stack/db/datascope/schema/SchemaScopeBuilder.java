@@ -18,11 +18,23 @@ public final class SchemaScopeBuilder {
     }
 
     public SchemaScopeBuilder addField(Object classId, Object fieldId) {
-        List<Object> fields = classFields.get(classId);
-        if (fields == null || fieldId == null)
-            classFields.put(classId, fields = fieldId == null ? null : new ArrayList<>());
-        if (fields != null)
+        // A null fields list means "any field" (class-level scope, set via addClass).
+        // containsKey distinguishes that marker from a simply absent class, so a
+        // later addField can never silently downgrade a class-level scope to a
+        // single field (which would make intersection miss modifications).
+        if (fieldId == null) {
+            classFields.put(classId, null);
+            return this;
+        }
+        if (classFields.containsKey(classId)) {
+            List<Object> fields = classFields.get(classId);
+            if (fields != null) // null = class-level, already covers this field
+                fields.add(fieldId);
+        } else {
+            List<Object> fields = new ArrayList<>();
             fields.add(fieldId);
+            classFields.put(classId, fields);
+        }
         return this;
     }
 

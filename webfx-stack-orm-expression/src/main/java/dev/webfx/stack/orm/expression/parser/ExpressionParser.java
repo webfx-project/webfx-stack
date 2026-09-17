@@ -5,6 +5,7 @@ import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.builder.BuilderThreadContext;
 import dev.webfx.stack.orm.expression.builder.terms.DqlStatementBuilder;
 import dev.webfx.stack.orm.expression.builder.terms.ExpressionBuilder;
+import dev.webfx.stack.orm.expression.builder.terms.UnionBuilder;
 import dev.webfx.stack.orm.expression.builder.terms.WithSelectBuilder;
 import dev.webfx.stack.orm.expression.parser.javacup.JavaCupExpressionParser;
 import dev.webfx.stack.orm.expression.parser.jflex.ExpressionLexer;
@@ -60,6 +61,11 @@ public final class ExpressionParser {
             if (value instanceof WithSelectBuilder) {
                 WithSelectBuilder withBuilder = (WithSelectBuilder) value;
                 return (DqlStatement<E>) withBuilder.build();
+            }
+            if (value instanceof UnionBuilder) {
+                UnionBuilder unionBuilder = (UnionBuilder) value;
+                unionBuilder.definition = definition;
+                return (DqlStatement<E>) unionBuilder.build();
             }
             DqlStatementBuilder builder = (DqlStatementBuilder) value;
             builder.definition = definition;

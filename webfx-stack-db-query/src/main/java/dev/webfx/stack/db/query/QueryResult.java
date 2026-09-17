@@ -48,6 +48,13 @@ public final class QueryResult {
      */
     private Object entityMapping;
 
+    /**
+     * Per-fire sequence number echoed from the originating {@link QueryArgument#getCallSeq()}, used by
+     * the caller to discard stale results when several fires from the same source race on the network.
+     * Zero when unset (legacy / untagged callers).
+     */
+    private int callSeq;
+
     public QueryResult(int rowCount, int columnCount, Object[] values, String[] columnNames) {
         if ((values == null ? 0 : values.length) != columnCount * rowCount || columnNames != null && columnNames.length != columnCount)
             throw new IllegalArgumentException("Incoherent sizes in QueryResult initialization");
@@ -108,6 +115,15 @@ public final class QueryResult {
 
     public void setEntityMapping(Object entityMapping) {
         this.entityMapping = entityMapping;
+    }
+
+    /** @see #callSeq */
+    public int getCallSeq() {
+        return callSeq;
+    }
+
+    public void setCallSeq(int callSeq) {
+        this.callSeq = callSeq;
     }
 
     /*******************************************************************************************

@@ -23,14 +23,23 @@ import java.util.Set;
  */
 public final class WithSelectBuilder implements ReferenceResolver {
 
-    /** Each entry: {alias (String), SelectBuilder} */
+    /** Each entry: {alias (String), SelectBuilder, materialized (Boolean)} */
     private final List<Object[]> cteBuilders = new ArrayList<>();
     private SelectBuilder mainSelectBuilder;
     /** CTE alias → set of field alias names, populated during build() */
     private Map<String, Set<String>> cteFieldAliasNames;
 
     public void addCte(String alias, SelectBuilder cteBuilder) {
-        cteBuilders.add(new Object[]{alias, cteBuilder});
+        addCte(alias, cteBuilder, false);
+    }
+
+    /**
+     * @param materialized emits AS MATERIALIZED — forces Postgres to compute the CTE once instead
+     *                     of inlining it (PG12+ inlines single-reference CTEs by default, which
+     *                     re-executes the CTE body inside any correlated subquery referencing it).
+     */
+    public void addCte(String alias, SelectBuilder cteBuilder, boolean materialized) {
+        cteBuilders.add(new Object[]{alias, cteBuilder, materialized});
     }
 
     public void setMainSelect(SelectBuilder mainSelectBuilder) {
@@ -46,7 +55,7 @@ public final class WithSelectBuilder implements ReferenceResolver {
             String alias = (String) entry[0];
             SelectBuilder cteBuilder = (SelectBuilder) entry[1];
             Select<?> cteSelect = cteBuilder.build();
-            ctes.add(new Object[]{alias, cteSelect});
+            ctes.add(new Object[]{alias, cteSelect, entry[2]});
             // Register the CTE alias with the main select builder so it can resolve field references
             mainSelectBuilder.addCteAlias(alias, cteSelect.getDomainClass());
             // Index As-aliased field names so dot expressions like e.finalEvent can be resolved

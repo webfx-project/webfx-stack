@@ -102,7 +102,7 @@ public class FacebookServerLoginGateway implements ServerLoginGateway {
                 // We return our FB JS SDK login html template, after resolving the variables
                 // TODO: Finish the template once the "App Mode" is "Live" to make the final callback
                 String loginHtml = resolveTemplateVariablesWithServerSessionId(JAVASCRIPT_SDK_LOGIN_HTML_TEMPLATE, serverSessionId);
-                rc.sendResponse(loginHtml);
+                rc.sendHtmlResponse(loginHtml);
             });
 
             // Whatever the initial login page (either the direct Facebook url for the OpenJFX version, or the JavaScript
@@ -149,7 +149,7 @@ public class FacebookServerLoginGateway implements ServerLoginGateway {
     }
 
     private static void sendHtmlResponse(String responseText, RoutingContext rc) {
-        rc.sendResponse(HTML_RESPONSE.replace("{{RESPONSE_TEXT}}", responseText));
+        rc.sendHtmlResponse(HTML_RESPONSE.replace("{{RESPONSE_TEXT}}", responseText));
     }
 
     @Override

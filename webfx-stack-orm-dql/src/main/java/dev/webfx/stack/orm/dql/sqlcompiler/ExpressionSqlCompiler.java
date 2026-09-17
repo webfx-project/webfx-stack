@@ -67,6 +67,8 @@ public final class ExpressionSqlCompiler {
     public static SqlCompiled compileStatement(DqlStatement statement, DbmsSqlSyntax dbmsSyntax, CompilerDomainModelReader modelReader) {
         if (statement instanceof WithSelect)
             return compileWithSelect((WithSelect) statement, dbmsSyntax, modelReader);
+        if (statement instanceof Union)
+            return compileUnion((Union) statement, dbmsSyntax, false, false, false, modelReader);
         if (statement instanceof Insert)
             return compileInsert((Insert) statement, dbmsSyntax, modelReader);
         if (statement instanceof Update)
@@ -93,7 +95,10 @@ public final class ExpressionSqlCompiler {
             String cteAlias = (String) cte[0];
             Select<?> cteSelect = (Select<?>) cte[1];
             SqlCompiled cteCompiled = compileSelect(cteSelect, dbmsSyntax, false, false, false, modelReader);
-            withPrefix.append(cteAlias).append(" as (").append(cteCompiled.getSql()).append(")");
+            // AS MATERIALIZED forces Postgres to compute the CTE once: PG12+ inlines
+            // single-reference CTEs by default, re-executing the body inside any correlated
+            // subquery that references it (which defeats a precomputation CTE entirely).
+            withPrefix.append(cteAlias).append(cte.length > 2 && Boolean.TRUE.equals(cte[2]) ? " as materialized (" : " as (").append(cteCompiled.getSql()).append(")");
             // Merge parameter names (preserving order, deduplicating)
             for (String param : cteCompiled.getParameterNames())
                 if (!allParamNames.contains(param))
@@ -111,6 +116,92 @@ public final class ExpressionSqlCompiler {
         String combinedSql = withPrefix.toString() + mainCompiled.getSql();
         return new SqlCompiled(combinedSql, mainCompiled.getCountSql(), allParamNames, true,
                 null, mainCompiled.getQueryMapping(), mainCompiled.getSqlUncompilableCondition(), mainCompiled.isCacheable());
+    }
+
+    // Union compilation
+
+    public static SqlCompiled compileUnion(Union union, DbmsSqlSyntax dbmsSyntax, boolean generateQueryMapping, boolean readForeignFields, boolean compileExpressions, CompilerDomainModelReader modelReader) {
+        // Every branch is compiled with the SAME flags so they all emit the same column list
+        // (readForeignFields in particular expands foreign display fields into extra columns);
+        // the first branch's query mapping then applies to every row of the union result.
+        // The first branch's SqlBuild is kept because a union-level order by resolves against it.
+        SqlBuild firstBuild = buildSelect(union.getFirstSelect(), dbmsSyntax, generateQueryMapping, readForeignFields, compileExpressions, null, null, modelReader);
+        SqlCompiled firstCompiled = firstBuild.toSqlCompiled(); // freezes the first branch's SQL
+        // Branches are parenthesized so a per-branch order by/limit/offset remains valid SQL
+        StringBuilder sql = new StringBuilder("(").append(firstCompiled.getSql()).append(')');
+        List<String> allParamNames = new ArrayList<>(firstCompiled.getParameterNames());
+        boolean cacheable = firstCompiled.isCacheable();
+        for (Object unionEntryObj : union.getUnions()) {
+            Object[] unionEntry = (Object[]) unionEntryObj;
+            boolean unionAll = (Boolean) unionEntry[0];
+            Select<?> branchSelect = (Select<?>) unionEntry[1];
+            SqlCompiled branchCompiled = compileSelect(branchSelect, dbmsSyntax, generateQueryMapping, readForeignFields, compileExpressions, modelReader);
+            sql.append(unionAll ? " union all (" : " union (").append(branchCompiled.getSql()).append(')');
+            // Merge named parameters (preserving order, deduplicating) — positional $N parameters
+            // keep their index across branches, so they need no merging
+            for (String param : branchCompiled.getParameterNames())
+                if (!allParamNames.contains(param))
+                    allParamNames.add(param);
+            cacheable &= branchCompiled.isCacheable();
+        }
+        if (union.getOrderBy() != null)
+            compileUnionOrderBy(union.getOrderBy(), firstBuild, sql.append(" order by "), modelReader);
+        return new SqlCompiled(sql.toString(), null, allParamNames, true,
+                null, firstCompiled.getQueryMapping(), firstCompiled.getSqlUncompilableCondition(), cacheable);
+    }
+
+    /**
+     * Compiles the union-level order by. SQL restricts a set-operation order by to OUTPUT columns
+     * (names or ordinals) — arbitrary expressions are rejected by Postgres there. So each key is
+     * resolved against the first branch's select columns:
+     * - a key naming a select-list 'as' alias is emitted as that alias (an output column name);
+     * - any other key expression is scratch-compiled in the first branch's context and looked up
+     *   among the first branch's select columns, then emitted as the matching column's ordinal.
+     * A key matching no select column is an error: the caller must add the expression to the
+     * select list of every branch (usually under an 'as' alias) before ordering by it.
+     */
+    private static void compileUnionOrderBy(ExpressionArray<?> orderBy, SqlBuild firstBuild, StringBuilder sql, CompilerDomainModelReader modelReader) {
+        List<String> selectColumns = firstBuild.getSelectColumns();
+        boolean first = true;
+        for (Expression<?> key : orderBy.getExpressions()) {
+            if (!first)
+                sql.append(", ");
+            first = false;
+            Expression<?> operand = key;
+            Ordered<?> ordered = key instanceof Ordered ? (Ordered<?>) key : null;
+            if (ordered != null)
+                operand = ordered.getOperand();
+            if (operand instanceof Alias) { // a select-list 'as' alias reference => an output column name
+                String aliasName = ((Alias<?>) operand).getName();
+                if (selectColumns.stream().noneMatch(column -> column.endsWith(" as " + aliasName)))
+                    throw new IllegalArgumentException("Union-level order by alias '" + aliasName + "' is not a select column alias of the first branch");
+                sql.append(aliasName);
+            } else { // any other expression => must match a select column, emitted as its ordinal
+                String operandSql = firstBuild.compileToScratchSqlText(operand, modelReader);
+                int ordinal = 0;
+                for (int i = 0; i < selectColumns.size(); i++) {
+                    String column = selectColumns.get(i);
+                    // a column may carry an ' as <alias>' suffix on top of the key expression
+                    if (column.equals(operandSql) || column.startsWith(operandSql) && column.substring(operandSql.length()).matches(" as \\w+")) {
+                        ordinal = i + 1;
+                        break;
+                    }
+                }
+                if (ordinal == 0)
+                    throw new IllegalArgumentException("Union-level order by keys must reference selected columns (SQL restriction on set operations) — add '" + operand + "' to the select list of every branch (e.g. under an 'as' alias)");
+                sql.append(ordinal);
+            }
+            if (ordered != null) {
+                if (ordered.isAscending())
+                    sql.append(" asc");
+                else if (ordered.isDescending())
+                    sql.append(" desc");
+                if (ordered.isNullsFirst())
+                    sql.append(" nulls first");
+                else if (ordered.isNullsLast())
+                    sql.append(" nulls last");
+            }
+        }
     }
 
     // Select compilation

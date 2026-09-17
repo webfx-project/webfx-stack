@@ -77,6 +77,7 @@
         <module>webfx-stack-authn-server-gateway-mojoauth-plugin</module>
         <module>webfx-stack-authn-server-portal</module>
         <module>webfx-stack-authz-client</module>
+        <module>webfx-stack-authz-core</module>
         <module>webfx-stack-authz-server</module>
         <module>webfx-stack-cloud-deepl-client</module>
         <module>webfx-stack-cloud-deepl-server-plugin</module>
@@ -105,6 +106,7 @@
         <module>webfx-stack-com-websocket-jre</module>
         <module>webfx-stack-db-datascope</module>
         <module>webfx-stack-db-datasource</module>
+        <module>webfx-stack-db-migration</module>
         <module>webfx-stack-db-query</module>
         <module>webfx-stack-db-query-buscall</module>
         <module>webfx-stack-db-query-remote</module>
@@ -126,6 +128,9 @@
         <module>webfx-stack-hash-sha1</module>
         <module>webfx-stack-http-server-vertx-plugin</module>
         <module>webfx-stack-mail</module>
+        <module>webfx-stack-mail-transport</module>
+        <module>webfx-stack-mail-transport-sandbox-plugin</module>
+        <module>webfx-stack-mail-transport-smtp-vertx-plugin</module>
         <module>webfx-stack-orm-datasourcemodel-service</module>
         <module>webfx-stack-orm-domainmodel</module>
         <module>webfx-stack-orm-domainmodel-activity</module>
@@ -163,6 +168,8 @@
         <module>webfx-stack-session-state-client</module>
         <module>webfx-stack-session-state-client-fx</module>
         <module>webfx-stack-session-state-server</module>
+        <module>webfx-stack-session-token</module>
+        <module>webfx-stack-session-token-plugin</module>
         <module>webfx-stack-session-vertx</module>
         <module>webfx-stack-shareddata</module>
         <module>webfx-stack-shareddata-ast</module>
@@ -171,6 +178,7 @@
         <module>webfx-stack-shareddata-cache-localstorage-plugin</module>
         <module>webfx-stack-shareddata-cache-serial</module>
         <module>webfx-stack-shareddata-cache-storage</module>
+        <module>webfx-stack-webpush-server</module>
     </modules>
 
 </project>

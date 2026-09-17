@@ -6,6 +6,7 @@ dev.webfx.stack.authn.serial.FinaliseAccountCreationCredentialsSerialCodec
 dev.webfx.stack.authn.serial.FinaliseEmailUpdateCredentialsSerialCodec
 dev.webfx.stack.authn.serial.InitiateAccountCreationCredentialsSerialCodec
 dev.webfx.stack.authn.serial.InitiateEmailUpdateCredentialsSerialCodec
+dev.webfx.stack.authn.serial.IssueBookingAccessMagicLinkCredentialsSerialCodec
 dev.webfx.stack.authn.serial.RenewMagicLinkCredentialsSerialCodec
 dev.webfx.stack.authn.serial.SendMagicLinkCredentialsSerialCodec
 dev.webfx.stack.authn.serial.UpdatePasswordCredentialsSerialCodec

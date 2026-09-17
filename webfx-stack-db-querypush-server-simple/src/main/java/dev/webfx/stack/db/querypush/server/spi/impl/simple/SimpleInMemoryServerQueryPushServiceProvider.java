@@ -9,16 +9,24 @@ import dev.webfx.platform.util.Objects;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.util.collection.Collections;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Bruno Salmon
  */
 public final class SimpleInMemoryServerQueryPushServiceProvider extends ServerQueryPushServiceProviderBase {
     private static int queryStreamIdSeq;
-    private final Map<Object /* queryStreamId */, StreamInfo> streamInfos = new HashMap<>();
-    private final Map<QueryArgument, QueryInfo> queryInfos = new HashMap<>();
+    // ConcurrentHashMap (not HashMap): a write's post-commit pulse iterates queryInfos.values() (see
+    // applyPulseArgument / fetchNextMostUrgentQuery) — and streamInfos.values() in
+    // removePushClientStreams — while other Vert.x event loops open/close streams (put/remove). Plain
+    // HashMap iteration threw ConcurrentModificationException under that concurrency (surfacing on the
+    // high-frequency media_consumption write); ConcurrentHashMap's weakly-consistent iterators are
+    // CME-free. Safe here because neither map ever holds a null key or value.
+    private final Map<Object /* queryStreamId */, StreamInfo> streamInfos = new ConcurrentHashMap<>();
+    private final Map<QueryArgument, QueryInfo> queryInfos = new ConcurrentHashMap<>();
 
     @Override
     protected Future<Object> openStream(QueryPushArgument argument) {
@@ -59,7 +67,22 @@ public final class SimpleInMemoryServerQueryPushServiceProvider extends ServerQu
     @Override
     protected Future<Object> closeStream(QueryPushArgument argument) {
         StreamInfo streamInfo = getStreamInfo(argument);
+        if (streamInfo == null)
+            return Future.succeededFuture();
         streamInfo.close = argument.getClose();
+        // Actually drop the stream + its QueryInfo when no other streams remain. Previously
+        // closeStream only flipped the `close` flag, leaving the StreamInfo registered and
+        // — because isActive() doesn't consult `close` — keeping the QueryInfo (with its
+        // cached lastQueryResult) alive indefinitely. Subsequent subscribes for the same
+        // QueryArgument then reused that stale cache via refreshQuery's
+        // "lastQueryResult != null && !isDirty()" shortcut, even though the underlying data
+        // had moved on. Symptom: "0 viewers on refresh" for past sessions, only fixed by a
+        // full server restart (which wiped the queryInfos map). Removing the stream here
+        // is what the codepath always meant — closeStream is the client's explicit
+        // teardown signal — and lets removeStreamFromQueryInfo cascade-evict the QueryInfo
+        // once no streams remain.
+        if (Boolean.TRUE.equals(streamInfo.close))
+            removeStream(streamInfo);
         return Future.succeededFuture(streamInfo.queryStreamId);
     }
 
@@ -74,7 +97,13 @@ public final class SimpleInMemoryServerQueryPushServiceProvider extends ServerQu
 
     @Override
     protected StreamInfo getStreamInfo(Object queryStreamId) {
-        return streamInfos.get(queryStreamId);
+        // Null-tolerant on purpose: StreamInfo's constructor calls this with the OPTIONAL parent
+        // stream id, which is null for every ordinary subscription (only child streams have one).
+        // HashMap.get(null) answered null; ConcurrentHashMap.get(null) throws NPE — and that NPE
+        // escaped executeQueryPush synchronously, where the bus-call layer logs a throwing endpoint
+        // without replying. Every subscribe then hung with no error and no stream was ever
+        // registered: push-mode pages spun on their spinner and /monitor showed 0 push queries.
+        return queryStreamId == null ? null : streamInfos.get(queryStreamId);
     }
 
     @Override
@@ -119,6 +148,12 @@ public final class SimpleInMemoryServerQueryPushServiceProvider extends ServerQu
     @Override
     protected void removePushClientStreams(Object clientRunId) {
         Collections.forEach(Collections.filter(streamInfos.values(), si -> Objects.areEquals(si.clientRunId, clientRunId)), this::removeStream);
+    }
+
+    @Override
+    protected Collection<QueryInfo> getQueryInfos() {
+        // Defensive copy so the caller can iterate while streams keep being opened/closed
+        return new ArrayList<>(queryInfos.values());
     }
 
     protected PulsePass createPulsePass(PulseArgument argument) {

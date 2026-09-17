@@ -27,6 +27,7 @@ public class ReactiveCall<A, R> {
     private boolean fetchingArgument;
     private CacheEntry<Pair<A, R>> resultCacheEntry;
     private Scheduled fireCallNowIfRequiredScheduled;
+    private int priority; // execution priority hint forwarded to argument-aware subclasses (e.g. ReactiveQueryCall)
 
     private final BooleanProperty startedProperty = FXProperties.newBooleanProperty(started -> {
         if (started)
@@ -257,7 +258,26 @@ public class ReactiveCall<A, R> {
 
     protected void callAsyncFunction() {
         memorizeLastCallArgument();
-        asyncFunction.apply(getArgument()).onComplete(ar -> onCallResult(ar.result(), ar.cause()));
+        asyncFunction.apply(decorateArgument(getArgument())).onComplete(ar -> onCallResult(ar.result(), ar.cause()));
+    }
+
+    /**
+     * Hook for subclasses to stamp the argument with call-specific metadata (e.g. source id, priority)
+     * just before invoking the async function. The default implementation returns the argument unchanged.
+     * <p>
+     * The "raw" argument is what gets memorized for change detection — decoration only affects the value
+     * passed to the async function, not equality checks in {@link #hasArgumentChangedSinceLastCall()}.
+     */
+    protected A decorateArgument(A argument) {
+        return argument;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 
     protected void onCallResult(R result, Throwable error) {

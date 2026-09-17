@@ -20,6 +20,7 @@
         <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.serial.FinaliseEmailUpdateCredentialsSerialCodec</provider>
         <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.serial.InitiateAccountCreationCredentialsSerialCodec</provider>
         <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.serial.InitiateEmailUpdateCredentialsSerialCodec</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.serial.IssueBookingAccessMagicLinkCredentialsSerialCodec</provider>
         <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.serial.RenewMagicLinkCredentialsSerialCodec</provider>
         <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.serial.SendMagicLinkCredentialsSerialCodec</provider>
         <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.authn.serial.UpdatePasswordCredentialsSerialCodec</provider>

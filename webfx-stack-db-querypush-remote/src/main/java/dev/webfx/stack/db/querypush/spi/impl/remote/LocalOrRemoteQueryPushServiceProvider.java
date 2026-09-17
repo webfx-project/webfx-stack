@@ -4,9 +4,12 @@ import dev.webfx.platform.console.Console;
 import dev.webfx.platform.async.Future;
 import dev.webfx.stack.com.bus.call.BusCallService;
 import dev.webfx.stack.db.datasource.LocalDataSource;
+import dev.webfx.stack.db.querypush.DatabaseHealthMonitorInfo;
 import dev.webfx.stack.db.querypush.PulseArgument;
+import dev.webfx.stack.db.querypush.QueryPushMonitorInfo;
 import dev.webfx.stack.db.querypush.QueryPushResult;
 import dev.webfx.stack.db.querypush.QueryPushArgument;
+import dev.webfx.stack.db.querypush.SqlAnalyzeResultInfo;
 import dev.webfx.stack.db.querypush.buscall.QueryPushServiceBusAddress;
 import dev.webfx.stack.db.querypush.spi.QueryPushServiceProvider;
 import dev.webfx.stack.db.querypush.spi.impl.LocalQueryPushServiceProviderRegistry;
@@ -36,6 +39,56 @@ public class LocalOrRemoteQueryPushServiceProvider implements QueryPushServicePr
         if (localConnectedProvider == null)
             throw new UnsupportedOperationException("requestPulse() shouldn't be called on this LocalOrRemoteQueryPushServiceProvider");
         localConnectedProvider.executePulse(argument);
+    }
+
+    @Override
+    public QueryPushMonitorInfo getMonitorInfo() {
+        // Client-side provider: the monitoring snapshot is fetched from the server via the
+        // dedicated buscall endpoint (service/querypush/getMonitorInfo), not through this API,
+        // so there is no local snapshot to return here.
+        return null;
+    }
+
+    @Override
+    public Future<DatabaseHealthMonitorInfo> getDatabaseHealthInfo() {
+        // Client-side provider: the database health snapshot is fetched from the server via the
+        // dedicated buscall endpoint (service/querypush/getDatabaseHealthInfo), not through this API.
+        return Future.failedFuture(new UnsupportedOperationException("getDatabaseHealthInfo() is not available on the client-side provider"));
+    }
+
+    @Override
+    public Boolean cancelSqlQuery(long monitorId) {
+        // Client-side provider: cancellation is routed to the server via the dedicated buscall
+        // endpoint (service/querypush/cancelSqlQuery), not through this local API.
+        return null;
+    }
+
+    @Override
+    public Boolean armSqlAnalyze(String statement) {
+        // Client-side provider: analyze is routed to the server via the dedicated buscall endpoint
+        // (service/querypush/armSqlAnalyze), not through this local API.
+        return null;
+    }
+
+    @Override
+    public SqlAnalyzeResultInfo getSqlAnalyzeResult(String statement) {
+        // Client-side provider: analyze results are fetched from the server via the dedicated
+        // buscall endpoint (service/querypush/getSqlAnalyzeResult), not through this local API.
+        return null;
+    }
+
+    @Override
+    public Boolean resetSqlAnalyze(String statement) {
+        // Client-side provider: the per-statement reset is routed to the server via the dedicated
+        // buscall endpoint (service/querypush/resetSqlAnalyze), not through this local API.
+        return null;
+    }
+
+    @Override
+    public Boolean resetSqlMonitor() {
+        // Client-side provider: the reset is routed to the server via the dedicated buscall endpoint
+        // (service/querypush/resetSqlMonitor), not through this local API.
+        return null;
     }
 
     protected QueryPushServiceProvider getOrCreateLocalConnectedProvider(Object dataSourceId) {

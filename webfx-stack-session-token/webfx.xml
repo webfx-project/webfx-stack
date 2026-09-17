@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <description>Mints and verifies the signed, expiring token that carries a caller's identity between
+        the server and a client it does not trust. Server-only: the client treats the token as opaque and
+        merely echoes it, so nothing here needs to survive GWT.</description>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+</project>

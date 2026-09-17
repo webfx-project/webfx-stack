@@ -8,6 +8,7 @@ module webfx.stack.routing.router.client {
     requires webfx.platform.console;
     requires webfx.platform.util;
     requires webfx.stack.authz.client;
+    requires webfx.stack.authz.core;
     requires webfx.stack.routing.router;
     requires webfx.stack.session;
     requires webfx.stack.session.state.client;

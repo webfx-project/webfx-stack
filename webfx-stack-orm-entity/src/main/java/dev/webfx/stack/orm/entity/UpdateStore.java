@@ -62,7 +62,17 @@ public interface UpdateStore extends EntityStore {
 
     void setSubmitScope(DataScope submitScope);
 
-    Future<SubmitChangesResult> submitChanges(SubmitArgument... initialSubmits);
+    default Future<SubmitChangesResult> submitChanges(SubmitArgument... initialSubmits) {
+        return submitChanges(SubmitArgument.STANDARD_PRIORITY, initialSubmits);
+    }
+
+    /**
+     * Submit the pending changes with the given execution priority on the server's submit queue.
+     * Higher priority = sooner execution; {@link SubmitArgument#STANDARD_PRIORITY} is the default.
+     * The priority applies to the generated insert/update/delete statements only — any pre-built
+     * {@code initialSubmits} keep their own priority.
+     */
+    Future<SubmitChangesResult> submitChanges(int priority, SubmitArgument... initialSubmits);
 
     // Factory
 

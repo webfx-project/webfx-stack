@@ -1,6 +1,7 @@
 package dev.webfx.stack.http.server.vertx;
 
 import dev.webfx.platform.ast.ReadOnlyAstArray;
+import dev.webfx.platform.boot.ApplicationReadiness;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.vertx.VertxInstance;
 import io.vertx.core.Vertx;
@@ -15,7 +16,6 @@ import io.vertx.ext.web.handler.*;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
-import java.net.URL;
 import java.nio.file.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,12 +26,35 @@ import java.util.stream.Stream;
  */
 final class VertxHttpRouterConfigurator {
 
+    // Set to true by VertxHttpVerticle once the HTTP server is listening and serving the
+    // finalised router; reset on shutdown. Used by the /health endpoint below as the
+    // load-balancer readiness signal (e.g. AWS ALB target group health check).
+    static volatile boolean serverReady = false;
+
     static Router initialiseRouter() {
         Vertx vertx = VertxInstance.getVertx();
         Router router = Router.router(vertx);
 
         // Logging web requests
         router.route().handler(LoggerHandler.create());
+
+        // Lightweight health/readiness endpoint for load balancers (e.g. AWS ALB target group
+        // health checks). Returns 200 only once the HTTP server is fully started and serving the
+        // finalised router AND all application readiness gates are completed (e.g. DB migrations —
+        // see ApplicationReadiness); 503 while still booting, waiting on a gate, or draining.
+        // Registered before the session and static handlers so it stays cheap, session-free, and
+        // always takes precedence over the SPA routes (unlike /index.html, which is a static file
+        // ready before the app and matched only for text/html requests). See VertxHttpVerticle,
+        // which sets serverReady on listen success.
+        router.route(HttpMethod.GET, "/health").handler(routingContext -> {
+            boolean listening = serverReady;
+            boolean ready = listening && ApplicationReadiness.areAllGatesReady();
+            routingContext.response()
+                .putHeader("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0")
+                .putHeader("Content-Type", "text/plain; charset=UTF-8")
+                .setStatusCode(ready ? 200 : 503)
+                .end(ready ? "OK" : !listening ? "STARTING" : "WAITING: " + ApplicationReadiness.pendingGateNames());
+        });
 
         // The session store to use
         router.route().handler(SessionHandler.create(VertxInstance.getSessionStore()));
@@ -104,11 +127,6 @@ final class VertxHttpRouterConfigurator {
         // We assume the SPA is hosted under the root / or under any path ending with / or /index.html or any path
         // including /#/ (which is used for UI routing).
         router.routeWithRegex(".*").handler(routingContext -> {
-            // Skip cache control for proxy route
-            if (routingContext.request().path().startsWith("/proxy/")) {
-                routingContext.next();
-                return;
-            }
             routingContext.response()
                 .putHeader("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0")
                 .putHeader("Pragma", "no-cache")
@@ -126,6 +144,20 @@ final class VertxHttpRouterConfigurator {
             routingContext.next();
         });
 
+        // React/Vite perfect caching: files under /assets/ are content-hashed (e.g. index-Dwk1fx0A.js,
+        // vendor-l0sNRNKZ.js), so they are immutable and can be cached forever. A new build produces new
+        // file names, and index.html (kept no-store by the catch-all .* route above) always points at the
+        // latest ones - so the browser reuses cached chunks across refreshes instead of re-downloading them.
+        // This overrides the no-store header set by the .* route (putHeader replaces the previous value).
+        router.routeWithRegex(".*/assets/.*").handler(routingContext -> {
+            routingContext.response()
+                .putHeader("Cache-Control", "public, max-age=31556926, immutable")
+                .putHeader("Pragma", "public")
+                .putHeader("Expires", "1000000000000")
+            ;
+            routingContext.next();
+        });
+
         /*
         // For xxx.nocache.js GWT files, "no-cache" would work also in theory, but in practice it seems that now
         // browsers - or at least Chrome - are not checking those files if index.html hasn't changed! A shame because
@@ -135,128 +167,6 @@ final class VertxHttpRouterConfigurator {
             routingContext.response().putHeader("Cache-Control", "public, max-age=0, no-store, must-revalidate");
             routingContext.next();
         });*/
-
-        // Proxy route to bypass CORS restrictions TODO Move this into a plugin module
-        router.route("/proxy/*").handler(routingContext -> {
-            String fullPath = routingContext.request().path();
-            // Extract the target URL from the path (everything after "/proxy/")
-            String targetUrl = fullPath.substring("/proxy/".length());
-
-            // Validate that the target URL is a valid HTTP/HTTPS URL
-            if (!targetUrl.startsWith("http://") && !targetUrl.startsWith("https://")) {
-                routingContext.response()
-                    .setStatusCode(400)
-                    .end("Invalid URL: must start with http:// or https://");
-                return;
-            }
-
-            try {
-                // Parse the target URL
-                URL url = new URL(targetUrl);
-                boolean isHttps = "https".equals(url.getProtocol());
-                int port = url.getPort() != -1 ? url.getPort() : url.getDefaultPort();
-                String path = url.getPath();
-                if (url.getQuery() != null) {
-                    path += "?" + url.getQuery();
-                }
-
-                // Create HttpClient with appropriate options
-                HttpClientOptions options = new HttpClientOptions()
-                    .setSsl(isHttps)
-                    .setTrustAll(true) // For simplicity; in production, use proper SSL certificates
-                    .setConnectTimeout(10000)
-                    .setIdleTimeout(120); // 2 minutes idle timeout
-
-                HttpClient client = vertx.createHttpClient(options);
-
-                // Create request options
-                RequestOptions requestOptions = new RequestOptions()
-                    .setHost(url.getHost())
-                    .setPort(port)
-                    .setURI(path)
-                    .setMethod(HttpMethod.GET);
-
-                // Make the request
-                client.request(requestOptions)
-                    .onFailure(cause -> {
-                        routingContext.response()
-                            .setStatusCode(502)
-                            .end("Connection error: " + cause.getMessage());
-                    })
-                    .onSuccess(request -> {
-                        // Handle response
-                        request.send()
-                            .onFailure(cause -> {
-                                routingContext.response()
-                                    .setStatusCode(502)
-                                    .end("Proxy error: " + cause.getMessage());
-                                client.close();
-                            })
-                            .onSuccess(response -> {
-                                // Set CORS headers
-                                routingContext.response()
-                                    .setStatusCode(response.statusCode())
-                                    .putHeader("Access-Control-Allow-Origin", "*")
-                                    .putHeader("Access-Control-Allow-Methods", "GET, OPTIONS")
-                                    .putHeader("Access-Control-Allow-Headers", "*");
-
-                                // Forward relevant headers
-                                String contentType = response.getHeader("Content-Type");
-                                if (contentType != null) {
-                                    routingContext.response().putHeader("Content-Type", contentType);
-                                }
-
-                                // Forward caching headers from the origin
-                                String cacheControl = response.getHeader("Cache-Control");
-                                if (cacheControl != null) {
-                                    routingContext.response().putHeader("Cache-Control", cacheControl);
-                                }
-                                String expires = response.getHeader("Expires");
-                                if (expires != null) {
-                                    routingContext.response().putHeader("Expires", expires);
-                                }
-                                String etag = response.getHeader("ETag");
-                                if (etag != null) {
-                                    routingContext.response().putHeader("ETag", etag);
-                                }
-
-                                String contentLength = response.getHeader("Content-Length");
-
-                                // Don't forward Content-Encoding to avoid browser decompression issues with progress
-                                // The proxy will receive compressed data and forward it as-is
-
-                                if (contentLength != null) {
-                                    routingContext.response().putHeader("Content-Length", contentLength);
-                                } else {
-                                    routingContext.response().setChunked(true);
-                                }
-
-                                String contentDisposition = response.getHeader("Content-Disposition");
-                                if (contentDisposition != null) {
-                                    routingContext.response().putHeader("Content-Disposition", contentDisposition);
-                                }
-                                String acceptRanges = response.getHeader("Accept-Ranges");
-                                if (acceptRanges != null) {
-                                    routingContext.response().putHeader("Accept-Ranges", acceptRanges);
-                                }
-                                // Stream the response body directly
-                                response.pipeTo(routingContext.response())
-                                    .onFailure(cause -> {
-                                        if (!routingContext.response().ended()) {
-                                            routingContext.response().end();
-                                        }
-                                    })
-                                    .onComplete(ar -> {
-                                        client.close();
-                                    });
-                            });
-                    });
-            } catch (Exception e) {
-                routingContext.response()
-                    .setStatusCode(400)
-                    .end("Invalid URL format: " + e.getMessage());
-            }
-        });
 
         return router;
     }

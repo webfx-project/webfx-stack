@@ -79,7 +79,13 @@ public final class ReconnectBus extends WebSocketBus {
             @Override
             public void handlePostClose() {
                 if (reconnect) {
-                    Scheduler.scheduleDelay(1000, () -> {
+                    // 1-4s random delay: a server restart (deploy swap) closes every connected
+                    // client's socket within the same second, and identical fixed delays would
+                    // reconnect them all in lockstep against the freshly started server. The
+                    // jitter spreads that reconnection wave (and the authorization pushes plus
+                    // queued-message bursts it triggers) with barely noticeable extra latency
+                    // for any single client.
+                    Scheduler.scheduleDelay(1000 + (long) (Math.random() * 3000), () -> {
                         if (reconnect)
                             reconnect();
                     });

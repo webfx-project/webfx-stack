@@ -36,8 +36,11 @@ public final class BooleanExpressionSqlCompiler extends BinaryExpressionSqlCompi
         compileChildExpressionToSql(left, o);
         if (lowerLeftPrecedence)
             sb.append(')');
-        o.build.prepareAppend(o.clause, getSqlSeparator(e, o));
-        boolean lowerRightPrecedence = getSqlPrecedenceLevel(right) < e.getPrecedenceLevel();
+        // `x in $1` (bare parameter, as opposed to the `x in ($1, $2, ...)` scalar list) means membership of the
+        // ARRAY parameter $1, and compiles to `x = any($1)` — Postgres can't bind an array to a scalar `in ($1)`
+        boolean inArrayParameter = e instanceof In && right instanceof ParameterReference;
+        o.build.prepareAppend(o.clause, inArrayParameter ? "=any(" : getSqlSeparator(e, o));
+        boolean lowerRightPrecedence = !inArrayParameter && getSqlPrecedenceLevel(right) < e.getPrecedenceLevel();
         if (lowerRightPrecedence)
             sb.append('(');
         if (e instanceof In) {
@@ -46,7 +49,7 @@ public final class BooleanExpressionSqlCompiler extends BinaryExpressionSqlCompi
                 o = o.changeSeparator(", ");
         }
         compileChildExpressionToSql(right, o);
-        if (lowerRightPrecedence)
+        if (lowerRightPrecedence || inArrayParameter)
             sb.append(')');
     }
 

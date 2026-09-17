@@ -1,5 +1,6 @@
 package dev.webfx.stack.com.bus.call;
 
+import dev.webfx.platform.ast.AST;
 import dev.webfx.platform.ast.AstObject;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
@@ -45,6 +46,28 @@ public final class BusCallArgument {
         if (jsonEncodedTargetArgument == null && targetArgument != null)
             jsonEncodedTargetArgument = SerialCodecManager.encodeToJson(targetArgument);
         return jsonEncodedTargetArgument;
+    }
+
+    /** Call number of a payload that could not be decoded, or {@link #UNKNOWN_CALL_NUMBER}. */
+    static final int UNKNOWN_CALL_NUMBER = -1;
+
+    /**
+     * Reads the call number straight out of a raw, not-yet-decoded call payload, without decoding it.
+     * <p>
+     * Needed to answer a call whose decoding is what failed: the codec below decodes the target
+     * argument eagerly, so an argument naming a codec this peer doesn't have takes the whole
+     * BusCallArgument down with it, and BusCallService then has to reply to a call it never managed
+     * to read. The call number isn't what identifies the call to either client — both key their
+     * pending calls on the bus reply address — so this is for the reply's own bookkeeping, and
+     * UNKNOWN_CALL_NUMBER is a serviceable answer when even the raw payload won't yield one.
+     */
+    static int readCallNumberFromRawPayload(Object rawPayload) {
+        if (AST.isObject(rawPayload)) {
+            Integer callNumber = ((ReadOnlyAstObject) rawPayload).getInteger(ProvidedSerialCodec.CALL_NUMBER_KEY);
+            if (callNumber != null)
+                return callNumber;
+        }
+        return UNKNOWN_CALL_NUMBER;
     }
 
     /****************************************************

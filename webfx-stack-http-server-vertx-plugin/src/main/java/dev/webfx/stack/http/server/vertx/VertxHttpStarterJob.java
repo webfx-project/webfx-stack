@@ -21,6 +21,8 @@ public final class VertxHttpStarterJob implements ApplicationJob {
 
     @Override
     public void onStop() {
+        // Tell the load balancer we're draining: /health now returns 503 so the ALB stops routing
+        VertxHttpRouterConfigurator.serverReady = false;
         if (verticleDeployID != null)
             VertxInstance.getVertx().undeploy(verticleDeployID);
     }

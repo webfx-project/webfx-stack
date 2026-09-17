@@ -8,6 +8,7 @@ module webfx.stack.authz.server {
     requires webfx.platform.boot;
     requires webfx.platform.console;
     requires webfx.platform.service;
+    requires webfx.stack.authz.core;
     requires webfx.stack.com.bus;
     requires webfx.stack.session.state;
     requires webfx.stack.session.state.server;
@@ -15,6 +16,7 @@ module webfx.stack.authz.server {
     // Exported packages
     exports dev.webfx.stack.authz.server;
     exports dev.webfx.stack.authz.server.spi;
+    exports dev.webfx.stack.authz.server.spi.impl;
 
     // Used services
     uses dev.webfx.stack.authz.server.spi.AuthorizationServerServiceProvider;

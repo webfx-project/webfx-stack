@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <description>Authorization rule model and evaluation, shared by the client (UI affordances) and the
+        server (enforcement). No JavaFX, no I/O, no ambient state — every input is a parameter, so it can
+        be unit-tested without a running stack.</description>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+</project>

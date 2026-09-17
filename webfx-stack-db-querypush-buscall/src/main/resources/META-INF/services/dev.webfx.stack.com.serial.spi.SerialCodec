@@ -1,3 +1,17 @@
+dev.webfx.stack.db.querypush.buscall.serial.ActiveDbQueryInfoSerialCodec
+dev.webfx.stack.db.querypush.buscall.serial.BootJobFailureMonitorInfoSerialCodec
+dev.webfx.stack.db.querypush.buscall.serial.CompressionMonitorInfoSerialCodec
+dev.webfx.stack.db.querypush.buscall.serial.DatabaseHealthMonitorInfoSerialCodec
+dev.webfx.stack.db.querypush.buscall.serial.DbErrorMonitorInfoSerialCodec
+dev.webfx.stack.db.querypush.buscall.serial.NameCountInfoSerialCodec
 dev.webfx.stack.db.querypush.buscall.serial.QueryPushArgumentSerialCodec
+dev.webfx.stack.db.querypush.buscall.serial.QueryPushMonitorInfoSerialCodec
 dev.webfx.stack.db.querypush.buscall.serial.QueryPushResultSerialCodec
 dev.webfx.stack.db.querypush.buscall.serial.QueryResultTranslationSerialCodec
+dev.webfx.stack.db.querypush.buscall.serial.QueryStreamMonitorInfoSerialCodec
+dev.webfx.stack.db.querypush.buscall.serial.InFlightQueryMonitorInfoSerialCodec
+dev.webfx.stack.db.querypush.buscall.serial.SqlAnalyzeResultInfoSerialCodec
+dev.webfx.stack.db.querypush.buscall.serial.SqlExecutionMonitorInfoSerialCodec
+dev.webfx.stack.db.querypush.buscall.serial.SqlKindMonitorInfoSerialCodec
+dev.webfx.stack.db.querypush.buscall.serial.StatementMonitorInfoSerialCodec
+dev.webfx.stack.db.querypush.buscall.serial.SystemResourceMonitorInfoSerialCodec

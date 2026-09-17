@@ -16,12 +16,21 @@ public final class ExecuteQueryMethodEndpoint extends AsyncFunctionBusCallEndpoi
         );
     }
 
-    /** Strip columnNames and entityMapping from the result when the client has them cached. */
+    /**
+     * Strip SQL column names from the result when the client has them cached, but keep
+     * entityMapping on the wire. The React client has no DQL runtime so the wire
+     * entityMapping is its only source of DQL field paths; relying on the client cache
+     * here is racy (cold subscribes / reconnects can hit an empty cache and then decode
+     * every subsequent row with positional `col0`/`col1` keys for the subscription's
+     * lifetime). The mapping is small relative to the row payload, so always sending it
+     * is the cheap correct fix.
+     */
     static QueryResult stripMetadataIfRequested(QueryArgument arg, QueryResult result) {
         if (!arg.isSendMetadata() && result != null) {
             QueryResult stripped = new QueryResult(result.getRowCount(), result.getColumnCount(), result.getValues(), null);
             stripped.setVersionNumber(result.getVersionNumber());
-            // entityMapping intentionally NOT copied — client has it cached
+            stripped.setEntityMapping(result.getEntityMapping());
+            stripped.setCallSeq(result.getCallSeq());
             return stripped;
         }
         return result;

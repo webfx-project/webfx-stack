@@ -7,6 +7,7 @@ import dev.webfx.stack.orm.dql.sqlcompiler.sql.SqlCompiled;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.dbms.DbmsSqlSyntax;
 import dev.webfx.stack.orm.expression.terms.DqlStatement;
 import dev.webfx.stack.orm.expression.terms.Select;
+import dev.webfx.stack.orm.expression.terms.Union;
 import dev.webfx.stack.orm.expression.terms.WithSelect;
 
 import java.util.HashMap;
@@ -68,6 +69,8 @@ public final class DataSourceModel implements HasDomainModel {
     private SqlCompiled compileSelectOrWithSelect(DqlStatement<?> statement, boolean compileExpressions) {
         if (statement instanceof WithSelect)
             return ExpressionSqlCompiler.compileWithSelect((WithSelect<?>) statement, getDbmsSqlSyntax(), true, true, compileExpressions, getCompilerDomainModelReader());
+        if (statement instanceof Union)
+            return ExpressionSqlCompiler.compileUnion((Union<?>) statement, getDbmsSqlSyntax(), true, true, compileExpressions, getCompilerDomainModelReader());
         return compileSelect((Select<?>) statement, compileExpressions);
     }
 

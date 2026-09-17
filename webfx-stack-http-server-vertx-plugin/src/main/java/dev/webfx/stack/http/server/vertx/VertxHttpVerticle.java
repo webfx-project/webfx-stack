@@ -48,7 +48,11 @@ final class VertxHttpVerticle extends AbstractVerticle {
                 // And finally starting the http server by listening to the web port
                 .listen()
                 .onFailure(e -> Console.error("Error while starting " + protocol + " server on port " + port, e))
-                .onSuccess(x -> Console.log("✅ Successfully started " + protocol + " server on port " + port))
+                .onSuccess(x -> {
+                    // Signal readiness to the /health endpoint (consumed by the ALB target group health check)
+                    VertxHttpRouterConfigurator.serverReady = true;
+                    Console.log("✅ Successfully started " + protocol + " server on port " + port);
+                })
         ;
     }
 }

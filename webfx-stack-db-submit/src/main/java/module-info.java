@@ -5,7 +5,6 @@ module webfx.stack.db.submit {
     // Direct dependencies modules
     requires transitive webfx.platform.async;
     requires webfx.platform.service;
-    requires webfx.platform.util;
     requires transitive webfx.stack.db.datascope;
     requires webfx.stack.db.datasource;
 

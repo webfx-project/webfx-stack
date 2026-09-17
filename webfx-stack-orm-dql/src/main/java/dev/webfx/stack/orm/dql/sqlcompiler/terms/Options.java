@@ -33,6 +33,20 @@ public final class Options {
         this.modelReader = modelReader;
     }
 
+    /**
+     * True when compiling inside a scalar expression of a top-level select (e.g. the operand of
+     * an 'as'-aliased select column): Dot paths must then compile as plain scalar column
+     * references — no foreign-key-column injection, no decomposition into loaded fields — since
+     * the surrounding expression expects exactly one SQL value.
+     */
+    public boolean scalarContext;
+
+    /** Carries the non-constructor state (scalarContext) over to a derived Options instance. */
+    private Options carry(Options derived) {
+        derived.scalarContext = scalarContext;
+        return derived;
+    }
+
     public boolean isTopLevelSelect() {
         return clause == SqlClause.SELECT && !build.hasParent();
     }
@@ -40,36 +54,44 @@ public final class Options {
     public Options changeSeparator(String separator) {
         if (Objects.areEquals(this.separator, separator))
             return this;
-        return new Options(build, clause, separator, grouped, generateQueryMapping, readForeignFields, compileExpressions, modelReader);
+        return carry(new Options(build, clause, separator, grouped, generateQueryMapping, readForeignFields, compileExpressions, modelReader));
     }
 
     public Options changeReadForeignFields(boolean readForeignFields) {
         if (this.readForeignFields == readForeignFields)
             return this;
-        return new Options(build, clause, separator, grouped, generateQueryMapping, readForeignFields, compileExpressions, modelReader);
+        return carry(new Options(build, clause, separator, grouped, generateQueryMapping, readForeignFields, compileExpressions, modelReader));
     }
 
     public Options changeGenerateQueryMapping(boolean generateQueryMapping) {
         if (this.generateQueryMapping == generateQueryMapping)
             return this;
-        return new Options(build, clause, separator, grouped, generateQueryMapping, readForeignFields, compileExpressions, modelReader);
+        return carry(new Options(build, clause, separator, grouped, generateQueryMapping, readForeignFields, compileExpressions, modelReader));
     }
 
     public Options changeSeparatorGenerateQueryMapping(String separator, boolean generateQueryMapping) {
         if (Objects.areEquals(this.separator, separator) && this.generateQueryMapping == generateQueryMapping)
             return this;
-        return new Options(build, clause, separator, grouped, generateQueryMapping, readForeignFields, compileExpressions, modelReader);
+        return carry(new Options(build, clause, separator, grouped, generateQueryMapping, readForeignFields, compileExpressions, modelReader));
     }
 
     public Options changeSeparatorGroupedGenerateQueryMapping(String separator, boolean grouped, boolean generateQueryMapping) {
         if (Objects.areEquals(this.separator, separator) && this.grouped == grouped && this.generateQueryMapping == generateQueryMapping)
             return this;
-        return new Options(build, clause, separator, grouped, generateQueryMapping, readForeignFields, compileExpressions, modelReader);
+        return carry(new Options(build, clause, separator, grouped, generateQueryMapping, readForeignFields, compileExpressions, modelReader));
     }
 
     public Options changeCompileExpressions(boolean compileExpressions) {
         if (this.compileExpressions == compileExpressions)
             return this;
-        return new Options(build, clause, separator, grouped, generateQueryMapping, readForeignFields, compileExpressions, modelReader);
+        return carry(new Options(build, clause, separator, grouped, generateQueryMapping, readForeignFields, compileExpressions, modelReader));
+    }
+
+    public Options changeScalarContext(boolean scalarContext) {
+        if (this.scalarContext == scalarContext)
+            return this;
+        Options derived = new Options(build, clause, separator, grouped, generateQueryMapping, readForeignFields, compileExpressions, modelReader);
+        derived.scalarContext = scalarContext;
+        return derived;
     }
 }

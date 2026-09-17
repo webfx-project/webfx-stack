@@ -2,6 +2,7 @@ package dev.webfx.stack.authz.client.spi.impl;
 
 import dev.webfx.platform.async.Future;
 import dev.webfx.stack.authz.client.spi.AuthorizationClientServiceProvider;
+import dev.webfx.stack.authz.core.UserAuthorizationChecker;
 import dev.webfx.stack.session.state.LogoutUserId;
 import dev.webfx.stack.session.state.client.fx.FXUserId;
 

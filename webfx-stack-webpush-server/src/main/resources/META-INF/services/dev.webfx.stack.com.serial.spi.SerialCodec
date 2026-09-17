@@ -1,0 +1,4 @@
+dev.webfx.stack.webpush.buscall.serial.SendPushNotificationArgumentSerialCodec
+dev.webfx.stack.webpush.buscall.serial.SendPushNotificationResultSerialCodec
+dev.webfx.stack.webpush.buscall.serial.UnsubscribePushNotificationsArgumentSerialCodec
+dev.webfx.stack.webpush.buscall.serial.UnsubscribePushNotificationsResultSerialCodec

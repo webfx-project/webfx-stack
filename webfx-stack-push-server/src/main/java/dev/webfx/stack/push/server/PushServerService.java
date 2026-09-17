@@ -6,6 +6,7 @@ import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.service.SingleServiceProvider;
 
+import java.util.List;
 import java.util.ServiceLoader;
 
 /**
@@ -35,6 +36,24 @@ public final class PushServerService {
 
     public static void clientIsLive(Object clientRunId) {
         getProvider().clientIsLive(clientRunId);
+    }
+
+    /** Records a connected client's session facts (userId, version, PWA mode, device profile, BO/FO app) for the /monitor distributions. */
+    public static void setClientMetadata(Object clientRunId, Object userId, String clientVersion, Boolean pwa, String clientProfile, Boolean backoffice) {
+        getProvider().setClientMetadata(clientRunId, userId, clientVersion, pwa, clientProfile, backoffice);
+    }
+
+    /** Snapshot of currently-connected clients' invariant metadata, for the /monitor distributions. */
+    public static List<PushClientMetadata> snapshotConnectedClients() {
+        return getProvider().snapshotConnectedClients();
+    }
+
+    /**
+     * Returns the number of clients currently registered on this push server (see
+     * {@link PushServerServiceProvider#getPushClientsCount()}). For monitoring purposes.
+     */
+    public static int getPushClientsCount() {
+        return getProvider().getPushClientsCount();
     }
 
     public static void addUnresponsivePushClientListener(UnresponsivePushClientListener listener) {

@@ -17,7 +17,10 @@ public final class UnaryExpressionSqlCompiler extends AbstractTermSqlCompiler<Un
     @Override
     public void compileExpressionToSql(UnaryExpression<?> e, Options o) {
         if (e instanceof As<?> as) {
-            compileChildExpressionToSql(e.getOperand(), o.changeGenerateQueryMapping(false));
+            // An 'as' column is a single SQL value by contract, so its operand compiles in scalar
+            // context: Dot paths inside it emit plain column references instead of field-loading
+            // (which would explode into several columns and attach the alias to the last fragment)
+            compileChildExpressionToSql(e.getOperand(), o.changeGenerateQueryMapping(false).changeScalarContext(true));
             if (o.isTopLevelSelect()) {
                 String alias = as.getAlias();
                 o.build.addColumnInClause(null, alias, alias, null, o.clause, " as ", false, false, o.generateQueryMapping);

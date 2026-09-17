@@ -44,6 +44,13 @@ public final class ClientSideStateSession {
     private Runnable scheduledSessionStore;
     private Runnable scheduledListenerCall;
     private int serverIncomingMessageSequence;
+    /**
+     * The server's statement that it no longer accepts a bare claim. In memory only, never stored: it is
+     * re-learned on the first server message of each connection, and the fallback while unknown — send the
+     * user id as well — is the safe one. A stored `true` could outlive a rollback of the flip and leave a
+     * client silently declining to say who it is to a server that still needs to be told.
+     */
+    private boolean tokenRequired;
 
     private ClientSideStateSessionListener clientSideStateSessionListener;
 
@@ -183,9 +190,39 @@ public final class ClientSideStateSession {
             if (!fromServer)
                 nextUserIdSendingSequence = -1; // forcing a resend of the user id to the server
             // Erasing userId from the client session if logged out
-            if (LogoutUserId.isLogoutUserId(userId))
+            if (LogoutUserId.isLogoutUserId(userId)) {
                 SessionAccessor.changeUserId(clientSession, null, false);
+                // And the token with it, which is not optional. A valid token OVERRIDES the claimed user id on
+                // the server, so a client that kept one while announcing a logout would announce the logout and
+                // be signed straight back in by its own next message — a logout that does not log out, on the
+                // one path where the user has explicitly asked to be signed out.
+                SessionAccessor.changeUserToken(clientSession, null, false);
+            }
             scheduleSessionStoreAndListenerCall();
+        }
+    }
+
+    public void setTokenRequired(Boolean tokenRequired) {
+        if (tokenRequired != null)
+            this.tokenRequired = tokenRequired;
+    }
+
+    public String getUserToken() {
+        return SessionAccessor.getUserToken(clientSession);
+    }
+
+    /**
+     * Stores the server's signed statement of who this user is. Only the server ever produces one, so unlike
+     * the user id there is no client-originated case: we cannot make one, read one, or alter one without it
+     * ceasing to verify. It is kept in the client session so it survives a restart exactly as the user id
+     * does — otherwise every relaunch would present an identity with no proof of it.
+     */
+    public void changeUserToken(String userToken, boolean skipNullValue) {
+        if (SessionAccessor.changeUserToken(clientSession, userToken, skipNullValue)) {
+            // Persist only — no listener call and no sending-sequence reset, unlike every other change here.
+            // Nothing observes the token (there is nothing a UI could usefully do with it), and it goes out on
+            // every message anyway, so notifying would schedule a hop to the UI thread to run an empty callback.
+            scheduleSessionStorage();
         }
     }
 
@@ -254,6 +291,12 @@ public final class ClientSideStateSession {
     private int nextUserIdSendingSequence = -1;
 
     public Object setOutgoingUserIdIfNotYetSent(Object outgoingState) {
+        // Not at all, once the server requires a token and we hold one: the token already names us, and a
+        // user id beside it is the forgeable half of a pair that can disagree. Note the guard needs the
+        // token to be PRESENT, not merely required — a client that has not got one yet must still be able
+        // to say who it is, or it could never log in.
+        if (tokenRequired && getUserToken() != null)
+            return outgoingState;
         // When do we send the user id stored in the client session back to the server?
         if (nextUserIdSendingSequence == -1) {
             nextUserIdSendingSequence = serverIncomingMessageSequence;
@@ -263,6 +306,25 @@ public final class ClientSideStateSession {
             outgoingState = StateAccessor.setUserId(outgoingState, userId, false);
         }
         return outgoingState;
+    }
+
+    // Communicating the identity token to the server — ALWAYS, unlike everything else in this section.
+
+    /**
+     * Puts the token on every outgoing message, with none of the "if not yet sent" machinery its neighbours use.
+     *
+     * <p>That machinery exists because the server REMEMBERS those values in its session, so resending them is
+     * waste. The token is the opposite: it is checked on every message, and it is checked precisely so that the
+     * server does not have to take its session's word for who is calling. Sending it only on change would mean
+     * almost every message arrives without one — invisible today, since a message with no token is still
+     * accepted, and a total loss of login the moment that stops being true. The bug would appear at the flip,
+     * in a client nobody had touched, which is the worst possible time to discover it.
+     *
+     * <p>Being an HMAC, it can afford this: verification is a hash, not a lookup, which is what made checking
+     * every message reasonable in the first place.
+     */
+    public Object setOutgoingUserToken(Object outgoingState) {
+        return StateAccessor.setUserToken(outgoingState, getUserToken());
     }
 
     // Communicating the run id to the server (when it makes sense)

@@ -61,4 +61,13 @@ public class VertxSession implements Session {
     public long timeout() {
         return vertxSession.timeout();
     }
+
+    @Override
+    public void touch() {
+        // setAccessed() is the only thing that advances lastAccessed - the store's own get() and put() do not -
+        // and lastAccessed is what its reaper expires on. Written here from the HTTP server event loop while
+        // the reaper reads it from its timer context, which is the same unsynchronised cross-context write
+        // Vert.x's own SessionHandler performs on every request.
+        vertxSession.setAccessed();
+    }
 }

@@ -47,6 +47,10 @@ public final class SelectBuilder extends DqlStatementBuilder<Select> {
     public void addLateralSubquery(String alias, SelectBuilder subquery) {
         if (lateralSubqueries == null)
             lateralSubqueries = new ArrayList<>();
+        // A lateral's output columns are exactly its select list — an implicit id column would
+        // even be invalid SQL for an aggregate lateral (id not in GROUP BY). Same pattern as
+        // SelectExpressionBuilder.
+        subquery.includeIdColumn = false;
         lateralSubqueries.add(new Object[]{alias, subquery});
     }
 

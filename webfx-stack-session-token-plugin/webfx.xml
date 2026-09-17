@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <description>Installs the session-token signing keys from configuration. Separate from
+        webfx-stack-session-token so the primitive itself keeps no dependencies and stays testable without
+        a configured stack.</description>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <providers>
+        <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.session.token.plugin.SessionTokenKeysInitializer</provider>
+    </providers>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+</project>

@@ -6,6 +6,7 @@ import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.boot.spi.ApplicationModuleBooter;
 import dev.webfx.platform.conf.ConfigLoader;
 import dev.webfx.platform.console.Console;
+import dev.webfx.platform.substitution.Substitutor;
 import dev.webfx.platform.util.vertx.VertxInstance;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.sstore.LocalSessionStore;
@@ -16,7 +17,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 
 /**
  * @author Bruno Salmon
@@ -130,9 +130,9 @@ public class VertxHttpModuleBooter implements ApplicationModuleBooter {
         String port = httpServerConfig.getString(PORT_CONFIG_KEY);
         String certPath = httpServerConfig.getString(CERT_PATH_CONFIG_KEY);
         String keyPath = httpServerConfig.getString(KEY_PATH_CONFIG_KEY);
-        if (areValuesNonNullAndResolved(protocol, port)
-            && areValuesNullOrResolved(certPath, keyPath)
-            && (certPath == null && keyPath == null || certPath != null && keyPath != null && Files.exists(Path.of(certPath)) && Files.exists(Path.of(keyPath)))) {
+        if (Substitutor.areValuesNonNullAndResolved(protocol, port)
+                        && Substitutor.areValuesNullOrResolved(certPath, keyPath)
+                        && (certPath == null && keyPath == null || certPath != null && keyPath != null && Files.exists(Path.of(certPath)) && Files.exists(Path.of(keyPath)))) {
             // Reaching this code block indicates that the http configuration is valid.
             // We set the HTTP_SERVER_XXX global variables from the first valid http configuration:
             if (HTTP_SERVER_PROTOCOL == null) {
@@ -166,7 +166,7 @@ public class VertxHttpModuleBooter implements ApplicationModuleBooter {
         String routePattern = httpStaticRouteConfig.getString(ROUTE_PATTERN_CONFIG_KEY);
         String pathToStaticFolder = httpStaticRouteConfig.getString(PATH_TO_STATIC_FOLDER_CONFIG_KEY);
         StaticFolder staticFolder = new StaticFolder(pathToStaticFolder);
-        boolean mandatoryFieldsPresent = areValuesNonNullAndResolved(routePattern, pathToStaticFolder);
+        boolean mandatoryFieldsPresent = Substitutor.areValuesNonNullAndResolved(routePattern, pathToStaticFolder);
         boolean hostnamePatternsCorrect = !httpStaticRouteConfig.has(HOSTNAME_PATTERNS_CONFIG_KEY) || httpStaticRouteConfig.isArray(HOSTNAME_PATTERNS_CONFIG_KEY) && checkArrayOfResolvedStrings(httpStaticRouteConfig.getArray(HOSTNAME_PATTERNS_CONFIG_KEY));
         boolean staticFolderExists = staticFolder.exists();
         if (mandatoryFieldsPresent && hostnamePatternsCorrect && staticFolderExists) {
@@ -194,11 +194,10 @@ public class VertxHttpModuleBooter implements ApplicationModuleBooter {
         return false;
     }
 
-    private static boolean checkArrayOfResolvedStrings(ReadOnlyAstArray hostnamePatterns) {
-        for (int i = 0; i < hostnamePatterns.size(); i++) {
-            if (!(hostnamePatterns.getElement(i) instanceof String))
-                return false;
-            if (!areValuesNonNullAndResolved(hostnamePatterns.getString(i)))
+    private static boolean checkArrayOfResolvedStrings(ReadOnlyAstArray array) {
+        for (int i = 0; i < array.size(); i++) {
+            Object element = array.getElement(i);
+            if (!(element instanceof String s) || !Substitutor.areValuesNonNullAndResolved(s))
                 return false;
         }
         return true;
@@ -213,24 +212,6 @@ public class VertxHttpModuleBooter implements ApplicationModuleBooter {
         }
         return sb.toString();
     }
-
-    // Code copied from dev.webfx.stack.conf.ConfigurationService;
-    // TODO: provides a similar feature in new substitution API
-    public static boolean areValuesNullOrResolved(String... values) {
-        for (String value : values)
-            if (value != null && VARIABLE_PATTERN.matcher(value).find())
-                return false;
-        return true;
-    }
-
-    public static boolean areValuesNonNullAndResolved(String... values) {
-        for (String value : values)
-            if (value == null || VARIABLE_PATTERN.matcher(value).find())
-                return false;
-        return true;
-    }
-
-    public static Pattern VARIABLE_PATTERN = Pattern.compile("\\$?\\{\\{(.+)}}");
 
     private static class StaticFolder {
 

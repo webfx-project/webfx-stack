@@ -9,13 +9,14 @@ import dev.webfx.stack.com.bus.BusService;
 import dev.webfx.stack.com.bus.DeliveryOptions;
 import dev.webfx.stack.com.bus.call.BusCallService;
 import dev.webfx.stack.push.ClientPushBusAddressesSharedByBothClientAndServer;
+import dev.webfx.stack.push.server.PushClientMetadata;
 import dev.webfx.stack.push.server.UnresponsivePushClientListener;
 import dev.webfx.stack.push.server.spi.PushServerServiceProvider;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Bruno Salmon
@@ -26,7 +27,10 @@ public final class SimplePushServerServiceProvider implements PushServerServiceP
 
     private final static boolean LOG_PUSH = true;
 
-    private final Map<Object /*clientRunId*/, PushClientInfo> pushClientInfos = new HashMap<>();
+    // ConcurrentHashMap: the monitor's snapshotConnectedClients() iterates this map while other event
+    // loops mutate it (push() creates entries, pushFailed() removes them) — a plain HashMap would throw
+    // ConcurrentModificationException under real multi-client load (breaking getMonitorInfo).
+    private final Map<Object /*clientRunId*/, PushClientInfo> pushClientInfos = new ConcurrentHashMap<>();
     private final List<UnresponsivePushClientListener> unresponsivePushClientListeners = new ArrayList<>();
 
     @Override
@@ -51,6 +55,39 @@ public final class SimplePushServerServiceProvider implements PushServerServiceP
         PushClientInfo pushClientInfo = pushClientInfos.get(clientRunId);
         if (pushClientInfo != null)
             pushClientInfo.rescheduleNextPing();
+    }
+
+    @Override
+    public void setClientMetadata(Object clientRunId, Object userId, String clientVersion, Boolean pwa, String clientProfile, Boolean backoffice) {
+        // Attach to an already-registered client only; a not-yet-registered one gets it on a later
+        // live tick (the values are re-supplied from the session each time).
+        PushClientInfo pushClientInfo = pushClientInfos.get(clientRunId);
+        if (pushClientInfo != null) {
+            // userId reflects the current login — store it as-is each tick (it changes on login/logout).
+            pushClientInfo.userId = userId;
+            // version/pwa/profile/backoffice are invariant; keep the last known value if a tick supplies null.
+            if (clientVersion != null)
+                pushClientInfo.clientVersion = clientVersion;
+            if (pwa != null)
+                pushClientInfo.pwa = pwa;
+            if (clientProfile != null)
+                pushClientInfo.clientProfile = clientProfile;
+            if (backoffice != null)
+                pushClientInfo.backoffice = backoffice;
+        }
+    }
+
+    @Override
+    public List<PushClientMetadata> snapshotConnectedClients() {
+        List<PushClientMetadata> snapshot = new ArrayList<>(pushClientInfos.size());
+        for (PushClientInfo info : pushClientInfos.values())
+            snapshot.add(new PushClientMetadata(info.userId, info.clientVersion, info.pwa, info.clientProfile, info.backoffice));
+        return snapshot;
+    }
+
+    @Override
+    public int getPushClientsCount() {
+        return pushClientInfos.size();
     }
 
     @Override
@@ -84,6 +121,13 @@ public final class SimplePushServerServiceProvider implements PushServerServiceP
         long lastCallTime;
         long lastResultReceivedTime;
         Scheduled pingScheduled;
+        // Session facts for the /monitor page. userId = the current login (updated each live tick);
+        // clientVersion/pwa/clientProfile/backoffice are invariant (null until the client reports them).
+        Object userId;
+        String clientVersion;
+        Boolean pwa;
+        String clientProfile;
+        Boolean backoffice; // TRUE = back-office app, FALSE = front-office app, null = unknown
 
         PushClientInfo(Object clientRunId) {
             this.clientRunId = clientRunId;

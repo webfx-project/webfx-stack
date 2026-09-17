@@ -69,7 +69,7 @@ parser code {:
    
 /* Terminals (tokens returned by the scanner).*/
 terminal          EXPR_START;
-terminal          SELECT, DISTINCT, FROM, WHERE, GROUP_BY, HAVING, ORDER_BY, DESC, ASC, NULLS, FIRST, LAST, LIMIT, OFFSET, INSERT, UPDATE, DELETE, SET, EXISTS, IS, LIKE, IN, AS, ANY, ALL, THIS, WITH, LATERAL;
+terminal          SELECT, DISTINCT, FROM, WHERE, GROUP_BY, HAVING, ORDER_BY, DESC, ASC, NULLS, FIRST, LAST, LIMIT, OFFSET, INSERT, UPDATE, DELETE, SET, EXISTS, IS, LIKE, IN, AS, ANY, ALL, THIS, WITH, MATERIALIZED, LATERAL, UNION;
 terminal          OBJ_STATE, IMAGE;
 terminal          LPAREN, RPAREN, LBRACK, RBRACK, COLON, DOUBLE_COLON, COMMA, DOT, LCURLY, RCURLY;
 terminal          PLUS, MINUS, MULT, DIV, EQ, GT, LT, NOT, QUESTION, QUESTION_DOT, EQEQ, LTEQ, GTEQ, NOTEQ, AND, OR;
@@ -81,8 +81,9 @@ terminal String   STRING, IDENTIFIER;
 
 /* Non terminals used in the grammar section.*/
 non terminal Object                       parser_start;
-non terminal SelectBuilder                select_query, select_start, select_distinct, select_class, select_additional_from, select_where, select_group, select_order, select_limit, select_offset;
+non terminal SelectBuilder                select_query, select_start, select_distinct, select_class, select_additional_from, select_where, select_group, select_order, select_limit, select_offset, union_branch, lateral_body;
 non terminal WithSelectBuilder            with_query, with_cte_list;
+non terminal UnionBuilder                 union_query, union_core;
 non terminal InsertBuilder                insert_statement, insert_start, insert_class, insert_set;
 non terminal UpdateBuilder                update_statement, update_start, update_class, update_set, update_where;
 non terminal DeleteBuilder                delete_statement, delete_start, delete_class, delete_where;
@@ -113,6 +114,8 @@ start with parser_start;
 
 parser_start ::= select_query:select
               {: RESULT = select; :}
+            | union_query:union
+              {: RESULT = union; :}
             | with_query:with
               {: RESULT = with; :}
             | insert_statement:insert
@@ -278,6 +281,8 @@ expr      ::= expr:left OR expr:right
               {: RESULT = new CallBuilder(name); :}
             | IDENTIFIER:name LPAREN expr_or_list:arg RPAREN
               {: RESULT = new CallBuilder(name, arg); :}
+            | IDENTIFIER:name LPAREN DISTINCT expr_or_list:arg RPAREN
+              {: RESULT = new CallBuilder(name, arg, null, true); :}
             | IDENTIFIER:name LPAREN expr_or_list:arg ORDER_BY order_list:ol RPAREN
               {: RESULT = new CallBuilder(name, arg, ol); :}
             | LCURLY RCURLY
@@ -399,18 +404,37 @@ select_additional_from ::= select_additional_from:select COMMA IDENTIFIER:classN
                     {: RESULT = select; RESULT.addAdditionalFromEntity(className, alias); :}
                   | select_additional_from:select COMMA IDENTIFIER:className
                     {: RESULT = select; RESULT.addAdditionalFromEntity(className, null); :}
-                  | select_additional_from:select COMMA LATERAL LPAREN SELECT expr_list:fields RPAREN AS IDENTIFIER:alias
-                    {: SelectBuilder sub = new SelectBuilder(); sub.fields = fields; RESULT = select; RESULT.addLateralSubquery(alias, sub); :}
-                  | select_additional_from:select COMMA LATERAL LPAREN SELECT expr_list:fields RPAREN IDENTIFIER:alias
-                    {: SelectBuilder sub = new SelectBuilder(); sub.fields = fields; RESULT = select; RESULT.addLateralSubquery(alias, sub); :}
+                  | select_additional_from:select COMMA LATERAL LPAREN lateral_body:sub RPAREN AS IDENTIFIER:alias
+                    {: RESULT = select; RESULT.addLateralSubquery(alias, sub); :}
+                  | select_additional_from:select COMMA LATERAL LPAREN lateral_body:sub RPAREN IDENTIFIER:alias
+                    {: RESULT = select; RESULT.addLateralSubquery(alias, sub); :}
                   | select_distinct:select expr_list:fields FROM IDENTIFIER:className IDENTIFIER:alias COMMA IDENTIFIER:className2 IDENTIFIER:alias2
                     {: RESULT = select; RESULT.fields = fields; RESULT.buildingClassName = className; RESULT.buildingClassAlias = alias; RESULT.addAdditionalFromEntity(className2, alias2); :}
                   | select_distinct:select expr_list:fields FROM IDENTIFIER:className IDENTIFIER:alias COMMA IDENTIFIER:className2
                     {: RESULT = select; RESULT.fields = fields; RESULT.buildingClassName = className; RESULT.buildingClassAlias = alias; RESULT.addAdditionalFromEntity(className2, null); :}
-                  | select_distinct:select expr_list:fields FROM IDENTIFIER:className IDENTIFIER:alias COMMA LATERAL LPAREN SELECT expr_list:latFields RPAREN AS IDENTIFIER:latAlias
-                    {: SelectBuilder sub = new SelectBuilder(); sub.fields = latFields; RESULT = select; RESULT.fields = fields; RESULT.buildingClassName = className; RESULT.buildingClassAlias = alias; RESULT.addLateralSubquery(latAlias, sub); :}
-                  | select_distinct:select expr_list:fields FROM IDENTIFIER:className IDENTIFIER:alias COMMA LATERAL LPAREN SELECT expr_list:latFields RPAREN IDENTIFIER:latAlias
-                    {: SelectBuilder sub = new SelectBuilder(); sub.fields = latFields; RESULT = select; RESULT.fields = fields; RESULT.buildingClassName = className; RESULT.buildingClassAlias = alias; RESULT.addLateralSubquery(latAlias, sub); :}
+                  | select_distinct:select expr_list:fields FROM IDENTIFIER:className IDENTIFIER:alias COMMA LATERAL LPAREN lateral_body:sub RPAREN AS IDENTIFIER:latAlias
+                    {: RESULT = select; RESULT.fields = fields; RESULT.buildingClassName = className; RESULT.buildingClassAlias = alias; RESULT.addLateralSubquery(latAlias, sub); :}
+                  | select_distinct:select expr_list:fields FROM IDENTIFIER:className IDENTIFIER:alias COMMA LATERAL LPAREN lateral_body:sub RPAREN IDENTIFIER:latAlias
+                    {: RESULT = select; RESULT.fields = fields; RESULT.buildingClassName = className; RESULT.buildingClassAlias = alias; RESULT.addLateralSubquery(latAlias, sub); :}
+                  ;
+
+/* Body of a "lateral (...)" subquery. Two shapes:
+   - scalar select-list only (no FROM) — compiled against the parent's context; SqlBuild
+     appends "offset 0" so Postgres cannot pull it up and re-inline multiply-referenced
+     expensive expressions;
+   - full select with FROM [alias] [WHERE] — becomes a real correlated subquery (e.g. a
+     one-row aggregate computing several sums in a single pass); aggregates block Postgres
+     subquery pull-up, so it naturally evaluates once per parent row. */
+lateral_body    ::= SELECT expr_list:fields
+                    {: SelectBuilder sub = new SelectBuilder(); sub.fields = fields; RESULT = sub; :}
+                  | SELECT expr_list:fields FROM IDENTIFIER:className
+                    {: SelectBuilder sub = new SelectBuilder(); sub.fields = fields; sub.buildingClassName = className; RESULT = sub; :}
+                  | SELECT expr_list:fields FROM IDENTIFIER:className IDENTIFIER:alias
+                    {: SelectBuilder sub = new SelectBuilder(); sub.fields = fields; sub.buildingClassName = className; sub.buildingClassAlias = alias; RESULT = sub; :}
+                  | SELECT expr_list:fields FROM IDENTIFIER:className WHERE expr:where
+                    {: SelectBuilder sub = new SelectBuilder(); sub.fields = fields; sub.buildingClassName = className; sub.where = where; RESULT = sub; :}
+                  | SELECT expr_list:fields FROM IDENTIFIER:className IDENTIFIER:alias WHERE expr:where
+                    {: SelectBuilder sub = new SelectBuilder(); sub.fields = fields; sub.buildingClassName = className; sub.buildingClassAlias = alias; sub.where = where; RESULT = sub; :}
                   ;
 
 select_where	::= select_additional_from:select WHERE expr:where
@@ -451,6 +475,35 @@ select_offset    ::= select_limit:select OFFSET expr:offset
 
 select_query    ::= select_offset:select
                     {: RESULT = select; :}
+                  ;
+
+/* union expression */
+
+/* SQL-standard shape: a bare branch stops at where/group by — a trailing "order by" after the
+   last branch is the UNION-LEVEL order by (applying to the whole union result). A branch that
+   needs its own order by/limit must be parenthesized: (select ... order by ... limit ...).
+   Union-level order by keys must reference selected columns of the first branch (by repeating
+   the select expression or naming its 'as' alias) — SQL only allows output columns there. */
+union_branch    ::= select_group:select
+                    {: RESULT = select; :}
+                  | LPAREN select_query:select RPAREN
+                    {: RESULT = select; :}
+                  ;
+
+union_core      ::= union_branch:left UNION union_branch:right
+                    {: RESULT = new UnionBuilder(left); RESULT.addUnion(right, false); :}
+                  | union_branch:left UNION ALL union_branch:right
+                    {: RESULT = new UnionBuilder(left); RESULT.addUnion(right, true); :}
+                  | union_core:union UNION union_branch:right
+                    {: RESULT = union; RESULT.addUnion(right, false); :}
+                  | union_core:union UNION ALL union_branch:right
+                    {: RESULT = union; RESULT.addUnion(right, true); :}
+                  ;
+
+union_query     ::= union_core:union
+                    {: RESULT = union; :}
+                  | union_core:union ORDER_BY order_list:list
+                    {: RESULT = union; RESULT.orderBy = list; :}
                   ;
 
 /* insert expression */
@@ -529,8 +582,12 @@ delete_statement ::= delete_where:delete
 
 with_cte_list ::= with_cte_list:with COMMA IDENTIFIER:alias AS LPAREN select_query:cte RPAREN
                     {: RESULT = with; RESULT.addCte(alias, cte); :}
+                | with_cte_list:with COMMA IDENTIFIER:alias AS MATERIALIZED LPAREN select_query:cte RPAREN
+                    {: RESULT = with; RESULT.addCte(alias, cte, true); :}
                 | WITH IDENTIFIER:alias AS LPAREN select_query:cte RPAREN
                     {: RESULT = new WithSelectBuilder(); RESULT.addCte(alias, cte); :}
+                | WITH IDENTIFIER:alias AS MATERIALIZED LPAREN select_query:cte RPAREN
+                    {: RESULT = new WithSelectBuilder(); RESULT.addCte(alias, cte, true); :}
                 ;
 
 with_query ::= with_cte_list:with select_query:main

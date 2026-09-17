@@ -65,14 +65,29 @@ public class DqlQueryInterceptorInitializer implements ApplicationJob {
                             .build();
                         return targetProvider.executeQuery(dqlArgument)
                             .map(result -> {
-                                // Attach the entity mapping so it can be serialized to the client
-                                if (result != null && queryMapping != null && argument.isSendMetadata())
+                                // Always attach the entity mapping to the in-memory QueryResult — the wire-level
+                                // "ship it or strip it?" decision happens downstream (ExecuteQueryMethodEndpoint
+                                // for one-shot calls, ServerQueryPushServiceProviderBase for push subscriptions),
+                                // which already strip the mapping when the client claims a cache hit.
+                                //
+                                // Previously this was gated on `argument.isSendMetadata()`, which silently dropped
+                                // the mapping whenever a client subscribed with `sendMetadata=false` (warm cache).
+                                // That poisoned the server-side `queryInfo.lastQueryResult` cache: every later
+                                // subscriber to the same query inherited the missing mapping, so push streams
+                                // decoded rows as positional `col0`/`col1` for their whole lifetime — and any
+                                // restart of the client's per-statement cache (StrictMode remount, BusProvider
+                                // teardown, etc.) left the activity feed stuck empty until a server restart.
+                                if (result != null && queryMapping != null)
                                     result.setEntityMapping(queryMapping);
                                 return result;
                             });
                     }
                 } catch (Exception e) {
-                    Exception ex = new IllegalArgumentException("Error while translating DQL query to SQL: " + e.getMessage() + "\nDQL query:\n" + statement + "\nParameters: " + Arrays.toString(argument.getParameters())+ "\nParameter names: " + Arrays.toString(argument.getParameterNames()));
+                    // This message is BOTH logged and returned to the caller (failedFuture below), so
+                    // the bind values must not be in it: a count, never the contents. The statement and
+                    // the parameter NAMES stay - they are what a translation failure is diagnosed from,
+                    // and they are metadata rather than anyone's data.
+                    Exception ex = new IllegalArgumentException("Error while translating DQL query to SQL: " + e.getMessage() + "\nDQL query:\n" + statement + "\nParameters: " + QueryArgument.describeParameters(argument.getParameters())+ "\nParameter names: " + Arrays.toString(argument.getParameterNames()));
                     Console.error(ex);
                     return Future.failedFuture(ex);
                 }

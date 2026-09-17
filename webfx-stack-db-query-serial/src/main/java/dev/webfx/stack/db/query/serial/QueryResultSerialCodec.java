@@ -2,6 +2,7 @@ package dev.webfx.stack.db.query.serial;
 
 import dev.webfx.platform.ast.*;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
+import dev.webfx.stack.db.query.CompressionMetrics;
 import dev.webfx.stack.db.query.QueryResult;
 import dev.webfx.stack.db.query.serial.compression.repeat.RepeatedValuesCompressor;
 
@@ -15,6 +16,7 @@ public final class QueryResultSerialCodec extends SerialCodecBase<QueryResult> {
     private final static String COMPRESSED_VALUES_KEY = "cvalues";
     private final static String VERSION_KEY = "version";
     private final static String ENTITY_MAPPING_KEY = "entityMapping";
+    private final static String CALL_SEQ_KEY = "callSeq";
 
     public QueryResultSerialCodec() {
         super(QueryResult.class, CODEC_ID);
@@ -26,12 +28,19 @@ public final class QueryResultSerialCodec extends SerialCodecBase<QueryResult> {
         encodeStringArray(serial, COLUMN_NAMES_KEY, rs.getColumnNames());
         encodeInteger(serial, COLUMN_COUNT_KEY, columnCount);
         // values packing and serialization
-        if (COMPRESSION)
-            encodeObjectArray(serial, COMPRESSED_VALUES_KEY, RepeatedValuesCompressor.SINGLETON.compress(rs.getValues()));
-        else
+        if (COMPRESSION) {
+            // Time the compression: it runs inline on the Vert.x event loop, so its cost is a
+            // per-result blocking risk we surface on /monitor (see CompressionMetrics).
+            Object[] values = rs.getValues();
+            long t0 = System.nanoTime();
+            Object[] compressed = RepeatedValuesCompressor.SINGLETON.compress(values);
+            CompressionMetrics.record(System.nanoTime() - t0, values == null ? 0 : values.length);
+            encodeObjectArray(serial, COMPRESSED_VALUES_KEY, compressed);
+        } else
             encodeObjectArray(serial, VALUES_KEY, rs.getValues());
         encodeInteger(serial, VERSION_KEY, rs.getVersionNumber());
         encodeObject(serial, ENTITY_MAPPING_KEY, rs.getEntityMapping());
+        encodeInteger(serial, CALL_SEQ_KEY, rs.getCallSeq(), 0);
     }
 
     @Override
@@ -47,6 +56,7 @@ public final class QueryResultSerialCodec extends SerialCodecBase<QueryResult> {
                 decodeStringArray(serial, COLUMN_NAMES_KEY));
         rs.setVersionNumber(decodeInteger(serial, VERSION_KEY, 0));
         rs.setEntityMapping(decodeObject(serial, ENTITY_MAPPING_KEY));
+        rs.setCallSeq(decodeInteger(serial, CALL_SEQ_KEY, 0));
         return rs;
     }
 }

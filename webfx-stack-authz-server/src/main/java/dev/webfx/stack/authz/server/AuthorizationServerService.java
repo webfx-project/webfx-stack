@@ -15,6 +15,11 @@ public final class AuthorizationServerService {
         return getProvider().pushAuthorizations();
     }
 
+    /** @see AuthorizationServerServiceProvider#isAuthorized(Object) */
+    public static Future<Boolean> isAuthorized(Object operationAuthorizationRequest) {
+        return getProvider().isAuthorized(operationAuthorizationRequest);
+    }
+
     public static AuthorizationServerServiceProvider getProvider() {
         return SingleServiceProvider.getProvider(AuthorizationServerServiceProvider.class, () -> ServiceLoader.load(AuthorizationServerServiceProvider.class));
     }

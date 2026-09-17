@@ -21,7 +21,7 @@ public final class CallSqlCompiler extends AbstractTermSqlCompiler<Call<?>> {
     public void compileExpressionToSql(Call<?> call, Options o) {
         Expression<?> arg = call.getOperand();
         if (arg instanceof Dot<?> dot) {
-            compileChildExpressionToSql(Dot.dot(dot.getLeft(), new Call(call.getFunctionName(), dot.getRight(), call.getOrderBy()), dot.isOuterJoin(), false), o);
+            compileChildExpressionToSql(Dot.dot(dot.getLeft(), new Call(call.getFunctionName(), dot.getRight(), call.getOrderBy(), call.isDistinct()), dot.isOuterJoin(), false), o);
         } else {
             Function<?> f = call.getFunction();
             if (f instanceof InlineFunction<?> inlineFunction) {
@@ -44,8 +44,23 @@ public final class CallSqlCompiler extends AbstractTermSqlCompiler<Call<?>> {
                     sb = o.build.prepareAppend(o).append(name);
                 if (!f.isKeyword()) {
                     sb.append('(');
+                    // Emit the `distinct` keyword for aggregate functions parsed
+                    // as `funcName(distinct expr)` — typically `count(distinct …)`.
+                    // SqlBuild.prepareAppend would otherwise prepend the "," separator
+                    // before the first arg because the buffer would end with a space.
+                    // Insert a transient "(" sentinel right after `distinct ` so
+                    // prepareAppend sees an "open delimiter" context and skips the
+                    // separator; remove the sentinel after the operand has emitted.
+                    int distinctSentinelPos = -1;
+                    if (call.isDistinct()) {
+                        sb.append("distinct ");
+                        distinctSentinelPos = sb.length();
+                        sb.append('(');
+                    }
                     if (arg != null)
                         compileChildExpressionToSql(arg, o.changeSeparatorGroupedGenerateQueryMapping(",", false, false).changeReadForeignFields(o.readForeignFields && f.isEvaluable()));
+                    if (distinctSentinelPos >= 0)
+                        sb.deleteCharAt(distinctSentinelPos);
                     if (call.getOrderBy() != null) {
                         sb.append(" order by ");
                         compileChildExpressionToSql(call.getOrderBy(), o.changeSeparatorGroupedGenerateQueryMapping(",", false, false));

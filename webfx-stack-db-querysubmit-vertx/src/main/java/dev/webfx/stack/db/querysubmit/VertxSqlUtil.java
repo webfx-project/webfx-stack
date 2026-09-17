@@ -11,6 +11,7 @@ import io.vertx.sqlclient.*;
 
 import java.net.SocketException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -28,19 +29,73 @@ final class VertxSqlUtil {
     static Tuple tupleFromArguments(Object[] parameters) {
         if (parameters == null)
             return Tuple.tuple();
-        // Converting all Instant (not supported by Vert.x PostgreSQL client) parameters to OffsetDateTime
+        // Converting parameters not directly supported by the Vert.x PostgreSQL client:
+        // - Instant => OffsetDateTime
+        // - Object[] => typed array (Integer[], String[], etc.) — see toTypedArrayParameter()
         Object[] postgresParameters = parameters;
         for (int i = 0; i < parameters.length; i++) {
             Object parameter = parameters[i];
-            if (parameter instanceof Instant instant) {
+            if (parameter instanceof Instant instant)
                 parameter = instant.atOffset(ZoneOffset.UTC);
-                if (postgresParameters == parameters)
-                    postgresParameters = parameters.clone();
-            }
+            else if (parameter instanceof Object[] array)
+                parameter = toTypedArrayParameter(array);
+            if (parameter != parameters[i] && postgresParameters == parameters)
+                postgresParameters = parameters.clone();
             if (postgresParameters != parameters)
                 postgresParameters[i] = parameter;
         }
         return Tuple.from(postgresParameters);
+    }
+
+    /**
+     * Converts an untyped Object[] parameter into a typed Java array. A JSON array parameter (the DQL array
+     * membership form `x in $n`, compiled to SQL `x = any($n)`) arrives over the bus as Object[], but the
+     * Vert.x PostgreSQL client maps Java array CLASSES to Postgres array types (Integer[] => int4[], etc.),
+     * so an untyped Object[] can't be bound.
+     */
+    private static Object toTypedArrayParameter(Object[] array) {
+        int n = array.length;
+        boolean allInteger = true, allIntegral = true, allNumber = true, allString = true, allLocalDate = true;
+        for (Object e : array) {
+            if (e == null)
+                continue; // null elements are valid in any typed array
+            allInteger   &= e instanceof Integer;
+            allIntegral  &= e instanceof Integer || e instanceof Long;
+            allNumber    &= e instanceof Number;
+            allString    &= e instanceof String;
+            allLocalDate &= e instanceof LocalDate;
+        }
+        if (allInteger) { // also the empty-array case => int4[] (ids being the dominant use of array parameters)
+            Integer[] typed = new Integer[n];
+            for (int i = 0; i < n; i++)
+                typed[i] = (Integer) array[i];
+            return typed;
+        }
+        if (allIntegral) {
+            Long[] typed = new Long[n];
+            for (int i = 0; i < n; i++)
+                typed[i] = array[i] == null ? null : ((Number) array[i]).longValue();
+            return typed;
+        }
+        if (allNumber) {
+            Double[] typed = new Double[n];
+            for (int i = 0; i < n; i++)
+                typed[i] = array[i] == null ? null : ((Number) array[i]).doubleValue();
+            return typed;
+        }
+        if (allString) {
+            String[] typed = new String[n];
+            for (int i = 0; i < n; i++)
+                typed[i] = (String) array[i];
+            return typed;
+        }
+        if (allLocalDate) {
+            LocalDate[] typed = new LocalDate[n];
+            for (int i = 0; i < n; i++)
+                typed[i] = (LocalDate) array[i];
+            return typed;
+        }
+        return array; // unsupported element mix — let the Vert.x client raise its explicit encoding error
     }
 
     static QueryResult toWebFxQueryResult(RowSet<Row> rs) {
@@ -72,8 +127,14 @@ final class VertxSqlUtil {
             generatedKeys = new ArrayList<>();
         for (; rows != null; rows = rows.next(), rowCount++) {
             if (generatedKeys != null) {
-                Row row = rows.iterator().next();
-                generatedKeys.add(row.getValue(0));
+                // The " returning " detection above is a substring match, so it can misfire on
+                // statements that merely CONTAIN the word without returning rows (e.g. a CREATE
+                // FUNCTION whose PL/pgSQL body has an INSERT ... RETURNING — found by the V0003
+                // boot migration), and a genuine RETURNING can also affect zero rows. An empty
+                // row set must contribute no key rather than throw NoSuchElementException.
+                var iterator = rows.iterator();
+                if (iterator.hasNext())
+                    generatedKeys.add(iterator.next().getValue(0));
             }
         }
         return new SubmitResult(rowCount, generatedKeys == null ? null : generatedKeys.toArray());

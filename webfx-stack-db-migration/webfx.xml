@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <description>
+        Applies pending database migration scripts at server boot, all in a single transaction, gating the
+        application readiness (/health) until done. The migration scripts are bundled in the application jar
+        and contributed via the MigrationScriptsProvider SPI; the statements are executed through the generic
+        SubmitService API, so this module stays platform-neutral. On failure, everything is rolled back and
+        the application never becomes ready, which makes a blue/green deployment roll back to the previous
+        version while the database is left untouched.
+    </description>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <providers>
+        <provider interface="dev.webfx.platform.boot.spi.ApplicationJob">dev.webfx.stack.db.migration.DbMigrationJob</provider>
+    </providers>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+</project>

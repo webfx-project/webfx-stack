@@ -14,7 +14,6 @@ import dev.webfx.stack.session.state.SessionAccessor;
 import dev.webfx.stack.session.state.StateAccessor;
 import dev.webfx.stack.session.state.server.ServerSideStateSessionSyncer;
 
-import java.util.function.Consumer;
 
 
 /**
@@ -39,6 +38,20 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
         if (incoming) {
             if (LOG_RAW_MESSAGES)
                 Console.log(">> Incoming message : " + Json.formatNode(rawJsonMessage));
+            // Mark it as having come from outside. The mirror of the serverOrigin stamp below, and
+            // deliberately NOT its complement: both are positive assertions, and neither should ever be
+            // derived from the absence of the other — see the note on setOutgoingJsonRawMessageState.
+            // This is the ONLY place a client message can enter, so
+            // it is the only place that can say so with authority — and it overwrites rather than
+            // defaults, so a caller who sends clientOrigin:false is corrected rather than believed. The
+            // asymmetry is the whole value: server-internal work never passes through the bridge and so
+            // never carries the stamp, which is what lets a rule distinguish "a client asked for this"
+            // from "the server did it", something no endpoint downstream can tell for itself.
+            //
+            // Stamped BEFORE the session sync so everything past this point, including the sync's own
+            // decisions, sees it. A message that arrived with no state at all gets one created here: the
+            // absence of a state header must not be a way to arrive unstamped.
+            originalState = StateAccessor.setClientOrigin(originalState, true);
             // We sync the application serverSession with the incoming state. This is at this point that the serverSession
             // switch can happen if requested by the client, in which case a different serverSession will be returned.
             return ServerSideStateSessionSyncer.syncIncomingState(serverSession, originalState)
@@ -80,15 +93,35 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
     // Use this when writing a state that is leaving the server toward a client. It stamps the
     // serverOrigin marker so the recipient distinguishes authoritative server pushes from
     // peer-to-peer broadcast headers leaked by a publisher.
+    //
+    // NOT the complement of clientOrigin, and deliberately not derived from it. Both are POSITIVE
+    // assertions, which is what makes each safe: a reader trusts only what is affirmed, so a message
+    // carrying neither marker is refused by both rules. Rewriting either as the other's negation would
+    // turn "trust what is affirmed" into "trust what is not denied", and absence is the default state
+    // of the world — the failure mode would move from someone having to lie to someone having to
+    // forget, and forgetting is far commoner. They are also stamped by different components that know
+    // different things, and read by parties with different powers to verify. The symmetry is real; the
+    // equivalence is not.
     public static void setOutgoingJsonRawMessageState(AstObject rawJsonMessage, AstObject headers, Object state) {
         if (state != null)
             StateAccessor.setServerOrigin(state, true);
         setJsonRawMessageState(rawJsonMessage, headers, state);
     }
 
-    private static Consumer<Object> clientLiveListener;
+    /**
+     * Notified when a client is confirmed live, carrying its runId plus the session facts the push
+     * layer records for the /monitor page (current userId, build version, PWA mode, device profile,
+     * BO/FO app) — without this module depending on it. {@code userId} reflects the session's CURRENT
+     * login (re-read each tick).
+     */
+    @FunctionalInterface
+    public interface ClientLiveListener {
+        void onClientLive(Object runId, Object userId, String clientVersion, Boolean pwa, String clientProfile, Boolean backoffice);
+    }
 
-    public static void setClientLiveListener(Consumer<Object> clientLiveListener) {
+    private static ClientLiveListener clientLiveListener;
+
+    public static void setClientLiveListener(ClientLiveListener clientLiveListener) {
         ServerJsonBusStateManager.clientLiveListener = clientLiveListener;
     }
 
@@ -101,7 +134,10 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
                 runId = SessionAccessor.getRunId(session);
             }
             if (runId != null) {
-                clientLiveListener.accept(runId);
+                // Read the invariant client facts from the session (the client sent them once at
+                // connection). Re-supplied on every live tick so a push entry created after connect
+                // still picks them up.
+                clientLiveListener.onClientLive(runId, SessionAccessor.getUserId(session), SessionAccessor.getClientVersion(session), SessionAccessor.getPwa(session), SessionAccessor.getClientProfile(session), SessionAccessor.isBackoffice(session));
                 return true; // to tell that we found the runId
             }
             Console.warn("ServerJsonBusStateManager.clientIsLive() was called but no runId could be found (session id = " + session.id() + ", ping = " + ping + ")");

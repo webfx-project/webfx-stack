@@ -120,7 +120,7 @@ public class GoogleServerLoginGateway implements ServerLoginGateway {
                         .replace("{{RETURN_URL}}", RETURN_URL)
                         .replace("{{SESSION_ID}}", serverSessionId);
                 //Console.log("iFrame content: " + html);
-                rc.sendResponse(html);
+                rc.sendHtmlResponse(html);
             });
         });
     }
@@ -135,7 +135,7 @@ public class GoogleServerLoginGateway implements ServerLoginGateway {
     }
 
     private static void sendHtmlResponse(String responseText, RoutingContext rc) {
-        rc.sendResponse(HTML_RESPONSE.replace("{{RESPONSE_TEXT}}", responseText));
+        rc.sendHtmlResponse(HTML_RESPONSE.replace("{{RESPONSE_TEXT}}", responseText));
     }
 
     @Override

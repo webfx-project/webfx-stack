@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <description>Server-side Web Push (W3C) implementation: VAPID signing, payload
+        encryption (RFC 8291), an outbound push client built on the webfx Fetch API,
+        and a REST endpoint for SW-initiated subscription rotation. Platform-agnostic —
+        Vert.x specifics are handled by the webfx-platform abstractions this module
+        depends on. The DB-update operation behind the rotate endpoint is delegated
+        to a `WebPushSubscriptionStore` SPI that the host application implements
+        (typically using its ORM / EntityStore on whatever entity holds the
+        subscription rows).</description>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <dependencies>
+        <used-by-source-modules>
+            <!-- We touch the Vert.x routing context directly in the rotate handler to
+                 read the JSON request body, since the webfx-stack Router abstraction
+                 doesn't yet expose body parsing. This dependency is the only platform
+                 leak in the module and is candidate for removal when the abstraction
+                 grows a request-body API. -->
+            <undetected-module>io-vertx-web</undetected-module>
+            <undetected-module>webfx-stack-routing-router-vertx</undetected-module>
+        </used-by-source-modules>
+    </dependencies>
+
+    <providers>
+        <!-- The booter (and the WebPushServerServiceProvider it registers
+             programmatically) handles the VAPID-config-dependent wiring;
+             a static <provider> entry can't carry the config. -->
+        <provider interface="dev.webfx.platform.boot.spi.ApplicationModuleBooter">dev.webfx.stack.webpush.rest.WebPushServerRestModuleBooter</provider>
+
+        <!-- The SendPushNotification BO operation: bus endpoint + argument/result
+             codecs. Stateless — registered statically. The store SPI that
+             resolves recipients is provided separately by the host application
+             (e.g. modality-crm-server-webpush-plugin). -->
+        <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.webpush.buscall.SendPushNotificationEndpoint</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.webpush.buscall.serial.SendPushNotificationArgumentSerialCodec</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.webpush.buscall.serial.SendPushNotificationResultSerialCodec</provider>
+
+        <!-- The UnsubscribePushNotifications FO operation: same shape as above
+             but invoked from the public /unsubscribe page (auth optional). -->
+        <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.webpush.buscall.UnsubscribePushNotificationsEndpoint</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.webpush.buscall.serial.UnsubscribePushNotificationsArgumentSerialCodec</provider>
+        <provider interface="dev.webfx.stack.com.serial.spi.SerialCodec">dev.webfx.stack.webpush.buscall.serial.UnsubscribePushNotificationsResultSerialCodec</provider>
+    </providers>
+
+    <required-libraries>
+        <!-- nl.martijndwars:web-push 5.x — used ONLY for `Encryption.encrypt(...)`
+             (RFC 8291 payload encryption). We do not use its `PushService` HTTP
+             client (we have webfx Fetch) nor its JWT helpers (we have VapidSigner).
+             The Apache HttpClient transitive dep is excluded since we don't need it.
+             BouncyCastle is required for ECDH key parsing. -->
+        <library name="web-push">
+            <groupId>nl.martijndwars</groupId>
+            <artifactId>web-push</artifactId>
+            <version>5.1.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents.client5</groupId>
+                    <artifactId>httpclient5</artifactId>
+                </exclusion>
+            </exclusions>
+            <exported-packages>
+                <package>nl.martijndwars.webpush</package>
+            </exported-packages>
+        </library>
+        <library name="org.bouncycastle.provider"> <!-- JPMS module name, matches BC's Automatic-Module-Name -->
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>1.78.1</version>
+            <exported-packages>
+                <package>org.bouncycastle.jce</package>
+                <package>org.bouncycastle.jce.interfaces</package>
+                <package>org.bouncycastle.jce.provider</package>
+                <package>org.bouncycastle.jce.spec</package>
+                <package>org.bouncycastle.math.ec</package>
+            </exported-packages>
+        </library>
+    </required-libraries>
+
+</project>

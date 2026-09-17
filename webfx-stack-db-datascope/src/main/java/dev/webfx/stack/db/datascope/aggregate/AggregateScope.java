@@ -33,18 +33,20 @@ public final class AggregateScope implements KeyDataScope {
     }
 
     public boolean intersects(AggregateScope otherScope) {
-        if (true) // Temporary disabled while the implementation doesn't work in all situations (ex: drag&drop in rooms graphic => only the new room is refresh, not the old room)
-            return true; // TODO fix the implementation to make it work in all situations
+        // Partition semantics: each aggregate TYPE is an independent dimension.
+        // Two scopes are provably disjoint only when they share a type whose key
+        // sets don't intersect — so common types are ANDed, and having no common
+        // type at all means "cannot prove disjoint" and must answer true
+        // (conservative: a missed dimension can only cost an extra refresh,
+        // never a missed one). The previous (disabled) implementation answered
+        // false when no type matched, which silently dropped refreshes — the
+        // very reason it had been hack-disabled.
         for (Map.Entry<Object, Object[]> entry : aggregates.entrySet()) {
-            Object aggregateType = entry.getKey();
-            Object[] otherAggregateKeys = otherScope.aggregates.get(aggregateType);
-            if (otherAggregateKeys != null) {
-                Object[] aggregateKeys = entry.getValue();
-                if (ScopeUtil.arraysIntersect(aggregateKeys, otherAggregateKeys))
-                    return true;
-            }
+            Object[] otherAggregateKeys = otherScope.aggregates.get(entry.getKey());
+            if (otherAggregateKeys != null && !ScopeUtil.arraysIntersect(entry.getValue(), otherAggregateKeys))
+                return false; // common dimension with provably disjoint partitions
         }
-        return false;
+        return true;
     }
 
     public static AggregateScopeBuilder builder() {

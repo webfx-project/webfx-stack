@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <description>Sandbox implementation of the mail transport SPI: swallows every message
+        and logs a structured summary (recipients, subject, Message-ID; body only with
+        logBody = true) instead of transmitting anything. This is the staging steady state —
+        selected by webfx.stack.mail.transport.provider = sandbox, it guarantees by config
+        that a prod→staging data refresh can never email real customers. Pure Java, no
+        Vert.x dependency.</description>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+    <providers>
+        <provider interface="dev.webfx.stack.mail.transport.spi.MailTransportProvider">dev.webfx.stack.mail.transport.spi.impl.sandbox.SandboxMailTransportProvider</provider>
+    </providers>
+
+</project>

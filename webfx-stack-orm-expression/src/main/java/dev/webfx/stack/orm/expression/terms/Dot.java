@@ -97,7 +97,7 @@ public final class Dot<T> extends BinaryExpression<T> {
             Call<T> call = (Call<T>) this.left;
             Function<T> function = call.getFunction();
             if (function.isIdentity())
-                return new Call<>(function.getName(), Dot.dot(call.getOperand(), getRight(), isOuterJoin()).expandLeft(), call.getOrderBy());
+                return new Call<>(function.getName(), Dot.dot(call.getOperand(), getRight(), isOuterJoin()).expandLeft(), call.getOrderBy(), call.isDistinct());
         }
         if (left instanceof Dot) {
             return dot(left, getRight(), isOuterJoin(), true).expandLeft();

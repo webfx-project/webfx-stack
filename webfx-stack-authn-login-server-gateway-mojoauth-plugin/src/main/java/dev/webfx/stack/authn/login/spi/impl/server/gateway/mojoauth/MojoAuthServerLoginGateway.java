@@ -124,7 +124,7 @@ public class MojoAuthServerLoginGateway implements ServerLoginGateway {
     }
 
     private static void sendHtmlResponse(String responseText, RoutingContext rc) {
-        rc.sendResponse(HTML_RESPONSE.replace("{{RESPONSE_TEXT}}", responseText));
+        rc.sendHtmlResponse(HTML_RESPONSE.replace("{{RESPONSE_TEXT}}", responseText));
     }
 
     @Override

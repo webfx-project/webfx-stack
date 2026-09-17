@@ -10,7 +10,7 @@ import java.util.List;
  */
 public final class WithSelect<T> extends DqlStatement<T> {
 
-    /** Each entry is {alias (String), cteSelect (Select)} */
+    /** Each entry is {alias (String), cteSelect (Select), materialized (Boolean)} */
     private final List<Object[]> ctes;
     private final Select<T> mainSelect;
 
@@ -37,7 +37,7 @@ public final class WithSelect<T> extends DqlStatement<T> {
         boolean first = true;
         for (Object[] cte : ctes) {
             if (!first) sb.append(", ");
-            sb.append(cte[0]).append(" as (");
+            sb.append(cte[0]).append(Boolean.TRUE.equals(cte[2]) ? " as materialized (" : " as (");
             ((Select<?>) cte[1]).toString(sb);
             sb.append(')');
             first = false;

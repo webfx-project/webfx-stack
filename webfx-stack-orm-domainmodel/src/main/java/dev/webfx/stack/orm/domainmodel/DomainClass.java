@@ -112,6 +112,11 @@ public final class DomainClass implements HasLabel, HasDomainModel {
         return css;
     }
 
+    /** All declared fields of this class (used ex: FK-cascade scope widening). */
+    public java.util.Collection<DomainField> getFields() {
+        return fieldMap.values();
+    }
+
     public DomainField getField(Object id) {
         DomainField field = getFieldSilently(id);
         if (field == null)

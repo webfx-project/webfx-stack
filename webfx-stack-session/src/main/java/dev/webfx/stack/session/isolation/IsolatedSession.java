@@ -72,4 +72,9 @@ public final class IsolatedSession implements Session {
     public long timeout() {
         return underlyingSession.timeout();
     }
+
+    @Override
+    public void touch() {
+        underlyingSession.touch();
+    }
 }
