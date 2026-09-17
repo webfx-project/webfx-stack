@@ -2,8 +2,6 @@ package dev.webfx.stack.session.token;
 
 import dev.webfx.stack.session.state.StateAccessor;
 import dev.webfx.stack.com.serial.SerialCodecManager;
-import one.modality.crm.shared.services.authn.ModalityUserPrincipal;
-import one.modality.crm.shared.services.authn.serial.ModalityUserPrincipalSerialCodec;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -24,8 +22,8 @@ public class MintCheck {
     static int pass=0, fail=0;
     static void check(String w, boolean ok){ if(ok){pass++;System.out.println("  ok   "+w);} else {fail++;System.out.println("  FAIL "+w);} }
     public static void main(String[] a) {
-        SerialCodecManager.registerSerialCodec(new ModalityUserPrincipalSerialCodec());
-        ModalityUserPrincipal user = new ModalityUserPrincipal(42, 7);
+        SerialCodecManager.registerSerialCodec(new CheckPrincipalSerialCodec());
+        CheckPrincipal user = new CheckPrincipal(42, 7);
 
         System.out.println("no key configured — every server today, and David's machine tomorrow:");
         SignedToken.setKeys(List.of());

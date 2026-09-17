@@ -3,8 +3,6 @@ package dev.webfx.stack.session.token;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.session.state.LogoutUserId;
 import dev.webfx.stack.session.state.StateAccessor;
-import one.modality.crm.shared.services.authn.ModalityUserPrincipal;
-import one.modality.crm.shared.services.authn.serial.ModalityUserPrincipalSerialCodec;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -61,10 +59,10 @@ public class VerifyCheck {
     }
 
     public static void main(String[] a) {
-        SerialCodecManager.registerSerialCodec(new ModalityUserPrincipalSerialCodec());
+        SerialCodecManager.registerSerialCodec(new CheckPrincipalSerialCodec());
         SignedToken.setKeys(List.of("0123456789abcdef0123456789abcdef".getBytes(StandardCharsets.UTF_8)));
-        ModalityUserPrincipal real = new ModalityUserPrincipal(42, 7);
-        ModalityUserPrincipal impostorClaim = new ModalityUserPrincipal(1, 1);
+        CheckPrincipal real = new CheckPrincipal(42, 7);
+        CheckPrincipal impostorClaim = new CheckPrincipal(1, 1);
 
         System.out.println("no token — the migration path, behaviour must be unchanged:");
         Object s1 = StateAccessor.createUserIdState(real);
