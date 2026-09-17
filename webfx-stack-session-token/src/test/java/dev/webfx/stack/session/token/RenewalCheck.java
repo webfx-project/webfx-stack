@@ -4,8 +4,6 @@ import dev.webfx.platform.async.Future;
 import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.session.state.StateAccessor;
 import dev.webfx.stack.session.state.ThreadLocalStateHolder;
-import one.modality.crm.shared.services.authn.ModalityUserPrincipal;
-import one.modality.crm.shared.services.authn.serial.ModalityUserPrincipalSerialCodec;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -87,9 +85,9 @@ public class RenewalCheck {
     }
 
     public static void main(String[] args) {
-        SerialCodecManager.registerSerialCodec(new ModalityUserPrincipalSerialCodec());
+        SerialCodecManager.registerSerialCodec(new CheckPrincipalSerialCodec());
         SignedToken.setKeys(List.of("0123456789abcdef0123456789abcdef".getBytes(StandardCharsets.UTF_8)));
-        ModalityUserPrincipal user = new ModalityUserPrincipal(42, 7);
+        CheckPrincipal user = new CheckPrincipal(42, 7);
         FakeStore store = new FakeStore();
         SessionFamilyStoreRegistry.register(store);
 
@@ -182,7 +180,7 @@ public class RenewalCheck {
         FakeStore upgrade = new FakeStore();
         SessionFamilyStoreRegistry.register(upgrade);
         String legacy = SignedToken.mint(
-            "{\"$codec\":\"ModalityUserPrincipal\",\"userPersonId\":42,\"userAccountId\":7}", NOW + 12 * 3600_000L);
+            "{\"$codec\":\"CheckPrincipal\",\"personId\":42,\"accountId\":7}", NOW + 12 * 3600_000L);
         IdentityToken legacyIdentity = PrincipalToken.verify(legacy, NOW);
         SessionTokenService.TokenRenewal upgraded = renew(legacyIdentity, NOW);
         check("renewed rather than ended",
