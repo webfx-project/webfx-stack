@@ -65,7 +65,7 @@ public class DqlSubmitInterceptorInitializer implements ApplicationJob {
 
     private static Future<SubmitResult> interceptAndExecuteSubmit(SubmitArgument argument, SubmitServiceProvider targetProvider) {
         reportIfNotDql(argument);
-        return authorizeIfProtected(argument)
+        return authorizeAndInspect(argument)
             .compose(protectedWrite -> targetProvider.executeSubmit(translateSubmit(argument))
                 .onSuccess(ignored -> reportIfProtected(protectedWrite)));
     }
@@ -84,7 +84,7 @@ public class DqlSubmitInterceptorInitializer implements ApplicationJob {
         // into refusals rather than a silent hole, but it refused legitimate work either way.
         List<Future<ProtectedWrite>> authorizations = new ArrayList<>();
         for (SubmitArgument argument : batch.getArray())
-            authorizations.add(authorizeIfProtected(argument));
+            authorizations.add(authorizeAndInspect(argument));
         return Future.all(new ArrayList<>(authorizations))
             .compose(ignored -> targetProvider.executeSubmitBatch(translateBatch(batch))
                 .onSuccess(result -> {
@@ -93,18 +93,6 @@ public class DqlSubmitInterceptorInitializer implements ApplicationJob {
                 }));
     }
 
-    /**
-     * Authorizes a write against a protected entity, before it is translated or executed.
-     *
-     * <p>This sits on the DQL path deliberately: here the statement still names an ENTITY and a verb,
-     * which is what a policy is written in terms of. By the time it is SQL those have become a table
-     * name and a keyword, and recovering the intent from the text would be both harder and easier to
-     * fool. The trade is that a statement which never becomes DQL — a raw passthrough — does not pass
-     * this point at all; that door is item 7 and is closed separately.
-     *
-     * <p>Statements are parsed only when the registry's textual pre-filter says a protected name might
-     * be involved, so the common write pays one substring scan rather than a parse.
-     */
     /**
      * The fields a statement SETS, so a policy can distinguish the privileged column from its ordinary
      * neighbours on the same row. Empty for a delete, which sets nothing — a delete is judged on the
@@ -162,10 +150,56 @@ public class DqlSubmitInterceptorInitializer implements ApplicationJob {
             ProtectedEntityWriteRegistry.notifyWriteSucceeded(protectedWrite.entityName(), protectedWrite.verb());
     }
 
-    private static Future<ProtectedWrite> authorizeIfProtected(SubmitArgument argument) {
+    /**
+     * Parses a write once, and feeds the two consumers that want it: the authorizer, when the statement
+     * names a protected entity, and the inspector, when the application asked to see this caller's
+     * writes.
+     *
+     * <p>This sits on the DQL path deliberately: here the statement still names an ENTITY and a verb,
+     * which is what a policy is written in terms of. By the time it is SQL those have become a table
+     * name and a keyword, and recovering the intent from the text would be both harder and easier to
+     * fool. The trade is that a statement which never becomes DQL — a raw passthrough — does not pass
+     * this point at all; that door is item 7 and is closed separately.
+     *
+     * <p>Parsing is still the exception rather than the rule: with no inspector interested, a statement
+     * is parsed only when the registry's textual pre-filter says a protected name might be involved, so
+     * the common write pays one substring scan and one volatile read.
+     *
+     * <p><b>While an inspector IS interested, every write it wants pays a parse, and that parse is not
+     * cached.</b> {@code parseStatement} goes straight to the domain model, unlike
+     * {@code parseAndCompileStatement}, which memoises — and {@code translateSubmit} below will take the
+     * cached road over the same text a moment later. So an inspected write parses twice. It is accepted
+     * rather than optimised because writes are driven by user actions and heartbeats rather than by
+     * page loads, which puts this in the tens per second at this system's volumes; if that assumption
+     * stops holding, the fix is to hand the inspector the AST this method already has rather than to
+     * make it parse again.
+     *
+     * <p>One parse, not two, and the ordering matters: the inspector is told BEFORE the authorizer is
+     * asked, so an inventory records what a caller attempted even when the attempt is about to be
+     * refused. What it observes is therefore traffic, not outcomes.
+     *
+     * <p><b>Inspection never changes a verdict.</b> The only place the two paths meet is an unparseable
+     * statement: the inspector is told about it and the protected path still refuses it, because a
+     * statement this check could not read must not reach an entity it textually mentions merely because
+     * somebody is watching.
+     */
+    private static Future<ProtectedWrite> authorizeAndInspect(SubmitArgument argument) {
         String statement = argument.getStatement();
-        if (argument.getLanguage() == null // already SQL: not a DQL statement to reason about
-            || !ProtectedEntityWriteRegistry.mayTouchProtectedEntity(statement))
+        if (argument.getLanguage() == null) // already SQL: not a DQL statement to reason about
+            return Future.succeededFuture(null);
+        boolean maybeProtected = ProtectedEntityWriteRegistry.mayTouchProtectedEntity(statement);
+        // Inspection is DQL-only, where the protected path below deliberately is not. A statement sent
+        // as another language (the scheduled-item generator sends "SQL") is not DQL and would fail this
+        // parser, so inspecting it would report it as unparseable and overstate how much of a client's
+        // traffic this cannot read — the one number an inventory must not get wrong about itself. The
+        // protected path keeps its wider guard: a non-DQL statement naming a protected entity is
+        // refused for being unreadable, and narrowing that here would be a loosening, not a fix.
+        boolean inspecting = "DQL".equalsIgnoreCase(argument.getLanguage())
+                             // Asked on THIS thread, before any parse and before any async hop: the
+                             // answer depends on request-scoped state the application can still read
+                             // here and could not a moment later.
+                             && ProtectedEntityWriteRegistry.isInspectingWrite();
+        if (!maybeProtected && !inspecting)
             return Future.succeededFuture(null);
         Object dataSourceId = argument.getDataSourceId();
         if (!LocalDataSourceService.isDataSourceLocal(dataSourceId))
@@ -177,9 +211,13 @@ public class DqlSubmitInterceptorInitializer implements ApplicationJob {
         try {
             dqlStatement = dataSourceModel.parseStatement(statement);
         } catch (RuntimeException e) {
+            if (inspecting)
+                ProtectedEntityWriteRegistry.notifyUnparseableStatement(statement);
             // Unparseable here but possibly executable later: refuse rather than let something this
             // check could not read reach a protected entity it textually mentions.
-            return Future.failedFuture("[NotAuthorizedError] Could not parse a statement naming a protected entity");
+            if (maybeProtected)
+                return Future.failedFuture("[NotAuthorizedError] Could not parse a statement naming a protected entity");
+            return Future.succeededFuture(null);
         }
         ProtectedEntityWriteRegistry.WriteVerb verb =
               dqlStatement instanceof Insert ? ProtectedEntityWriteRegistry.WriteVerb.INSERT
@@ -199,6 +237,10 @@ public class DqlSubmitInterceptorInitializer implements ApplicationJob {
             writtenValues.keySet().toArray(String[]::new),
             writtenValues,
             targetIdOf(dqlStatement, parameters));
+        if (inspecting)
+            ProtectedEntityWriteRegistry.notifyWriteInspected(request);
+        if (!maybeProtected)
+            return Future.succeededFuture(null);
         return ProtectedEntityWriteRegistry.checkWriteAllowed(request)
             .map(ignored -> new ProtectedWrite(entityName, verb));
     }
