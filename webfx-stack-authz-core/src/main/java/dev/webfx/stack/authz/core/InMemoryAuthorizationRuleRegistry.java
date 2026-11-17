@@ -1,5 +1,6 @@
 package dev.webfx.stack.authz.core;
 
+import dev.webfx.extras.operation.HasOperationCode;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.stack.authz.core.parser.InMemoryAuthorizationRuleParser;
 import dev.webfx.stack.authz.core.parser.InMemoryAuthorizationRuleParserRegistry;
@@ -15,6 +16,18 @@ public final class InMemoryAuthorizationRuleRegistry {
     private Map<String, String> currentContext = ANY_CONTEXT;
     private final Map<Map<String, String> /* context */, Map<Class<?> /* operationRequestClass */, Collection<InMemoryAuthorizationRule>>> registeredInMemoryAuthorizationRules = new HashMap<>();
     private InMemoryAuthorizationRuleParser inMemoryAuthorizationRuleParser;
+
+    /** The line that declares an operation explicit-only: {@code explicit operation:<code>}. */
+    public static final String EXPLICIT_OPERATION_PREFIX = "explicit operation:";
+
+    /**
+     * The operations a wildcard grant does not cover, declared by {@link #EXPLICIT_OPERATION_PREFIX} lines.
+     *
+     * <p>Held apart from the rules and from any context: being explicit-only is a property of the operation, not
+     * of the section the line happens to sit in, so a declaration anywhere in the grant string applies everywhere.
+     * Guarded by {@link #registeredInMemoryAuthorizationRules}, like the rules it filters.
+     */
+    private final Set<String> explicitOnlyOperationCodes = new HashSet<>();
 
     public void setAuthorizationRuleParser(InMemoryAuthorizationRuleParser ruleParser) {
         this.inMemoryAuthorizationRuleParser = ruleParser;
@@ -39,6 +52,19 @@ public final class InMemoryAuthorizationRuleRegistry {
     public void clearAllAuthorizationRules() {
         synchronized (registeredInMemoryAuthorizationRules) {
             registeredInMemoryAuthorizationRules.clear();
+            explicitOnlyOperationCodes.clear();
+        }
+    }
+
+    /**
+     * Declares an operation explicit-only: from now on a wildcard grant ({@code grant operation:*}) does not cover it,
+     * and only a grant naming it does. A wildcard REVOKE still applies — refusing is never weakened.
+     */
+    public void registerExplicitOnlyOperation(String operationCode) {
+        if (operationCode == null || operationCode.isEmpty())
+            return;
+        synchronized (registeredInMemoryAuthorizationRules) {
+            explicitOnlyOperationCodes.add(operationCode);
         }
     }
 
@@ -72,7 +98,9 @@ public final class InMemoryAuthorizationRuleRegistry {
                     contextProperties.put(keyValue[0], keyValue[1]);
             });
             currentContext = contextProperties;
-        } else
+        } else if (authorization.startsWith(EXPLICIT_OPERATION_PREFIX))
+            registerExplicitOnlyOperation(authorization.substring(EXPLICIT_OPERATION_PREFIX.length()).trim());
+        else
             registerAuthorizationRule(inMemoryAuthorizationRuleParser.parseAuthorization(authorization));
     }
 
@@ -96,6 +124,7 @@ public final class InMemoryAuthorizationRuleRegistry {
     public AuthorizationRuleResult computeRuleResult(Object operationRequest, Map<String, String> callerContext) {
         AuthorizationRuleResult[] result ={ AuthorizationRuleResult.OUT_OF_RULE_CONTEXT };
         synchronized (registeredInMemoryAuthorizationRules) {
+            boolean explicitOnly = isExplicitOnly(operationRequest);
             registeredInMemoryAuthorizationRules.forEach((context, operationRequestsRules) -> {
                 if (!isContextApplicable(context, callerContext))
                     return;
@@ -107,7 +136,11 @@ public final class InMemoryAuthorizationRuleRegistry {
                             for (InMemoryAuthorizationRule rule : rules) {
                                 switch (rule.computeRuleResult(operationRequest)) {
                                     case DENIED:  result[0] = AuthorizationRuleResult.DENIED; return; // Breaking as it's a final decision
-                                    case GRANTED: result[0] = AuthorizationRuleResult.GRANTED; // Not breaking, as we need to check if there is not another denying rule (denying rules have priority)
+                                    case GRANTED:
+                                        // A wildcard does not grant an explicit-only operation: only a rule naming it does
+                                        if (explicitOnly && rule.isWildcard())
+                                            break;
+                                        result[0] = AuthorizationRuleResult.GRANTED; // Not breaking, as we need to check if there is not another denying rule (denying rules have priority)
                                     case OUT_OF_RULE_CONTEXT: // just ignoring it and looping to the next
                                 }
                             }
@@ -120,6 +153,14 @@ public final class InMemoryAuthorizationRuleRegistry {
             });
         }
         return result[0];
+    }
+
+    /** Whether the request is for an operation declared explicit-only. Caller holds the rules' lock. */
+    private boolean isExplicitOnly(Object operationRequest) {
+        if (explicitOnlyOperationCodes.isEmpty() || !(operationRequest instanceof HasOperationCode))
+            return false;
+        Object operationCode = ((HasOperationCode) operationRequest).getOperationCode();
+        return operationCode != null && explicitOnlyOperationCodes.contains(operationCode.toString());
     }
 
     private boolean isContextApplicable(Map<String, String> ruleContext, Map<String, String> callerContext) {

@@ -89,6 +89,34 @@ public class CoreSemanticsCheck {
         rv.registerAuthorizationRule("revoke operation:Dangerous");
         check("granted then revoked",          rv.doesRulesAuthorize(new Op("Dangerous"), ctx()), false);
 
+        // V0166: an explicit-only operation is not covered by a wildcard, only by a grant naming it. The first check
+        // is the one the change exists for; delete the skip in computeRuleResult and it fails.
+        System.out.println("explicit-only operations (V0166):");
+        InMemoryAuthorizationRuleRegistry ex = new InMemoryAuthorizationRuleRegistry();
+        ex.setAuthorizationRuleParser(new OperationAuthorizationRuleParser());
+        ex.registerAuthorizationRule("context:any");
+        ex.registerAuthorizationRule("grant operation:*");
+        // Declared AFTER the wildcard, and inside a context: neither position may matter
+        ex.registerAuthorizationRule("explicit operation:DataProtection");
+        check("* does not grant an explicit-only op",  ex.doesRulesAuthorize(new Op("DataProtection"), ctx()), false);
+        check("* does not grant it in any context",    ex.doesRulesAuthorize(new Op("DataProtection"), ctx("organizationId","1")), false);
+        check("* still grants every other op",         ex.doesRulesAuthorize(new Op("AnythingAtAll"), ctx()), true);
+        ex.registerAuthorizationRule("context:organizationId=5");
+        ex.registerAuthorizationRule("grant operation:DataProtection");
+        check("a grant naming it still grants it",     ex.doesRulesAuthorize(new Op("DataProtection"), ctx("organizationId","5")), true);
+        check("...only in its own context",            ex.doesRulesAuthorize(new Op("DataProtection"), ctx("organizationId","6")), false);
+        ex.clearAllAuthorizationRules();
+        ex.registerAuthorizationRule("context:any");
+        ex.registerAuthorizationRule("grant operation:*");
+        check("clearing rules clears the declaration", ex.doesRulesAuthorize(new Op("DataProtection"), ctx()), true);
+
+        InMemoryAuthorizationRuleRegistry exRevoke = new InMemoryAuthorizationRuleRegistry();
+        exRevoke.setAuthorizationRuleParser(new OperationAuthorizationRuleParser());
+        exRevoke.registerAuthorizationRule("explicit operation:DataProtection");
+        exRevoke.registerAuthorizationRule("grant operation:DataProtection");
+        exRevoke.registerAuthorizationRule("revoke operation:*");
+        check("a wildcard revoke still refuses it",    exRevoke.doesRulesAuthorize(new Op("DataProtection"), ctx()), false);
+
         System.out.println("\n" + passed + " passed, " + failed + " failed");
         if (failed > 0) System.exit(1);
     }
