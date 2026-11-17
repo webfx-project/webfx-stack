@@ -20,6 +20,11 @@ public final class AuthorizationServerService {
         return getProvider().isAuthorized(operationAuthorizationRequest);
     }
 
+    /** @see AuthorizationServerServiceProvider#isAuthorized(Object, AuthorizationCheck) */
+    public static Future<Boolean> isAuthorized(Object operationAuthorizationRequest, AuthorizationCheck check) {
+        return getProvider().isAuthorized(operationAuthorizationRequest, check);
+    }
+
     public static AuthorizationServerServiceProvider getProvider() {
         return SingleServiceProvider.getProvider(AuthorizationServerServiceProvider.class, () -> ServiceLoader.load(AuthorizationServerServiceProvider.class));
     }

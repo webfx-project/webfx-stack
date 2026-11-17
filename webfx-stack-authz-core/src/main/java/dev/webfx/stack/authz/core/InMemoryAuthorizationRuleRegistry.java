@@ -109,6 +109,35 @@ public final class InMemoryAuthorizationRuleRegistry {
     }
 
     /**
+     * Whether the rules authorize the request in SOME context the filter accepts — "do you hold this anywhere?",
+     * for a request that has no target to take a context from.
+     *
+     * <p>True when the rules that declare no context grant it (they apply in every context), or when it is granted
+     * in one of the registered contexts the filter accepts. Each such context is judged exactly as a caller standing
+     * in it would be — with every rule that applies there, revokes and explicit-only declarations included — so this
+     * never grants what {@link #doesRulesAuthorize} would refuse in every accepted context.
+     *
+     * <p>Only the contexts the rules themselves name are tried: a grant the caller would hold in a context nobody
+     * registered is a grant from a context-free rule, which the first test already covers.
+     *
+     * @param contextFilter which registered contexts count — for "held for a whole organization", one keyed by the
+     *                      organization alone (an event-scoped grant is not an answer about the organization)
+     */
+    public boolean doesRulesAuthorizeInSomeContext(Object operationRequest, java.util.function.Predicate<Map<String, String>> contextFilter) {
+        if (doesRulesAuthorize(operationRequest, Collections.emptyMap()))
+            return true;
+        List<Map<String, String>> contexts;
+        synchronized (registeredInMemoryAuthorizationRules) {
+            contexts = new ArrayList<>(registeredInMemoryAuthorizationRules.keySet());
+        }
+        for (Map<String, String> context : contexts)
+            if (!context.isEmpty() && contextFilter.test(Collections.unmodifiableMap(context))
+                && doesRulesAuthorize(operationRequest, context))
+                return true;
+        return false;
+    }
+
+    /**
      * Evaluate the rules against a request, in the caller's context.
      *
      * <p>The context is a parameter rather than ambient state, and that is the change that let this
@@ -125,9 +154,15 @@ public final class InMemoryAuthorizationRuleRegistry {
         AuthorizationRuleResult[] result ={ AuthorizationRuleResult.OUT_OF_RULE_CONTEXT };
         synchronized (registeredInMemoryAuthorizationRules) {
             boolean explicitOnly = isExplicitOnly(operationRequest);
+            // Every applicable context is evaluated on its own, and a refusal in ANY of them is final. Until 2026-11-17 the
+            // contexts shared one result, and a context stopped as soon as that result was set - before reaching the
+            // parsed rules, which are keyed under no request class (the end of the superclass walk). So whichever
+            // context the map visited first decided alone: a context-free grant (a super administrator's wildcard)
+            // hid a revoke in an organization section, and the other way round depending on the map's order.
             registeredInMemoryAuthorizationRules.forEach((context, operationRequestsRules) -> {
-                if (!isContextApplicable(context, callerContext))
+                if (result[0] == AuthorizationRuleResult.DENIED || !isContextApplicable(context, callerContext))
                     return;
+                AuthorizationRuleResult contextResult = AuthorizationRuleResult.OUT_OF_RULE_CONTEXT;
                 Class<?> operationRequestClass = operationRequest.getClass();
                 while (true) {
                     Collection<InMemoryAuthorizationRule> rules = operationRequestsRules.get(operationRequestClass);
@@ -135,21 +170,24 @@ public final class InMemoryAuthorizationRuleRegistry {
                         synchronized (rules) { // Otherwise ConcurrentModificationException has been observed
                             for (InMemoryAuthorizationRule rule : rules) {
                                 switch (rule.computeRuleResult(operationRequest)) {
-                                    case DENIED:  result[0] = AuthorizationRuleResult.DENIED; return; // Breaking as it's a final decision
+                                    case DENIED:  result[0] = AuthorizationRuleResult.DENIED; return; // Final decision, for every context
                                     case GRANTED:
                                         // A wildcard does not grant an explicit-only operation: only a rule naming it does
                                         if (explicitOnly && rule.isWildcard())
                                             break;
-                                        result[0] = AuthorizationRuleResult.GRANTED; // Not breaking, as we need to check if there is not another denying rule (denying rules have priority)
+                                        contextResult = AuthorizationRuleResult.GRANTED; // Not breaking, as we need to check if there is not another denying rule (denying rules have priority)
                                     case OUT_OF_RULE_CONTEXT: // just ignoring it and looping to the next
                                 }
                             }
                         }
                     }
-                    if (result[0] != AuthorizationRuleResult.OUT_OF_RULE_CONTEXT || operationRequestClass == null)
-                        return;
+                    // The most specific request class with a rule decides for this context, as before
+                    if (contextResult != AuthorizationRuleResult.OUT_OF_RULE_CONTEXT || operationRequestClass == null)
+                        break;
                     operationRequestClass = operationRequestClass.getSuperclass();
                 }
+                if (contextResult == AuthorizationRuleResult.GRANTED)
+                    result[0] = AuthorizationRuleResult.GRANTED; // Not DENIED here: that returned above
             });
         }
         return result[0];
