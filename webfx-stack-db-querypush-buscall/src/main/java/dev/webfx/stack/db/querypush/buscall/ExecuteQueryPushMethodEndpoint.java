@@ -35,7 +35,16 @@ public final class ExecuteQueryPushMethodEndpoint extends AsyncFunctionBusCallEn
                 Object scopeToken = ClientScopeToken.forCaller();
                 QueryArgument scoped = scopeToken == null ? queryArgument
                     : QueryArgument.builder().copy(queryArgument).setScopeToken(scopeToken).build();
-                QueryArgument resolved = ServerCallerParameters.attach(scoped, scopeToken);
+                QueryArgument resolved;
+                try {
+                    resolved = ServerCallerParameters.attach(scoped, scopeToken);
+                } catch (ServerCallerParameters.CallerValueUnavailableException e) {
+                    // Refused HERE, before executeQueryPush, and that order is the point: a subscription
+                    // opened now would store the missing value in the argument it re-runs, and every re-fire
+                    // for the rest of its life would fail on it. Nothing is opened, so the client's retry
+                    // opens a stream with a value in it.
+                    return Future.failedFuture(e.getMessage());
+                }
                 if (resolved != arg.getQueryArgument())
                     arg = QueryPushArgument.builder().copy(arg).setQueryArgument(resolved).build();
             }

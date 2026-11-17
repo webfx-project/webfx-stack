@@ -134,9 +134,58 @@ public class ServerCallerParametersCheck {
               Arrays.asList(ServerCallerParameters.attach(scopedRead, "member").getParameterNames())
                   .contains("caller.person"));
 
+        // ── A VALUE THE SERVER DOES NOT HAVE YET ─────────────────────────────────────────────────────
+        // UNAVAILABLE is the answer null used to stand in for, and the two are opposite. Null means there
+        // is no such caller, and matching no rows is right. UNAVAILABLE means the value is not worked out
+        // yet for a caller who may read a great deal, and matching no rows is a lie they cannot see — the
+        // one that emptied the staging back-office inbox on 11 November.
+        ServerCallerParameters.registerResolver(name ->
+            "caller.grantedEvents".equals(name) ? ServerCallerParameters.UNAVAILABLE
+                : "caller.person".equals(name) ? (Object) 555 : null);
+        ClientQueryGuard.registerInspector(new ClientQueryGuard.Inspector() {
+            @Override public String refusalReason(QueryArgument argument) { return null; }
+            @Override public String[] serverCallerNamesNeeded(QueryArgument argument, Object scopeToken) {
+                // "Document is scoped by the caller's granted events, Event is not."
+                return argument.getStatement().contains("Document")
+                    ? new String[] {"caller.grantedEvents"} : new String[0];
+            }
+        });
+        QueryArgument grantedRead = argument("select id from Document d where event=$1", 7);
+        check("a statement KNOWN to need an unavailable value is refused, not run with null bound",
+              ServerCallerParameters.CALLER_VALUE_UNAVAILABLE_REFUSED.equals(
+                  refusalOf(grantedRead, "backoffice")));
+        check("and the refusal tells the caller to retry, because the miss starts the computation",
+              ServerCallerParameters.CALLER_VALUE_UNAVAILABLE_REFUSED.contains("retry"));
+        check("a statement needing nothing is untouched, whatever the resolver cannot answer",
+              refusalOf(unscopedRead, "backoffice") == null
+                  && ServerCallerParameters.attach(unscopedRead, "backoffice") == unscopedRead);
+
+        // THE GAP, held open on purpose and measured rather than argued about: with no answer from the
+        // inspector the attached names are a guess, so an unavailable value is bound as null rather than
+        // refusing every read in a window where most of them need nothing.
+        ClientQueryGuard.registerInspector(argument -> null);
+        check("where the names are only a guess, an unavailable value is bound as null, not refused",
+              refusalOf(grantedRead, "backoffice") == null
+                  && namedValue(ServerCallerParameters.attach(grantedRead, "backoffice"),
+                                "caller.grantedEvents") == null);
+        check("and the text-test path, which is a guess for the same reason, does the same",
+              namedValue(ServerCallerParameters.attach(
+                  argument("select id from Document d where event in CALLER_GRANTED_EVENTS")),
+                  "caller.grantedEvents") == null);
+
         System.out.println(fail == 0 ? "\nALL " + pass + " PASS" : "\n" + fail + " FAILED");
         if (fail > 0)
             throw new AssertionError(fail + " caller parameter checks failed");
+    }
+
+    /** The refusal attaching this argument produces, or null when it attaches without one. */
+    private static String refusalOf(QueryArgument argument, Object scopeToken) {
+        try {
+            ServerCallerParameters.attach(argument, scopeToken);
+            return null;
+        } catch (ServerCallerParameters.CallerValueUnavailableException e) {
+            return e.getMessage();
+        }
     }
 
     /** The value bound to a named parameter: names sit above the positional block, not alongside it. */

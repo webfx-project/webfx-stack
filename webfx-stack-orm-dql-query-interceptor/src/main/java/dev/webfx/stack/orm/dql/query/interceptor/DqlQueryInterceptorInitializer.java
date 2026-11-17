@@ -11,6 +11,7 @@ import dev.webfx.stack.db.datasource.LocalDataSourceService;
 import dev.webfx.stack.db.query.ClientQueryGuard;
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryResult;
+import dev.webfx.stack.db.query.ServerCallerParameters;
 import dev.webfx.stack.db.query.spi.QueryServiceProvider;
 import dev.webfx.stack.orm.datasourcemodel.service.DataSourceModelService;
 import dev.webfx.stack.orm.domainmodel.DataSourceModel;
@@ -91,6 +92,11 @@ public class DqlQueryInterceptorInitializer implements ApplicationJob {
                                 return result;
                             });
                     }
+                } catch (ServerCallerParameters.CallerValueUnavailableException e) {
+                    // NOT a translation failure, and its message has to reach the client as it is: it says
+                    // the read can be retried. The wrapping below would bury that inside a DQL error and
+                    // echo the statement, for a refusal that has nothing to do with the statement.
+                    return Future.failedFuture(e.getMessage());
                 } catch (Exception e) {
                     // This message is BOTH logged and returned to the caller (failedFuture below), so
                     // the bind values must not be in it: a count, never the contents. The statement and
@@ -165,7 +171,17 @@ public class DqlQueryInterceptorInitializer implements ApplicationJob {
             int index = Arrays.indexOf(parameterNames, name);
             if (index < 0)
                 throw new IllegalArgumentException("Expected parameter '" + name + "' not found in the passed parameters");
-            orderedParameters[positionalCount + i] = parameters[positionalCount + index];
+            Object value = parameters[positionalCount + index];
+            // A value the server could not supply must not be BOUND: binding it as null is the empty result
+            // that cannot be told from "you may read nothing", and binding the marker itself would hand the
+            // driver an object it cannot encode. ServerCallerParameters refuses such a query at the endpoint,
+            // so nothing should arrive here — this is the floor under that, at the one place that knows for
+            // certain the statement binds this name, and it is also what would refuse one that reached a
+            // re-fired subscription.
+            if (value == ServerCallerParameters.UNAVAILABLE)
+                throw new ServerCallerParameters.CallerValueUnavailableException(
+                    ServerCallerParameters.CALLER_VALUE_UNAVAILABLE_REFUSED);
+            orderedParameters[positionalCount + i] = value;
         }
         return orderedParameters;
     }

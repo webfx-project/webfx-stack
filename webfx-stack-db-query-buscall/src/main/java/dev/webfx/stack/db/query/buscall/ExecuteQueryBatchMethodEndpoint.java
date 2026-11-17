@@ -31,10 +31,17 @@ public final class ExecuteQueryBatchMethodEndpoint extends AsyncFunctionBusCallE
                 // the array is the server's own copy of what arrived.
                 // One scope for the whole batch: it is a property of the caller, not of a statement.
                 Object scopeToken = ClientScopeToken.forCaller();
-                for (int i = 0; i < args.length; i++) {
-                    QueryArgument scoped = scopeToken == null ? args[i]
-                        : QueryArgument.builder().copy(args[i]).setScopeToken(scopeToken).build();
-                    args[i] = ServerCallerParameters.attach(scoped, scopeToken);
+                try {
+                    for (int i = 0; i < args.length; i++) {
+                        QueryArgument scoped = scopeToken == null ? args[i]
+                            : QueryArgument.builder().copy(args[i]).setScopeToken(scopeToken).build();
+                        args[i] = ServerCallerParameters.attach(scoped, scopeToken);
+                    }
+                } catch (ServerCallerParameters.CallerValueUnavailableException e) {
+                    // The whole batch, like the refusals above: the elements already attached are the
+                    // server's own copy and go nowhere, and a batch half-run would be harder for a client to
+                    // retry than one that plainly did not run. See the single-query endpoint for the why.
+                    return Future.failedFuture(e.getMessage());
                 }
             }
             return QueryService.executeQueryBatch(batch);

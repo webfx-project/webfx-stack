@@ -2,6 +2,7 @@ package dev.webfx.stack.orm.dql.query.interceptor;
 
 import dev.webfx.stack.db.query.QueryArgument;
 import dev.webfx.stack.db.query.QueryArgumentBuilder;
+import dev.webfx.stack.db.query.ServerCallerParameters;
 import dev.webfx.stack.orm.dql.sqlcompiler.sql.SqlCompiled;
 
 import java.util.Arrays;
@@ -75,6 +76,27 @@ public class ParameterBindingCheck {
                 argument(new Object[]{"p1", "p2", 77, 88}, new String[]{"caller.person", "caller.account"}),
                 new Object[]{"p1", "p2", 77});
 
+        // ── A value the server could not supply, which must never be BOUND ──────────────────────────
+        // ServerCallerParameters refuses such a query at the endpoint, so none should reach here. This is
+        // the floor under that, at the one place that knows for certain the statement binds the name — and
+        // what would refuse one carried by an already-open subscription.
+        checkUnavailable("an unavailable value the statement binds is refused, not bound",
+                compiled(List.of("caller.grantedEvents"), 1),
+                argument(new Object[]{"p1", ServerCallerParameters.UNAVAILABLE},
+                        new String[]{"caller.grantedEvents"}));
+        // Only when it is actually bound, though. Attached on a guess to a statement that uses nothing, it
+        // is surplus and is dropped, exactly like any other over-attached value — so the guess costs a
+        // parameter slot, not a refusal.
+        check("an unavailable value the statement does not bind is dropped", compiled(List.of(), 2),
+                argument(new Object[]{"p1", "p2", ServerCallerParameters.UNAVAILABLE},
+                        new String[]{"caller.grantedEvents"}),
+                new Object[]{"p1", "p2"});
+        check("an unavailable value beside a term the statement DOES bind is ignored",
+                compiled(List.of("caller.person"), 1),
+                argument(new Object[]{"p1", 77, ServerCallerParameters.UNAVAILABLE},
+                        new String[]{"caller.person", "caller.grantedEvents"}),
+                new Object[]{"p1", 77});
+
         System.out.println(fail == 0 ? "\nALL " + pass + " PASS" : "\n" + fail + " FAILED");
         if (fail > 0)
             throw new AssertionError(fail + " parameter binding checks failed");
@@ -104,6 +126,26 @@ public class ParameterBindingCheck {
         } catch (Throwable t) {
             fail++;
             System.out.println("  FAIL " + what + " — threw " + t);
+        }
+    }
+
+    /**
+     * Its own helper rather than {@link #checkThrows}, because the two refusals mean opposite things. An
+     * IllegalArgumentException here says the caller and the statement disagree and nothing will fix it; this
+     * one says the SERVER is not ready and a retry will.
+     */
+    private static void checkUnavailable(String what, SqlCompiled compiled, QueryArgument argument) {
+        try {
+            Object[] actual = DqlQueryInterceptorInitializer.reorderNamedParameters(compiled, argument);
+            fail++;
+            System.out.println("  FAIL " + what + " — returned " + Arrays.toString(actual) + " instead of refusing");
+        } catch (ServerCallerParameters.CallerValueUnavailableException e) {
+            pass++;
+            System.out.println("  ok   " + what);
+        } catch (Throwable t) {
+            fail++;
+            System.out.println("  FAIL " + what + " — threw " + t.getClass().getSimpleName()
+                    + " rather than CallerValueUnavailableException");
         }
     }
 

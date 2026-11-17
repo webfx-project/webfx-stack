@@ -32,7 +32,16 @@ public final class ExecuteQueryMethodEndpoint extends AsyncFunctionBusCallEndpoi
             Object scopeToken = ClientScopeToken.forCaller();
             QueryArgument scoped = scopeToken == null ? arg
                 : QueryArgument.builder().copy(arg).setScopeToken(scopeToken).build();
-            QueryArgument resolved = ServerCallerParameters.attach(scoped, scopeToken);
+            QueryArgument resolved;
+            try {
+                resolved = ServerCallerParameters.attach(scoped, scopeToken);
+            } catch (ServerCallerParameters.CallerValueUnavailableException e) {
+                // The statement needs a value about this caller that the server does not have yet, and
+                // running it anyway would bind null and answer with an empty result that looks exactly like
+                // "you may read nothing". Refused instead, retriably: the lookup that was missing is started
+                // by the miss, so the client's retry finds it — see CallerReadScope in modality-crm.
+                return Future.failedFuture(e.getMessage());
+            }
             return QueryService.executeQuery(resolved).map(result -> stripMetadataIfRequested(arg, result));
         });
     }
