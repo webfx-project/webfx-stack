@@ -6,7 +6,7 @@ import dev.webfx.platform.service.SingleServiceProvider;
 /**
  * That a data scope reaches the compiler, reaches only a client's own query, and never reaches the wire.
  *
- * <p>Three properties, each of which was a way to get this wrong.
+ * <p>Four properties, each of which was a way to get this wrong.
  *
  * <p><b>A server read is not a client read.</b> The token is set at the three generic query endpoints and
  * nowhere else, so an endpoint's own lookup — which reaches the query service directly — compiles unscoped.
@@ -21,6 +21,13 @@ import dev.webfx.platform.service.SingleServiceProvider;
  *
  * <p><b>A client cannot supply one.</b> The field is transient and the serial codec names every field it
  * encodes, so it is off the wire by construction rather than by a refusal someone has to remember to write.
+ *
+ * <p><b>No scope is not a licence to read everything.</b> While nothing is enforced, an unscoped compile is
+ * precisely what every query did before scopes existed, so a resolver that fails must not take the read down
+ * with it — it would refuse reads to protect nothing. The moment a root is enforced that reverses: the scope
+ * condition is the only thing between the caller and every centre's rows, and {@code ClientReadScope}
+ * injects nothing at all for a null token. The last cases below pin both halves and the residual between
+ * them, because reading those two states as one is how this was wrong until 2026-11-18.
  *
  * @author Claude Code
  */
@@ -65,9 +72,32 @@ public class ClientScopeTokenCheck {
               "member".equals(QueryArgument.builder().copy(asMember)
                   .setStatement("select id from document as d").build().getScopeToken()));
 
-        // ── A resolver that throws must not fail the query ────────────────────────────────────────────────
+        // ── NOTHING ENFORCED: a resolver that throws must not fail the query ─────────────────────────────
         ClientScopeToken.registerResolver(() -> { throw new IllegalStateException("boom"); });
-        check("a resolver that throws compiles unscoped rather than failing the read",
+        check("with no scope required, a resolver that throws compiles unscoped rather than failing the read",
+              ClientScopeToken.forCaller() == null);
+
+        // ── A ROOT ENFORCED: the same two answers would hand over every centre's rows, so they refuse ────
+        ClientScopeToken.registerResolver(required(() -> { throw new IllegalStateException("boom"); }));
+        check("with a scope required, a resolver that throws REFUSES instead of compiling unscoped",
+              ClientScopeToken.SCOPE_UNAVAILABLE_REFUSED.equals(refusal()));
+
+        ClientScopeToken.registerResolver(required(() -> null));
+        check("with a scope required, no token refuses too - a null one injects no condition at all",
+              ClientScopeToken.SCOPE_UNAVAILABLE_REFUSED.equals(refusal()));
+
+        ClientScopeToken.registerResolver(required(() -> "backoffice"));
+        check("but a caller whose scope IS resolved reads under it, refusing nothing",
+              "backoffice".equals(ClientScopeToken.forCaller()));
+        check("and that read is not a refusal", refusal() == null);
+
+        // ── THE RESIDUAL, pinned so it stays a decision rather than becoming an accident ──────────────────
+        ClientScopeToken.registerResolver(new ClientScopeToken.Resolver() {
+            @Override public Object tokenForCaller() { return null; }
+            @Override public boolean isScopeRequired() { throw new IllegalStateException("boom"); }
+        });
+        check("a resolver that cannot even say whether a scope is required compiles unscoped, rather than "
+              + "refusing every client read on the server at once",
               ClientScopeToken.forCaller() == null);
 
         ClientScopeToken.registerResolver(null);
@@ -76,6 +106,24 @@ public class ClientScopeTokenCheck {
         System.out.println(fail == 0 ? "\nALL " + pass + " PASS" : "\n" + fail + " FAILED");
         if (fail > 0)
             throw new AssertionError(fail + " scope token checks failed");
+    }
+
+    /** The same resolver as it behaves once a root is enforced: a scope is then required. */
+    private static ClientScopeToken.Resolver required(ClientScopeToken.Resolver r) {
+        return new ClientScopeToken.Resolver() {
+            @Override public Object tokenForCaller() { return r.tokenForCaller(); }
+            @Override public boolean isScopeRequired() { return true; }
+        };
+    }
+
+    /** What forCaller() refused with, or null when it answered with a token. */
+    private static String refusal() {
+        try {
+            ClientScopeToken.forCaller();
+            return null;
+        } catch (ClientScopeToken.ScopeUnavailableException e) {
+            return e.getMessage();
+        }
     }
 
     private static QueryArgument scoped(QueryArgument argument, Object token) {

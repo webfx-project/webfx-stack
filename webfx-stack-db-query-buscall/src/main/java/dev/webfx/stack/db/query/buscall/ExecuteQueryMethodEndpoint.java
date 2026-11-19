@@ -21,25 +21,28 @@ public final class ExecuteQueryMethodEndpoint extends AsyncFunctionBusCallEndpoi
             String refusal = ClientQueryGuard.refusalReason(arg);
             if (refusal != null)
                 return Future.failedFuture(refusal);
-            // Resolved HERE because the principal is on this thread and will not be by the time the query is
-            // bound — see ServerCallerParameters. Attached after the guard so a refused query never resolves
-            // a caller, and before execution so the terms have values by the time they are compiled.
-                // The data scope, resolved HERE for the same reason as the caller values, and at the same
-                // door: this endpoint is where a client's own statement arrives, and an endpoint's internal
-                // lookup never passes through it. It rides on the argument because a push re-fire has no
-                // thread state left to read it from, and it joins the argument's equality so two scopes
-                // never share one compiled statement or one subscription.
-            Object scopeToken = ClientScopeToken.forCaller();
-            QueryArgument scoped = scopeToken == null ? arg
-                : QueryArgument.builder().copy(arg).setScopeToken(scopeToken).build();
+            // Both resolved HERE because the principal is on this thread and will not be by the time the
+            // query is bound — see ServerCallerParameters. After the guard, so a refused query never
+            // resolves a caller, and before execution, so the terms have values by the time they compile.
+            // The scope is asked at the same door for the same reason, and because this endpoint is where a
+            // client's own statement arrives while an endpoint's internal lookup never passes through it. It
+            // rides on the argument because a push re-fire has no thread state left to read it from, and it
+            // joins the argument's equality so two scopes never share one compiled statement or one
+            // subscription.
             QueryArgument resolved;
             try {
+                Object scopeToken = ClientScopeToken.forCaller();
+                QueryArgument scoped = scopeToken == null ? arg
+                    : QueryArgument.builder().copy(arg).setScopeToken(scopeToken).build();
                 resolved = ServerCallerParameters.attach(scoped, scopeToken);
-            } catch (ServerCallerParameters.CallerValueUnavailableException e) {
-                // The statement needs a value about this caller that the server does not have yet, and
-                // running it anyway would bind null and answer with an empty result that looks exactly like
-                // "you may read nothing". Refused instead, retriably: the lookup that was missing is started
-                // by the miss, so the client's retry finds it — see CallerReadScope in modality-crm.
+            } catch (ClientScopeToken.ScopeUnavailableException | ServerCallerParameters.CallerValueUnavailableException e) {
+                // Two ways one read arrives unanswerable, refused the same way. Either the statement needs a
+                // value about this caller that the server does not have yet, and running it anyway would bind
+                // null and answer with an empty result that looks exactly like "you may read nothing"; or a
+                // scope is enforced and this caller's could not be resolved, and running it anyway would
+                // compile with no scope condition at all and answer with everyone's rows. Refused instead,
+                // retriably: the lookup that was missing is started by the miss, so the client's retry finds
+                // it — see CallerReadScope in modality-crm.
                 return Future.failedFuture(e.getMessage());
             }
             return QueryService.executeQuery(resolved).map(result -> stripMetadataIfRequested(arg, result));

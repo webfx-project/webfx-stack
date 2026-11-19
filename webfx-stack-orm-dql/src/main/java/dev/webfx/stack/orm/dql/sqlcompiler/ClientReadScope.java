@@ -38,7 +38,12 @@ public final class ClientReadScope {
         Expression<?> readScopeCondition(Object domainClass, Object scopeToken);
     }
 
-    private static Provider provider;
+    /**
+     * Volatile for the reason given on {@code ClientScopeToken.resolver}: {@link #conditionFor} injects
+     * nothing when this is null, so a thread that cannot yet see the boot-time registration compiles the
+     * read unscoped — the same silent answer, one layer down.
+     */
+    private static volatile Provider provider;
 
     public static void registerProvider(Provider provider) {
         ClientReadScope.provider = provider;

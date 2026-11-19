@@ -91,7 +91,8 @@ public final class ServerCallerParameters {
         }
     }
 
-    private static Resolver resolver;
+    /** Volatile for the reason given on {@code ClientScopeToken.resolver}: an unseen registration binds null. */
+    private static volatile Resolver resolver;
 
     public static void registerResolver(Resolver resolver) {
         ServerCallerParameters.resolver = resolver;

@@ -32,17 +32,18 @@ public final class ExecuteQueryPushMethodEndpoint extends AsyncFunctionBusCallEn
                 // keys one subscription apart from another's.
                 // The scope is stored with the subscription for the same reason the caller values are: a
                 // re-fire has no caller on the thread, and QueryInfo re-runs the argument it was built from.
-                Object scopeToken = ClientScopeToken.forCaller();
-                QueryArgument scoped = scopeToken == null ? queryArgument
-                    : QueryArgument.builder().copy(queryArgument).setScopeToken(scopeToken).build();
                 QueryArgument resolved;
                 try {
+                    Object scopeToken = ClientScopeToken.forCaller();
+                    QueryArgument scoped = scopeToken == null ? queryArgument
+                        : QueryArgument.builder().copy(queryArgument).setScopeToken(scopeToken).build();
                     resolved = ServerCallerParameters.attach(scoped, scopeToken);
-                } catch (ServerCallerParameters.CallerValueUnavailableException e) {
+                } catch (ClientScopeToken.ScopeUnavailableException | ServerCallerParameters.CallerValueUnavailableException e) {
                     // Refused HERE, before executeQueryPush, and that order is the point: a subscription
-                    // opened now would store the missing value in the argument it re-runs, and every re-fire
-                    // for the rest of its life would fail on it. Nothing is opened, so the client's retry
-                    // opens a stream with a value in it.
+                    // opened now would store what was missing in the argument it re-runs, and every re-fire
+                    // for the rest of its life would carry it — a missing caller value failing each time, or,
+                    // worse, a missing scope quietly re-running unscoped on every change for as long as the
+                    // stream lives. Nothing is opened, so the client's retry opens a stream that has both.
                     return Future.failedFuture(e.getMessage());
                 }
                 if (resolved != arg.getQueryArgument())
