@@ -149,6 +149,18 @@ public final class ClientQueryGuard {
      * a literal is where an email address or a name would be, and those do not belong in a log.
      */
     private static void report(QueryArgument argument, String refusal) {
+        try {
+            reportOrThrow(argument, refusal);
+        } catch (Throwable t) {
+            // Throwable, not Exception: what went wrong here once was a StackOverflowError, which an
+            // Exception catch would have let through. A refusal that cannot be logged is still a refusal —
+            // refusalReason() must return it rather than fail on the way out, or a query the guard decided to
+            // stop would leave by the error path instead of the refused one.
+            Console.log("⚠️ Could not log a refused client query (" + refusal + "): " + t);
+        }
+    }
+
+    private static void reportOrThrow(QueryArgument argument, String refusal) {
         String statement = argument == null ? null : argument.getStatement();
         String shape = statement == null ? "(none)" : maskLiterals(statement);
         synchronized (REPORTED) {
@@ -162,10 +174,19 @@ public final class ClientQueryGuard {
     public static String maskLiterals(String statement) {
         // All three quote styles the DQL lexer accepts for a string literal — single, double and backtick —
         // because a name typed as "Jean Dupont" is as personal as one typed as 'Jean Dupont'.
+        // Unrolled and possessive, not the obvious '(?:[^']|'')*'. An alternation under a star costs a stack
+        // frame per character in java.util.regex, so that form throws StackOverflowError on a quoted literal of
+        // about five thousand characters — and the statements reaching here come from CLIENTS, on the refusal
+        // path, which nothing above catches Throwable on. Any signed-in caller could therefore have a refused
+        // query raise an Error inside this guard, and in doing so suppress the log line recording the refusal:
+        // the masking exists to keep names out of that line, and the crash happened while producing it.
+        // Unrolling alone moves the recursion from per-character to per-escaped-quote (still gone at twenty
+        // thousand '' pairs); the possessive quantifiers remove it (500,000 plain characters and 20,000 pairs
+        // both mask fine). Nothing is given up by them, [^'] being unable to match the delimiter.
         String masked = statement
-            .replaceAll("'(?:[^']|'')*'", "'?'")
-            .replaceAll("\"(?:[^\"]|\"\")*\"", "\"?\"")
-            .replaceAll("`(?:[^`]|``)*`", "`?`")
+            .replaceAll("'[^']*+(?:''[^']*+)*+'", "'?'")
+            .replaceAll("\"[^\"]*+(?:\"\"[^\"]*+)*+\"", "\"?\"")
+            .replaceAll("`[^`]*+(?:``[^`]*+)*+`", "`?`")
             .replaceAll("\\b\\d+(?:\\.\\d+)?\\b", "?")
             .replaceAll("\\s+", " ")
             .trim();
