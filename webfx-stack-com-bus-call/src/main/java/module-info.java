@@ -7,6 +7,7 @@ module webfx.stack.com.bus.call {
     requires webfx.platform.async;
     requires webfx.platform.boot;
     requires webfx.platform.console;
+    requires webfx.platform.meta;
     requires webfx.platform.util;
     requires webfx.stack.com.bus;
     requires webfx.stack.com.serial;
