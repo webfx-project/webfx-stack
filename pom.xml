@@ -106,6 +106,7 @@
         <module>webfx-stack-db-migration</module>
         <module>webfx-stack-db-query</module>
         <module>webfx-stack-db-query-buscall</module>
+        <module>webfx-stack-db-query-cli</module>
         <module>webfx-stack-db-query-remote</module>
         <module>webfx-stack-db-query-serial</module>
         <module>webfx-stack-db-querypush</module>
