@@ -11,7 +11,6 @@
         <!-- The two providers a browser or OpenJFX app gets from its UI kit, and a terminal has no kit to
              get them from. See each class for why they are stubs rather than the OpenJFX ones. -->
         <provider interface="dev.webfx.platform.uischeduler.spi.UiSchedulerProvider">dev.webfx.stack.db.query.cli.HeadlessUiSchedulerProvider</provider>
-        <provider interface="dev.webfx.kit.launcher.spi.WebFxKitLauncherProvider">dev.webfx.stack.db.query.cli.HeadlessKitLauncherProvider</provider>
     </providers>
 
     <dependencies>

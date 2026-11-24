@@ -42,6 +42,19 @@ import dev.webfx.platform.uischeduler.spi.UiSchedulerProvider;
 public final class HeadlessUiSchedulerProvider implements UiSchedulerProvider {
 
     /**
+     * Never. A terminal has no UI thread, so anything asking this should run its work inline rather than hand
+     * it to {@link #runInUiThread}.
+     *
+     * <p>Answered explicitly though the interface's default says the same, because this is the answer the tool
+     * depends on: {@code ClientSideStateSession} asks it on every state change, and an inherited default is a
+     * thing a future edit can change out from under a caller that was relying on it.
+     */
+    @Override
+    public boolean isUiThreadReady() {
+        return false;
+    }
+
+    /**
      * Resolved once, and never through {@code UiScheduler}: that would come straight back here. The platform
      * provider for a CLI is {@code JreSchedulerProvider}, declared as a {@code SchedulerProvider} and not as a
      * {@code UiSchedulerProvider}, which is what keeps the two lookups distinct.

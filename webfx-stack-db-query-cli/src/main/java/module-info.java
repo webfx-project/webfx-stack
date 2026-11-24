@@ -6,9 +6,6 @@
 module webfx.stack.db.query.cli {
 
     // Direct dependencies modules
-    requires javafx.base;
-    requires javafx.graphics;
-    requires webfx.kit.launcher;
     requires webfx.platform.ast;
     requires webfx.platform.ast.json.plugin;
     requires webfx.platform.async;
@@ -34,7 +31,6 @@ module webfx.stack.db.query.cli {
     uses dev.webfx.stack.db.query.spi.QueryServiceProvider;
 
     // Provided services
-    provides dev.webfx.kit.launcher.spi.WebFxKitLauncherProvider with dev.webfx.stack.db.query.cli.HeadlessKitLauncherProvider;
     provides dev.webfx.platform.uischeduler.spi.UiSchedulerProvider with dev.webfx.stack.db.query.cli.HeadlessUiSchedulerProvider;
 
 }
