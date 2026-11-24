@@ -73,6 +73,23 @@ public record ServerEndpoint(String host, int port, boolean ssl) {
                && Boolean.valueOf(ssl).equals(configuredSsl);
     }
 
+    /**
+     * The same server as an HTTP origin, which is what an emailed login link has to be built from.
+     *
+     * <p>{@code SendMagicLinkCredentials} takes a {@code clientOrigin} and its comment says why: "the magic
+     * link will start with the same origin, so it goes back to the same server". Derived here rather than
+     * asked for a second time — a run that named {@code wss://host} on the command line and then had to
+     * repeat {@code https://host} could get the two wrong relative to each other, and the failure would be a
+     * link pointing at a server nobody is testing.
+     *
+     * <p>The port is omitted when it is the scheme's own, because an origin carrying {@code :443} is not
+     * wrong but is not what anything else in the system writes.
+     */
+    public String httpOrigin() {
+        boolean defaultPort = port == (ssl ? 443 : 80);
+        return (ssl ? "https://" : "http://") + host + (defaultPort ? "" : ":" + port);
+    }
+
     /** The bus URI this endpoint produces, for log lines and refusal messages. */
     public String describe() {
         return (ssl ? "wss://" : "ws://") + host + ":" + port;

@@ -2,6 +2,8 @@ package dev.webfx.stack.db.query.cli;
 
 import dev.webfx.platform.async.Future;
 import dev.webfx.stack.authn.AuthenticateWithUsernamePasswordCredentials;
+import dev.webfx.stack.authn.AuthenticateWithVerificationCodeCredentials;
+import dev.webfx.stack.authn.SendMagicLinkCredentials;
 import dev.webfx.stack.authn.AuthenticationService;
 import dev.webfx.stack.authn.buscall.AuthenticationServiceBusAddress;
 import dev.webfx.stack.com.bus.DeliveryOptions;
@@ -93,6 +95,62 @@ public final class CallerSession {
      * rather than as an error on the probe. Finding out here means the operator is told to sign in again,
      * instead of a probe reporting zero rows and a rehearsal recording it.
      */
+    /**
+     * Asks the server to send this address a verification code, for a sign-in with no password.
+     *
+     * <h3>Why a code and not a link</h3>
+     *
+     * <p>{@code verificationCodeOnly} is passed true, and the flag exists for exactly this case: its own
+     * comment says it prevents "losing the application context (code entered within the same page)". A
+     * terminal has no page to come back to, so a clickable link would open a browser that signs ITSELF in and
+     * leaves this process where it was. A code can be carried to where the session is wanted.
+     *
+     * <h3>What the server does with it, and what it will not do</h3>
+     *
+     * <p>The mailbox is not a second factor. For an account that must present one in the back office, a
+     * redemption opens a RECOVERY-ONLY session — the back-office tier with the FRONT-OFFICE audience — which
+     * every back-office guard refuses. That is deliberate upstream, and this tool needs no special handling
+     * for it: {@link #confirmAudience()} reads the arm back off the token and refuses a run that asked for
+     * {@code back-office}, rather than probing with a session that cannot answer back-office questions.
+     *
+     * <p>So this is a password-free sign-in for accounts with no factor requirement, and an honest refusal
+     * for the rest. It is not a way around a second factor, and must not be made into one.
+     */
+    public static void sendVerificationCode(String email, ServerEndpoint endpoint, Audience audience,
+                                            long timeoutMillis) {
+        Object state = StateAccessor.setBackoffice(StateAccessor.createEmptyState(), audience.backofficeFlag());
+        DeliveryOptions options = new DeliveryOptions().setState(state);
+        Future<Object> call = BusCallService.call(
+            AuthenticationServiceBusAddress.AUTHENTICATE_METHOD_ADDRESS,
+            // requestedPath "/" and a null language and context: the first is where a link would land and is
+            // moot for a code, and the last two let the server pick its own default mailbox and template. A
+            // context is Modality's own type, which this module deliberately does not know.
+            new SendMagicLinkCredentials(email, endpoint.httpOrigin(), "/", null, true, null),
+            options);
+        ClientRuntime.await(call, timeoutMillis, "Requesting a verification code for " + email);
+    }
+
+    /**
+     * Signs in by redeeming a verification code, which carries no username: the code identifies the pending
+     * link server-side, so {@code username} here is only what this run records about itself.
+     *
+     * <p>The code is a credential that mints a session, so it is handled exactly as the password is — read
+     * from a terminal into a {@code char[]} the caller clears, never taken from the command line where a
+     * shell would keep it. The {@code String} the protocol requires is the same unavoidable window the
+     * password has, and no wider.
+     */
+    public static CallerSession signInWithVerificationCode(String username, char[] verificationCode,
+                                                           Audience audience, long timeoutMillis) {
+        Object state = StateAccessor.setBackoffice(StateAccessor.createEmptyState(), audience.backofficeFlag());
+        DeliveryOptions options = new DeliveryOptions().setState(state);
+        Future<Object> call = BusCallService.call(
+            AuthenticationServiceBusAddress.AUTHENTICATE_METHOD_ADDRESS,
+            new AuthenticateWithVerificationCodeCredentials(new String(verificationCode)),
+            options);
+        ClientRuntime.await(call, timeoutMillis, "Redeeming a verification code as " + username);
+        return new CallerSession(username, audience);
+    }
+
     public static CallerSession restore(SessionCache.Entry entry, long timeoutMillis) {
         ClientSideStateSession.getInstance().changeUserToken(entry.token(), false);
         ClientRuntime.await(AuthenticationService.verifyAuthenticated(), timeoutMillis,

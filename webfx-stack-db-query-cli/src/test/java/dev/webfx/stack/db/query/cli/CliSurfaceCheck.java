@@ -113,11 +113,38 @@ public class CliSurfaceCheck {
         check("an empty result counts zero rows",
               new DqlResult(new QueryResult(0, 1, new Object[0], new String[] {"id"})).rowCount() == 0);
 
+        section("A credential is never taken from the command line");
+        // There is deliberately no option carrying a password or a verification code: both are read from a
+        // terminal, so neither can be left in a shell history, a script or a CI log. The spec below is
+        // signin's own - commonSpec() plus username and the --with-code flag - and the check is that the
+        // obvious inline forms are refused by name rather than quietly ignored.
+        CliArgs.Spec signinSpec = new CliArgs.Spec()
+            .option("server").option("audience").option("conf-dir").option("log-dir").option("timeout")
+            .option("username").flag("with-code");
+        check("--with-code is a flag, not a value",
+              signinSpec.parse(new String[] {"signin", "--with-code"}).flag("with-code"));
+        check("there is no --code option to put a credential in",
+              refuses(() -> signinSpec.parse(new String[] {"signin", "--code", "123456"})));
+        check("nor a --verification-code one",
+              refuses(() -> signinSpec.parse(new String[] {"signin", "--verification-code=123456"})));
+        check("nor a --password one",
+              refuses(() -> signinSpec.parse(new String[] {"signin", "--password", "hunter2"})));
+
         section("An endpoint is the one that was asked for");
         check("wss defaults to 443, not 80",
               new ServerEndpoint("h", 443, true).equals(ServerEndpoint.parse("wss://h")));
         check("ws defaults to 80",
               new ServerEndpoint("h", 80, false).equals(ServerEndpoint.parse("ws://h")));
+        // The origin an emailed login link is built from, derived from the endpoint rather than asked for
+        // again - two spellings of one server are two chances to name different servers.
+        check("a wss endpoint's origin is https, with the default port left off",
+              "https://h".equals(new ServerEndpoint("h", 443, true).httpOrigin()));
+        check("and a non-default port is kept",
+              "https://h:8443".equals(new ServerEndpoint("h", 8443, true).httpOrigin()));
+        check("a ws endpoint's origin is http",
+              "http://h".equals(new ServerEndpoint("h", 80, false).httpOrigin()));
+        check("with its own non-default port kept too",
+              "http://h:8080".equals(new ServerEndpoint("h", 8080, false).httpOrigin()));
         check("https is accepted as the app's own origin, with the same default",
               new ServerEndpoint("h", 443, true).equals(ServerEndpoint.parse("https://h")));
         check("an explicit port wins",
