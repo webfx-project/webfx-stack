@@ -9,6 +9,7 @@ import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.Handler;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.vertx.VertxInstance;
+import dev.webfx.stack.com.bus.BridgeAddressPolicy;
 import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.stack.com.bus.BusHook;
 import dev.webfx.stack.com.bus.Message;
@@ -19,6 +20,7 @@ import dev.webfx.stack.com.serial.SerialCodecManager;
 import dev.webfx.stack.session.SessionService;
 import dev.webfx.stack.session.isolation.IsolatedSession;
 import dev.webfx.stack.session.isolation.ConversationRegistry;
+import dev.webfx.stack.session.state.SessionAccessor;
 import dev.webfx.stack.session.state.StateAccessor;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
@@ -124,6 +126,34 @@ final class VertxBus implements Bus {
         vertxWebSession.setAccessed();
         webfxSession.touch();
 
+        // Client-to-client broadcasts: who may publish, and who may receive (see BridgeAddressPolicy). Judged on
+        // the audience the connection's last message PROVED, kept on the session by ServerSideStateSessionSyncer,
+        // because these messages carry no state of their own. Decided per message rather than on REGISTER: a
+        // client registers its handlers when it connects, before its first message has proven who it is.
+        if (isIncomingMessage || isOutgoingMessage) {
+            JsonObject raw = bridgeEvent.getRawMessage();
+            String address = raw == null ? null : raw.getString(JsonBusConstants.ADDRESS);
+            if (BridgeAddressPolicy.governs(address)) {
+                boolean verifiedBackoffice = SessionAccessor.isVerifiedBackoffice(webfxSession);
+                if (isIncomingMessage) {
+                    BridgeAddressPolicy.PublishDecision decision = BridgeAddressPolicy.publishDecision(address, verifiedBackoffice);
+                    if (decision != BridgeAddressPolicy.PublishDecision.ALLOW) {
+                        // The census line. The session's user, never the message body (a member's draft).
+                        Console.log("🛡 " + (decision == BridgeAddressPolicy.PublishDecision.REFUSE ? "REFUSED" : "WOULD REFUSE")
+                                    + " a live-channel publish to " + address + " by " + SessionAccessor.getUserId(webfxSession)
+                                    + " (no verified back office)");
+                        if (decision == BridgeAddressPolicy.PublishDecision.REFUSE) {
+                            bridgeEvent.complete(false);
+                            return;
+                        }
+                    }
+                } else if (!BridgeAddressPolicy.mayDeliver(address, verifiedBackoffice)) {
+                    bridgeEvent.complete(false); // silently not delivered: a front-office tab that registered anyway
+                    return;
+                }
+            }
+        }
+
         if (isPing) { // Receiving or sending a ping (note: there is no way to distinguish receiving or sending).
             // We tell the state manager that the client is live
             boolean foundRunId = ServerJsonBusStateManager.clientIsLive(null, webfxSession, true);
@@ -199,7 +229,8 @@ final class VertxBus implements Bus {
 
                 if (!isEverythingElse) { // Statement management is required except for the last case
                     Future<IsolatedSession> sessionFuture =
-                        ServerJsonBusStateManager.manageStateOnIncomingOrOutgoingRawJsonMessage(astMessage, webfxSession, isIncomingMessage);
+                        ServerJsonBusStateManager.manageStateOnIncomingOrOutgoingRawJsonMessage(astMessage, webfxSession, isIncomingMessage,
+                            isIncomingMessage ? clientAddressOf(socket) : null);
                     // If the session is not ready right now (this may happen because of a session switch), then
                     // we need to wait this operation to complete before continuing the message delivery
                     if (isIncomingMessage && !sessionFuture.isComplete()) {
@@ -219,6 +250,40 @@ final class VertxBus implements Bus {
         // If the session is ready right now, we continue the message delivery right now
         if (callBridgeEventComplete)
             bridgeEvent.complete(true);
+    }
+
+    /** The caller's network address for this socket, or null — see {@link #clientAddressOf(String, String)}. */
+    private static String clientAddressOf(SockJSSocket socket) {
+        try {
+            io.vertx.core.net.SocketAddress remote = socket.remoteAddress();
+            // The LAST header line, not get()'s first: should a client send its own X-Forwarded-For and the balancer
+            // add a separate line rather than append to it, the first line would be the client's.
+            List<String> forwardedFor = socket.headers() == null ? null : socket.headers().getAll("X-Forwarded-For");
+            return clientAddressOf(forwardedFor == null || forwardedFor.isEmpty() ? null : forwardedFor.get(forwardedFor.size() - 1),
+                remote == null ? null : remote.hostAddress());
+        } catch (RuntimeException e) { // an address is a convenience for counting; never a reason to drop a message
+            return null;
+        }
+    }
+
+    /**
+     * The caller's network address: the LAST entry of X-Forwarded-For when there is one, else the socket's peer.
+     *
+     * <p>The last entry, not the first, because only the last is written by our own load balancer: the AWS ALB
+     * APPENDS the address it saw to whatever the client sent, so every earlier entry is the client's to choose.
+     * Taking the first would let a caller reset any per-address count by sending a fresh header each time.
+     *
+     * <p>Without a proxy (a developer's machine) the header is the client's own and the last entry is as forgeable
+     * as the rest; there, only the peer address would be honest. Production always sits behind the ALB.
+     */
+    static String clientAddressOf(String forwardedFor, String peerAddress) {
+        if (forwardedFor != null) {
+            int comma = forwardedFor.lastIndexOf(',');
+            String last = forwardedFor.substring(comma + 1).trim();
+            if (!last.isEmpty())
+                return last;
+        }
+        return peerAddress == null || peerAddress.isEmpty() ? null : peerAddress;
     }
 
     private void logSessionsCount() {

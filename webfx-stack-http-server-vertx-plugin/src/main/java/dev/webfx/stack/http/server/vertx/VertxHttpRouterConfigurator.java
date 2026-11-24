@@ -1,8 +1,10 @@
 package dev.webfx.stack.http.server.vertx;
 
 import dev.webfx.platform.ast.ReadOnlyAstArray;
+import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.boot.ApplicationReadiness;
 import dev.webfx.platform.console.Console;
+import dev.webfx.platform.substitution.Substitutor;
 import dev.webfx.platform.util.vertx.VertxInstance;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
@@ -230,14 +232,13 @@ final class VertxHttpRouterConfigurator {
             if (hostnamePattern != null)
                 fallbackRoute = fallbackRoute.virtualHost(hostnamePattern);
             fallbackRoute.handler(routingContext -> {
-                String acceptHeader = routingContext.request().getHeader("Accept");
-                if (acceptHeader != null && acceptHeader.contains("text/html")) {
-                    routingContext.response()
-                        .putHeader("Content-Type", "text/html; charset=UTF-8")
-                        .sendFile(finalIndexPath);
-                } else {
+                if (!wantsThePage(routingContext.request().path(), routingContext.request().getHeader("Accept"))) {
                     routingContext.next();
+                    return;
                 }
+                routingContext.response()
+                    .putHeader("Content-Type", "text/html; charset=UTF-8")
+                    .sendFile(finalIndexPath);
             });
         }
     }
@@ -282,8 +283,192 @@ final class VertxHttpRouterConfigurator {
         return extractedPath;
     }
 
+    /** The members the passkey-endpoints document may carry, in the order the spec lists them. */
+    private static final String[] PASSKEY_ENDPOINT_MEMBERS = { "enroll", "manage", "prfUsageDetails" };
+
+    /**
+     * The passkey-endpoints document for this configuration, or null when there is nothing to say.
+     *
+     * <p>W3C "A Well-Known URL for Relying Party Passkey Endpoints": a JSON object whose optional
+     * {@code enroll}, {@code manage} and {@code prfUsageDetails} members are URLs to the pages where a
+     * person creates and manages their passkeys. Password managers fetch it so they can offer "manage
+     * your passkeys for this site" as a link rather than leaving the user to hunt through settings.
+     *
+     * <p><b>An unresolved value is dropped, not served.</b> These URLs come from configuration and are
+     * typically written as a substitution; if the variable behind one is unset, the config carries the
+     * placeholder text itself. Publishing {@code "enroll": "${{ SOMETHING }}/profile"} would be worse
+     * than publishing nothing — a manager would send people to a URL that cannot exist.
+     *
+     * <p><b>An empty document and no document are different answers, and the difference is the config
+     * key.</b> The spec: "An empty JSON object CAN be returned to signal support for passkeys, but not
+     * advertise specific endpoints." So {@code {}} says "passkeys work here, there is no page to send
+     * you to", while a 404 says nothing at all. The key being ABSENT returns null and leaves the path
+     * 404ing; the key being PRESENT always yields a document, {@code {}} if no member survives. That
+     * is what KBS publishes as of 2026-10-23: passkeys are enrolled and managed in the back office
+     * only, deliberately, so there is no page a member's password manager could usefully open — but
+     * the credential they already hold does work here, and {@code {}} is how you say exactly that.
+     * It also means a misconfiguration degrades to {@code {}} rather than to a bad URL; the boot log
+     * prints the body, so an unexpected {@code {}} is visible there.
+     *
+     * <p>Built by hand rather than through an AST writer so that this plugin needs no JSON dependency it
+     * does not already have. Three known keys and URL values, each escaped.
+     */
+    static String passkeyEndpointsBody(ReadOnlyAstObject config) {
+        if (config == null)
+            return null;
+        StringBuilder body = new StringBuilder();
+        for (String member : PASSKEY_ENDPOINT_MEMBERS) {
+            String url = config.getString(member);
+            if (url == null || url.isBlank() || !Substitutor.areValuesNonNullAndResolved(url))
+                continue;
+            body.append(body.length() == 0 ? "{" : ",")
+                .append("\"").append(member).append("\":\"").append(escapeJson(url)).append("\"");
+        }
+        return body.length() == 0 ? "{}" : body.append("}").toString();
+    }
+
+    /** Minimal JSON string escaping — these are URLs, but a configuration file can hold anything. */
+    private static String escapeJson(String value) {
+        StringBuilder escaped = new StringBuilder(value.length());
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            switch (c) {
+                case '"':  escaped.append("\\\""); break;
+                case '\\': escaped.append("\\\\"); break;
+                case '\n': escaped.append("\\n"); break;
+                case '\r': escaped.append("\\r"); break;
+                case '\t': escaped.append("\\t"); break;
+                default:
+                    if (c < 0x20)
+                        escaped.append(String.format("\\u%04x", (int) c));
+                    else
+                        escaped.append(c);
+            }
+        }
+        return escaped.toString();
+    }
+
+    /**
+     * Serves the passkey-endpoints document at its well-known path.
+     *
+     * <p>200 and {@code application/json}, and NO redirect — the spec requires all three, so this is an
+     * exact route rather than anything the SPA fallback could answer. The fallback would 404 it anyway:
+     * the path's first segment starts with a dot. A route registered here matches first.
+     */
+    static void addPasskeyEndpointsRoute(String body) {
+        VertxInstance.getHttpRouter()
+            .route(HttpMethod.GET, "/.well-known/passkey-endpoints")
+            .handler(routingContext -> routingContext.response()
+                .putHeader("Content-Type", "application/json")
+                .end(body));
+    }
+
+    /** Our own namespaces: a request here is an endpoint call, and a typo in one must fail as one. */
+    private static final String[] API_PREFIXES = { "/rest/", "/eventbus/", "/payment/" };
+
+    /**
+     * Whether this request should be answered with the application shell.
+     *
+     * <p>Three reasons to say no, and the third one is the one that changed.
+     *
+     * <p>A path that names a FILE the static handler did not find is not a route (see
+     * {@link #looksLikeMissingFile}). A path under one of our own API namespaces is an endpoint call:
+     * answering HTML with a 200 for a typo'd endpoint is how a caller ends up parsing "&lt;" as JSON,
+     * so those keep failing as endpoints.
+     *
+     * <p>Otherwise the shell is served unless the client asked for something that is explicitly NOT a
+     * page. This used to require {@code Accept} to contain {@code text/html}, which browsers send and
+     * almost nothing else does — so every link-preview fetch got a 404, and a front-office URL shared
+     * on WhatsApp, Facebook or Slack rendered with no preview card at all. Measured on production,
+     * 2026-10-22: 33 requests a day to /video-streaming alone, one of them literally
+     * {@code WhatsApp/2.23.20.0}, the rest in-app Android fetches. An absent, blank or {@code &#42;/&#42;}
+     * Accept now gets the page, which is what those clients send; {@code Accept: application/json}
+     * still gets a 404.
+     */
+    static boolean wantsThePage(String path, String acceptHeader) {
+        if (looksLikeMissingFile(path))
+            return false;
+        if (path != null)
+            for (String prefix : API_PREFIXES)
+                if (path.startsWith(prefix))
+                    return false;
+        if (acceptHeader == null || acceptHeader.isBlank())
+            return true;
+        return acceptHeader.contains("text/html") || acceptHeader.contains("*/*");
+    }
+
+    /**
+     * Whether a path names a FILE rather than an application route.
+     *
+     * <p>Only reached once the static handler has looked and found nothing, so a true here means a file
+     * that does not exist. Two things follow from answering 404 instead of the app shell. Internet
+     * scanners asking for {@code /forum.php}, {@code /.env} or {@code /wp-login.php} stop being served a
+     * 38 KB page each — they were, because they send {@code Accept: text/html} like any browser. And a
+     * stale asset request after a deploy — {@code /assets/index-OLDHASH.js} — gets a 404 instead of HTML,
+     * which is the difference between a clean failure and "Unexpected token '&lt;'" in the console.
+     *
+     * <p><b>A SHORT extension, which is the whole subtlety.</b> Signed tokens are dot-separated
+     * ({@code base64(payload).expiry.base64(hmac)}), so {@code /magic-link/<token>} ends in a dot
+     * followed by a 43-character base64 MAC. Treating any dot as a file extension would have made every
+     * magic link, every invitation and every e-mail-change link 404 — sign-in by e-mail, gone. One to
+     * five characters admits .php, .env, .git, .sql, .ini, .bak, .woff2 and the rest of the scanner
+     * vocabulary while excluding anything a MAC can be.
+     *
+     * <p>Deliberately NOT a list of bad extensions: that is endless, always one pattern behind, and would
+     * still have served the shell for {@code /backup.sql}.
+     */
+    static boolean looksLikeMissingFile(String path) {
+        if (path == null)
+            return false;
+        // A segment beginning with a dot is a dotfile or a dot-directory — /.env, /.git/config,
+        // /.aws/credentials — never a route here, and the first thing a credential scanner asks for.
+        // Checked separately because /.git/config has no extension on its last segment at all.
+        for (int i = 0; i < path.length() - 1; i++)
+            if (path.charAt(i) == '/' && path.charAt(i + 1) == '.')
+                return true;
+        int lastSlash = path.lastIndexOf('/');
+        String segment = lastSlash < 0 ? path : path.substring(lastSlash + 1);
+        int dot = segment.lastIndexOf('.');
+        if (dot < 0 || dot == segment.length() - 1)
+            return false;
+        String extension = segment.substring(dot + 1);
+        if (extension.length() > 5)
+            return false;
+        for (int i = 0; i < extension.length(); i++)
+            if (!Character.isLetterOrDigit(extension.charAt(i)))
+                return false;
+        return true;
+    }
+
+    /**
+     * Whether a request failed because its BODY could not be decoded — a malformed or oversized
+     * multipart form, which is what scanners produce when they POST junk at a route that takes uploads.
+     *
+     * <p>Matched on the class NAME so that nothing here has to import Netty's codec internals (and so
+     * that the pom this plugin ships with needs no new dependency). The alternative is what we had: every
+     * such probe logging "Unhandled exception in router" at ERROR, which is noise in the one signal an
+     * operator reads to find real failures — and, in production, noise an alarm filter can trip over.
+     */
+    static boolean isBodyDecoderFailure(Throwable failure) {
+        for (Throwable t = failure; t != null; t = t.getCause())
+            if (t.getClass().getName().startsWith("io.netty.handler.codec"))
+                return true;
+        return false;
+    }
+
     static void finaliseRouter() {
         Router router = VertxInstance.getHttpRouter();
         router.route().handler(BodyHandler.create());
+        // A body that will not decode is the client's doing, not ours: answer 400 and keep it out of the
+        // error log. Registered after the BodyHandler so it is in the chain for the routes that read a
+        // body; anything else it does not recognise is passed on to the default handler untouched.
+        router.route().failureHandler(routingContext -> {
+            if (isBodyDecoderFailure(routingContext.failure())) {
+                if (!routingContext.response().ended())
+                    routingContext.response().setStatusCode(400).end();
+                return;
+            }
+            routingContext.next();
+        });
     }
 }

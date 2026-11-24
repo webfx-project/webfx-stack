@@ -16,6 +16,7 @@ public final class SubmitArgumentBuilder {
     private Object[] parameters;
     private int priority = SubmitArgument.STANDARD_PRIORITY;
     private boolean transactionPreamble;
+    private WriteIntent writeIntent;
 
     public SubmitArgumentBuilder setOriginalArgument(SubmitArgument originalArgument) {
         this.originalArgument = originalArgument;
@@ -63,6 +64,11 @@ public final class SubmitArgumentBuilder {
         return this;
     }
 
+    public SubmitArgumentBuilder setWriteIntent(WriteIntent writeIntent) {
+        this.writeIntent = writeIntent;
+        return this;
+    }
+
     public SubmitArgumentBuilder setPriority(int priority) {
         this.priority = priority;
         return this;
@@ -77,10 +83,14 @@ public final class SubmitArgumentBuilder {
                 .setStatement(argument.getStatement())
                 .setParameters(argument.getParameters())
                 .setPriority(argument.getPriority())
-                .setTransactionPreamble(argument.isTransactionPreamble());
+                .setTransactionPreamble(argument.isTransactionPreamble())
+                // Carried through the copy, which is what translation uses to rebuild a statement: a
+                // declaration dropped here would vanish on every DQL write, and the field would look
+                // present at the call site and absent at the authorizer.
+                .setWriteIntent(argument.getWriteIntent());
     }
 
     public SubmitArgument build() {
-        return new SubmitArgument(originalArgument, dataSourceId, dataScope, returnGeneratedKeys, language, statement, parameters, priority, transactionPreamble);
+        return new SubmitArgument(originalArgument, dataSourceId, dataScope, returnGeneratedKeys, language, statement, parameters, priority, transactionPreamble, writeIntent);
     }
 }

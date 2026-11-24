@@ -13,6 +13,7 @@ module webfx.stack.session.token.plugin {
     requires webfx.platform.console;
     requires webfx.platform.meta;
     requires webfx.platform.substitution;
+    requires webfx.stack.db.querypush;
     requires webfx.stack.session.token;
 
     // Exported packages

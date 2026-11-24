@@ -1,6 +1,7 @@
 package dev.webfx.stack.authz.server.spi;
 
 import dev.webfx.platform.async.Future;
+import dev.webfx.stack.authz.server.AuthorizationCheck;
 
 /**
  * @author Bruno Salmon
@@ -28,6 +29,17 @@ public interface AuthorizationServerServiceProvider {
      */
     default Future<Boolean> isAuthorized(Object operationAuthorizationRequest) {
         return Future.succeededFuture(false);
+    }
+
+    /**
+     * The same question, asked the way {@code check} says: held in some context rather than the request's own,
+     * and/or from grants recomputed for it. Same threading rule as {@link #isAuthorized(Object)}.
+     *
+     * <p>Defaults to {@link #isAuthorized(Object)} for {@link AuthorizationCheck#DEFAULT} and to DENY for anything
+     * else: a provider that has not implemented a check must not answer a question it was not asked.
+     */
+    default Future<Boolean> isAuthorized(Object operationAuthorizationRequest, AuthorizationCheck check) {
+        return check == null || check.isDefault() ? isAuthorized(operationAuthorizationRequest) : Future.succeededFuture(false);
     }
 
 }

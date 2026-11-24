@@ -86,4 +86,17 @@ public interface QueryPushServiceProvider {
      */
     Boolean resetSqlMonitor();
 
+    /**
+     * The statement of an open stream, provided it is the CALLER's stream — or null when the stream is
+     * unknown, belongs to another client, or this is a client-side provider.
+     * <p>
+     * For the executeQueryPush endpoint: the Java client leaves out an unchanged statement when only the
+     * parameters of an open stream change, and the endpoint must put it back before it checks the query,
+     * since the read guard cannot vouch for a statement it cannot see.
+     * <p>
+     * Deliberately NOT defaulted (like {@link #getMonitorInfo()}) so decorators must delegate. A decorator
+     * that forgot would answer null, which refuses the update: safe, though it is today's bug again.
+     */
+    String getStreamStatement(Object queryStreamId);
+
 }

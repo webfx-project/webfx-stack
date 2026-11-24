@@ -88,8 +88,12 @@ public final class SimpleInMemoryServerQueryPushServiceProvider extends ServerQu
 
     private StreamInfo getStreamInfo(QueryPushArgument argument) {
         Object queryStreamId = argument.getQueryStreamId();
-        if (queryStreamId != null)
-            return streamInfos.get(queryStreamId);
+        if (queryStreamId != null) {
+            StreamInfo streamInfo = streamInfos.get(queryStreamId);
+            // Another client's stream answers exactly as a missing one does, so the refusal says nothing about
+            // which ids are open.
+            return streamInfo != null && isCallersStream(streamInfo) ? streamInfo : null;
+        }
         StreamInfo streamInfo = new StreamInfo(argument);
         streamInfos.put(streamInfo.queryStreamId = queryStreamIdSeq++, streamInfo);
         return streamInfo;
@@ -148,6 +152,21 @@ public final class SimpleInMemoryServerQueryPushServiceProvider extends ServerQu
     @Override
     protected void removePushClientStreams(Object clientRunId) {
         Collections.forEach(Collections.filter(streamInfos.values(), si -> Objects.areEquals(si.clientRunId, clientRunId)), this::removeStream);
+    }
+
+    @Override
+    protected void resendPushClientStreams(Object clientRunId) {
+        boolean any = false;
+        for (StreamInfo streamInfo : streamInfos.values()) {
+            if (Objects.areEquals(streamInfo.clientRunId, clientRunId) && streamInfo.queryInfo != null) {
+                streamInfo.markAsResend();
+                // Reactivated bypasses the refresh throttle and pushes the cached result to "new" streams
+                streamInfo.queryInfo.markAsReactivated();
+                any = true;
+            }
+        }
+        if (any)
+            executePulse(null);
     }
 
     @Override

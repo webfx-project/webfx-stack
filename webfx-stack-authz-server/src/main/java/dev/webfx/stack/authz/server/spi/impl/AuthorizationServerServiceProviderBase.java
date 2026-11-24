@@ -3,6 +3,7 @@ package dev.webfx.stack.authz.server.spi.impl;
 import dev.webfx.platform.async.Future;
 import dev.webfx.stack.authz.core.HasAuthorizationContext;
 import dev.webfx.stack.authz.core.InMemoryAuthorizationRuleRegistry;
+import dev.webfx.stack.authz.server.AuthorizationCheck;
 import dev.webfx.stack.authz.server.spi.AuthorizationServerServiceProvider;
 import dev.webfx.stack.session.state.LogoutUserId;
 import dev.webfx.stack.session.state.ThreadLocalStateHolder;
@@ -65,13 +66,42 @@ public abstract class AuthorizationServerServiceProviderBase implements Authoriz
 
     @Override
     public Future<Boolean> isAuthorized(Object operationAuthorizationRequest) {
+        return isAuthorized(operationAuthorizationRequest, AuthorizationCheck.DEFAULT);
+    }
+
+    /**
+     * The request judged the way {@code check} says.
+     *
+     * <ul>
+     *   <li>In some context ({@link AuthorizationCheck#inSomeContextKeyedBy}): the request's own context is ignored,
+     *       and the registry is asked whether any registered context keyed exactly that way grants it.</li>
+     *   <li>Fresh: the registry is built by {@link #createFreshUserRuleRegistry} for this one question, neither read
+     *       from nor written to the cache.</li>
+     * </ul>
+     */
+    @Override
+    public Future<Boolean> isAuthorized(Object operationAuthorizationRequest, AuthorizationCheck check) {
+        AuthorizationCheck c = check == null ? AuthorizationCheck.DEFAULT : check;
         // Everything the answer depends on is read HERE, on the calling thread, while the request's
         // state is still in place. Past the compose() below there is no principal to read.
         Object userId = normalisedPrincipal(ThreadLocalStateHolder.getUserId());
-        boolean backoffice = ThreadLocalStateHolder.isBackoffice();
+        // The verified audience, not the client's claim: a front-office session claiming the back office would
+        // otherwise be judged by back-office grants (StateAccessor.isEffectivelyBackoffice, 2026-10-22).
+        boolean backoffice = ThreadLocalStateHolder.isEffectivelyBackoffice();
         Map<String, String> context = contextOf(operationAuthorizationRequest);
-        return getOrCreateRuleRegistry(userId, backoffice)
-            .map(registry -> registry.doesRulesAuthorize(operationAuthorizationRequest, context))
+        java.util.function.Predicate<Map<String, String>> someContext = c.someContextFilter();
+        Future<InMemoryAuthorizationRuleRegistry> registryFuture;
+        try {
+            // Also synchronous up to its first asynchronous step, for the same reason: an implementation reads the
+            // caller's state while building the registry (the Modality provider asks for the user's claims).
+            registryFuture = c.isFresh() ? createFreshUserRuleRegistry(userId, backoffice) : getOrCreateRuleRegistry(userId, backoffice);
+        } catch (RuntimeException e) {
+            return Future.succeededFuture(false);
+        }
+        return registryFuture
+            .map(registry -> someContext != null
+                ? registry.doesRulesAuthorizeInSomeContext(operationAuthorizationRequest, someContext)
+                : registry.doesRulesAuthorize(operationAuthorizationRequest, context))
             .recover(failure -> Future.succeededFuture(false));
     }
 
@@ -136,5 +166,18 @@ public abstract class AuthorizationServerServiceProviderBase implements Authoriz
      * rule parsers the application understands. Called at most once per principal per cache miss.
      */
     protected abstract Future<InMemoryAuthorizationRuleRegistry> createUserRuleRegistry(Object userId, boolean backoffice);
+
+    /**
+     * Build the rule registry for this principal from their grants as they are NOW, for a {@link
+     * AuthorizationCheck#fresh() fresh} check: bypassing every cache the application keeps between the database and
+     * the registry, not only this class's. Must be overridden by an application whose
+     * {@link #createUserRuleRegistry} reads a cache of its own.
+     *
+     * <p>Defaults to {@link #createUserRuleRegistry}, which is fresh exactly when the application keeps no cache of
+     * its own.
+     */
+    protected Future<InMemoryAuthorizationRuleRegistry> createFreshUserRuleRegistry(Object userId, boolean backoffice) {
+        return createUserRuleRegistry(userId, backoffice);
+    }
 
 }

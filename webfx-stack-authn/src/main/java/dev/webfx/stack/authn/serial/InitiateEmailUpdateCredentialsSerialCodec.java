@@ -1,5 +1,6 @@
 package dev.webfx.stack.authn.serial;
 
+import dev.webfx.platform.ast.AstObject;
 import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.authn.InitiateEmailUpdateCredentials;
 
@@ -9,9 +10,16 @@ import dev.webfx.stack.authn.InitiateEmailUpdateCredentials;
 public final class InitiateEmailUpdateCredentialsSerialCodec extends AlternativeLoginActionCredentialsSerialCodec<InitiateEmailUpdateCredentials> {
 
     private static final String CODEC_ID = "InitiateEmailUpdateCredentials";
+    private static final String CURRENT_PASSWORD_KEY = "currentPassword";
 
     public InitiateEmailUpdateCredentialsSerialCodec() {
         super(InitiateEmailUpdateCredentials.class, CODEC_ID);
+    }
+
+    @Override
+    public void encode(InitiateEmailUpdateCredentials arg, AstObject serial) {
+        super.encode(arg, serial);
+        encodeString(serial, CURRENT_PASSWORD_KEY, arg.getCurrentPassword());
     }
 
     @Override
@@ -22,7 +30,8 @@ public final class InitiateEmailUpdateCredentialsSerialCodec extends Alternative
             decodeString(serial,  REQUESTED_PATH_KEY),
             decodeObject(serial,  LANGUAGE_KEY),
             decodeBoolean(serial, VERIFICATION_CODE_ONLY_KEY),
-            decodeObject(serial,  CONTEXT_KEY)
+            decodeObject(serial,  CONTEXT_KEY),
+            decodeString(serial,  CURRENT_PASSWORD_KEY)
         );
     }
 }

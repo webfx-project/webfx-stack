@@ -12,6 +12,8 @@ import dev.webfx.stack.db.datascope.aggregate.AggregateScopeBuilder;
 import dev.webfx.stack.db.datascope.schema.SchemaScope;
 import dev.webfx.stack.db.datascope.schema.SchemaScopeBuilder;
 import dev.webfx.stack.db.datasource.LocalDataSourceService;
+import dev.webfx.stack.db.submit.ClientSubmitGuard;
+import dev.webfx.stack.db.submit.GeneratedKeyReference;
 import dev.webfx.stack.db.submit.ProtectedEntityWriteRegistry;
 import dev.webfx.stack.db.submit.SubmitArgument;
 import dev.webfx.stack.db.submit.SubmitResult;
@@ -34,6 +36,9 @@ public class DqlSubmitInterceptorInitializer implements ApplicationJob {
 
     @Override
     public void onInit() {
+        // The client write guard's DQL half: refuses a client write that sets a column the application has declared
+        // no client may set. See ClientSubmitGuard and DqlClientSubmitInspector.
+        ClientSubmitGuard.registerInspector(new DqlClientSubmitInspector());
         // The purpose of this interceptor is to automatically translate DQL to SQL and compute the schema scope when
         // the submit reaches its local data source (works only with DQL)
         SingleServiceProvider.registerServiceInterceptor(SubmitServiceProvider.class, targetProvider ->
@@ -65,7 +70,17 @@ public class DqlSubmitInterceptorInitializer implements ApplicationJob {
 
     private static Future<SubmitResult> interceptAndExecuteSubmit(SubmitArgument argument, SubmitServiceProvider targetProvider) {
         reportIfNotDql(argument);
-        return authorizeAndInspect(argument)
+        // Bracketed as well as the batch path: a one-statement submit is a caller action like any
+        // other, and leaving it ungrouped would make every single-row save look like a submit this
+        // inspector never saw the start of.
+        Future<ProtectedWrite> authorization;
+        ProtectedEntityWriteRegistry.notifySubmitBegin(1);
+        try {
+            authorization = authorizeAndInspect(argument);
+        } finally {
+            ProtectedEntityWriteRegistry.notifySubmitEnd();
+        }
+        return authorization
             .compose(protectedWrite -> targetProvider.executeSubmit(translateSubmit(argument))
                 .onSuccess(ignored -> reportIfProtected(protectedWrite)));
     }
@@ -82,9 +97,19 @@ public class DqlSubmitInterceptorInitializer implements ApplicationJob {
         // where the caller's identity is no longer readable — so the first statement of a batch was
         // judged as the user and the rest as nobody. The authorizer fails closed, which turned that
         // into refusals rather than a silent hole, but it refused legitimate work either way.
+        //
+        // That synchronous pass is also what makes the submit boundary worth reporting: the writes of
+        // one transaction arrive as a contiguous run, and an inspector told where it starts and stops
+        // can answer what ONE caller action contained — which organizations it touched, and whether it
+        // could name a single operation. In a finally, so a refusal still closes the group.
         List<Future<ProtectedWrite>> authorizations = new ArrayList<>();
-        for (SubmitArgument argument : batch.getArray())
-            authorizations.add(authorizeAndInspect(argument));
+        ProtectedEntityWriteRegistry.notifySubmitBegin(batch.getArray().length);
+        try {
+            for (SubmitArgument argument : batch.getArray())
+                authorizations.add(authorizeAndInspect(argument));
+        } finally {
+            ProtectedEntityWriteRegistry.notifySubmitEnd();
+        }
         return Future.all(new ArrayList<>(authorizations))
             .compose(ignored -> targetProvider.executeSubmitBatch(translateBatch(batch))
                 .onSuccess(result -> {
@@ -103,7 +128,34 @@ public class DqlSubmitInterceptorInitializer implements ApplicationJob {
      * so an entity whose fields are individually protected should also carry an entity-level rule, or a
      * statement this cannot read would slip past on a technicality.
      */
-    private static java.util.Map<String, Object> writtenValuesOf(DqlStatement<Object> dqlStatement, Object[] parameters) {
+    /**
+     * The rows of parameters one argument carries: one normally, several when the client's change set grouped
+     * identical statements and replaced their parameter arrays with a {@link Batch} of them
+     * ({@code EntityChangesToSubmitBatchGenerator.groupIdenticalStatements}).
+     *
+     * <p><b>Why this is not a detail.</b> Read as a single write, a grouped argument has no readable value at all:
+     * position 0 holds the Batch object and the rest are out of range, so every assignment resolves to null and so
+     * does the target. Rules that refuse on an unreadable value would then refuse the whole transaction, and rules
+     * that allow on the absence of a value would let every row through on the strength of a value none of them
+     * carries. Neither is a reading of what the client actually sent. One write per row is.
+     *
+     * <p>A row that is not an array of values is kept as null rather than dropped: it is a row this could not
+     * read, and the rules must be given the chance to refuse it rather than never being told it was there.
+     */
+    static java.util.List<Object[]> parameterRowsOf(Object[] parameters) {
+        if (parameters != null && parameters.length == 1 && parameters[0] instanceof Batch<?> grouped) {
+            Object[] array = grouped.getArray();
+            if (array != null && array.length > 0) {
+                java.util.List<Object[]> rows = new ArrayList<>(array.length);
+                for (Object row : array)
+                    rows.add(row instanceof Object[] values ? values : null);
+                return rows;
+            }
+        }
+        return java.util.Collections.singletonList(parameters);
+    }
+
+    static java.util.Map<String, Object> writtenValuesOf(DqlStatement<Object> dqlStatement, Object[] parameters) {
         ExpressionArray<Object> setClause =
               dqlStatement instanceof Update ? ((Update<Object>) dqlStatement).getSetClause()
             : dqlStatement instanceof Insert ? ((Insert<Object>) dqlStatement).getSetClause()
@@ -112,34 +164,248 @@ public class DqlSubmitInterceptorInitializer implements ApplicationJob {
             return java.util.Collections.emptyMap();
         // Ordered, so the field list handed to a policy reads in statement order rather than hash order.
         java.util.Map<String, Object> values = new java.util.LinkedHashMap<>();
-        for (Expression<?> expression : setClause.getExpressions())
-            if (expression instanceof Equals equals && equals.getLeft() instanceof DomainField field)
-                // A value that is not a resolvable scalar maps to null: the FIELD was written (so a
-                // field rule still fires) but its value is unknown to us, which a policy reading values
-                // must treat as unknown rather than as absent.
-                values.put(field.getName(), DqlScopeUtil.resolveScalarValue(equals.getRight(), parameters));
+        UnnamedPositions unnamed = unnamedPositionsOf(dqlStatement);
+        Expression<?>[] assignments = setClause.getExpressions();
+        for (int i = 0; i < assignments.length; i++)
+            if (assignments[i] instanceof Equals equals && equals.getLeft() instanceof DomainField field) {
+                // The FIELD is always recorded, so a field rule still fires. Its value is null only when it
+                // IS null; one that could not be read is UNRESOLVED_VALUE, never null (see WriteRequest).
+                boolean read;
+                Object raw;
+                if (unnamed != null && unnamed.setPositions()[i] >= 0) {
+                    int position = unnamed.setPositions()[i];
+                    read = parameters != null && position < parameters.length;
+                    raw = parameterAt(parameters, position);
+                } else {
+                    read = DqlScopeUtil.isRawValueReadable(equals.getRight(), parameters);
+                    raw = DqlScopeUtil.resolveRawValue(equals.getRight(), parameters);
+                }
+                values.put(field.getName(), read ? writtenValueOf(raw) : ProtectedEntityWriteRegistry.UNRESOLVED_VALUE);
+            }
         return values;
+    }
+
+    /**
+     * One assignment's value, from what the parameter or constant carried: a boolean kept as a Boolean (a row rule may
+     * turn on one — whether a person is being made an account owner), a number or string as a string, a
+     * {@link GeneratedKeyReference} kept as itself (see below), anything else unknown (null).
+     *
+     * <p><b>Why the reference is the one non-scalar kept.</b> It carries something no scalar can: this value
+     * names a row THIS BATCH is creating, not one that already existed. That is the whole difference between
+     * a client attaching a recipient to the mail it just composed and one attaching a recipient to somebody
+     * else's mail that is still waiting to be sent — see {@code MailWritePolicy}.
+     *
+     * <p>It is kept rather than inferred from the null it used to collapse to, because a rule reading that
+     * null would be reading "this value could not be determined" as "this was a same-batch reference", and
+     * every other unreadable value lands there too. That is the same misreading {@link #targetIdOf} warns
+     * about for a null target, and it fails the same way round: open.
+     *
+     * <p>Strictly narrowing for the rules that already read this map. The one that tests for null,
+     * {@code GrantTableWritePolicy}'s "unassigns a role and nothing else", stops treating
+     * {@code set role = <a role this batch is inserting>} as an unassignment — which it never was.
+     */
+    private static Object writtenValueOf(Object raw) {
+        if (raw == null || raw instanceof GeneratedKeyReference)
+            return raw;
+        Object scalar = scalarValueOf(raw);
+        // A value that was read but is not a scalar (a date, an array) is not null either: it is something.
+        return scalar != null ? scalar : ProtectedEntityWriteRegistry.UNRESOLVED_VALUE;
+    }
+
+    /**
+     * The scalar reading, used where a value can only sensibly be a scalar: a boolean as a Boolean, a number or
+     * string as a string, anything else unknown (null).
+     *
+     * <p>Kept separate from {@link #writtenValueOf} so that preserving a reference there does not quietly widen
+     * {@link ProtectedEntityWriteRegistry.WriteRequest#targetId()}, whose contract is "an id, or null when it
+     * could not be determined" and whose readers compare it, print it and bind it as a query parameter. A
+     * reference is precisely a value that is NOT an id yet, so it belongs on the null side of that contract.
+     */
+    private static Object scalarValueOf(Object raw) {
+        if (raw instanceof Boolean)
+            return raw;
+        return raw instanceof Number || raw instanceof String ? String.valueOf(raw) : null;
+    }
+
+    private static Object parameterAt(Object[] parameters, int position) {
+        return parameters != null && position >= 0 && position < parameters.length ? parameters[position] : null;
+    }
+
+    /**
+     * Where each unnamed "?" of a write sits in its parameter array: per assignment (-1 where the value is a constant),
+     * and for a {@code where id = ?} (-1 otherwise) — or null when the statement is not the simple shape this can vouch
+     * for.
+     *
+     * <p>The legacy JavaFX/GWT change sets write {@code update X set a=?, b=? where id=?}, with the values in that
+     * order. A "?" carries no index of its own — every one is the same object — so its position is its order in the
+     * compiled SQL, which counts EVERY "?" in the statement, including one inside a subquery. So this reads only the
+     * change-set shape itself: every assignment's value a bare "?" or a constant, nothing else. Any other value — an
+     * expression, a subquery, a numbered parameter mixed in — answers null, and the values and target are then
+     * unknown rather than guessed: guessing is exactly what a subquery holding a "?" would exploit, shifting every
+     * later position so a rule reads one row while the write lands on another.
+     */
+    private record UnnamedPositions(int[] setPositions, int wherePosition) {}
+
+    private static UnnamedPositions unnamedPositionsOf(DqlStatement<Object> dqlStatement) {
+        ExpressionArray<Object> setClause =
+              dqlStatement instanceof Update ? ((Update<Object>) dqlStatement).getSetClause()
+            : dqlStatement instanceof Insert ? ((Insert<Object>) dqlStatement).getSetClause()
+            : null;
+        Expression<?>[] assignments = setClause == null ? new Expression<?>[0] : setClause.getExpressions();
+        int[] positions = new int[assignments.length];
+        int next = 0;
+        for (int i = 0; i < assignments.length; i++) {
+            if (!(assignments[i] instanceof Equals<?> equals))
+                return null;
+            Expression<?> value = equals.getRight();
+            if (value == ParameterReference.UNNAMED_PARAMETER_REFERENCE)
+                positions[i] = next++;
+            else if (value instanceof Constant)
+                positions[i] = -1;
+            else
+                return null;
+        }
+        int wherePosition = -1;
+        Expression<?> where = dqlStatement.getWhere();
+        if (where instanceof Equals<?> equals && equals.getLeft() instanceof DomainField field && "id".equals(field.getName())
+            && equals.getRight() == ParameterReference.UNNAMED_PARAMETER_REFERENCE)
+            wherePosition = next;
+        else if (where != null && !(where instanceof Equals<?> equals2 && equals2.getRight() instanceof Constant))
+            return null; // a where this cannot read may hold a "?" of its own
+        return new UnnamedPositions(positions, wherePosition);
     }
 
     /**
      * The id of the row a statement changes, or null when that cannot be read.
      *
-     * <p>Only a WHERE that is exactly {@code id = value} yields an answer, which covers what the change
-     * set layer generates ({@code update Person set … where id=$2}) and deliberately nothing cleverer.
-     * Anything else — a compound condition, a subquery, a non-id predicate — returns null.
+     * <p>An answer comes only from an {@code id = value} test, found either as the whole WHERE — what the
+     * change set layer generates ({@code update Person set … where id=$2}) — or as one side of a
+     * conjunction. Anything else — a disjunction, a subquery, a non-id predicate — returns null. See
+     * {@code targetIdIn} for why a conjunction may be entered and a disjunction may not.
      *
      * <p>Returning null for what this cannot read is the whole safety of the thing, and only works
      * because null means UNKNOWN to a policy rather than UNCONSTRAINED. An ownership rule must refuse a
      * write whose target it cannot see: a statement shaped to defeat this extraction is exactly the
      * statement that would be used to reach somebody else's row.
      */
-    private static Object targetIdOf(DqlStatement<Object> dqlStatement, Object[] parameters) {
-        Expression<?> where = dqlStatement.getWhere();
+    static Object targetIdOf(DqlStatement<Object> dqlStatement, Object[] parameters) {
+        return targetIdIn(dqlStatement.getWhere(), dqlStatement, parameters);
+    }
+
+    /**
+     * Looks for {@code id = value}, descending conjunctions but never disjunctions.
+     *
+     * <p><b>An AND is safe to look inside and an OR is not</b>, and the asymmetry is the whole of it:
+     * {@code A and B} affects at most the rows {@code A} alone would, so finding {@code id = 7} anywhere
+     * in a conjunction proves the statement touches at most row 7. {@code A or B} affects at least those
+     * rows and possibly many more, so {@code id = 7 or true} would report 7 while rewriting the table.
+     *
+     * <p>This exists because the statements that ADD a condition to an id were being read as having no
+     * readable target at all — {@code where id=$1 and frontendAccount=$2}, which is the safest shape a
+     * client sends, scored the same as a statement with no id in it. A rule refusing unreadable targets
+     * would have refused precisely the writes that constrain themselves most.
+     */
+    private static Object targetIdIn(Expression<?> where, DqlStatement<Object> dqlStatement, Object[] parameters) {
+        if (where instanceof And<?> and) {
+            Object left = targetIdIn(and.getLeft(), dqlStatement, parameters);
+            return left != null ? left : targetIdIn(and.getRight(), dqlStatement, parameters);
+        }
         if (where instanceof Equals equals
             && equals.getLeft() instanceof DomainField field
-            && "id".equals(field.getName()))
+            && "id".equals(field.getName())) {
+            if (equals.getRight() == ParameterReference.UNNAMED_PARAMETER_REFERENCE) {
+                // The legacy "where id=?": its position is its order — see unnamedPositionsOf
+                UnnamedPositions unnamed = unnamedPositionsOf(dqlStatement);
+                return unnamed == null || unnamed.wherePosition() < 0 ? null
+                    : scalarValueOf(parameterAt(parameters, unnamed.wherePosition()));
+            }
             return DqlScopeUtil.resolveScalarValue(equals.getRight(), parameters);
+        }
         return null;
+    }
+
+    /**
+     * Whether this write names no bound at all on which rows it touches.
+     *
+     * <p><b>The obvious tests are both wrong, and the second one is wrong in a way that looks right.</b>
+     * "Has no WHERE" misses {@code where true}. Its replacement — does the WHERE mention any column,
+     * which {@code collectPersistentTerms} answers — misses {@code delete from Person where id=id}, and
+     * a review caught it after the rule had been written and documented on the strength of the second.
+     * {@code id != -1}, {@code id > 0}, {@code id is not null}, {@code $1 = $1} and
+     * {@code id in (select …)} all mention columns, all pass that test, and all match every row.
+     *
+     * <p>So the question is asked the other way round: not "is this unbounded?", which cannot be decided
+     * from shape, but "is there a predicate that BINDS?" — an equality or an IN, with a column on one
+     * side and a literal or a {@code $n} on the other, reachable through conjunctions only. A shape that
+     * does not clearly bind is treated as not binding, which is the direction that refuses rather than
+     * the one that allows.
+     *
+     * <p><b>What it still does not catch, said plainly so nobody reads this as more than it is:</b>
+     * {@code where removed = $1} binds by this test and can still match nearly every row. This is a
+     * floor against the statement that names no bound whatsoever; it is not an ownership rule, and
+     * whose rows a caller may touch is answered by the per-entity authorizer with the caller in hand.
+     *
+     * <p>An insert is never unbounded: it has no WHERE to be missing, and every insert would otherwise
+     * read as the most dangerous shape there is.
+     */
+    static boolean isUnboundedWrite(ProtectedEntityWriteRegistry.WriteVerb verb, DqlStatement<Object> dqlStatement) {
+        return verb != ProtectedEntityWriteRegistry.WriteVerb.INSERT
+               && !bindsAnyRows(dqlStatement.getWhere());
+    }
+
+    /**
+     * Whether any conjunct of this WHERE restricts the rows it matches.
+     *
+     * <p>Conjunctions only, for the reason {@code targetIdIn} gives: one binding conjunct of
+     * {@code A and B} bounds the whole of it, whereas one binding side of {@code A or B} bounds nothing
+     * — {@code id = $1 or true} would otherwise read as bound.
+     */
+    private static boolean bindsAnyRows(Expression<?> where) {
+        if (where instanceof And<?> and)
+            return bindsAnyRows(and.getLeft()) || bindsAnyRows(and.getRight());
+        if (where instanceof Equals<?> equals)
+            return bindsColumnToValue(equals.getLeft(), equals.getRight())
+                   || bindsColumnToValue(equals.getRight(), equals.getLeft());
+        if (where instanceof In<?> in)
+            return isColumn(in.getLeft()) && isValueList(in.getRight());
+        return false;
+    }
+
+    private static boolean bindsColumnToValue(Expression<?> column, Expression<?> value) {
+        return isColumn(column) && isValue(value);
+    }
+
+    /** A column of the row being written, including one reached through a foreign key. */
+    private static boolean isColumn(Expression<?> expression) {
+        return expression instanceof DomainField
+               || expression instanceof IdExpression
+               // `document.person = $1`: a dot whose RIGHT is a column. Deliberately not any dot — a
+               // dot may carry an arbitrary expression (`fk.(a or b)`), and `fk.(a or b) = true` binds
+               // nothing while looking exactly like an ordinary equality.
+               || expression instanceof Dot<?> dot && isColumn(dot.getRight());
+    }
+
+    /**
+     * A literal or a {@code $n}, judged by SHAPE and not by the value the parameter happens to hold.
+     *
+     * <p>Reading the value would refuse {@code where list = $1} when $1 arrives null — a statement that
+     * matches nothing and did no harm — and a rule that refuses depending on the data is a rule that
+     * fails in production and not in a check.
+     */
+    private static boolean isValue(Expression<?> expression) {
+        return expression instanceof Constant || expression instanceof ParameterReference;
+    }
+
+    /** {@code in ($1,$2)} or {@code in (1,2)} — never {@code in (select …)}, which bounds nothing here. */
+    private static boolean isValueList(Expression<?> expression) {
+        if (isValue(expression))
+            return true;
+        if (!(expression instanceof ExpressionArray<?> array))
+            return false;
+        for (Expression<?> element : array.getExpressions())
+            if (!isValue(element))
+                return false;
+        return array.getExpressions().length > 0;
     }
 
     private record ProtectedWrite(String entityName, ProtectedEntityWriteRegistry.WriteVerb verb) {}
@@ -199,6 +465,12 @@ public class DqlSubmitInterceptorInitializer implements ApplicationJob {
                              // answer depends on request-scoped state the application can still read
                              // here and could not a moment later.
                              && ProtectedEntityWriteRegistry.isInspectingWrite();
+        // Told before anything else about this statement: the declaration is the caller's own claim, and
+        // reporting it costs nothing whether or not the statement turns out to be parseable, protected,
+        // or even a write. Nothing trusts it yet — this step is the measurement that decides whether a
+        // caller action can name one operation at all.
+        if (inspecting && argument.getWriteIntent() != null)
+            ProtectedEntityWriteRegistry.notifyDeclaredIntent(argument.getWriteIntent());
         if (!maybeProtected && !inspecting)
             return Future.succeededFuture(null);
         Object dataSourceId = argument.getDataSourceId();
@@ -230,18 +502,28 @@ public class DqlSubmitInterceptorInitializer implements ApplicationJob {
         DomainClass resolved = domainClass instanceof DomainClass ? (DomainClass) domainClass
             : dataSourceModel.getDomainModel().getClass(domainClass);
         String entityName = resolved.getName();
-        Object[] parameters = argument.getParameters();
-        java.util.Map<String, Object> writtenValues = writtenValuesOf(dqlStatement, parameters);
-        ProtectedEntityWriteRegistry.WriteRequest request = new ProtectedEntityWriteRegistry.WriteRequest(
-            entityName, verb,
-            writtenValues.keySet().toArray(String[]::new),
-            writtenValues,
-            targetIdOf(dqlStatement, parameters));
-        if (inspecting)
-            ProtectedEntityWriteRegistry.notifyWriteInspected(request);
+        // One write per ROW, for the same reason the client guard reads them that way: a grouped argument read
+        // as a single write has no readable value at all, so the authorizer would be judging - and the inventory
+        // recording - a reading of nothing, once, for however many rows the client actually sent.
+        boolean unbounded = isUnboundedWrite(verb, dqlStatement); // row-invariant: it is a property of the WHERE
+        java.util.List<Future<Void>> checks = new ArrayList<>();
+        for (Object[] row : parameterRowsOf(argument.getParameters())) {
+            java.util.Map<String, Object> writtenValues = writtenValuesOf(dqlStatement, row);
+            ProtectedEntityWriteRegistry.WriteRequest request = new ProtectedEntityWriteRegistry.WriteRequest(
+                entityName, verb,
+                writtenValues.keySet().toArray(String[]::new),
+                writtenValues,
+                targetIdOf(dqlStatement, row),
+                unbounded,
+                null); // this path judges one statement at a time, so there is no batch to name
+            if (inspecting)
+                ProtectedEntityWriteRegistry.notifyWriteInspected(request);
+            if (maybeProtected)
+                checks.add(ProtectedEntityWriteRegistry.checkWriteAllowed(request));
+        }
         if (!maybeProtected)
             return Future.succeededFuture(null);
-        return ProtectedEntityWriteRegistry.checkWriteAllowed(request)
+        return Future.all(new ArrayList<>(checks))
             .map(ignored -> new ProtectedWrite(entityName, verb));
     }
 

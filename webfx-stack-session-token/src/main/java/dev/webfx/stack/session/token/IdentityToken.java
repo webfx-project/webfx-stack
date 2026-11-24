@@ -1,5 +1,7 @@
 package dev.webfx.stack.session.token;
 
+import java.util.Set;
+
 /**
  * What a token turned out to say, once this server had proved it wrote it.
  *
@@ -16,6 +18,10 @@ package dev.webfx.stack.session.token;
  *                           and with it the session
  * @param absoluteExpiryMillis the outer bound renewal may never push past
  * @param tier               which lifetime policy this session was opened under, or null for a legacy token
+ * @param audience           which app this session was established FOR — never null, because a token that
+ *                           carries no {@code $aud} is read from its tier ({@link SessionAudience#ofLegacyTier})
+ * @param methods            how it was authenticated — never null, but EMPTY where the token does not say,
+ *                           which {@link SessionMethod} explains is not the same as "no factors were used"
  *
  * @author Claude Code
  */
@@ -26,7 +32,9 @@ public record IdentityToken(
     long accessExpiryMillis,
     long sessionEndMillis,
     long absoluteExpiryMillis,
-    SessionTier tier) {
+    SessionTier tier,
+    SessionAudience audience,
+    Set<SessionMethod> methods) {
 
     /** Whether this token may be acted on as it stands, with no renewal. */
     public boolean isWithinAccessWindow(long nowMillis) {

@@ -53,7 +53,7 @@ public final class DotSqlCompiler extends AbstractTermSqlCompiler<Dot<?>> {
         }
         if (leftSqlColumnName != null) { // typically a persistent field
             leftSql = leftSqlColumnName;
-            rightTableAlias = o.build.addJoinCondition(leftTableAlias, leftSql, asAlias, o.modelReader.getDomainClassSqlTableName(rightClass), o.modelReader.getDomainClassPrimaryKeySqlColumnName(rightClass), dot.isOuterJoin() || o.clause == SqlClause.SELECT);
+            rightTableAlias = o.build.addJoinCondition(leftTableAlias, leftSql, asAlias, o.modelReader.getDomainClassSqlTableName(rightClass), o.modelReader.getDomainClassPrimaryKeySqlColumnName(rightClass), dot.isOuterJoin() || o.clause == SqlClause.SELECT, rightClass, o.modelReader);
         } else if (left instanceof Alias<?> alias) {
             leftSql = null;
             rightClass = alias.getDomainClass();

@@ -23,6 +23,8 @@ import dev.webfx.stack.db.querypush.PulseArgument;
 import dev.webfx.stack.db.querypush.QueryPushArgument;
 import dev.webfx.stack.db.querypush.NameCountInfo;
 import dev.webfx.stack.db.querypush.QueryPushMonitorInfo;
+import dev.webfx.stack.db.querypush.SessionSecurityMonitorInfo;
+import dev.webfx.stack.db.querypush.SessionSecurityMonitorRegistry;
 import dev.webfx.stack.db.querypush.QueryPushResult;
 import dev.webfx.stack.db.querypush.QueryStreamMonitorInfo;
 import dev.webfx.stack.db.querypush.SqlAnalyzeResultInfo;
@@ -37,6 +39,7 @@ import dev.webfx.stack.orm.datasourcemodel.service.DataSourceModelService;
 import dev.webfx.stack.db.querypush.spi.QueryPushServiceProvider;
 import dev.webfx.stack.push.server.PushClientMetadata;
 import dev.webfx.stack.push.server.PushServerService;
+import dev.webfx.stack.push.server.UnresponsivePushClientListener;
 import dev.webfx.stack.session.state.LogoutUserId;
 import dev.webfx.stack.session.state.RestrictedPrincipalRegistry;
 import dev.webfx.stack.session.state.ThreadLocalStateHolder;
@@ -67,7 +70,17 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
     private PulsePass pulsePass;
 
     protected ServerQueryPushServiceProviderBase() {
-        PushServerService.addUnresponsivePushClientListener(this::removePushClientStreams);
+        PushServerService.addUnresponsivePushClientListener(new UnresponsivePushClientListener() {
+            @Override
+            public void onUnresponsivePushClient(Object clientRunId) {
+                removePushClientStreams(clientRunId);
+            }
+
+            @Override
+            public void onPushClientReachableAgain(Object clientRunId) {
+                resendPushClientStreams(clientRunId);
+            }
+        });
     }
 
     @Override
@@ -108,6 +121,13 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
     protected abstract void removeStream(StreamInfo streamInfo);
 
     protected abstract void removePushClientStreams(Object clientRunId);
+
+    /**
+     * Pushes every stream of this client again in full, at once — called when a client whose pushes had
+     * failed answers again. What was pushed while it could not hear is lost, and the next change to each
+     * query may be a long way off; without this, its lists would stay on whatever reached it last.
+     */
+    protected abstract void resendPushClientStreams(Object clientRunId);
 
     /** Returns a snapshot of all registered QueryInfos (one per distinct QueryArgument) for monitoring. */
     protected abstract Collection<QueryInfo> getQueryInfos();
@@ -194,7 +214,8 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
             buildSignInStatusDistribution(connectedClients),
             buildClientAppDistribution(connectedClients),
             buildSystemResourceInfo(),
-            buildBootFailures());
+            buildBootFailures(),
+            buildSessionSecurityInfo());
     }
 
     /**
@@ -203,6 +224,24 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
      * threw during init/start and the task is only partially functional. Per server process, so it
      * reflects the exact task the page is connected to.
      */
+    /**
+     * The identity-token section, for back-office callers only.
+     *
+     * <p>The gate on getMonitorInfo admits ANY signed-in caller, which is right for what the rest of
+     * this snapshot holds but not for this: it says whether a token is required to assert an identity,
+     * and how long this instance has gone without hearing which sessions were revoked. A member could
+     * read both. Neither is a secret exactly — the first is discoverable by sending one message without
+     * a token — but publishing it removes the cost of asking and the chance of anyone noticing.
+     *
+     * <p><b>Read from the verified audience (2026-10-22)</b>, not the flag the client asserts: a signed-in
+     * front-office session can no longer claim its way in. It is still not an operation check — any
+     * back-office session sees it — which is the boundary the alarm-mode control waits on.
+     * Fails closed: no back-office audience, no section.
+     */
+    private static SessionSecurityMonitorInfo buildSessionSecurityInfo() {
+        return ThreadLocalStateHolder.isEffectivelyBackoffice() ? SessionSecurityMonitorRegistry.snapshot() : null;
+    }
+
     private static BootJobFailureMonitorInfo[] buildBootFailures() {
         List<ApplicationJobFailures.Failure> fs = ApplicationJobFailures.snapshot();
         BootJobFailureMonitorInfo[] failures = new BootJobFailureMonitorInfo[fs.size()];
@@ -656,6 +695,25 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
         return true;
     }
 
+    @Override
+    public String getStreamStatement(Object queryStreamId) {
+        StreamInfo streamInfo = getStreamInfo(queryStreamId);
+        if (streamInfo == null || !isCallersStream(streamInfo) || streamInfo.queryInfo == null)
+            return null;
+        return streamInfo.queryInfo.getQueryArgument().getStatement();
+    }
+
+    /**
+     * Whether the client on this thread is the one that opened the stream. Stream ids are a server-wide
+     * sequence, so without this any client could change or close another client's subscriptions by counting.
+     * The results would still go to the owner, so nothing is read this way, but the owner's screen would show
+     * whatever the other client asked for. The run id is the client's for the life of its page: a client that
+     * reconnects forgets its stream ids and opens new streams (ReactiveQueryPushCall, query-push-service.ts).
+     */
+    protected static boolean isCallersStream(StreamInfo streamInfo) {
+        return java.util.Objects.equals(streamInfo.clientRunId, ThreadLocalStateHolder.getRunId());
+    }
+
     /** Maps a registry result to its wire DTO (carrying the statement so the snapshot list is self-identifying). */
     private static SqlAnalyzeResultInfo toAnalyzeInfo(SqlAnalyzeRegistry.Result r, long now) {
         switch (r.status) {
@@ -837,7 +895,13 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
                     else {
                         Console.log("Result push failed :" + cause.getMessage());
                         pushedFailed++;
-                        removeStream(streamInfo);
+                        // Keep the stream: the push server now probes an unreachable client before giving
+                        // it up (and removes its streams through onUnresponsivePushClient if it never
+                        // answers). Removing it here dropped it for good on a single failed push, while
+                        // the client — never told — kept showing this query's last result. Forget what was
+                        // sent instead, so the next push to it is a full result rather than a diff against
+                        // a result it may never have received.
+                        streamInfo.markAsResend();
                     }
                 });
         }
@@ -1104,7 +1168,16 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
             userId = ThreadLocalStateHolder.getUserId();
             backoffice = clientRunId == null ? null : ThreadLocalStateHolder.isBackoffice();
             Object parentQueryStreamId = arg.getParentQueryStreamId();
-            parentStreamInfo = getStreamInfo(parentQueryStreamId);
+            StreamInfo parent = getStreamInfo(parentQueryStreamId);
+            // The LAST lookup that found a stream by id alone. A parent is always one of the same client's
+            // own streams — ReactiveQueryPushCall takes it from getActiveParent() — so a foreign one is not
+            // a case to support, and adopting one is not harmless: updateActiveStreamCount cascades from a
+            // parent to its children, and a QueryInfo is SHARED by every client subscribing to the same
+            // argument, so a child attached to a stranger's stream drives the active count of a query other
+            // clients depend on, which is what decides when it is refreshed.
+            // Treated as no parent rather than refused, which is exactly how an absent or already-closed
+            // parent already behaves, and says nothing about which ids are open.
+            parentStreamInfo = parent != null && isCallersStream(parent) ? parent : null;
             if (parentStreamInfo != null)
                 parentStreamInfo.childrenStreamInfos.add(this);
             Console.log(">>> parentStreamInfoId = " + parentQueryStreamId + ", parentStreamInfo " + (parentStreamInfo == null ? "null" : "not null"));
@@ -1125,8 +1198,10 @@ public abstract class ServerQueryPushServiceProviderBase implements QueryPushSer
         }
 
         public void markAsResend() {
-            // Forgetting lastQueryResult will force to send the whole result on next push
+            // Forgetting lastQueryResult will force to send the whole result on next push — with its
+            // entity mapping, in case the push that carried it is the one that was lost
             lastQueryResult = null;
+            entityMappingSent = false;
         }
     }
 

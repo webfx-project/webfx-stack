@@ -78,4 +78,21 @@ public abstract class ServerAuthenticationGatewayBase implements ServerAuthentic
         return LogoutPush.pushLogoutMessageToClient();
     }
 
+    /**
+     * The same message, for a caller NO gateway recognises — which no instance can send, there being no
+     * instance to send it.
+     *
+     * <p>Telling the client is the whole of what a gateway's logout does, as the method above shows. So a
+     * caller whose identity has lapsed — the common case, not an exotic one: a token expired and refused,
+     * reaching the portal as the logout sentinel — would otherwise be the one caller that logs out and is
+     * never told, which is the same wedge as refusing them outright. See the portal's
+     * {@code logoutThroughGateway}.
+     *
+     * <p>Static because there is nothing to call it on, and here rather than in the portal because this
+     * module is the one that owns how a client is told.
+     */
+    public static Future<Void> pushLogoutMessageToUnrecognisedCaller() {
+        return LogoutPush.pushLogoutMessageToClient();
+    }
+
 }

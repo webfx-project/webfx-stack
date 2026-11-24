@@ -83,7 +83,40 @@ public final class BusCallService {
                     // for a successful result. This branch is how a target address that never answers —
                     // including one that hit the internal dispatch timeout — is reported, so it is exactly
                     // the case that must not read as success.
-                    sendJavaReply(new BusCallResult<>(busCallArgument.getCallNumber(), ar.succeeded() ? result.body() : asFailedAsyncResult(ar.cause())), new DeliveryOptions(), callerMessage);
+                    // result.body() DECODES the target's reply, and that decode can throw: a codec that
+                    // cannot read back what it wrote, a reply naming a codec this peer does not have, a
+                    // value of an unexpected shape. Unwrapped, such a throw leaves through the Vert.x
+                    // reply handler and skips the sendJavaReply below — so the caller is never answered
+                    // at all and waits out its full timeout, while the server logs only "Unhandled
+                    // exception" and, once the JIT has compiled the throwing cast, not even a stack
+                    // trace. A reply that cannot be decoded is a failure, and a failure is something a
+                    // caller can be told; silence is not. (Found when a codec wrote an array as an
+                    // AstNode-wrapped object and read it back with getArray(): every caller of that
+                    // endpoint timed out, and the cause was three screens of absence.)
+                    Object replyBody;
+                    try {
+                        replyBody = ar.succeeded() ? result.body() : asFailedAsyncResult(ar.cause());
+                    } catch (Throwable bodyFailure) {
+                        Console.error("[BusCallService] The reply from '" + busCallArgument.getTargetAddress()
+                            + "' could not be decoded — answering the caller with the failure rather than"
+                            + " leaving it to time out", bodyFailure);
+                        replyBody = asFailedAsyncResult(bodyFailure);
+                    }
+                    try {
+                        sendJavaReply(new BusCallResult<>(busCallArgument.getCallNumber(), replyBody), new DeliveryOptions(), callerMessage);
+                    } catch (Throwable replyFailure) {
+                        // The encode side of the same coin: sendJavaReply serialises what it is given, and
+                        // a result the registry cannot encode throws here instead. One retry, carrying the
+                        // failure in place of the result, because a failed AsyncResult always encodes.
+                        Console.error("[BusCallService] The reply to '" + busCallArgument.getTargetAddress()
+                            + "' could not be sent — answering with the failure instead", replyFailure);
+                        try {
+                            sendJavaReply(new BusCallResult<>(busCallArgument.getCallNumber(), asFailedAsyncResult(replyFailure)), new DeliveryOptions(), callerMessage);
+                        } catch (Throwable lost) {
+                            Console.error("[BusCallService] ...and that failure could not be sent either;"
+                                + " this caller WILL time out", lost);
+                        }
+                    }
                 });
             }
         );

@@ -4,6 +4,7 @@ import dev.webfx.platform.ast.AstObject;
 import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.stack.com.serial.spi.impl.SerialCodecBase;
 import dev.webfx.stack.db.querypush.BootJobFailureMonitorInfo;
+import dev.webfx.stack.db.querypush.SessionSecurityMonitorInfo;
 import dev.webfx.stack.db.querypush.CompressionMonitorInfo;
 import dev.webfx.stack.db.querypush.NameCountInfo;
 import dev.webfx.stack.db.querypush.QueryPushMonitorInfo;
@@ -28,6 +29,7 @@ public final class QueryPushMonitorInfoSerialCodec extends SerialCodecBase<Query
     private static final String CLIENT_APPS_KEY = "clientApps";
     private static final String SYSTEM_RESOURCE_KEY = "systemResource";
     private static final String BOOT_FAILURES_KEY = "bootFailures";
+    private static final String SESSION_SECURITY_KEY = "sessionSecurity";
 
     public QueryPushMonitorInfoSerialCodec() {
         super(QueryPushMonitorInfo.class, CODEC_ID);
@@ -51,6 +53,8 @@ public final class QueryPushMonitorInfoSerialCodec extends SerialCodecBase<Query
         encodeArray(  serial, CLIENT_APPS_KEY,            arg.getClientApps());
         // Null/empty on a clean boot — encodeArray skips null, decodeArray returns null on older servers.
         encodeArray(  serial, BOOT_FAILURES_KEY,          arg.getBootFailures());
+        // Null when no session machinery publishes figures, and on every server older than this.
+        encodeObject( serial, SESSION_SECURITY_KEY,       arg.getSessionSecurity());
     }
 
     @Override
@@ -69,7 +73,8 @@ public final class QueryPushMonitorInfoSerialCodec extends SerialCodecBase<Query
                 decodeArray(  serial, CLIENT_SIGN_IN_STATUSES_KEY, NameCountInfo.class),
                 decodeArray(  serial, CLIENT_APPS_KEY, NameCountInfo.class),
                 (SystemResourceMonitorInfo) decodeObject(serial, SYSTEM_RESOURCE_KEY),
-                decodeArray(  serial, BOOT_FAILURES_KEY, BootJobFailureMonitorInfo.class)
+                decodeArray(  serial, BOOT_FAILURES_KEY, BootJobFailureMonitorInfo.class),
+                (SessionSecurityMonitorInfo) decodeObject(serial, SESSION_SECURITY_KEY)
         );
     }
 

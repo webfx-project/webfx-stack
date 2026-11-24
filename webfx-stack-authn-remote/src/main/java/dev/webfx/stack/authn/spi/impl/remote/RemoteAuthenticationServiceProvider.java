@@ -35,4 +35,10 @@ public class RemoteAuthenticationServiceProvider implements AuthenticationServic
     public Future<Void> logout() {
         return BusCallService.call(AuthenticationServiceBusAddress.LOGOUT_METHOD_ADDRESS, null);
     }
+
+    @Override
+    public Future<Integer> revokeOtherSessions() {
+        // No argument, and none to send: the server reads who is asking from the token it verified.
+        return BusCallService.call(AuthenticationServiceBusAddress.REVOKE_OTHER_SESSIONS_METHOD_ADDRESS, null);
+    }
 }

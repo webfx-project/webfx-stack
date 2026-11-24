@@ -3,7 +3,6 @@
 module webfx.stack.session.state.client {
 
     // Direct dependencies modules
-    requires webfx.kit.launcher;
     requires webfx.platform.console;
     requires webfx.platform.meta;
     requires webfx.platform.storage;

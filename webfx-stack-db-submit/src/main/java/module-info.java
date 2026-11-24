@@ -4,9 +4,11 @@ module webfx.stack.db.submit {
 
     // Direct dependencies modules
     requires transitive webfx.platform.async;
+    requires webfx.platform.console;
     requires webfx.platform.service;
     requires transitive webfx.stack.db.datascope;
     requires webfx.stack.db.datasource;
+    requires webfx.stack.db.query;
 
     // Exported packages
     exports dev.webfx.stack.db.submit;

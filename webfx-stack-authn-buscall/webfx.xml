@@ -15,6 +15,7 @@
         <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.authn.buscall.GetUserClaimsMethodEndpoint</provider>
         <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.authn.buscall.UpdateCredentialsMethodEndpoint</provider>
         <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.authn.buscall.LogoutMethodEndpoint</provider>
+        <provider interface="dev.webfx.stack.com.bus.call.spi.BusCallEndpoint">dev.webfx.stack.authn.buscall.RevokeOtherSessionsMethodEndpoint</provider>
     </providers>
 
 </project>

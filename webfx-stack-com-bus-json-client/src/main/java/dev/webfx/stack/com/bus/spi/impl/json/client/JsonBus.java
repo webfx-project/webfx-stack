@@ -4,6 +4,7 @@ import dev.webfx.platform.ast.AST;
 import dev.webfx.platform.ast.AstObject;
 import dev.webfx.platform.ast.ReadOnlyAstObject;
 import dev.webfx.platform.ast.json.Json;
+import dev.webfx.platform.console.Console;
 import dev.webfx.stack.com.bus.DeliveryOptions;
 import dev.webfx.stack.com.bus.Message;
 import dev.webfx.stack.com.bus.spi.impl.client.NetworkBus;
@@ -130,7 +131,14 @@ public abstract class JsonBus extends NetworkBus implements JsonBusConstants {
     }
 
     void sendPingStateNow() {
-        sendOrPublishOverNetwork(true, PING_STATE_ADDRESS, null, new DeliveryOptions(), event -> System.out.println("Server acknowledged ping state"));
+        // Silent on success, which is the normal case and was previously announced on every connection with a
+        // raw System.out.println - no Console, so no logging policy, level or CLI gate could ever reach it, in
+        // the browser console as well as in a terminal. What is worth saying is the opposite: a ping state the
+        // server did NOT acknowledge, which is a session that may not have taken.
+        sendOrPublishOverNetwork(true, PING_STATE_ADDRESS, null, new DeliveryOptions(), event -> {
+            if (event.failed())
+                Console.log("⚠️ The server did not acknowledge the ping state: " + event.cause());
+        });
     }
 
 }

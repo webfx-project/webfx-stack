@@ -61,12 +61,40 @@ public final class Dot<T> extends BinaryExpression<T> {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p><b>When factorizing, the left is NOT collected as a term of its own.</b> It used to be, and for a
+     * foreign key that made every dotted path collect two terms rather than one: {@code document.ref} gave
+     * back {@code document} AND {@code document.ref}. The first of those is a BARE foreign key, and a bare
+     * foreign key in a select clause means something specific to the SQL compiler — "load that entity's
+     * display fields" — so a statement asking for one column got the target's whole display group, with the
+     * joins to fetch it.
+     *
+     * <p>The cost was not theoretical. {@code select documentLine.document.id from Attendance} compiled to
+     * SEVENTEEN columns, two of those joins unused, and among the columns Document's special_needs, comment
+     * and request — a public endpoint reading members' health and accessibility notes in order to count
+     * rows. Measured across the tree: 43 of 241 compilable statements shed columns here, several of them
+     * dropping from 49 to 28 or 50 to 34.
+     *
+     * <p>Nothing needs the bare term. The factorized dot built below already carries the left, and the join
+     * key itself is emitted by DotSqlCompiler, which reads the left independently of this.
+     *
+     * <p><b>What still loads a display group</b>, deliberately: a bare foreign key the caller actually wrote
+     * — {@code select documentLine.document} still brings Document's group, and {@code select label} still
+     * brings a Label's nine languages, including through a path such as {@code item.label}. What stops is
+     * the SECOND level: a display group's own foreign keys no longer load theirs, so
+     * {@code select organization from Event} now loads organization.id, type.id and organization.name and
+     * not OrganizationType's name. Every display expression that reads a nested field keeps it —
+     * Site.icon's {@code itemFamily.code}, Rate's {@code currency.symbol}, Organization.icon's
+     * {@code type.id} — because those are named by the expression and collected as its own terms.
+     */
     @Override
     public void collect(CollectOptions options) {
-        left.collect(options);
-        if (!options.factorizeLeftDot())
+        if (!options.factorizeLeftDot()) {
+            left.collect(options);
             right.collect(options);
-        else {
+        } else {
             CollectOptions rightOptions = CollectOptions.sameButEmpty(options);
             right.collect(rightOptions);
             List<Expression<T>> rightTerms = rightOptions.getCollectedTerms();

@@ -38,8 +38,13 @@ public final class QueryArgumentSerialCodec extends SerialCodecBase<QueryArgumen
             encodeObjectArray(serial, PARAMETER_NAMES_KEY, arg.getParameterNames());
         if (!arg.isSendMetadata())
             encodeBoolean(serial, SEND_METADATA_KEY, false);
-        if (!arg.isHasDqlRuntime())
-            encodeBoolean(serial, HAS_DQL_RUNTIME_KEY, false);
+        // INVERTED relative to sendMetadata just above, and deliberately: this one is encoded when TRUE and
+        // omitted when false, so that an ABSENT key means "no DQL runtime". Anything gated on this flag — the
+        // restricted client dialect, and which clients get expressions compiled into SQL — then fails closed
+        // for a caller that simply does not mention it, instead of handing it the trusted answer for free.
+        // It is a capability the CALLER asserts, so the default has to be the ungenerous one.
+        if (arg.isHasDqlRuntime())
+            encodeBoolean(serial, HAS_DQL_RUNTIME_KEY, true);
         encodeInteger(serial, PRIORITY_KEY, arg.getPriority(), QueryArgument.STANDARD_PRIORITY);
         encodeInteger(serial, CALL_ID_KEY, arg.getCallId(), 0);
         encodeInteger(serial, CALL_SEQ_KEY, arg.getCallSeq(), 0);
@@ -59,7 +64,7 @@ public final class QueryArgumentSerialCodec extends SerialCodecBase<QueryArgumen
             decodeObjectArray(serial, PARAMETERS_KEY),
             decodeStringArray(serial, PARAMETER_NAMES_KEY),
             sendMetadata == null || sendMetadata, // default to true when absent
-            hasDqlRuntime == null || hasDqlRuntime, // default to true when absent
+            hasDqlRuntime != null && hasDqlRuntime, // default to FALSE when absent — see the encode side
             decodeInteger(serial, PRIORITY_KEY, QueryArgument.STANDARD_PRIORITY),
             decodeInteger(serial, CALL_ID_KEY, 0),
             decodeInteger(serial, CALL_SEQ_KEY, 0),

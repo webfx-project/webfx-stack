@@ -83,6 +83,11 @@ public class DqlQueryPushInterceptorInitializer implements ApplicationJob {
                     public Boolean resetSqlMonitor() {
                         return targetProvider.resetSqlMonitor();
                     }
+
+                    @Override
+                    public String getStreamStatement(Object queryStreamId) {
+                        return targetProvider.getStreamStatement(queryStreamId);
+                    }
                 }
         );
     }

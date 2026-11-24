@@ -29,6 +29,24 @@ public final class InlineFunction<T> extends Function<T> {
         this(name, Strings.split(signature, ","), argTypes, body, domainClass, modelReader);
     }
 
+    /**
+     * With {@code evaluable} false, this function is compiled INTO SQL wherever it appears, including a
+     * select list.
+     *
+     * <p>The default is true, meaning the caller can work the body out for itself: in a select list the
+     * compiler then emits the argument's persistent terms rather than the body, and a client holding the DQL
+     * runtime evaluates it. That is right for a presentation function — {@code image(...)}, {@code html(...)}
+     * — which has no SQL meaning at all, and 42 domain fields are defined that way.
+     *
+     * <p>It is wrong for a function whose body only the DATABASE can answer, such as a correlated count. Such
+     * a function is also the way a client can use a construct a restricted dialect refuses: the client writes
+     * a call, the subquery lives in a body the server wrote, and the client's own statement stays inside the
+     * dialect. See {@code docs/security/read-authorization-plan.md}, step 2b.
+     */
+    public InlineFunction(String name, String signature, Type[] argTypes, String body, Object domainClass, ParserDomainModelReader modelReader, boolean evaluable) {
+        this(name, Strings.split(signature, ","), argTypes, body, domainClass, modelReader, evaluable);
+    }
+
 
     public InlineFunction(String name, String[] argNames, Type[] argTypes, String body) {
         this(name, argNames, argTypes, body ,null, null);
@@ -38,8 +56,16 @@ public final class InlineFunction<T> extends Function<T> {
         this(name, argNames, argTypes, parseBody(body, argNames, argTypes, domainClass, modelReader));
     }
 
+    public InlineFunction(String name, String[] argNames, Type[] argTypes, String body, Object domainClass, ParserDomainModelReader modelReader, boolean evaluable) {
+        this(name, argNames, argTypes, parseBody(body, argNames, argTypes, domainClass, modelReader), evaluable);
+    }
+
     public InlineFunction(String name, String[] argNames, Type[] argTypes, Expression body) {
-        super(name, argNames, argTypes, body.getType(), true);
+        this(name, argNames, argTypes, body, true);
+    }
+
+    public InlineFunction(String name, String[] argNames, Type[] argTypes, Expression body, boolean evaluable) {
+        super(name, argNames, argTypes, body.getType(), evaluable);
         this.body = body;
     }
 

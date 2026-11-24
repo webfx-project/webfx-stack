@@ -44,6 +44,18 @@ public class Function<T> {
         new Function("least").register();
         new Function("jsonb_build_array").register();
 
+        // The caller, resolved by the server at execution and bound as a parameter — never as a literal,
+        // because compiled SQL is cached by statement text and two callers send the same text.
+        new ServerParameterFunction<>("CALLER_PERSON", "caller.person", PrimType.LONG).register();
+        new ServerParameterFunction<>("CALLER_ACCOUNT", "caller.account", PrimType.LONG).register();
+        // The caller's READ SCOPE, flattened by the server into one array each: the events their grants
+        // cover, and the organisations they hold whole. Arrays rather than a value per grant because the
+        // predicate is ANDed into somebody else's statement and cannot grow a clause per row, and because
+        // an empty array is false for every row - the floor a caller with no grants lands on, which
+        // `in ()` could not even compile.
+        new ServerParameterFunction<>("CALLER_GRANTED_EVENTS", "caller.grantedEvents", PrimType.LONG, true).register();
+        new ServerParameterFunction<>("CALLER_GRANTED_ORGANIZATIONS", "caller.grantedOrganizations", PrimType.LONG, true).register();
+
         new Sum().register();
         new StringAgg().register();
         new CurrentDate().register();
@@ -99,7 +111,12 @@ public class Function<T> {
         this.returnType = returnType;
         this.evaluable = evaluable != null ? evaluable : this instanceof AggregateFunction;
         this.keyword = keyword;
-        aggregate = "count".equalsIgnoreCase(name);
+        // An aggregate makes SelectBuilder use row_number() as the id of a select without GROUP BY (a bare
+        // id column next to an aggregate is invalid SQL). Before, only count was flagged: a CTE aggregating
+        // with min/max (or sum, string_agg) alone compiled to "column x.id must appear in the GROUP BY
+        // clause" (42803). Aggregate classes (Sum, StringAgg) are aggregates by type; SQL's built-in
+        // aggregates registered as plain functions are recognised by name.
+        aggregate = this instanceof AggregateFunction || isSqlAggregateName(name);
     }
 
     public String getName() {
@@ -124,6 +141,25 @@ public class Function<T> {
 
     public boolean isAggregate() {
         return aggregate;
+    }
+
+    // SQL's built-in aggregate functions that may be registered as plain Functions (a switch rather than
+    // Set.of, which this GWT-compiled module avoids).
+    private static boolean isSqlAggregateName(String name) {
+        if (name == null)
+            return false;
+        switch (name.toLowerCase()) {
+            case "count":
+            case "min":
+            case "max":
+            case "avg":
+            case "bool_and":
+            case "bool_or":
+            case "array_agg":
+                return true;
+            default:
+                return false;
+        }
     }
 
     public boolean isSqlExpressible() {

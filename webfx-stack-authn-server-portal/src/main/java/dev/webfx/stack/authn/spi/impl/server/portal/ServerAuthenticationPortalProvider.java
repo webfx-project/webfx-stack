@@ -6,6 +6,7 @@ import dev.webfx.platform.console.Console;
 import dev.webfx.platform.service.MultipleServiceProviders;
 import dev.webfx.stack.authn.UserClaims;
 import dev.webfx.stack.authn.server.gateway.spi.ServerAuthenticationGateway;
+import dev.webfx.stack.authn.server.gateway.spi.impl.ServerAuthenticationGatewayBase;
 import dev.webfx.stack.authn.spi.AuthenticationServiceProvider;
 import dev.webfx.stack.session.state.ThreadLocalStateHolder;
 import dev.webfx.stack.session.token.SessionTokenService;
@@ -39,7 +40,8 @@ public class ServerAuthenticationPortalProvider implements AuthenticationService
             if (accepts)
                 return gateway.authenticate(userCredentials);
         }
-        return Future.failedFuture("No server authentication gateway found accepting credentials " + userCredentials);
+        // The TYPE, never the object: credentials carry passwords, and this message travels back to the client
+        return Future.failedFuture("No server authentication gateway found accepting credentials " + typeNameOf(userCredentials));
     }
 
     private final Map<Object, FutureBroadcaster<?>> userVerificationBroadcasters = new HashMap<>();
@@ -117,7 +119,7 @@ public class ServerAuthenticationPortalProvider implements AuthenticationService
                         });
             }
         }
-        return Future.failedFuture("No server authentication gateway found accepting credentials update " + updateCredentialsArgument);
+        return Future.failedFuture("No server authentication gateway found accepting credentials update " + typeNameOf(updateCredentialsArgument));
     }
 
     @Override
@@ -148,14 +150,88 @@ public class ServerAuthenticationPortalProvider implements AuthenticationService
             .compose(ignored -> ThreadLocalStateHolder.runWithState(callerState, () -> logoutThroughGateway(gateways)));
     }
 
-    /** Must run with the caller's state on the thread — see logoutWith(). */
+    /**
+     * Ends every session of the caller except this one, and answers how many.
+     *
+     * <p>Revoking is the whole of the enforcement. Every instance refuses those sessions on sight once it
+     * knows, and refuses them at renewal even if it never does, so a device stops at its next message.
+     *
+     * <p><b>The devices are now told at once, and the distinction matters.</b> An earlier version of this
+     * did NOT push, because a push is addressed by run id while a revocation is scoped by family, and
+     * those do not line up: tabs of one browser share a family but each holds its own run id, so pushing
+     * to "every run id of this person except the caller's" would sign out the caller's OTHER TABS, whose
+     * session was deliberately spared. That objection was answered by making the push family-aware rather
+     * than by-person — the push server now records which family each connected client holds — so what is
+     * told is exactly the set that was revoked, and the caller's spared family is not in it. See
+     * RevokedFamilyLogoutPush.
+     *
+     * <p>Do not read that as a stronger guarantee than it is. The push is a courtesy to a cooperating
+     * client; revoking is still the whole of the enforcement, and a device that ignores the message, or
+     * is offline, or is connected to the other instance, stops at its next message as before.
+     */
+    @Override
+    public Future<Integer> revokeOtherSessions() {
+        return SessionTokenService.revokeOtherSessionsOfCurrentUser().map(List::size);
+    }
+
+    /**
+     * Must run with the caller's state on the thread — see logoutWith().
+     *
+     * <p><b>A caller nobody recognises is already logged out, and is told so.</b> That is the common way
+     * to arrive here, not an exotic one: the token layer refuses an identity claim whose token is missing
+     * or expired, and what reaches this method is the logout sentinel, which no gateway accepts. A
+     * back-office session is capped at a day, so every staff member who leaves a tab open overnight and
+     * then clicks Logout is this caller.
+     *
+     * <p>This used to answer with a failure, and that failure was the bug. Logging out is the one
+     * operation that must work when an identity is no longer accepted — it is what somebody does ABOUT
+     * that. The part of logout that ends anything has already run above, unconditionally and for exactly
+     * this caller's sake. Succeeding also makes logout idempotent, which it should be: doing it twice is
+     * not an error.
+     *
+     * <p><b>And the caller is told, which succeeding alone did not do.</b> Telling the client is the whole
+     * of what a gateway's logout does, so with no gateway to do it, nobody did: the first version of this
+     * fix stopped the call failing and left the back office still showing the user signed in, because the
+     * Java client clears nothing of its own and waits to be told. The server does send that message when
+     * it first refuses a claim — but once, addressed by runId, with no retry, and the session holds the
+     * sentinel from then on so the quiet path takes over and it is never sent again. A logout is the
+     * moment the client is certainly listening, so it is the moment worth sending it again.
+     *
+     * <p>What the failure cost, found on staging on 2026-10-13: the client is told its logout failed and
+     * keeps its stored session. The React client clears local state in a {@code finally} and escapes it;
+     * the Java client's logout is a bare bus call that clears nothing and waits for a server push that
+     * never comes — so the legacy back office stayed signed in across reloads, with every other call
+     * failing too, and the only way out was clearing the browser's site data by hand.
+     */
     private static Future<Void> logoutThroughGateway(List<ServerAuthenticationGateway> gateways) {
         for (ServerAuthenticationGateway gateway : gateways) {
             boolean accepts = gateway.acceptsUserId();
             if (accepts)
                 return gateway.logout();
         }
-        return Future.failedFuture("logout() failed on server authentication portal because no server gateway accepted UserId " + ThreadLocalStateHolder.getUserId());
+        // Still a failure when there is no gateway AT ALL: that is a server missing its authentication
+        // providers, not a caller who is already logged out, and treating the two alike would let every
+        // logout on a misconfigured server report success while doing nothing.
+        if (gateways.isEmpty())
+            return Future.failedFuture("logout() failed on server authentication portal because no server authentication gateway is registered at all");
+        // The push is a courtesy and must never decide the outcome: a client that has gone, or a push
+        // service that is not registered at all, would otherwise fail the logout again — which is the bug
+        // this method exists to fix, reintroduced one line further down.
+        try {
+            return ServerAuthenticationGatewayBase.pushLogoutMessageToUnrecognisedCaller()
+                .otherwise(e -> {
+                    Console.log("⚠️ Logged out a caller no gateway recognises, but could not tell them: " + e);
+                    return null;
+                });
+        } catch (Exception e) {
+            Console.log("⚠️ Logged out a caller no gateway recognises, but could not tell them: " + e);
+            return Future.succeededFuture();
+        }
     }
 
+
+    /** A credentials argument named by its type — safe to put in a message, unlike its toString(). */
+    private static String typeNameOf(Object argument) {
+        return argument == null ? "null" : argument.getClass().getSimpleName();
+    }
 }

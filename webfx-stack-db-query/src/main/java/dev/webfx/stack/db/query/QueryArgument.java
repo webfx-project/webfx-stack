@@ -36,6 +36,24 @@ public final class QueryArgument {
     private final int priority; // execution priority for the server-side AsyncQueue; higher value = sooner; STANDARD_PRIORITY (0) is the default
     private final int callId; // caller identity (one per ReactiveQueryCall instance); the server combines it with the client's runId to derive a stable coalescing key. 0 means unset (no coalescing).
     private final int callSeq; // per-fire sequence number; the server echoes it in the QueryResult so the caller can filter out stale results. 0 means unset.
+    /**
+     * WHICH data scope this query compiles under — never WHO is asking, which travels as a caller parameter.
+     *
+     * <p><b>Transient, and that is the security property.</b> The serial codec names every field it encodes,
+     * so this one is not on the wire by construction and {@code decode} builds with null: a client cannot
+     * supply a scope for itself, and there is no refusal to remember to write.
+     *
+     * <p><b>In equals and hashCode, and that is the other one.</b> A push subscription is keyed by its
+     * argument. Two callers under different scopes compile the SAME statement to DIFFERENT sql, so if the
+     * token were held to one side they would compare equal, share one subscription, and the second would be
+     * served rows fetched under the first's scope — widening, when the first scope is the wider. Caller
+     * values already separate callers whose conditions bind one (see ServerCallerParameters); this covers the
+     * rest, a condition that binds no caller value and differs by scope alone.
+     *
+     * <p>Fragmentation is bounded by the number of scopes, not by the number of callers — the cap that makes
+     * a token name one of a fixed set is what keeps that true.
+     */
+    private final transient Object scopeToken;
     private final boolean shedWhenBusy; // when true, the server rejects this query fast (instead of queueing) if its executor is at capacity — for optional revalidations whose caller holds a cached fallback
 
     public QueryArgument(QueryArgument originalArgument, Object dataSourceId, DataScope dataScope, String language, String statement, Object[] parameters, String[] parameterNames) {
@@ -55,6 +73,11 @@ public final class QueryArgument {
     }
 
     public QueryArgument(QueryArgument originalArgument, Object dataSourceId, DataScope dataScope, String language, String statement, Object[] parameters, String[] parameterNames, boolean sendMetadata, boolean hasDqlRuntime, int priority, int callId, int callSeq, boolean shedWhenBusy) {
+        this(originalArgument, dataSourceId, dataScope, language, statement, parameters, parameterNames, sendMetadata, hasDqlRuntime, priority, callId, callSeq, shedWhenBusy, null);
+    }
+
+    public QueryArgument(QueryArgument originalArgument, Object dataSourceId, DataScope dataScope, String language, String statement, Object[] parameters, String[] parameterNames, boolean sendMetadata, boolean hasDqlRuntime, int priority, int callId, int callSeq, boolean shedWhenBusy, Object scopeToken) {
+        this.scopeToken = scopeToken;
         this.originalArgument = originalArgument;
         this.dataSourceId = dataSourceId;
         this.dataScope = dataScope;
@@ -68,6 +91,11 @@ public final class QueryArgument {
         this.callId = callId;
         this.callSeq = callSeq;
         this.shedWhenBusy = shedWhenBusy;
+    }
+
+    /** The data scope this compiles under, or null for an unscoped read. Never crosses the wire. */
+    public Object getScopeToken() {
+        return scopeToken;
     }
 
     public QueryArgument getOriginalArgument() {
@@ -147,6 +175,9 @@ public final class QueryArgument {
 
         QueryArgument that = (QueryArgument) o;
 
+        // Before the cheap field comparisons: two scopes compile the same statement differently, so a shared
+        // subscription between them would serve one caller's rows to the other.
+        if (!Objects.equals(scopeToken, that.scopeToken)) return false;
         if (!Objects.equals(dataSourceId, that.dataSourceId)) return false;
         if (!Objects.equals(language, that.language)) return false;
         if (!Objects.equals(statement, that.statement)) return false;
@@ -170,7 +201,8 @@ public final class QueryArgument {
 
     @Override
     public int hashCode() {
-        int result = dataSourceId.hashCode();
+        int result = scopeToken != null ? scopeToken.hashCode() : 0;
+        result = 31 * result + dataSourceId.hashCode();
         result = 31 * result + (language != null ? language.hashCode() : 0);
         result = 31 * result + (statement != null ? statement.hashCode() : 0);
         result = 31 * result + java.util.Arrays.hashCode(parameters);

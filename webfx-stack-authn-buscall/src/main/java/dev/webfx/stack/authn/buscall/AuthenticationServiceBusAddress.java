@@ -15,4 +15,6 @@ public final class AuthenticationServiceBusAddress {
 
     public static final String LOGOUT_METHOD_ADDRESS = "service/authn/logout";
 
+    public static final String REVOKE_OTHER_SESSIONS_METHOD_ADDRESS = "service/authn/revokeOtherSessions";
+
 }

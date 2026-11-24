@@ -9,6 +9,7 @@ module webfx.stack.db.submit.buscall {
     requires webfx.stack.com.bus.call;
     requires webfx.stack.com.serial;
     requires webfx.stack.db.submit;
+    requires webfx.stack.session.state;
 
     // Exported packages
     exports dev.webfx.stack.db.submit.buscall;

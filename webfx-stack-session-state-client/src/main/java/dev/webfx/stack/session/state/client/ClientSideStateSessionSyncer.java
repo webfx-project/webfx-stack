@@ -108,8 +108,9 @@ public final class ClientSideStateSessionSyncer {
         // outgoingState.userToken <= clientSession.userToken ? ALWAYS (the server checks it on every message, so
         // "if not yet sent" would leave almost every message unprovable — see setOutgoingUserToken)
         outgoingState = clientSideStateSession.setOutgoingUserToken(outgoingState);
-        // outgoingState.runId <= clientSession.runId ? YES IF NOT YET SENT TO SERVER
-        outgoingState = clientSideStateSession.setOutgoingRunIdIfNotYetSent(outgoingState);
+        // outgoingState.runId <= clientSession.runId ? ALWAYS (the server COMPARES it on every message to tell
+        // this connection from a new one, so "if not yet sent" made every message look like a reconnection)
+        outgoingState = clientSideStateSession.setOutgoingRunId(outgoingState);
         // outgoingState.backoffice <= clientSession.backoffice ? YES IF NOT YET SENT TO SERVER
         outgoingState = clientSideStateSession.setOutgoingBackofficeIfNotYetSent(outgoingState);
 

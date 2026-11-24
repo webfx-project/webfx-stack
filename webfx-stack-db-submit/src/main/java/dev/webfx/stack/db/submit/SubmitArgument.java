@@ -26,6 +26,7 @@ public final class SubmitArgument {
     private final Object[] parameters;
     private final int priority; // execution priority for the server-side AsyncQueue; higher = sooner; STANDARD_PRIORITY (0) is the default
     private final boolean transactionPreamble; // true = "open this transaction with the application's preamble"; see isTransactionPreamble()
+    private final WriteIntent writeIntent; // what the caller says this write does and where; UNTRUSTED, see getWriteIntent()
 
     public SubmitArgument(SubmitArgument originalArgument, Object dataSourceId, DataScope dataScope, boolean returnGeneratedKeys, String language, String statement, Object[] parameters) {
         this(originalArgument, dataSourceId, dataScope, returnGeneratedKeys, language, statement, parameters, STANDARD_PRIORITY);
@@ -36,6 +37,10 @@ public final class SubmitArgument {
     }
 
     public SubmitArgument(SubmitArgument originalArgument, Object dataSourceId, DataScope dataScope, boolean returnGeneratedKeys, String language, String statement, Object[] parameters, int priority, boolean transactionPreamble) {
+        this(originalArgument, dataSourceId, dataScope, returnGeneratedKeys, language, statement, parameters, priority, transactionPreamble, null);
+    }
+
+    public SubmitArgument(SubmitArgument originalArgument, Object dataSourceId, DataScope dataScope, boolean returnGeneratedKeys, String language, String statement, Object[] parameters, int priority, boolean transactionPreamble, WriteIntent writeIntent) {
         this.originalArgument = originalArgument;
         this.dataSourceId = dataSourceId;
         this.dataScope = dataScope;
@@ -45,6 +50,7 @@ public final class SubmitArgument {
         this.parameters = parameters;
         this.priority = priority;
         this.transactionPreamble = transactionPreamble;
+        this.writeIntent = writeIntent;
     }
 
     public SubmitArgument getOriginalArgument() {
@@ -100,6 +106,23 @@ public final class SubmitArgument {
      */
     public boolean isTransactionPreamble() {
         return transactionPreamble;
+    }
+
+    /**
+     * What the caller says this write does and where, or null when it declared nothing.
+     *
+     * <p><b>Untrusted, and the distinction is the whole design.</b> The authorization request a server
+     * judges is still built on the server from the statement — this is a separate input beside it, not a
+     * replacement for it. A server may use it to narrow a grant held in several contexts, to verify
+     * against the target row's real owner and log a mismatch, or to constrain the statement so it
+     * cannot leave the declared context. None of those lets a caller widen what it may do, and the last
+     * turns the claim into a restriction.
+     *
+     * <p>Null means a caller declared nothing, which is a refusable state rather than a permissive one:
+     * see {@link WriteIntent} for why absent must never read as global.
+     */
+    public WriteIntent getWriteIntent() {
+        return writeIntent;
     }
 
     /**

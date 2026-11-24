@@ -20,9 +20,14 @@ public class LiveClientInterceptorModuleBooter implements ApplicationModuleBoote
 
     @Override
     public void bootModule() {
-        ServerJsonBusStateManager.setClientLiveListener((runId, userId, clientVersion, pwa, clientProfile, backoffice) -> {
+        ServerJsonBusStateManager.setClientLiveListener((runId, userId, clientVersion, pwa, clientProfile, backoffice, sessionFamilyId, ownerSessionId) -> {
             PushServerService.clientIsLive(runId);
             PushServerService.setClientMetadata(runId, userId, clientVersion, pwa, clientProfile, backoffice);
+            // Kept apart from the metadata above on purpose: that describes a client for the /monitor page,
+            // while this is a security routing fact — which family to reach when it is revoked — and has no
+            // business turning up in a snapshot somebody browses. The owning session travels with it because
+            // the runId is client-chosen and the family is not; see the listener's javadoc.
+            PushServerService.setClientSessionFamily(runId, sessionFamilyId, ownerSessionId);
         });
     }
 }

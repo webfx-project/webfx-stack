@@ -3,3 +3,4 @@ dev.webfx.stack.authn.buscall.VerifyAuthenticatedMethodEndpoint
 dev.webfx.stack.authn.buscall.GetUserClaimsMethodEndpoint
 dev.webfx.stack.authn.buscall.UpdateCredentialsMethodEndpoint
 dev.webfx.stack.authn.buscall.LogoutMethodEndpoint
+dev.webfx.stack.authn.buscall.RevokeOtherSessionsMethodEndpoint

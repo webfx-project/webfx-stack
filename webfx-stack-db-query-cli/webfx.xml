@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <description>A headless command-line DQL client: signs in as a real caller, holds that caller's session, and runs DQL over the bus through exactly the path a browser app uses.</description>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <providers>
+        <!-- The two providers a browser or OpenJFX app gets from its UI kit, and a terminal has no kit to
+             get them from. See each class for why they are stubs rather than the OpenJFX ones. -->
+        <provider interface="dev.webfx.platform.uischeduler.spi.UiSchedulerProvider">dev.webfx.stack.db.query.cli.HeadlessUiSchedulerProvider</provider>
+    </providers>
+
+    <dependencies>
+        <used-by-source-modules/>
+        <!-- The JRE halves of the client platform. None of them is imported by this module's source, so
+             none would be picked up from the imports: a CLI that omits one simply has no scheduler, no
+             local storage or no websocket at runtime.
+             Tagged jre because that is what they are. A browser build of anything depending on this module
+             would otherwise be handed the JRE implementations, which is the kind of mistake that surfaces as
+             a transpiler error nobody can read. -->
+        <plugin-module executable-target="jre">webfx-platform-boot-java</plugin-module>
+        <plugin-module executable-target="jre">webfx-platform-console-java</plugin-module>
+        <plugin-module executable-target="jre">webfx-platform-scheduler-jre</plugin-module>
+        <plugin-module executable-target="jre">webfx-platform-resource-jre</plugin-module>
+        <plugin-module executable-target="jre">webfx-platform-shutdown-jre</plugin-module>
+        <plugin-module executable-target="jre">webfx-platform-storage-jre</plugin-module>
+        <plugin-module executable-target="jre">webfx-platform-storagelocation-jre</plugin-module>
+        <plugin-module executable-target="jre">webfx-platform-useragent-jre-client</plugin-module>
+        <plugin-module executable-target="jre">webfx-platform-ast-factory-generic</plugin-module>
+        <plugin-module executable-target="jre">webfx-platform-ast-json-plugin</plugin-module>
+        <plugin-module executable-target="jre">webfx-platform-conf-zero-impl</plugin-module>
+        <plugin-module executable-target="jre">webfx-platform-substitution-var-sysprop-plugin</plugin-module>
+        <plugin-module executable-target="jre">webfx-platform-substitution-var-env-plugin</plugin-module>
+        <!-- The client halves of the bus, the session and the two services this CLI calls. The probe path
+             is deliberately the remote one: see ClientPath for the property that depends on it. -->
+        <plugin-module executable-target="jre">webfx-stack-com-websocket-jre</plugin-module>
+        <plugin-module executable-target="jre">webfx-stack-com-bus-json-client-websocket-jre</plugin-module>
+        <plugin-module executable-target="jre">webfx-stack-session-client</plugin-module>
+        <plugin-module executable-target="jre">webfx-stack-authn-remote</plugin-module>
+        <plugin-module executable-target="jre">webfx-stack-authn-buscall</plugin-module>
+        <plugin-module executable-target="jre">webfx-stack-db-query-remote</plugin-module>
+        <plugin-module executable-target="jre">webfx-stack-db-query-buscall</plugin-module>
+        <plugin-module executable-target="jre">webfx-stack-db-query-serial</plugin-module>
+    </dependencies>
+
+</project>

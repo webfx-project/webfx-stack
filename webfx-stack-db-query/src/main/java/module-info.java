@@ -4,6 +4,7 @@ module webfx.stack.db.query {
 
     // Direct dependencies modules
     requires transitive webfx.platform.async;
+    requires webfx.platform.boot;
     requires webfx.platform.console;
     requires webfx.platform.service;
     requires webfx.platform.util;

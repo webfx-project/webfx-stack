@@ -18,4 +18,10 @@ public interface AuthenticationServiceProvider {
 
     Future<Void> logout();
 
+    /**
+     * Ends every session of the caller except this one. Takes no target: the server reads who is asking
+     * from the token it verified, because a parameter here would let anyone sign anyone else out.
+     */
+    Future<Integer> revokeOtherSessions();
+
 }

@@ -66,7 +66,9 @@ public class RenewalCheck {
             }
             if (presentedGeneration > family.generation)
                 return Future.succeededFuture(FamilyRenewal.ended());
-            if (nowMillis - family.lastRenewed <= SessionLifetime.REUSE_GRACE_MILLIS)
+            // Mirrors ModalityAuthSessionStore.classify: one behind is the only holder anybody has heard
+            // from, more than one means somebody else has presented a later generation
+            if (presentedGeneration == family.generation - 1)
                 return Future.succeededFuture(new FamilyRenewal(Verdict.CURRENT, family.generation, family.absoluteExpiry));
             return Future.succeededFuture(FamilyRenewal.reuseDetected());
         }
@@ -74,9 +76,25 @@ public class RenewalCheck {
         @Override
         public Future<Void> revoke(String familyId, String reason) {
             Family family = families.get(familyId);
-            if (family != null)
+            if (family != null) {
                 families.put(familyId, new Family(family.generation, family.lastRenewed, family.absoluteExpiry, true));
+                revokedAt.put(familyId, NOW);
+            }
             return Future.succeededFuture();
+        }
+
+        final Map<String, Long> revokedAt = new HashMap<>();
+
+        // Nothing here signs other devices out; RevokeOtherSessionsCheck covers that.
+        @Override
+        public Future<List<String>> revokeOtherFamilies(Object principal, String exceptFamilyId, String reason) {
+            return Future.succeededFuture(List.of());
+        }
+
+        // Nothing here polls; RevocationPollCheck is where reading revocations back is exercised.
+        @Override
+        public Future<RevocationPage> revokedSince(long sinceMillis, RevocationCursor after) {
+            return Future.succeededFuture(RevocationPage.EMPTY);
         }
     }
 
@@ -109,6 +127,39 @@ public class RenewalCheck {
               staff.absoluteExpiryMillis() - System.currentTimeMillis() < 2 * 24 * 3600_000L);
         check("a front-office login is tiered FRONT_OFFICE", first.tier() == SessionTier.FRONT_OFFICE);
 
+        System.out.println("the audience is settled at login, and no renewal moves it:");
+        // What M0 buys, stated as a test. The `backoffice` flag is re-asserted on every message, so the
+        // question is whether a caller can renew their way from one audience into the other by claiming
+        // differently. Note the helper: renew() here always hints FRONT_OFFICE, standing in for a
+        // connection now claiming to be the front office.
+        FakeStore unmoved = new FakeStore();
+        SessionFamilyStoreRegistry.register(unmoved);
+        IdentityToken boLogin = PrincipalToken.verify(SessionTokenService.mintForLogin(user, true).result(), NOW);
+        check("a back-office login is minted FOR the back office",
+              boLogin.audience() == SessionAudience.BACK_OFFICE);
+        long boLater = System.currentTimeMillis() + SessionLifetime.accessWindowMillis() + 1;
+        IdentityToken boRenewed = PrincipalToken.verify(renew(boLogin, boLater).token(), boLater);
+        check("and its renewal is still a back-office session, whatever the connection now says",
+              boRenewed.audience() == SessionAudience.BACK_OFFICE);
+
+        System.out.println("the methods are settled at login too, and a renewal cannot add one:");
+        // The consequence worth stating out loud: a session cannot GAIN a factor by staying open.
+        // Enrolling TOTP at 11am leaves a session minted at 9am saying what it said, so a step-up meant
+        // to take effect at once needs a fresh mint rather than a renewal. Honest, and a trap for any
+        // policy that assumes otherwise.
+        FakeStore stepUp = new FakeStore();
+        SessionFamilyStoreRegistry.register(stepUp);
+        IdentityToken twoFactor = PrincipalToken.verify(SessionTokenService.mintForLogin(
+            user, true, SessionAudience.BACK_OFFICE,
+            SessionMethod.of(SessionMethod.PASSWORD, SessionMethod.TOTP)).result(), NOW);
+        check("both methods are minted into the session",
+              twoFactor.methods().equals(SessionMethod.of(SessionMethod.PASSWORD, SessionMethod.TOTP)));
+        long stepUpLater = System.currentTimeMillis() + SessionLifetime.accessWindowMillis() + 1;
+        IdentityToken stillBoth = PrincipalToken.verify(renew(twoFactor, stepUpLater).token(), stepUpLater);
+        check("and a renewal carries both forward, neither dropped nor added to",
+              stillBoth.methods().equals(SessionMethod.of(SessionMethod.PASSWORD, SessionMethod.TOTP)));
+
+        SessionFamilyStoreRegistry.register(store);
         System.out.println("the access window is short, and the SESSION is not:");
         long minted = System.currentTimeMillis();
         check("renewal falls due inside the last quarter of the window",
@@ -130,14 +181,22 @@ public class RenewalCheck {
         check("next generation", second.generation() == first.generation() + 1);
         check("usable again", second.isWithinAccessWindow(later));
 
-        System.out.println("the retired token, presented again once the grace has passed:");
-        long muchLater = later + SessionLifetime.REUSE_GRACE_MILLIS + 1;
+        // Renew once more, so the family moves TWO generations past the token held below. One behind is
+        // forgiven by design; two means somebody else has presented a later generation.
+        renew(second, later + 1);
+        System.out.println("the retired token, once another generation has been claimed:");
+        long muchLater = later + 2;
         SessionTokenService.TokenRenewal reuse = renew(first, muchLater);
         check("the session is ENDED, not merely refused this once",
               reuse.outcome() == SessionTokenService.TokenRenewal.Outcome.ENDED);
         check("no replacement token is handed out", reuse.token() == null);
         check("the family is revoked, so the OTHER holder dies too",
               store.families.get(first.familyId()).revoked());
+        // Whoever else holds a copy is refused on their NEXT MESSAGE rather than at their next renewal,
+        // which is up to an access window away — and on this instance without waiting to poll for its
+        // own write.
+        check("and refused on sight from now on, without waiting for a renewal",
+              RevokedFamilies.isRevoked(first.familyId()));
         check("even the legitimate current token no longer renews",
               renew(second, muchLater).outcome() == SessionTokenService.TokenRenewal.Outcome.ENDED);
 
@@ -189,6 +248,24 @@ public class RenewalCheck {
         check("the same person is carried forward, not a new one", user.equals(now.principal()));
         check("it now has a family to rotate in", now.familyId() != null);
         check("and a tier", now.tier() == SessionTier.FRONT_OFFICE);
+        check("and the audience that grants least, since it proved none",
+              now.audience() == SessionAudience.FRONT_OFFICE);
+
+        // The one case where the audience and the tier must part company, and the escalation M0 closes.
+        // The hint is the client's own `backoffice` claim. The tier may take it — every value it could
+        // adopt only SHORTENS the session — but an audience taken from it would let anyone holding an
+        // old front-office token renew it into a back-office one, having passed no back-office condition
+        // on the way: no second factor, no account check. If this ever starts passing bo, that is the
+        // hole reopening.
+        SessionFamilyStoreRegistry.register(new FakeStore());
+        IdentityToken hinted = PrincipalToken.verify(
+            SessionTokenService.renew(legacyIdentity, SessionTier.BACK_OFFICE, NOW).result().token(), NOW);
+        check("a back-office HINT still moves the tier, which is safe", hinted.tier() == SessionTier.BACK_OFFICE);
+        check("but NEVER the audience — that would be an escalation by claim",
+              hinted.audience() == SessionAudience.FRONT_OFFICE);
+        check("and no methods are invented for it either",
+              hinted.methods().isEmpty());
+        SessionFamilyStoreRegistry.register(upgrade);
 
         System.out.println("logging out ends the family, not just the caller's copy of the token:");
         FakeStore out = new FakeStore();
@@ -201,6 +278,8 @@ public class RenewalCheck {
             StateAccessor.setSessionFamilyId(StateAccessor.createEmptyState(), loggingOut.familyId()),
             () -> SessionTokenService.revokeCurrentSessionFamily().result());
         check("the family is revoked", out.families.get(loggingOut.familyId()).revoked());
+        check("and refused on sight, so the other tabs stop at their next message",
+              RevokedFamilies.isRevoked(loggingOut.familyId()));
         check("so the token stops renewing, even though its signature still holds",
               renew(loggingOut, NOW + 1000).outcome() == SessionTokenService.TokenRenewal.Outcome.ENDED);
 

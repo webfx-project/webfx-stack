@@ -2,6 +2,8 @@ package dev.webfx.stack.orm.dql.sqlcompiler.terms;
 
 import dev.webfx.stack.orm.expression.Expression;
 import dev.webfx.stack.orm.expression.terms.*;
+import dev.webfx.stack.orm.expression.terms.function.Call;
+import dev.webfx.stack.orm.expression.terms.function.ServerParameterFunction;
 
 /**
  * @author Bruno Salmon
@@ -38,7 +40,12 @@ public final class BooleanExpressionSqlCompiler extends BinaryExpressionSqlCompi
             sb.append(')');
         // `x in $1` (bare parameter, as opposed to the `x in ($1, $2, ...)` scalar list) means membership of the
         // ARRAY parameter $1, and compiles to `x = any($1)` — Postgres can't bind an array to a scalar `in ($1)`
-        boolean inArrayParameter = e instanceof In && right instanceof ParameterReference;
+        // A server term that supplies MANY values is an array parameter too - it compiles to a bound
+        // parameter exactly as a named one does, and `in` over it means the same thing. Asked of the term
+        // rather than assumed of all of them, because `x in CALLER_PERSON` is a scalar comparison.
+        boolean inArrayParameter = e instanceof In && (right instanceof ParameterReference
+            || right instanceof Call<?> call && call.getFunction() instanceof ServerParameterFunction<?> serverParameter
+               && serverParameter.isArrayValued());
         o.build.prepareAppend(o.clause, inArrayParameter ? "=any(" : getSqlSeparator(e, o));
         boolean lowerRightPrecedence = !inArrayParameter && getSqlPrecedenceLevel(right) < e.getPrecedenceLevel();
         if (lowerRightPrecedence)

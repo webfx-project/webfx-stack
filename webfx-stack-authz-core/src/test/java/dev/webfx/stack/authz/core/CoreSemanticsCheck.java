@@ -88,6 +88,98 @@ public class CoreSemanticsCheck {
         rv.registerAuthorizationRule("grant operation:Dangerous");
         rv.registerAuthorizationRule("revoke operation:Dangerous");
         check("granted then revoked",          rv.doesRulesAuthorize(new Op("Dangerous"), ctx()), false);
+        // Across contexts: a context-free revoke and an org-scoped grant. Several organizations, so that whatever
+        // order the map visits its contexts in, at least one grant section is visited after the revoke.
+        InMemoryAuthorizationRuleRegistry rx = new InMemoryAuthorizationRuleRegistry();
+        rx.setAuthorizationRuleParser(new OperationAuthorizationRuleParser());
+        rx.registerAuthorizationRule("revoke operation:Dangerous");
+        for (int org = 1; org <= 20; org++) {
+            rx.registerAuthorizationRule("context:organizationId=" + org);
+            rx.registerAuthorizationRule("grant operation:Dangerous");
+        }
+        boolean refusedEverywhere = true;
+        for (int org = 1; org <= 20; org++)
+            refusedEverywhere &= !rx.doesRulesAuthorize(new Op("Dangerous"), ctx("organizationId", String.valueOf(org)));
+        check("a context-free revoke beats a grant in any organization", refusedEverywhere, true);
+        check("...and 'held somewhere' too",
+              rx.doesRulesAuthorizeInSomeContext(new Op("Dangerous"), c -> c.size() == 1 && c.containsKey("organizationId")), false);
+        // The other way round, the one the shared result actually broke: a context-free grant (a super administrator's
+        // wildcard) and a revoke in organization sections. The revoke must win in those organizations, and only there.
+        InMemoryAuthorizationRuleRegistry ry = new InMemoryAuthorizationRuleRegistry();
+        ry.setAuthorizationRuleParser(new OperationAuthorizationRuleParser());
+        ry.registerAuthorizationRule("context:any");
+        ry.registerAuthorizationRule("grant operation:*");
+        for (int org = 1; org <= 20; org++) {
+            ry.registerAuthorizationRule("context:organizationId=" + org);
+            ry.registerAuthorizationRule("revoke operation:Dangerous");
+        }
+        boolean revokedEverywhere = true;
+        for (int org = 1; org <= 20; org++)
+            revokedEverywhere &= !ry.doesRulesAuthorize(new Op("Dangerous"), ctx("organizationId", String.valueOf(org)));
+        check("an org-scoped revoke beats a context-free grant there",  revokedEverywhere, true);
+        check("...but not elsewhere",                                   ry.doesRulesAuthorize(new Op("Dangerous"), ctx("organizationId", "99")), true);
+        check("...and other operations stay granted in those orgs",     ry.doesRulesAuthorize(new Op("Other"), ctx("organizationId", "3")), true);
+
+        // V0166: an explicit-only operation is not covered by a wildcard, only by a grant naming it. The first check
+        // is the one the change exists for; delete the skip in computeRuleResult and it fails.
+        System.out.println("explicit-only operations (V0166):");
+        InMemoryAuthorizationRuleRegistry ex = new InMemoryAuthorizationRuleRegistry();
+        ex.setAuthorizationRuleParser(new OperationAuthorizationRuleParser());
+        ex.registerAuthorizationRule("context:any");
+        ex.registerAuthorizationRule("grant operation:*");
+        // Declared AFTER the wildcard, and inside a context: neither position may matter
+        ex.registerAuthorizationRule("explicit operation:DataProtection");
+        check("* does not grant an explicit-only op",  ex.doesRulesAuthorize(new Op("DataProtection"), ctx()), false);
+        check("* does not grant it in any context",    ex.doesRulesAuthorize(new Op("DataProtection"), ctx("organizationId","1")), false);
+        check("* still grants every other op",         ex.doesRulesAuthorize(new Op("AnythingAtAll"), ctx()), true);
+        ex.registerAuthorizationRule("context:organizationId=5");
+        ex.registerAuthorizationRule("grant operation:DataProtection");
+        check("a grant naming it still grants it",     ex.doesRulesAuthorize(new Op("DataProtection"), ctx("organizationId","5")), true);
+        check("...only in its own context",            ex.doesRulesAuthorize(new Op("DataProtection"), ctx("organizationId","6")), false);
+        ex.clearAllAuthorizationRules();
+        ex.registerAuthorizationRule("context:any");
+        ex.registerAuthorizationRule("grant operation:*");
+        check("clearing rules clears the declaration", ex.doesRulesAuthorize(new Op("DataProtection"), ctx()), true);
+
+        InMemoryAuthorizationRuleRegistry exRevoke = new InMemoryAuthorizationRuleRegistry();
+        exRevoke.setAuthorizationRuleParser(new OperationAuthorizationRuleParser());
+        exRevoke.registerAuthorizationRule("explicit operation:DataProtection");
+        exRevoke.registerAuthorizationRule("grant operation:DataProtection");
+        exRevoke.registerAuthorizationRule("revoke operation:*");
+        check("a wildcard revoke still refuses it",    exRevoke.doesRulesAuthorize(new Op("DataProtection"), ctx()), false);
+
+        // "Held for a whole organization, in some organization": the question with no target to take a context from.
+        System.out.println("in some context (held anywhere):");
+        java.util.function.Predicate<Map<String,String>> wholeOrg = c -> c.size() == 1 && c.containsKey("organizationId");
+        InMemoryAuthorizationRuleRegistry any = new InMemoryAuthorizationRuleRegistry();
+        any.setAuthorizationRuleParser(new OperationAuthorizationRuleParser());
+        any.registerAuthorizationRule("grant operation:GuestOp");
+        any.registerAuthorizationRule("context:organizationId=5");
+        any.registerAuthorizationRule("grant operation:DataProtection");
+        any.registerAuthorizationRule("context:organizationId=7,eventId=1857");
+        any.registerAuthorizationRule("grant operation:EditLetter");
+        any.registerAuthorizationRule("context:organizationId=8");
+        any.registerAuthorizationRule("grant operation:Revoked");
+        any.registerAuthorizationRule("revoke operation:Revoked");
+        check("an org-wide grant counts",               any.doesRulesAuthorizeInSomeContext(new Op("DataProtection"), wholeOrg), true);
+        check("a context-free grant counts",            any.doesRulesAuthorizeInSomeContext(new Op("GuestOp"), wholeOrg), true);
+        check("an event-scoped grant does not",         any.doesRulesAuthorizeInSomeContext(new Op("EditLetter"), wholeOrg), false);
+        check("...unless the filter accepts its context", any.doesRulesAuthorizeInSomeContext(new Op("EditLetter"), c -> true), true);
+        check("a grant revoked in its own context does not", any.doesRulesAuthorizeInSomeContext(new Op("Revoked"), wholeOrg), false);
+        check("an ungranted operation does not",        any.doesRulesAuthorizeInSomeContext(new Op("Nothing"), wholeOrg), false);
+        check("the filter is the gate: none accepted",  any.doesRulesAuthorizeInSomeContext(new Op("DataProtection"), c -> false), false);
+
+        // The DPO question for a super administrator: the wildcard is context-free, but does not cover DataProtection.
+        InMemoryAuthorizationRuleRegistry suAny = new InMemoryAuthorizationRuleRegistry();
+        suAny.setAuthorizationRuleParser(new OperationAuthorizationRuleParser());
+        suAny.registerAuthorizationRule("explicit operation:DataProtection");
+        suAny.registerAuthorizationRule("context:any");
+        suAny.registerAuthorizationRule("grant operation:*");
+        check("a super admin's wildcard is not DataProtection anywhere", suAny.doesRulesAuthorizeInSomeContext(new Op("DataProtection"), wholeOrg), false);
+        check("...but covers any other operation anywhere",             suAny.doesRulesAuthorizeInSomeContext(new Op("EditBooking"), wholeOrg), true);
+        suAny.registerAuthorizationRule("context:organizationId=5");
+        suAny.registerAuthorizationRule("grant operation:DataProtection");
+        check("a super admin holding the role is",                       suAny.doesRulesAuthorizeInSomeContext(new Op("DataProtection"), wholeOrg), true);
 
         System.out.println("\n" + passed + " passed, " + failed + " failed");
         if (failed > 0) System.exit(1);

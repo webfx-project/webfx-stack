@@ -20,6 +20,7 @@ public final class QueryArgumentBuilder {
     private int callId;
     private int callSeq;
     private boolean shedWhenBusy;
+    private Object scopeToken;
 
     public QueryArgumentBuilder setOriginalArgument(QueryArgument originalArgument) {
         this.originalArgument = originalArgument;
@@ -90,8 +91,14 @@ public final class QueryArgumentBuilder {
         return this;
     }
 
+    public QueryArgumentBuilder setScopeToken(Object scopeToken) {
+        this.scopeToken = scopeToken;
+        return this;
+    }
+
     public QueryArgumentBuilder copy(QueryArgument argument) {
-        return setOriginalArgument(argument)
+        return setScopeToken(argument.getScopeToken())
+            .setOriginalArgument(argument)
             .setDataSourceId(argument.getDataSourceId())
             .setDataScope(argument.getDataScope())
             .setLanguage(argument.getLanguage())
@@ -108,6 +115,6 @@ public final class QueryArgumentBuilder {
     }
 
     public QueryArgument build() {
-        return new QueryArgument(originalArgument, dataSourceId, dataScope, language, statement, parameters, parameterNames, sendMetadata, hasDqlRuntime, priority, callId, callSeq, shedWhenBusy);
+        return new QueryArgument(originalArgument, dataSourceId, dataScope, language, statement, parameters, parameterNames, sendMetadata, hasDqlRuntime, priority, callId, callSeq, shedWhenBusy, scopeToken);
     }
 }

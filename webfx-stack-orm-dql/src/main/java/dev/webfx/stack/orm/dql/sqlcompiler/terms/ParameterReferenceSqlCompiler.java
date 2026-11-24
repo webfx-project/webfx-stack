@@ -19,6 +19,10 @@ public final class ParameterReferenceSqlCompiler extends AbstractTermSqlCompiler
 
     public void compileParameter(ParameterReference p, Options o, boolean isRightOperand) {
         int index = p.getIndex();
+        // A positional $n is the caller's own array index and is emitted as it stands. Everything else is
+        // NUMBERED HERE, in a counter of its own that starts at 1 — so without the offset below, ?name in a
+        // statement that also uses $1 compiles to $1 as well, and the two silently share one slot.
+        boolean positional = index > 0;
         String name = p.getName();
         if (index <= 0 && name != null && !p.isSearchParameter()) {
             if (p.isClientOnlyParameter(o.clause == SqlClause.SELECT)) // TODO: distinguish sql parameters from local parameters
@@ -72,6 +76,8 @@ public final class ParameterReferenceSqlCompiler extends AbstractTermSqlCompiler
         }
         if (index <= 0) // happens with `?` parameters (no name, no index)
             index = o.build.incrementParameterIndex();
+        if (!positional) // past the caller's own positional block, never on top of it
+            index += o.build.getNamedParameterOffset();
         o.build.addColumnInClause(null, o.build.getDbmsSyntax().generateParameterToken(index), null, null, o.clause, o.separator, false, false, o.generateQueryMapping);
     }
 

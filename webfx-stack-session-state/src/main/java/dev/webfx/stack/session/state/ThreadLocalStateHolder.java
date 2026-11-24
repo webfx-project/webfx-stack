@@ -70,6 +70,17 @@ public final class ThreadLocalStateHolder implements AutoCloseable {
         return StateAccessor.isClientOrigin(getThreadLocalState());
     }
 
+    /** The network address this call came from, as the bridge read it, or null — see {@link StateAccessor#getClientAddress}. */
+    public static String getClientAddress() {
+        return StateAccessor.getClientAddress(getThreadLocalState());
+    }
+
+    /** The back-office flag to GRANT by — see {@link StateAccessor#isEffectivelyBackoffice}. */
+    public static boolean isEffectivelyBackoffice() {
+        return StateAccessor.isEffectivelyBackoffice(getThreadLocalState());
+    }
+
+    /** The client's CLAIM — fine for choosing a login's rules or labelling a monitor; never for granting anything. */
     public static boolean isBackoffice() { // returns false if not specified
         return Boolean.TRUE.equals(getBackoffice());
     }

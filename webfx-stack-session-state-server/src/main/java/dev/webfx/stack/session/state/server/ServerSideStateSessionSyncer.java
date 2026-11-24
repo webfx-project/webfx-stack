@@ -15,6 +15,9 @@ import dev.webfx.stack.push.server.PushServerService;
 import dev.webfx.stack.session.token.IdentityToken;
 import dev.webfx.stack.session.token.IdentityTokenPolicy;
 import dev.webfx.stack.session.token.PrincipalToken;
+import dev.webfx.stack.session.token.RevokedFamilies;
+import dev.webfx.stack.session.token.SecurityAlarm;
+import dev.webfx.stack.session.token.SessionAudience;
 import dev.webfx.stack.session.token.SessionLifetime;
 import dev.webfx.stack.session.token.SessionTier;
 import dev.webfx.stack.session.token.SessionTokenService;
@@ -99,7 +102,15 @@ public final class ServerSideStateSessionSyncer {
         // The identity is settled BEFORE anything below reads the userId, and it is the one step here that can
         // need a database round trip — see applyIdentityToken for when, which is rarely.
         return applyIdentityToken(clientState, serverSession)
-            .compose(ignored -> syncFixedServerSessionFromCheckedIncomingClientState(serverSession, clientState, forceStore));
+            .compose(ignored -> {
+                // The audience this message proved, kept on the connection for the bridge: client-to-client
+                // broadcasts carry no state of their own, so the bridge judges them on what the connection's last
+                // message proved (see BridgeAddressPolicy). Every message, not only changes, and cleared when the
+                // token did not verify — applyIdentityToken leaves the attribute null on every such path. Not
+                // stored: it is about this connection, and a new connection proves itself again.
+                SessionAccessor.changeVerifiedBackoffice(serverSession, StateAccessor.getVerifiedBackoffice(clientState));
+                return syncFixedServerSessionFromCheckedIncomingClientState(serverSession, clientState, forceStore);
+            });
     }
 
     private static Future<IsolatedSession> syncFixedServerSessionFromCheckedIncomingClientState(IsolatedSession serverSession, Object clientState, boolean forceStore) {
@@ -295,6 +306,19 @@ public final class ServerSideStateSessionSyncer {
      */
     private static Future<Void> applyIdentityToken(Object clientState, IsolatedSession serverSession) {
         String serverSessionId = serverSession.id();
+        // The family id is the server's own note to itself, and everything downstream treats it that way:
+        // logout ends the family named here, and ending a family ends every session on it. But this state
+        // arrived as the client's own message header, so until a signature has held, anything in this
+        // field was chosen by the caller — who could then name somebody else's family and sign them out.
+        // Cleared FIRST, so it is absent on every path out of here, and re-set below only from a token
+        // this server verified. That is what StateAccessor.getSessionFamilyId already claims, and this is
+        // what makes the claim true.
+        StateAccessor.setSessionFamilyId(clientState, null);
+        // The audience is cleared here for the same reason and must stay beside it: guards grant
+        // back-office access on the strength of it, so a caller who could leave `verifiedBackoffice`
+        // set in their own message header would be granting it to themselves. Absent on every path
+        // out of here, and re-set below only from a token this server verified.
+        StateAccessor.setVerifiedBackoffice(clientState, null);
         String token = StateAccessor.getUserToken(clientState);
         if (token == null || token.isEmpty()) {
             pendingRenewedTokens.remove(serverSessionId); // nothing to hand a client that is no longer holding one
@@ -306,20 +330,49 @@ public final class ServerSideStateSessionSyncer {
         long nowMillis = System.currentTimeMillis();
         IdentityToken identity = PrincipalToken.verify(token, nowMillis);
         if (identity == null) {
-            if (IdentityTokenPolicy.isTokenRequired() || !SignedToken.isAuthenticButExpired(token, nowMillis)) {
+            // Computed BEFORE the decision, and deliberately not short-circuited away, because the two
+            // cases end the same way but are not the same event. On production this line appeared 104
+            // times in a day with the flip on, and nothing could say how many were sessions idle past
+            // their window — which is the policy working — and how many were signatures that did not
+            // verify, which would be a forgery, a key mismatch or a bug. One extra HMAC on a path that
+            // has already failed is a small price for being able to tell those apart.
+            boolean authenticButExpired = SignedToken.isAuthenticButExpired(token, nowMillis);
+            if (IdentityTokenPolicy.isTokenRequired() || !authenticButExpired) {
                 // The client is told only that it is logged out, never why — but while the flip is off it can
                 // still infer the difference, because an expired token leaves its session alone and this branch
                 // does not. That is a MAC-validity oracle, and it is accepted here for two reasons: guessing a
                 // valid HMAC-SHA256 is the infeasibility the whole mechanism already rests on, and a caller in
                 // this mode can assert any identity it likes with no token at all, so the oracle reveals nothing
                 // it could not more easily just do. Do not carry the old "indistinguishable on purpose" claim
-                // forward: it stopped being true here. Ordered so the extra signature check is skipped entirely
-                // once the flip is on, where both kinds end the same way anyway.
-                Console.log("🛡 Identity token presented but not valid — treating as logged out");
+                // forward: it stopped being true here.
+                Console.log("🛡 Identity token presented but not valid — treating as logged out ("
+                            + (authenticButExpired ? "authentic, past its expiry — an idle session ending"
+                                                   : "signature did not verify") + ")");
                 StateAccessor.setUserId(clientState, LogoutUserId.LOGOUT_USER_ID);
             } else {
                 noteExpiredIdentityToken(serverSessionId);
             }
+            return Future.succeededFuture();
+        }
+        // Revoked, and said so on THIS message rather than at the next renewal. The case that needs it is
+        // the one rotation is blind to: a thief who never races anybody presents a perfectly current
+        // generation and renews unopposed, so the only signal is somebody deliberately ending the session.
+        // Consulted here, before the identity is applied, because a session that is over should not be
+        // established for the length of one message first.
+        //
+        // A set lookup, no round trip — see RevokedFamilies for why that is affordable where a query is
+        // not, and for why being lossy costs nothing: this makes revocation PROMPT, and the renewal check
+        // below is what makes it CERTAIN.
+        if (RevokedFamilies.isRevoked(identity.familyId())) {
+            RevokedFamilies.countRefusal(); // counted every time; reported once per family, just below
+            // Once per family, not once per message: a client that does not act on the logout — a
+            // background tab, the media heartbeat, a reconnect loop — presents the same dead token every
+            // time, and after a bulk revocation that is a line per message per client, drowning the log
+            // exactly when somebody is reading it to confirm the revocation worked.
+            if (RevokedFamilies.shouldReportRefusal(identity.familyId()))
+                Console.log("🛡 Identity token names a session that has been revoked — treating as logged out");
+            pendingRenewedTokens.remove(serverSessionId); // nothing to hand a session that is over
+            StateAccessor.setUserId(clientState, LogoutUserId.LOGOUT_USER_ID);
             return Future.succeededFuture();
         }
         StateAccessor.setUserId(clientState, identity.principal());
@@ -327,6 +380,11 @@ public final class ServerSideStateSessionSyncer {
         // end the family and not merely the caller's copy of its token. Set from the verified token only, so
         // no caller can name a family it does not hold.
         StateAccessor.setSessionFamilyId(clientState, identity.familyId());
+        // Which app this session was established for, as the signature says rather than as this message
+        // claims. Never null on a token this build minted; for one minted before the claim existed it is
+        // read from the tier, and for one with no tier either it is the front office — the answer that
+        // grants least. See SessionAudience.
+        StateAccessor.setVerifiedBackoffice(clientState, identity.audience() == SessionAudience.BACK_OFFICE);
         // This session's successor token has already been minted and the client is still presenting the
         // one it replaces — so it simply has not received it yet, and it will ride this message's reply.
         // Asking the store again here would be asking it about a generation THIS SERVER retired, which it
@@ -461,7 +519,18 @@ public final class ServerSideStateSessionSyncer {
      * leaving it whole is confined to that machine too: there, a client that ignores its own successor is
      * excused for longer than the scaled access window.
      */
-    private static final long PENDING_DELIVERY_GRACE_MILLIS = SessionLifetime.ACCESS_WINDOW_BASE_MILLIS;
+    // This used to have a twin in the store — SessionLifetime.REUSE_GRACE_MILLIS — and a check asserting
+    // the two stayed equal, because both excused a holder on the token a renewal had just replaced and a
+    // holder should not be killed over which of them applied. They disagreed until 2026-10-11, 30 minutes
+    // here against 60 seconds there, and it ended 42 families in a day.
+    //
+    // The twin and its check are gone (see SessionLifetime, where the constant was): the store decides on
+    // how far behind a holder is, not on a clock, because two holders renewing independently are always
+    // about one access window apart and the access window IS the renewal cadence — so no duration could
+    // separate a sleeping tab from a thief. This one stays because it answers a different question: not
+    // "is a stale token forgivable" but "did THIS server mint a successor that has not reached its client
+    // yet", which is a fact it knows and a bound it therefore needs.
+    static final long PENDING_DELIVERY_GRACE_MILLIS = SessionLifetime.ACCESS_WINDOW_BASE_MILLIS;
 
     private static final int PENDING_TOKEN_CAP = 20_000;
     private static final Map<String, PendingToken> pendingRenewedTokens = Collections.synchronizedMap(
@@ -478,6 +547,26 @@ public final class ServerSideStateSessionSyncer {
      * <p>Also the place the entry is retired: a client presenting anything OTHER than the token we replaced
      * has moved on, so there is nothing left to deliver.
      */
+    /**
+     * How long a client is excused for still presenting the token its successor replaced — the grace above,
+     * except while alarm mode is raised, when it is the alarm's own window.
+     *
+     * <p>Without this the alarm does not reach the one client it most wants to: this check sits IN FRONT of
+     * the access window and the renewal rule, so a client that simply never adopts its successor is served
+     * for a whole ordinary access window with no round trip to the store — half an hour, through an alarm
+     * raised to make every session re-check itself every couple of minutes. A thief holding a stolen token
+     * has every reason to be that client. Shortened only while an alarm is raised, so the ordinary case this
+     * grace exists for — a closed laptop, a dropped connection — is untouched the rest of the time.
+     *
+     * <p>What still reaches such a session either way is {@link RevokedFamilies}, checked on every message
+     * before any of this. The grace only ever delays finding out that a GENERATION was retired.
+     */
+    private static long deliveryGraceMillis(long nowMillis) {
+        return SecurityAlarm.isRaised(nowMillis)
+            ? Math.min(PENDING_DELIVERY_GRACE_MILLIS, SecurityAlarm.ACCESS_WINDOW_MILLIS)
+            : PENDING_DELIVERY_GRACE_MILLIS;
+    }
+
     private static boolean awaitingDelivery(String serverSessionId, String presentedToken, long nowMillis) {
         PendingToken pending = pendingRenewedTokens.get(serverSessionId);
         if (pending == null)
@@ -486,20 +575,47 @@ public final class ServerSideStateSessionSyncer {
             pendingRenewedTokens.remove(serverSessionId, pending);
             return false;
         }
-        if (nowMillis - pending.mintedAtMillis() <= PENDING_DELIVERY_GRACE_MILLIS)
+        if (nowMillis - pending.mintedAtMillis() <= deliveryGraceMillis(nowMillis))
             return true;
         // Long enough. Stop excusing the old token and let the store say what it thinks of it — which,
         // for a client that has had every message since offering it the successor, is unlikely to be kind.
         Console.log("🛡 A renewed identity token went unclaimed for a whole access window; judging the"
-                    + " token still being presented on its own merits");
+                    + " token still being presented on its own merits"
+                    + (SecurityAlarm.isRaised(nowMillis) ? " (alarm mode: the grace is the alarm's window)" : ""));
         pendingRenewedTokens.remove(serverSessionId, pending);
         return false;
     }
 
     private static void deliverRenewal(SessionTokenService.TokenRenewal renewal, String replacedToken, String serverSessionId, String runId) {
         switch (renewal.outcome()) {
-            case RENEWED -> pendingRenewedTokens.put(serverSessionId,
-                new PendingToken(replacedToken, renewal.token(), System.currentTimeMillis()));
+            case RENEWED -> {
+                // Parked FIRST, and kept even when the push below succeeds: the push is a delivery
+                // attempt, not a receipt. Until the client comes back carrying the successor, the
+                // entry is what excuses the token it still holds.
+                pendingRenewedTokens.put(serverSessionId,
+                    new PendingToken(replacedToken, renewal.token(), System.currentTimeMillis()));
+                // PUSHED, rather than waiting to be stapled to the client's next message — which is a
+                // message that may never come. A renewal is minted BEHIND the message that triggered it,
+                // so it is usually ready only after that message's reply has gone; the successor can
+                // therefore first travel on message N+1. A front-office member who opens a page, crosses
+                // the renewal threshold on the last request of the load, reads, and comes back half an
+                // hour later sends no N+1 — so they return holding a token this server retired, the
+                // grace has lapsed, and the store can only read a retired generation as a theft. That
+                // ended 19 front-office families in a day on production (2026-09-23/24), with the gap
+                // between last renewal and revocation floored at almost exactly the 30-minute grace.
+                //
+                // The ENDED case beside this has always been pushed, with the note that it is "the one
+                // outcome where the delay matters". It is not: a successor nobody receives costs a member
+                // their session just as surely, only later and less visibly.
+                //
+                // Failure changes nothing — the entry stands and the next message still carries it — so
+                // this only ever adds a chance to deliver.
+                if (runId != null)
+                    PushServerService.pushState(
+                            StateAccessor.setUserToken(StateAccessor.createEmptyState(), renewal.token()), runId)
+                        .onFailure(e -> Console.log("⚠️ Could not push a renewed identity token to its client,"
+                                                    + " so it waits for the client's next message: " + e));
+            }
             case ENDED -> {
                 pendingRenewedTokens.remove(serverSessionId);
                 // Pushed rather than left for the client's next message, because this is the one outcome where
@@ -531,6 +647,32 @@ public final class ServerSideStateSessionSyncer {
     private static long untokenedClaimLastLogMillis;
     /** One line a minute: enough to watch a tail shrink, few enough not to fill a disk while it does. */
     private static final long UNTOKENED_CLAIM_LOG_INTERVAL_MILLIS = 60_000;
+    /**
+     * The same reports, twelve times as often, while an alarm is raised — control 4's "raise logging on
+     * the identity path", and the whole of it.
+     *
+     * <p>LOUDER MEANS MORE OFTEN, NOT PER MESSAGE. Both figures below are aggregates on purpose, and the
+     * reasons are written beside them: a client echoes its token on every message, so per-message logging
+     * would report one stale tab as hundreds a minute and bury the signal an operator is reading for. An
+     * alarm does not make that untrue — it makes waiting a minute for the next line expensive. So the
+     * measure is unchanged and only the cadence moves, which keeps the numbers comparable with the ones
+     * either side of the alarm.
+     *
+     * <p>Matched to the alarm poll rather than chosen: five seconds is already how often every instance
+     * asks whether an alarm is in force, so this adds no timer and cannot report a posture staler than the
+     * one it is reporting under.
+     */
+    private static final long ALARM_LOG_INTERVAL_MILLIS = 5_000;
+
+    /** How often the identity-path counters report, which depends only on whether an alarm is in force. */
+    static long identityLogIntervalMillis(long nowMillis) {
+        return SecurityAlarm.isRaised(nowMillis) ? ALARM_LOG_INTERVAL_MILLIS : UNTOKENED_CLAIM_LOG_INTERVAL_MILLIS;
+    }
+
+    /** Says in the log why the cadence changed, so a reader is not left to infer it from the timestamps. */
+    private static String alarmSuffix(long nowMillis) {
+        return SecurityAlarm.isRaised(nowMillis) ? " [alarm raised]" : "";
+    }
 
     /**
      * Applies the flip to a message that claims an identity with nothing backing it.
@@ -547,12 +689,12 @@ public final class ServerSideStateSessionSyncer {
         StateAccessor.setUserId(clientState, LogoutUserId.LOGOUT_USER_ID);
         long now = System.currentTimeMillis();
         untokenedClaimsSinceLastLog++;
-        if (now - untokenedClaimLastLogMillis >= UNTOKENED_CLAIM_LOG_INTERVAL_MILLIS) {
+        if (now - untokenedClaimLastLogMillis >= identityLogIntervalMillis(now)) {
             untokenedClaimLastLogMillis = now;
             // The claimed identity is deliberately not logged: it is unproven by definition, so recording it
             // would write attacker-chosen values — plausibly someone else's user id — into the log.
             Console.log("🛡 Refused " + untokenedClaimsSinceLastLog + " identity claim(s) with no token"
-                        + " (webfx.stack.session.token.required is on)");
+                        + " (webfx.stack.session.token.required is on)" + alarmSuffix(now));
             untokenedClaimsSinceLastLog = 0;
         }
     }
@@ -581,14 +723,15 @@ public final class ServerSideStateSessionSyncer {
         if (expiredTokenSessionIds.size() < EXPIRED_TOKEN_SESSIONS_CAP)
             expiredTokenSessionIds.add(serverSessionId == null ? "" : serverSessionId);
         long now = System.currentTimeMillis();
-        if (now - expiredTokenLastLogMillis >= UNTOKENED_CLAIM_LOG_INTERVAL_MILLIS) {
+        if (now - expiredTokenLastLogMillis >= identityLogIntervalMillis(now)) {
             expiredTokenLastLogMillis = now;
             int sessions = expiredTokenSessionIds.size();
             expiredTokenSessionIds.clear();
             Console.log("🛡 " + sessions + (sessions >= EXPIRED_TOKEN_SESSIONS_CAP ? "+" : "") + " session(s)"
                         + " presented an expired identity token; the claim stands while"
                         + " webfx.stack.session.token.required is off. Each is a session that has outlived"
-                        + " its token, and a forced logout on the day that setting is turned on.");
+                        + " its token, and a forced logout on the day that setting is turned on."
+                        + alarmSuffix(now));
         }
     }
 
@@ -606,9 +749,19 @@ public final class ServerSideStateSessionSyncer {
         boolean clientVersionChanged = SessionAccessor.changeClientVersion(serverSession, StateAccessor.getClientVersion(clientState), true);
         boolean pwaChanged = SessionAccessor.changePwa(serverSession, StateAccessor.getPwa(clientState), true);
         boolean clientProfileChanged = SessionAccessor.changeClientProfile(serverSession, StateAccessor.getClientProfile(clientState), true);
+        // serverSession.sessionFamilyId <= the family applyIdentityToken just VERIFIED (it runs before this,
+        // and cleared the field first, so a value here came from a signature that held). Kept in the session
+        // so the push layer learns on its ordinary live tick which family a connection belongs to, and can
+        // therefore reach it the moment that family is revoked instead of at the client's next message.
+        //
+        // Set-if-present like the fields above, and never cleared, for two different reasons that agree: a
+        // client that omits its token on a message would otherwise stop being addressable, and a stale family
+        // on a connection whose session has ended is harmless — pushing a logout to a client that is already
+        // logged out does nothing, and a new login overwrites the field before it could mean anyone else.
+        boolean sessionFamilyChanged = SessionAccessor.changeSessionFamilyId(serverSession, StateAccessor.getSessionFamilyId(clientState), true);
         // Since clients communicate the runId on first connection or reconnection, the sessionId must be synced in both cases (on reconnection, the session id may have changed)
         boolean sessionIdSyncedChanged = runId != null && SessionAccessor.changeServerSessionIdSynced(serverSession, false);
-        if (userIdChanged || runIdChanged || backofficeChanged || clientVersionChanged || pwaChanged || clientProfileChanged || sessionIdSyncedChanged || forceStore)
+        if (userIdChanged || runIdChanged || backofficeChanged || clientVersionChanged || pwaChanged || clientProfileChanged || sessionFamilyChanged || sessionIdSyncedChanged || forceStore)
             return storeServerSession(serverSession);
         return Future.succeededFuture(serverSession);
     }

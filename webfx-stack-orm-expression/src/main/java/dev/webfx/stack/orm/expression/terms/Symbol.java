@@ -42,6 +42,27 @@ public class Symbol<T> extends AbstractExpression<T> {
         return name;
     }
 
+    /**
+     * A symbol that stands for an expression has that expression's precedence, not a symbol's.
+     *
+     * <p>Without this, a field defined as {@code person_age = null or person_age >= 18} reported the high
+     * precedence of a plain name, so nothing parenthesised it and AND-ing a condition onto it produced
+     * {@code a is null or a >= 18 and <condition>} — the {@code and} binding to the right disjunct only. Any
+     * caller composing a condition onto a client's WHERE therefore silently lost it for half the rows.
+     *
+     * <p>{@link dev.webfx.stack.orm.expression.terms.function.InlineFunction} already does exactly this, for
+     * exactly this reason, which is why a function condition was parenthesised correctly while a field that
+     * expands to the same thing was not.
+     */
+    @Override
+    public int getPrecedenceLevel() {
+        // getExpression(), not the field: DomainField parses its body lazily on first access, so reading the
+        // field here answered "no body" for every field that had not been touched yet - which is most of them
+        // at the moment a condition is being composed.
+        Expression<T> body = getExpression();
+        return body == null ? super.getPrecedenceLevel() : body.getPrecedenceLevel();
+    }
+
     public Expression<T> getExpression() {
         return expression;
     }

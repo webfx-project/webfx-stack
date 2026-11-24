@@ -30,6 +30,7 @@ public final class StateAccessor {
     // Stamped on every server-emitted state envelope; clients drop any envelope without it.
     private final static String SERVER_ORIGIN_ATTRIBUTE_NAME = "serverOrigin";
     private final static String CLIENT_ORIGIN_ATTRIBUTE_NAME = "clientOrigin"; // Stamped by the bridge on everything arriving from outside
+    private final static String CLIENT_ADDRESS_ATTRIBUTE_NAME = "clientAddress"; // The caller's network address, stamped by the bridge too
     private final static String TOKEN_REQUIRED_ATTRIBUTE_NAME = "tokenRequired"; // Server->client: is a token required to claim an identity?
     // The session family named by the token this message presented, recorded once the signature has held.
     // SERVER-INTERNAL: written by the session syncer and read by whatever needs to act on the session as a
@@ -37,6 +38,7 @@ public final class StateAccessor {
     // copied from this one; and it would not matter much if it were, since the client already carries the
     // same value inside its own token. Not a capability: reaching the store with it still needs a valid MAC.
     private final static String SESSION_FAMILY_ID_ATTRIBUTE_NAME = "sessionFamilyId";
+    private final static String VERIFIED_BACKOFFICE_ATTRIBUTE_NAME = "verifiedBackoffice";
 
     /** Unique ID generated once at server startup — changes on every restart. */
     private static final String SERVER_RUN_ID = "srv-" + System.currentTimeMillis();
@@ -162,6 +164,35 @@ public final class StateAccessor {
         return (String) getStateAttribute(state, SESSION_FAMILY_ID_ATTRIBUTE_NAME);
     }
 
+    /**
+     * Whether this session was established FOR the back office, as the token this server verified says —
+     * TRUE back office, FALSE front office, and <b>null when no token verified</b>.
+     *
+     * <p>Not to be confused with {@link #getBackoffice}, which sits two fields above it and answers a
+     * different question with different authority. That one is the client's own assertion, re-sent on
+     * every message and changeable between any two of them; this one was decided when a credential was
+     * checked and signed into the token, so a caller cannot move it by asking. A guard that wants "has
+     * this caller accepted the back office's entry conditions" must read THIS one — the other can be
+     * changed to `fo` for the login and back to `bo` afterwards, which is the hole the audience closes.
+     *
+     * <p>Null is not "front office". It means nothing was verified on this message, so there is no
+     * answer: a caller with no token, or one whose token did not hold. Callers that grant on the strength
+     * of it must treat null as a refusal, which is why this returns a Boolean and not a boolean.
+     */
+    public static Boolean getVerifiedBackoffice(Object state) {
+        return (Boolean) getStateAttribute(state, VERIFIED_BACKOFFICE_ATTRIBUTE_NAME);
+    }
+
+    /**
+     * Records what a VERIFIED token said. Server-side only, and the server must clear it before reading
+     * anything from an incoming message — see the field's treatment in ServerSideStateSessionSyncer,
+     * which does the same for the session family and for the same reason: this arrives inside a message
+     * the caller wrote, so anything left in it is the caller's choice until a signature has held.
+     */
+    public static Object setVerifiedBackoffice(Object state, Boolean verifiedBackoffice) {
+        return setStateAttribute(state, VERIFIED_BACKOFFICE_ATTRIBUTE_NAME, verifiedBackoffice, true);
+    }
+
     public static Object setSessionFamilyId(Object state, String sessionFamilyId) {
         return setStateAttribute(state, SESSION_FAMILY_ID_ATTRIBUTE_NAME, sessionFamilyId, true);
     }
@@ -266,6 +297,43 @@ public final class StateAccessor {
 
     public static Object setClientOrigin(Object state, Boolean clientOrigin) {
         return setStateAttribute(state, CLIENT_ORIGIN_ATTRIBUTE_NAME, clientOrigin, true);
+    }
+
+    /**
+     * Whether this caller is a back-office one, for any decision that GRANTS something: the verified audience when
+     * there is one, the client's claim only when there is not.
+     *
+     * <p>The {@code backoffice} flag is re-sent by the client on every message, so a front-office session could
+     * claim it and be judged by back-office grants — the ones its login never earned (no back-office account check,
+     * no three-hour tier, no second factor). The verified audience is signed into the session token at login, and the
+     * session syncer resets it on every inbound message, then sets it only from a token that verified. With tokens
+     * required (production since 2026-09-23), every signed-in caller has one; it is null only for a caller with no
+     * identity, whose claim can earn nothing but public operations, and for states the server builds itself (the
+     * authorization push after a login, built from the stored session before the new token has come back).
+     */
+    public static boolean isEffectivelyBackoffice(Object state) {
+        Boolean verified = getVerifiedBackoffice(state);
+        return verified != null ? verified : Boolean.TRUE.equals(getBackoffice(state));
+    }
+
+    /**
+     * The network address this call came from — stamped by the SockJS bridge, never by a caller.
+     *
+     * <p>Trustworthy for the same reason as {@link #isClientOrigin}: the bridge sets it on every inbound frame and
+     * OVERWRITES whatever arrived, null included, so a client that sends its own {@code clientAddress} is simply
+     * corrected. Behind the load balancer it is the address the balancer saw, not anything the client claimed.
+     *
+     * <p>Meant for counting — rate limits keyed per caller — and for nothing that decides WHO someone is: many
+     * people share one address (a centre's wifi, a mobile carrier's NAT), and one person moves between several.
+     * Null for server-internal work, and for a frame whose address the bridge could not read.
+     */
+    public static String getClientAddress(Object state) {
+        Object address = getStateAttribute(state, CLIENT_ADDRESS_ATTRIBUTE_NAME);
+        return address instanceof String s ? s : null;
+    }
+
+    public static Object setClientAddress(Object state, String clientAddress) {
+        return setStateAttribute(state, CLIENT_ADDRESS_ATTRIBUTE_NAME, clientAddress, true);
     }
 
     private static Object getStateAttribute(Object state, String name) {

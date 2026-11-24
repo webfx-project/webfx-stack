@@ -245,6 +245,8 @@ expr      ::= expr:left OR expr:right
 			  {: RESULT = new NotEqualsBuilder(left, new ConstantBuilder(null)); :}
 			| expr:left IN parameter:right
 			  {: RESULT = new InBuilder(left, right); :}
+			| expr:left IN field:right
+			  {: RESULT = new InBuilder(left, right, true); :}
 			| expr:left IN LPAREN val_list:right RPAREN
 			  {: RESULT = new InBuilder(left, right); :}
 			| expr:left IN LPAREN select_query:select RPAREN

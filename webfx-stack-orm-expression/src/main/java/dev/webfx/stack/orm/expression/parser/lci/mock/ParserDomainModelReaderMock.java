@@ -3,6 +3,8 @@ package dev.webfx.stack.orm.expression.parser.lci.mock;
 import dev.webfx.stack.orm.expression.parser.lci.ParserDomainModelReader;
 import dev.webfx.stack.orm.expression.terms.Symbol;
 import dev.webfx.stack.orm.expression.parser.ExpressionParser;
+import dev.webfx.extras.type.PrimType;
+import dev.webfx.extras.type.Type;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,10 +15,36 @@ import java.util.Map;
 public final class ParserDomainModelReaderMock implements ParserDomainModelReader {
 
     private final Map<String, String> fieldGroups = new HashMap<>();
+    /** ClassName.fieldName => type. A field absent from here is not a field of this model. */
+    private final Map<String, Type> fieldTypes = new HashMap<>();
+    /** The type a field declared without one gets. */
+    private Type defaultFieldType = PrimType.STRING;
 
     public ParserDomainModelReaderMock setFieldGroup(String name, String definition) {
         fieldGroups.put(name, definition);
         return this; // fluent API
+    }
+
+    /** Declare one field, typed. */
+    public ParserDomainModelReaderMock declareField(Object domainClass, String fieldName, Type type) {
+        fieldTypes.put(getFieldKey(domainClass, fieldName), type);
+        return this; // fluent API
+    }
+
+    /** Declare several fields of one class at {@link #setDefaultFieldType(Type)}, comma-separated. */
+    public ParserDomainModelReaderMock declareFields(Object domainClass, String commaSeparatedFieldNames) {
+        for (String fieldName : commaSeparatedFieldNames.split(","))
+            declareField(domainClass, fieldName.trim(), defaultFieldType);
+        return this; // fluent API
+    }
+
+    public ParserDomainModelReaderMock setDefaultFieldType(Type type) {
+        defaultFieldType = type;
+        return this; // fluent API
+    }
+
+    private String getFieldKey(Object domainClass, String fieldName) {
+        return domainClass + "." + fieldName;
     }
 
     @Override
@@ -26,7 +54,17 @@ public final class ParserDomainModelReaderMock implements ParserDomainModelReade
 
     @Override
     public Symbol getDomainFieldSymbol(Object domainClass, String fieldName) {
-        return new Symbol(fieldName); // a field is expected ? ok no pb, we deliver it (no existence check)
+        // Declared fields only, and NULL for anything else. This mock used to answer every name with an
+        // untyped Symbol, which broke it two ways. FieldBuilder asks this reader BEFORE the reference
+        // resolver, so answering everything shadowed every alias, CTE name and inline-function argument —
+        // including while Function's static registrations lazily parse their bodies, which happens in the
+        // middle of whatever parse first touches Function. And an untyped Symbol throws in the compiler,
+        // which asks every symbol for its type. Returning null lets the resolver have the name instead.
+        //
+        // It cannot ask the resolver itself whether it knows the name: the resolvers build fields through
+        // this reader, so consulting them here recurses until the stack ends.
+        Type type = fieldTypes.get(getFieldKey(domainClass, fieldName));
+        return type == null ? null : new Symbol(fieldName, type);
     }
 
     @Override

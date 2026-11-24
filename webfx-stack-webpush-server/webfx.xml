@@ -56,7 +56,7 @@
         <library name="web-push">
             <groupId>nl.martijndwars</groupId>
             <artifactId>web-push</artifactId>
-            <version>5.1.1</version>
+            <version>5.1.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.httpcomponents.client5</groupId>
@@ -70,7 +70,7 @@
         <library name="org.bouncycastle.provider"> <!-- JPMS module name, matches BC's Automatic-Module-Name -->
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
-            <version>1.78.1</version>
+            <version>1.86</version>
             <exported-packages>
                 <package>org.bouncycastle.jce</package>
                 <package>org.bouncycastle.jce.interfaces</package>

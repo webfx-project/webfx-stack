@@ -39,6 +39,7 @@ public class VertxHttpModuleBooter implements ApplicationModuleBooter {
     static ReadOnlyAstObject OPTIONS_CONFIGURATION;
 
     final static String HTTP_STATIC_ROUTES_CONFIG_KEY = "httpStaticRoutes";
+    final static String PASSKEY_ENDPOINTS_CONFIG_KEY = "passkeyEndpoints"; // optional
     final static String ROUTE_PATTERN_CONFIG_KEY = "routePattern"; // obligatory
     final static String HOSTNAME_PATTERNS_CONFIG_KEY = "hostnamePatterns"; // optional
     final static String PATH_TO_STATIC_FOLDER_CONFIG_KEY = "pathToStaticFolder"; // obligatory
@@ -93,6 +94,14 @@ public class VertxHttpModuleBooter implements ApplicationModuleBooter {
             if (config == null) {
                 log("❌ No configuration found for http routes (check " + ROUTES_CONFIG_PATH + ")");
                 return;
+            }
+
+            // Optional, and independent of the static routes: the passkey-endpoints document, whose
+            // URLs live in configuration because they differ per environment.
+            String passkeyEndpoints = VertxHttpRouterConfigurator.passkeyEndpointsBody(config.getObject(PASSKEY_ENDPOINTS_CONFIG_KEY));
+            if (passkeyEndpoints != null) {
+                VertxHttpRouterConfigurator.addPasskeyEndpointsRoute(passkeyEndpoints);
+                log("🔑 /.well-known/passkey-endpoints → " + passkeyEndpoints);
             }
 
             int errors = consumeEachValidHttpStaticRouteConfiguration(config, httpStaticRouteConfig -> {

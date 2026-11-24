@@ -31,6 +31,11 @@ public final class AuthenticationService {
         return getProvider().logout();
     }
 
+    /** Ends every session of the caller except this one, and answers how many. See the provider. */
+    public static Future<Integer> revokeOtherSessions() {
+        return getProvider().revokeOtherSessions();
+    }
+
     public static AuthenticationServiceProvider getProvider() {
         return SingleServiceProvider.getProvider(AuthenticationServiceProvider.class, () -> ServiceLoader.load(AuthenticationServiceProvider.class));
     }

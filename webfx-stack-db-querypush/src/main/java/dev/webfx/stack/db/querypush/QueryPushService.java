@@ -80,4 +80,12 @@ public final class QueryPushService {
         return getProvider().resetSqlMonitor();
     }
 
+    /**
+     * The statement of the caller's own open stream, or null (see
+     * {@link QueryPushServiceProvider#getStreamStatement(Object)}).
+     */
+    public static String getStreamStatement(Object queryStreamId) {
+        return getProvider().getStreamStatement(queryStreamId);
+    }
+
 }

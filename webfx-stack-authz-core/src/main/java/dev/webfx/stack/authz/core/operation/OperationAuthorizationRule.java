@@ -26,6 +26,11 @@ public final class OperationAuthorizationRule extends SimpleInMemoryAuthorizatio
     }
 
     @Override
+    public boolean isWildcard() {
+        return "*".equals(operationRequestCode);
+    }
+
+    @Override
     protected boolean matchRule(Object operationRequest) {
         // Case when this rule has an operation code that matches this rule
         if (operationRequestCode != null && operationRequest instanceof HasOperationCode) {

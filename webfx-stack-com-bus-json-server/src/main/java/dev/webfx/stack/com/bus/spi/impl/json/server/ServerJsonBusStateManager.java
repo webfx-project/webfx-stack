@@ -31,6 +31,14 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
     }
 
     public static Future<IsolatedSession> manageStateOnIncomingOrOutgoingRawJsonMessage(AstObject rawJsonMessage, IsolatedSession serverSession, boolean incoming) {
+        return manageStateOnIncomingOrOutgoingRawJsonMessage(rawJsonMessage, serverSession, incoming, null);
+    }
+
+    /**
+     * @param clientAddress for an incoming message, the caller's network address as the transport read it (null
+     *                      when it could not); stamped on the state in place of whatever the client sent
+     */
+    public static Future<IsolatedSession> manageStateOnIncomingOrOutgoingRawJsonMessage(AstObject rawJsonMessage, IsolatedSession serverSession, boolean incoming, String clientAddress) {
         AstObject headers = rawJsonMessage.getObject(JsonBusConstants.HEADERS);
         Object originalState = headers == null ? null : StateAccessor.decodeState(headers.getString(JsonBusConstants.HEADERS_STATE));
 
@@ -52,6 +60,8 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
             // decisions, sees it. A message that arrived with no state at all gets one created here: the
             // absence of a state header must not be a way to arrive unstamped.
             originalState = StateAccessor.setClientOrigin(originalState, true);
+            // The caller's address, under the same rule: overwritten, null included, so a client cannot name its own.
+            StateAccessor.setClientAddress(originalState, clientAddress);
             // We sync the application serverSession with the incoming state. This is at this point that the serverSession
             // switch can happen if requested by the client, in which case a different serverSession will be returned.
             return ServerSideStateSessionSyncer.syncIncomingState(serverSession, originalState)
@@ -112,11 +122,22 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
      * Notified when a client is confirmed live, carrying its runId plus the session facts the push
      * layer records for the /monitor page (current userId, build version, PWA mode, device profile,
      * BO/FO app) — without this module depending on it. {@code userId} reflects the session's CURRENT
-     * login (re-read each tick).
+     * login, re-read each tick. {@code sessionFamilyId} is not a monitor fact at all but the address a
+     * revoked session is reached at: it lets the push layer tell exactly the clients of a revoked family
+     * that they are over, instead of leaving each to find out at its next message. It is re-read each
+     * tick too, but it does NOT follow a logout the way the userId does — the syncer only ever records a
+     * family it verified, so a logged-out session goes on naming its last one.
+     *
+     * <p>{@code ownerSessionId} is what makes that address safe to act on. The runId above is CHOSEN BY THE
+     * CLIENT — it arrives in the message state and nothing authenticates it — while the family beside it
+     * comes from a token this server verified. Handed over as a bare pair, the two would let a caller file
+     * its own (perfectly genuine) family under somebody else's runId, and then sign that person out simply
+     * by ending its own session. So the session that first claims a runId owns it, and a later claim from a
+     * different session is refused rather than believed.
      */
     @FunctionalInterface
     public interface ClientLiveListener {
-        void onClientLive(Object runId, Object userId, String clientVersion, Boolean pwa, String clientProfile, Boolean backoffice);
+        void onClientLive(Object runId, Object userId, String clientVersion, Boolean pwa, String clientProfile, Boolean backoffice, String sessionFamilyId, String ownerSessionId);
     }
 
     private static ClientLiveListener clientLiveListener;
@@ -137,7 +158,7 @@ public final class ServerJsonBusStateManager implements JsonBusConstants {
                 // Read the invariant client facts from the session (the client sent them once at
                 // connection). Re-supplied on every live tick so a push entry created after connect
                 // still picks them up.
-                clientLiveListener.onClientLive(runId, SessionAccessor.getUserId(session), SessionAccessor.getClientVersion(session), SessionAccessor.getPwa(session), SessionAccessor.getClientProfile(session), SessionAccessor.isBackoffice(session));
+                clientLiveListener.onClientLive(runId, SessionAccessor.getUserId(session), SessionAccessor.getClientVersion(session), SessionAccessor.getPwa(session), SessionAccessor.getClientProfile(session), SessionAccessor.isBackoffice(session), SessionAccessor.getSessionFamilyId(session), session.id());
                 return true; // to tell that we found the runId
             }
             Console.warn("ServerJsonBusStateManager.clientIsLive() was called but no runId could be found (session id = " + session.id() + ", ping = " + ping + ")");

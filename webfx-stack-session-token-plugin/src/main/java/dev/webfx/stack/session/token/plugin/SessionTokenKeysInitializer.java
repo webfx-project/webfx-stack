@@ -6,7 +6,11 @@ import dev.webfx.platform.conf.ConfigLoader;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.meta.Meta;
 import dev.webfx.platform.substitution.Substitutor;
+import dev.webfx.stack.db.querypush.SessionSecurityMonitorInfo;
+import dev.webfx.stack.db.querypush.SessionSecurityMonitorRegistry;
 import dev.webfx.stack.session.token.IdentityTokenPolicy;
+import dev.webfx.stack.session.token.RevokedFamilies;
+import dev.webfx.stack.session.token.SessionFamilyStoreRegistry;
 import dev.webfx.stack.session.token.SessionLifetime;
 import dev.webfx.stack.session.token.SessionTier;
 import dev.webfx.stack.session.token.SignedToken;
@@ -38,8 +42,29 @@ public final class SessionTokenKeysInitializer implements ApplicationJob {
     private static final String REQUIRED_KEY = "required";
     private static final String LIFETIME_SCALE_KEY = "lifetimeScale";
 
+    /**
+     * Publishes what the identity machinery is doing, for the /monitor page to show.
+     *
+     * <p>Pushed to the monitor rather than pulled by it: the reporting side knows nothing about tokens,
+     * families or revocation, and a deployment without any of this registers nothing and shows no
+     * security section. Registered at init, and read on every poll — the figures are live, not a
+     * snapshot taken now.
+     */
+    private static void publishSecurityFigures() {
+        SessionSecurityMonitorRegistry.register(() -> new SessionSecurityMonitorInfo(
+            RevokedFamilies.size(),
+            RevokedFamilies.refusalsSinceBoot(),
+            RevokedFamilies.lastPollAgeMillis(System.currentTimeMillis()),
+            IdentityTokenPolicy.isTokenRequired(),
+            SessionLifetime.getScale(),
+            // Whether a poll is even expected here: without this, a deployment that keeps no families
+            // and one whose poll has never run are the same two figures, and both look calm.
+            SessionFamilyStoreRegistry.getStore() != null));
+    }
+
     @Override
     public void onInit() {
+        publishSecurityFigures();
         ConfigLoader.onConfigLoaded(CONFIG_PATH, this::onConfigLoaded);
     }
 
@@ -118,7 +143,7 @@ public final class SessionTokenKeysInitializer implements ApplicationJob {
                     + " / absolute " + seconds(SessionLifetime.absoluteLifetimeMillis(SessionTier.BACK_OFFICE))
                     + "; front office idle " + seconds(SessionLifetime.idleWindowMillis(SessionTier.FRONT_OFFICE))
                     + " / absolute " + seconds(SessionLifetime.absoluteLifetimeMillis(SessionTier.FRONT_OFFICE))
-                    + "; reuse grace " + seconds(SessionLifetime.REUSE_GRACE_MILLIS) + " (not scaled)."
+                    + "; a retired generation is judged by how far behind it is, not by a clock."
                     // A session opened before this boot keeps the absolute bound it was opened with — the store
                     // hands it back on every renewal — so without this, the cap is tested on a session it
                     // does not apply to and the banner that should come never does.

@@ -91,6 +91,12 @@ public class LocalOrRemoteQueryPushServiceProvider implements QueryPushServicePr
         return null;
     }
 
+    @Override
+    public String getStreamStatement(Object queryStreamId) {
+        // Client-side provider: streams are held by the server, which completes its own updates.
+        return null;
+    }
+
     protected QueryPushServiceProvider getOrCreateLocalConnectedProvider(Object dataSourceId) {
         QueryPushServiceProvider localConnectedProvider = LocalQueryPushServiceProviderRegistry.getLocalConnectedProvider(dataSourceId);
         if (localConnectedProvider == null) {

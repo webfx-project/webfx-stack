@@ -31,6 +31,9 @@ public final class SessionFamilyStoreRegistry {
      */
     public static void register(SessionFamilyStore store) {
         SessionFamilyStoreRegistry.store = store;
+        // Family ids belong to the store that issued them, so anything remembered about the previous
+        // store's families answers about sessions this one has never heard of.
+        RevokedFamilies.clear();
         Console.log("🔑 Session families are recorded — renewal rotates the token and a retired one ends the family");
     }
 

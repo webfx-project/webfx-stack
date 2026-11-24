@@ -53,14 +53,12 @@
         <module>webfx-stack-authn-login-server-gateway</module>
         <module>webfx-stack-authn-login-server-gateway-facebook-plugin</module>
         <module>webfx-stack-authn-login-server-gateway-google-plugin</module>
-        <module>webfx-stack-authn-login-server-gateway-mojoauth-plugin</module>
         <module>webfx-stack-authn-login-server-portal</module>
         <module>webfx-stack-authn-login-ui</module>
         <module>webfx-stack-authn-login-ui-gateway</module>
         <module>webfx-stack-authn-login-ui-gateway-facebook-plugin</module>
         <module>webfx-stack-authn-login-ui-gateway-google-plugin</module>
         <module>webfx-stack-authn-login-ui-gateway-magiclink-plugin</module>
-        <module>webfx-stack-authn-login-ui-gateway-mojoauth-plugin</module>
         <module>webfx-stack-authn-login-ui-gateway-password-plugin</module>
         <module>webfx-stack-authn-login-ui-gateway-webviewbased</module>
         <module>webfx-stack-authn-login-ui-gateway-webviewbased-openjfx</module>
@@ -74,7 +72,6 @@
         <module>webfx-stack-authn-server-gateway</module>
         <module>webfx-stack-authn-server-gateway-facebook-plugin</module>
         <module>webfx-stack-authn-server-gateway-google-plugin</module>
-        <module>webfx-stack-authn-server-gateway-mojoauth-plugin</module>
         <module>webfx-stack-authn-server-portal</module>
         <module>webfx-stack-authz-client</module>
         <module>webfx-stack-authz-core</module>
@@ -109,6 +106,7 @@
         <module>webfx-stack-db-migration</module>
         <module>webfx-stack-db-query</module>
         <module>webfx-stack-db-query-buscall</module>
+        <module>webfx-stack-db-query-cli</module>
         <module>webfx-stack-db-query-remote</module>
         <module>webfx-stack-db-query-serial</module>
         <module>webfx-stack-db-querypush</module>
