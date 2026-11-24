@@ -23,6 +23,7 @@ module webfx.stack.db.query.cli {
     requires webfx.stack.db.datasource;
     requires webfx.stack.db.query;
     requires webfx.stack.db.query.remote;
+    requires webfx.stack.push;
     requires webfx.stack.session.state;
     requires webfx.stack.session.state.client;
 

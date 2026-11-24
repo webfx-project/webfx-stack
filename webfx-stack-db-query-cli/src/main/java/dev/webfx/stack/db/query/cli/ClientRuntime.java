@@ -7,11 +7,15 @@ import dev.webfx.platform.conf.ConfigLoader;
 import dev.webfx.stack.com.bus.Bus;
 import dev.webfx.stack.com.bus.BusService;
 import dev.webfx.stack.com.bus.call.BusCallModuleBooter;
+import dev.webfx.stack.com.bus.call.BusCallService;
+import dev.webfx.stack.push.ClientPushBusAddressesSharedByBothClientAndServer;
+import dev.webfx.stack.session.state.client.ClientSideStateSession;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 
 /**
  * Boots a headless WebFX client, connects its bus, and refuses to hand anything back until the process is in
@@ -20,10 +24,18 @@ import java.util.concurrent.TimeoutException;
  * <h3>It does not boot, and that is the point of where it sits</h3>
  *
  * <p>The platform has already booted by the time any command runs: {@code ApplicationBooter} is the entry
- * point, the configuration was substituted at {@code CONF_BOOT_LEVEL} (3) with the server supplied by the
- * application's own variables resolver, and the bus began connecting at
- * {@code COMMUNICATION_REGISTER_BOOT_LEVEL} (5). So this class does not start anything — it checks that what
- * started is what was asked for, and waits.
+ * point, the configuration is loaded, and the application's own variables resolver stands ready to supply the
+ * server. So this class does not start anything — it checks that what started is what was asked for, and
+ * waits.
+ *
+ * <p><b>The configuration substitutes its variables on READ, not at a boot level.</b> {@code ConfigImpl}
+ * calls {@code Substitutor.substitute} in its getter, per value, so {@code BUS_SERVER_HOST} and its two
+ * companions are resolved at whatever moment something first asks for them — which is when the bus is created.
+ * In an ordinary WebFX client that is {@code COMMUNICATION_REGISTER_BOOT_LEVEL} (5), during the boot; here the
+ * endpoint registration is deferred for a command-line program, so it is {@link #connect} below, after the
+ * boot. An earlier version of this comment claimed substitution happened once at {@code CONF_BOOT_LEVEL} (3),
+ * and that claim cost an afternoon: {@code signout} deletes its session cache before connecting, and so
+ * deleted the answer the resolver had not yet been asked for.
  *
  * <h3>The order here is the design</h3>
  *
@@ -82,6 +94,7 @@ public final class ClientRuntime implements AutoCloseable {
             throw new IllegalStateException("This build cannot issue a meaningful probe: " + pathProblem);
 
         awaitOpen(bus, connectTimeoutMillis, endpoint);
+        listenForServerPushes();
         return new ClientRuntime(endpoint, dataSourceId, bus);
     }
 
@@ -144,6 +157,64 @@ public final class ClientRuntime implements AutoCloseable {
         } catch (RuntimeException e) {
             // Closing a socket we are finished with: nothing a run's result depends on.
         }
+    }
+
+    /**
+     * Registers the two addresses a server reaches this client on — which is a precondition for signing in at
+     * all, not a convenience.
+     *
+     * <h3>The session arrives by push, not by reply</h3>
+     *
+     * <p>{@code ModalityPasswordAuthenticationGateway.mintAndPush} mints the authenticated state and then
+     * composes {@code PushServerService.pushState(state, runId)}, mapping the reply to {@code null}. So the
+     * authenticate call answers with nothing and the token is delivered to
+     * {@code busCallService/client/<runId>}; renewal and logout reach a client the same way. A client not
+     * listening there fails its sign-in with {@code Server error: No handlers for address
+     * busCallService/client/…} <i>after</i> the password has been accepted and the session minted — the
+     * server is reporting that it could not hand over what it had just created.
+     *
+     * <h3>Why this is done here rather than by the push client module</h3>
+     *
+     * <p>{@code PushClientService} does exactly these two registrations, from a static initializer, hooked to
+     * {@code FXConnected}. Depending on it was tried and reverted: {@code webfx-stack-push-client-simple}
+     * resolves {@code webfx-stack-db-querypush-client-simple} with it, whose {@code SimpleQueryPushClientJob}
+     * touches {@code PushClientService} during the BOOT — and registering a bus-call endpoint instantiates the
+     * bus, so every command that never reaches a server, {@code help} and {@code status} included, would dial
+     * whatever host the configuration defaults to. That is the same connection {@code BusCallModuleBooter}
+     * defers for a CLI, arriving by another door. It also brought {@code javafx.controls}, the Modality client
+     * entity, i18n and time modules and two visual registry SPIs into a terminal program.
+     *
+     * <p>So the registrations are made here, at the one moment a command has turned out to need a server, from
+     * the addresses' own shared constants rather than from a copy of their format.
+     *
+     * <p><b>Once, for the current run id.</b> A browser client re-registers on every reconnect because it
+     * lives for hours; this process signs in once and exits. A run id that changed mid-run would leave the
+     * client listening at the previous address, which is worth knowing and is not worth a listener here.
+     */
+    private static void listenForServerPushes() {
+        String runId = ClientSideStateSession.getInstance().getRunId();
+        if (runId == null)
+            throw new IllegalStateException(
+                "This client has no run id, so the server would have no address to deliver a session to."
+                + " Signing in would fail with 'No handlers for address busCallService/client/null' after the"
+                + " password had already been accepted. Refusing before that happens.");
+        // The ping endpoint, as PushClientService registers it — but SILENT, unlike that one.
+        //
+        // It was logged at first, on the reasoning that a tool whose subject is what the server does to a
+        // caller should say when the server calls it. That is right in general and wrong here: a keep-alive
+        // ping is the only thing this address receives, so the line carried no information and arrived twice
+        // per invocation — 44 lines across a 22-probe sweep. PushClientService logs it because a browser
+        // client connects once and lives for hours; a one-shot command connects, asks one question and exits.
+        //
+        // Anything OTHER than a ping would arrive at the run's own address below, not here, and that one is a
+        // bus entry point whose calls are dispatched to real endpoints rather than swallowed.
+        Function<Object, Object> pingListener = argument -> null;
+        BusCallService.registerBusCallEndpoint(
+            ClientPushBusAddressesSharedByBothClientAndServer.PUSH_PING_CLIENT_LISTENER_SERVICE_ADDRESS,
+            pingListener);
+        // And the client's own address, which is what the server's push is actually addressed to.
+        BusCallService.listenBusEntryCalls(
+            ClientPushBusAddressesSharedByBothClientAndServer.computeClientBusCallServiceAddress(runId));
     }
 
     /**

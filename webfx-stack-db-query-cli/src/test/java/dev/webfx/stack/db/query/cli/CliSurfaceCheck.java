@@ -89,8 +89,23 @@ public class CliSurfaceCheck {
               249 == new DqlResult(new QueryResult(1, 1, new Object[] {249L}, new String[] {"n"})).count());
         check("a result with more than one row is NOT read as a count",
               refusesState(() -> new DqlResult(new QueryResult(2, 1, new Object[] {1L, 2L}, new String[] {"n"})).count()));
-        check("a result with more than one column is NOT read as a count",
-              refusesState(() -> new DqlResult(new QueryResult(1, 2, new Object[] {1L, 2L}, new String[] {"a", "b"})).count()));
+        // The shape the first real run actually returned: a Modality DQL entity query carries the entity's own
+        // column as well as the select list, so `select count(1) as n from Conversation` came back as 1 row of
+        // 2 columns. Reading position 0 would have read an id as a count - a number, silently wrong.
+        // The shape the first real run returned: Modality DQL prepends a column of its own, and the result
+        // carries NO column names, so the count is the last column and position 0 is the placeholder. A
+        // reader taking position 0 would have answered 1 for every probe - plausible and silently wrong.
+        check("the count is the LAST column, not position 0",
+              249 == new DqlResult(new QueryResult(1, 2, new Object[] {1L, 249L}, null)).count());
+        check("a single-column count still reads",
+              249 == new DqlResult(new QueryResult(1, 1, new Object[] {249L}, null)).count());
+        check("three columns are refused rather than guessed at",
+              refusesState(() -> new DqlResult(new QueryResult(1, 3, new Object[] {1L, 2L, 3L}, null)).count()));
+        check("and the refusal says Modality prepends a column, which is what explains the shape",
+              messageOf(() -> new DqlResult(new QueryResult(1, 3, new Object[] {1L, 2L, 3L}, null)).count())
+                  .contains("prepends"));
+        check("a placeholder in the count's position is still refused when it is not a number",
+              refusesState(() -> new DqlResult(new QueryResult(1, 2, new Object[] {1L, "249"}, null)).count()));
         check("a non-numeric single value is NOT read as a count",
               refusesState(() -> new DqlResult(new QueryResult(1, 1, new Object[] {"249"}, new String[] {"n"})).count()));
         check("rowCount is reported separately and is not the count",
