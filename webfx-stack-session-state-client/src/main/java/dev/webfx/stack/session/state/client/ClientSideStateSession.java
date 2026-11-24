@@ -1,6 +1,5 @@
 package dev.webfx.stack.session.state.client;
 
-import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.meta.Meta;
 import dev.webfx.platform.storage.LocalStorage;
@@ -142,7 +141,7 @@ public final class ClientSideStateSession {
         // 1) there is no danger of UI thread exception at this point
         // 2) the sequencing can be very sensitive on boot time, and postponing the call will probably alter the boot
         // sequence and create problems.
-        if (!WebFxKitLauncher.isReady())
+        if (!UiScheduler.isUiThreadReady())
             runnable.run();
         else // Once the JavaFX UI has started, we ensure it runs in the UI thread
             UiScheduler.runInUiThread(runnable);
